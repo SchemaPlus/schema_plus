@@ -1,0 +1,109 @@
+[REVISION 20080131]
+
+[FIXED] Stack-level too deep.
+
+[NEW] Generate foreign keys for databases that currently have none. Doesn't check to see if the foreign key already exists, nor does it drop the foreign keys yet.
+
+[REVISION 20071128]
+
+[FIXED] Workaround to ensure plugin is only ever loaded once.
+
+[REVISION 20070905]
+
+[FIXED] "some_column_name" referenced in foreign key constraint does not exist.
+
+[REVISION 20070904]
+
+[NEW] Support :references keyword when calling primary_key().
+
+[NEW] [#11995] the parameter :references needs the second argument referencing the field name.
+
+[REVISION 20070707]
+
+[NEW] Support acts_as_tree convention: if a column is named parent_id it will be treated as a circular reference to the table in which it is defined.
+
+[REVISION 20070703]
+
+[FIXED] Foreign-keys not created when using add_column.
+
+[REVISION 20070628]
+
+[FIXED] Stack level too deep in 'add_column_without_foreign_key_migrations' (Ronen Barzel).
+
+[REVISION 20070503]
+
+[NEW] Support for SQL92 [NOT] DEFERRABLE on foreign keys.
+
+[REVISION 20061202]
+
+[CHANGED] Use Rails 1.2 alias_method_chain.
+
+[CHANGED] Separate modules into individual files.
+
+[REVISION 20061013]
+
+[NEW] install.rb informs user of missing dependencies.
+
+[REVISION 20060909]
+
+[CHANGED] Replaced dependence on defunct Foreign Key Support and Schema Defining plugins with a single dependece on RedHill on Rails Core.
+
+[REVISION 20060831]
+
+[CHANGED] Separated out generic foreign-key functionality into new foreign key support plugin.
+
+[REVISION 20060629]
+
+[NEW] Added foreign_key method to table to allow t.foreign_key(columns, references_table_name, references_column_names, options).
+
+[NEW] Support foreign keys in add_column as we do for initial table columns.
+
+[NEW] Support :on_update and :on_delete as options--with values of :set_null, :cascade, or :restrict--for all foreign key creation mechanisms.
+
+[REVISION 20060627]
+
+[CHANGED] Reverted to overloaded column method with optional :references as the preferred mechanism with belongs_to a "nicety". This is really as a result of using it in a large-scale production application where belongs_to just didn't feel right in many cases and was semantically ambiguous.
+
+[REVISION 20060824]
+
+[CHANGED] Replaced method and column option :references with :belongs_to in keeping with the rails model keywords. The references variations are still available but have been deprecated and will be removed.
+
+[NEW] Added options :dependent => :nullify to SET NULL or :dependent => :delete_all | :destroy to CASCADE DELETE.
+
+[REVISION 20060812]
+
+[NEW] Added new table method references(table, options) which is essentially an alias for column(:table_id, :integer, options).
+
+[REVISION 20060803]
+
+[FIXED] The method proper_pluralized_table_name tries to call pluralize_table_name where it should call pluralized_table_name.
+
+[REVISION 20060623]
+
+[FIXED] Another try at a hack-around for a "feature" of pluralize that when called to pluralize a word that is already in the plural, acts as singularize.
+
+[REVISION 20060616]
+
+[FIXED] Hack-around for a "feature" of pluralize that when called to pluralize a word that is already in the plural, acts as singularize. Ie. "countries".pluralize becomes "country"!
+
+[REVISION 200606004]
+
+[CHANGED] This plugin now depends on Schema Defining!
+
+[REVISION 20060602]
+
+[CHANGED] Simplified static method overriding thanks to Ryan Tomayko.
+
+[REVISION 20060525]
+
+[CHANGED] Disabled foreign-key generation when executing a schema dump. This is a temporary measure until I get around to batching up the foreign keys at the end of the script.
+
+[REVISION 20060523]
+
+[NEW] Support :references => nil to prevent unwanted foreign-keys.
+
+[FIXED] Pluralization.
+
+[REVISION 20060522]
+
+[FIXED] Infinite recursion caused by bug in 1.8.4 method_alias on windows.
