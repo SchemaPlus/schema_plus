@@ -14,14 +14,14 @@ Gem::Specification.new do |s|
 constraints when creating tables. It uses SQL-92 syntax and as such should be compatible with most databases that support foreign-key constraints.}
   s.email = %q{michal.lomnicki@gmail.com}
   s.extra_rdoc_files = [
-    "README"
+    "README.rdoc"
   ]
   s.files = [
     ".document",
      ".gitignore",
      "CHANGELOG",
      "MIT-LICENSE",
-     "README",
+     "README.rdoc",
      "Rakefile",
      "VERSION",
      "foreign_key_migrations.gemspec",
