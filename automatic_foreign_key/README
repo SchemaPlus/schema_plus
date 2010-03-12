@@ -81,6 +81,10 @@ configuration properties:
 
 * RedHill on Rails Core (redhillonrails_core).
 
+=== NOTE
+
+* This plugin was created by harukizaemon(http://github.com/harukizaemon) but is not supported currently by him.
+
 === See Also
 
 * Foreign Key Associations (foreign_key_associations).
