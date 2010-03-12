@@ -6,14 +6,7 @@ begin
   Jeweler::Tasks.new do |gem|
     gem.name = "redhillonrails_core"
     gem.summary = %Q{RedHill on Rails Core is a plugin that features to support other RedHill on Rails plugins}
-    gem.description = %Q{
-RedHill on Rails Core is a plugin that features to support other RedHill on Rails plugins.  Those features include:
-
-* Creating and dropping views;
-* Creating and removing foreign-keys;
-* Obtaining indexes directly from a model class; and
-* Determining when <code>Schema.define()</code> is running.
-}
+    gem.description = %Q{RedHill on Rails Core is a plugin that features to support other RedHill on Rails plugins. It creates and drops views and foreign-keys or obtains indexes directly from a model class.}
     gem.email = "michal.lomnicki@gmail.com"
     gem.homepage = "http://github.com/mlomnicki/redhillonrails_core"
     gem.authors = ["Michał Łomnicki"]

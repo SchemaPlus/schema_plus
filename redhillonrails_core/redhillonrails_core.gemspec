@@ -10,14 +10,7 @@ Gem::Specification.new do |s|
   s.required_rubygems_version = Gem::Requirement.new(">= 0") if s.respond_to? :required_rubygems_version=
   s.authors = ["Micha\305\202 \305\201omnicki"]
   s.date = %q{2010-03-13}
-  s.description = %q{
-RedHill on Rails Core is a plugin that features to support other RedHill on Rails plugins.  Those features include:
-
-* Creating and dropping views;
-* Creating and removing foreign-keys;
-* Obtaining indexes directly from a model class; and
-* Determining when <code>Schema.define()</code> is running.
-}
+  s.description = %q{RedHill on Rails Core is a plugin that features to support other RedHill on Rails plugins. It creates and drops views and foreign-keys or obtains indexes directly from a model class.}
   s.email = %q{michal.lomnicki@gmail.com}
   s.extra_rdoc_files = [
     "README.rdoc"
