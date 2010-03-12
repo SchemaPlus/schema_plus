@@ -20,14 +20,16 @@ RedHill on Rails Core is a plugin that features to support other RedHill on Rail
 }
   s.email = %q{michal.lomnicki@gmail.com}
   s.extra_rdoc_files = [
-    "README"
+    "README.rdoc"
   ]
   s.files = [
     ".document",
      ".gitignore",
      "CHANGELOG",
      "MIT-LICENSE",
-     "README",
+     "README.rdoc",
+     "Rakefile",
+     "VERSION",
      "init.rb",
      "lib/red_hill_consulting/core/active_record/base.rb",
      "lib/red_hill_consulting/core/active_record/connection_adapters/abstract_adapter.rb",
@@ -45,6 +47,7 @@ RedHill on Rails Core is a plugin that features to support other RedHill on Rail
      "lib/red_hill_consulting/core/active_record/schema.rb",
      "lib/red_hill_consulting/core/active_record/schema_dumper.rb",
      "lib/redhillonrails_core.rb",
+     "redhillonrails_core.gemspec",
      "tasks/db/comments.rake"
   ]
   s.homepage = %q{http://github.com/mlomnicki/redhillonrails_core}
