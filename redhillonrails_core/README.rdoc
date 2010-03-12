@@ -1,3 +1,5 @@
+NOTE: This plugin was created by harukizaemon(http://github.com/harukizaemon) but is not supported currently by him.
+
 = RedHill on Rails Core
 
 RedHill on Rails Core is a plugin that features to support other RedHill on Rails plugins.  Those features include:
