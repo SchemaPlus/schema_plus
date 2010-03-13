@@ -1,18 +1,18 @@
-module RedHillConsulting::ForeignKeyMigrations::ActiveRecord::ConnectionAdapters
+module RedHillConsulting::AutomaticForeignKey::ActiveRecord::ConnectionAdapters
   module TableDefinition
     def self.included(base)
       base.class_eval do
-        alias_method_chain :column, :foreign_key_migrations
-        alias_method_chain :primary_key, :foreign_key_migrations
+        alias_method_chain :column, :automatic_foreign_key
+        alias_method_chain :primary_key, :automatic_foreign_key
       end
     end
 
-    def primary_key_with_foreign_key_migrations(name, options = {})
+    def primary_key_with_automatic_foreign_key(name, options = {})
       column(name, :primary_key, options)
     end
 
-    def column_with_foreign_key_migrations(name, type, options = {})
-      column_without_foreign_key_migrations(name, type, options)
+    def column_with_automatic_foreign_key(name, type, options = {})
+      column_without_automatic_foreign_key(name, type, options)
       references = ActiveRecord::Base.references(self.name, name, options)
       foreign_key(name, references.first, references.last, options) if references
       self

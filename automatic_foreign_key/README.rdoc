@@ -1,6 +1,6 @@
-= Foreign Key Migrations
+= Automatic Foreign Key
 
-Foreign Key Migrations is a plugin that automatically generates foreign-key
+Automatic Foreign Key is an ActiveRecord extension that automatically generates foreign-key
 constraints when creating tables. It uses SQL-92 syntax and as such should be
 compatible with most databases that support foreign-key constraints.
 
@@ -83,13 +83,10 @@ configuration properties:
 
 === NOTE
 
-* This plugin was created by harukizaemon(http://github.com/harukizaemon) but is not supported currently by him.
-
-=== See Also
-
-* Foreign Key Associations (foreign_key_associations).
+* Code was created by harukizaemon(http://github.com/harukizaemon) but is not supported currently by him.
+* Former name was foreign_key_migrations
 
 === License
 
-This plugin is copyright 2006 by RedHill Consulting, Pty. Ltd. and is released
+This plugin is copyright 2010 by Michał Łomnicki and is released
 under the MIT license.

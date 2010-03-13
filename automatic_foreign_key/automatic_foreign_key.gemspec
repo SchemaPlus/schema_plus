@@ -4,13 +4,13 @@
 # -*- encoding: utf-8 -*-
 
 Gem::Specification.new do |s|
-  s.name = %q{foreign_key_migrations}
+  s.name = %q{automatic_foreign_key}
   s.version = "1.0.0"
 
   s.required_rubygems_version = Gem::Requirement.new(">= 0") if s.respond_to? :required_rubygems_version=
   s.authors = ["Micha\305\202 \305\201omnicki"]
   s.date = %q{2010-03-13}
-  s.description = %q{Foreign Key Migrations is a plugin that automatically generates foreign-key
+  s.description = %q{Automatic Key Migrations is a gem that automatically generates foreign-key
 constraints when creating tables. It uses SQL-92 syntax and as such should be compatible with most databases that support foreign-key constraints.}
   s.email = %q{michal.lomnicki@gmail.com}
   s.extra_rdoc_files = [
@@ -24,17 +24,17 @@ constraints when creating tables. It uses SQL-92 syntax and as such should be co
      "README.rdoc",
      "Rakefile",
      "VERSION",
-     "foreign_key_migrations.gemspec",
+     "automatic_foreign_key.gemspec",
      "generators/foreign_key_migration/foreign_key_migration_generator.rb",
      "generators/foreign_key_migration/templates/migration.rb",
      "init.rb",
      "install.rb",
-     "lib/foreign_key_migrations.rb",
-     "lib/red_hill_consulting/foreign_key_migrations/active_record/base.rb",
-     "lib/red_hill_consulting/foreign_key_migrations/active_record/connection_adapters/table_definition.rb",
-     "lib/red_hill_consulting/foreign_key_migrations/active_record/migration.rb"
+     "lib/automatic_foreign_key.rb",
+     "lib/red_hill_consulting/automatic_foreign_key/active_record/base.rb",
+     "lib/red_hill_consulting/automatic_foreign_key/active_record/connection_adapters/table_definition.rb",
+     "lib/red_hill_consulting/automatic_foreign_key/active_record/migration.rb"
   ]
-  s.homepage = %q{http://github.com/mlomnicki/foreign_key_migrations}
+  s.homepage = %q{http://github.com/mlomnicki/automatic_foreign_key}
   s.rdoc_options = ["--charset=UTF-8"]
   s.require_paths = ["lib"]
   s.rubygems_version = %q{1.3.5}

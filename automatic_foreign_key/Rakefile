@@ -4,12 +4,12 @@ require 'rake'
 begin
   require 'jeweler'
   Jeweler::Tasks.new do |gem|
-    gem.name = "foreign_key_migrations"
+    gem.name = "automatic_foreign_key"
     gem.summary = %Q{Automatically generate foreign-key constraints when creating tables}
-    gem.description = %Q{Foreign Key Migrations is a plugin that automatically generates foreign-key
+    gem.description = %Q{Automatic Key Migrations is a gem that automatically generates foreign-key
 constraints when creating tables. It uses SQL-92 syntax and as such should be compatible with most databases that support foreign-key constraints.}
     gem.email = "michal.lomnicki@gmail.com"
-    gem.homepage = "http://github.com/mlomnicki/foreign_key_migrations"
+    gem.homepage = "http://github.com/mlomnicki/automatic_foreign_key"
     gem.authors = ["Michał Łomnicki"]
     gem.add_dependency "redhillonrails_core", ">= 1.0.0"
     # gem is a Gem::Specification... see http://www.rubygems.org/read/chapter/20 for additional settings
@@ -48,7 +48,7 @@ Rake::RDocTask.new do |rdoc|
   version = File.exist?('VERSION') ? File.read('VERSION') : ""
 
   rdoc.rdoc_dir = 'rdoc'
-  rdoc.title = "foreign_key_migrations #{version}"
+  rdoc.title = "automatic_foreign_key #{version}"
   rdoc.rdoc_files.include('README*')
   rdoc.rdoc_files.include('lib/**/*.rb')
 end

@@ -1,1 +1,1 @@
-require 'foreign_key_migrations' unless defined?(RedHillConsulting::ForeignKeyMigrations)
+require 'automatic_foreign_key' unless defined?(RedHillConsulting::AutomaticForeignKey)
