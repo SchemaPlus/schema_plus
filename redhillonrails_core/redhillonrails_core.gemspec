@@ -24,6 +24,8 @@ Gem::Specification.new do |s|
      "Rakefile",
      "VERSION",
      "init.rb",
+     "lib/red_hill_consulting/core.rb",
+     "lib/red_hill_consulting/core/active_record.rb",
      "lib/red_hill_consulting/core/active_record/base.rb",
      "lib/red_hill_consulting/core/active_record/connection_adapters/abstract_adapter.rb",
      "lib/red_hill_consulting/core/active_record/connection_adapters/column.rb",

@@ -1,4 +1,8 @@
+require 'red_hill_consulting/core'
+require 'red_hill_consulting/core/active_record'
 require 'red_hill_consulting/core/active_record/base'
+require 'red_hill_consulting/core/active_record/schema'
+require 'red_hill_consulting/core/active_record/schema_dumper'
 require 'red_hill_consulting/core/active_record/connection_adapters/abstract_adapter'
 require 'red_hill_consulting/core/active_record/connection_adapters/foreign_key_definition'
 require 'red_hill_consulting/core/active_record/connection_adapters/column'
