@@ -8,8 +8,8 @@ Gem::Specification.new do |s|
   s.version = "1.0.0"
 
   s.required_rubygems_version = Gem::Requirement.new(">= 0") if s.respond_to? :required_rubygems_version=
-  s.authors = ["Micha\305\202 \305\201omnicki"]
-  s.date = %q{2010-03-13}
+  s.authors = ["Michał Łomnicki"]
+  s.date = %q{2010-03-29}
   s.description = %q{Automatic Key Migrations is a gem that automatically generates foreign-key
 constraints when creating tables. It uses SQL-92 syntax and as such should be compatible with most databases that support foreign-key constraints.}
   s.email = %q{michal.lomnicki@gmail.com}
@@ -30,14 +30,14 @@ constraints when creating tables. It uses SQL-92 syntax and as such should be co
      "init.rb",
      "install.rb",
      "lib/automatic_foreign_key.rb",
-     "lib/red_hill_consulting/automatic_foreign_key/active_record/base.rb",
-     "lib/red_hill_consulting/automatic_foreign_key/active_record/connection_adapters/table_definition.rb",
-     "lib/red_hill_consulting/automatic_foreign_key/active_record/migration.rb"
+     "lib/automatic_foreign_key/active_record/base.rb",
+     "lib/automatic_foreign_key/active_record/connection_adapters/table_definition.rb",
+     "lib/automatic_foreign_key/active_record/migration.rb"
   ]
   s.homepage = %q{http://github.com/mlomnicki/automatic_foreign_key}
   s.rdoc_options = ["--charset=UTF-8"]
   s.require_paths = ["lib"]
-  s.rubygems_version = %q{1.3.5}
+  s.rubygems_version = %q{1.3.6}
   s.summary = %q{Automatically generate foreign-key constraints when creating tables}
 
   if s.respond_to? :specification_version then
@@ -45,12 +45,12 @@ constraints when creating tables. It uses SQL-92 syntax and as such should be co
     s.specification_version = 3
 
     if Gem::Version.new(Gem::RubyGemsVersion) >= Gem::Version.new('1.2.0') then
-      s.add_runtime_dependency(%q<redhillonrails_core>, [">= 1.0.0"])
+      s.add_runtime_dependency(%q<redhillonrails_core>, [">= 1.0.2"])
     else
-      s.add_dependency(%q<redhillonrails_core>, [">= 1.0.0"])
+      s.add_dependency(%q<redhillonrails_core>, [">= 1.0.2"])
     end
   else
-    s.add_dependency(%q<redhillonrails_core>, [">= 1.0.0"])
+    s.add_dependency(%q<redhillonrails_core>, [">= 1.0.2"])
   end
 end
 
