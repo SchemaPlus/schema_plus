@@ -77,6 +77,14 @@ configuration properties:
 * <code>config.active_record.table_name_prefix</code>
 * <code>config.active_record.table_name_suffix</code>
 
+=== Rails 3 compatibility
+
+    Automatic foreign key is fully compatibly with Rails 3.
+
+=== Rails 2.x compatibility
+    
+    Everything but generator is compatible
+
 === Dependencies
 
 * RedHill on Rails Core (redhillonrails_core).
