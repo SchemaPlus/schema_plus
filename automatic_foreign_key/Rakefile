@@ -41,9 +41,32 @@ rescue LoadError
   end
 end
 
-task :test => :check_dependencies
+require 'spec/rake/spectask'
+%w[postgresql mysql].each do |adapter|
+  namespace adapter do
+    Spec::Rake::SpecTask.new(:spec) do |spec|
+      spec.libs << 'lib' << 'spec' << "spec/connections/#{adapter}"
+      spec.spec_files = FileList['spec/**/*_spec.rb']
+    end
+  end
+end
 
-task :default => :test
+desc 'Run postgresql tests'
+task :spec do 
+  %w[postgresql].each do |adapter|
+    Rake::Task["#{adapter}:spec"].invoke
+  end
+end
+
+task :spec => :check_dependencies
+
+task :default => :spec
+
+Spec::Rake::SpecTask.new(:rcov) do |spec|
+  spec.libs << 'lib' << 'spec'
+  spec.pattern = 'spec/**/*_spec.rb'
+  spec.rcov = true
+end
 
 require 'rake/rdoctask'
 Rake::RDocTask.new do |rdoc|
@@ -54,3 +77,26 @@ Rake::RDocTask.new do |rdoc|
   rdoc.rdoc_files.include('README*')
   rdoc.rdoc_files.include('lib/**/*.rb')
 end
+
+namespace :postgresql do
+  desc 'Build the PostgreSQL test databases'
+  task :build_databases do
+    %x( createdb -E UTF8 afk_unittest )
+    %x( createdb -E UTF8 afk_unittest2 )
+  end
+
+  desc 'Drop the PostgreSQL test databases'
+  task :drop_databases do
+    %x( dropdb afk_unittest )
+    %x( dropdb afk_unittest2 )
+  end
+
+  desc 'Rebuild the PostgreSQL test databases'
+  task :rebuild_databases => [:drop_databases, :build_databases]
+end
+
+task :build_postgresql_databases => 'postgresql:build_databases'
+task :drop_postgresql_databases => 'postgresql:drop_databases'
+task :rebuild_postgresql_databases => 'postgresql:rebuild_databases'
+
+
