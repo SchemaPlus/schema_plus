@@ -1,3 +1,10 @@
+begin 
+  require 'active_record'
+rescue
+  gem 'active_record'
+  require 'active_record'
+end
+
 require 'red_hill_consulting/core'
 require 'red_hill_consulting/core/active_record'
 require 'red_hill_consulting/core/active_record/base'
@@ -23,10 +30,12 @@ ActiveRecord::ConnectionAdapters::Column.send(:include, RedHillConsulting::Core:
 ActiveRecord::ConnectionAdapters::AbstractAdapter.send(:include, RedHillConsulting::Core::ActiveRecord::ConnectionAdapters::AbstractAdapter)
 ActiveRecord::ConnectionAdapters::SchemaStatements.send(:include, RedHillConsulting::Core::ActiveRecord::ConnectionAdapters::SchemaStatements)
 
-if defined?(ActiveRecord::ConnectionAdapters::PostgreSQLAdapter) then
+begin
   ActiveRecord::ConnectionAdapters::PostgreSQLAdapter.send(:include, RedHillConsulting::Core::ActiveRecord::ConnectionAdapters::PostgresqlAdapter)
+rescue
 end
-if defined?(ActiveRecord::ConnectionAdapters::MysqlAdapter) then
+
+begin
   ActiveRecord::ConnectionAdapters::MysqlColumn.send(:include, RedHillConsulting::Core::ActiveRecord::ConnectionAdapters::MysqlColumn)
   ActiveRecord::ConnectionAdapters::MysqlAdapter.send(:include, RedHillConsulting::Core::ActiveRecord::ConnectionAdapters::MysqlAdapter)
   if ActiveRecord::Base.connection.send(:version)[0] < 5
@@ -36,8 +45,9 @@ if defined?(ActiveRecord::ConnectionAdapters::MysqlAdapter) then
     #include MySql5Adapter
     ActiveRecord::ConnectionAdapters::MysqlAdapter.send(:include, RedHillConsulting::Core::ActiveRecord::ConnectionAdapters::Mysql5Adapter)
   end
-    
+rescue   
 end
-if defined?(ActiveRecord::ConnectionAdapters::SQLite3Adapter) then
+
+begin
   ActiveRecord::ConnectionAdapters::SQLite3Adapter.send(:include, RedHillConsulting::Core::ActiveRecord::ConnectionAdapters::Sqlite3Adapter)
-end
+rescue
