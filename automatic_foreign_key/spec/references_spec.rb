@@ -1,14 +1,6 @@
 # encoding: utf-8
 require File.expand_path(File.dirname(__FILE__) + '/spec_helper')
 
-describe ActiveRecord::Base do
-
-  it "should respond to references" do
-    ActiveRecord::Base.should respond_to :references
-  end
-
-end
-
 describe 'references method' do
 
   before(:all) do
