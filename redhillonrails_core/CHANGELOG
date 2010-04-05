@@ -1,3 +1,6 @@
+1.0.3
+    ActiveRecord 3.0beta compatibility
+    First ruby 1.9 fixes
 1.0.2
     * added missing dependencies
 1.0.1
