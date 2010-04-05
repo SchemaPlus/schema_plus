@@ -3,6 +3,17 @@ module RedHillConsulting::Core::ActiveRecord::ConnectionAdapters
     def self.included(base)
       base.class_eval do
         alias_method_chain :remove_column, :redhillonrails_core
+        alias_method_chain :connect, :redhillonrails_core
+      end
+    end
+
+    def connect_with_redhillonrails_core(*args)
+      returning connect_without_redhillonrails_core(*args) do 
+        if version[0] < 5
+          self.class.send(:include, Mysql4Adapter) unless self.class.include?(Mysql4Adapter)
+        else
+          self.class.send(:include, Mysql5Adapter) unless self.class.include?(Mysql5Adapter)
+        end
       end
     end
 

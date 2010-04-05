@@ -1,8 +1,24 @@
 module RedHillConsulting::Core::ActiveRecord::ConnectionAdapters
   module AbstractAdapter
     def self.included(base)
-      base.module_eval do
-        alias_method_chain :drop_table, :redhillonrails_core
+      base.alias_method_chain :initialize, :redhillonrails_core
+      base.alias_method_chain :drop_table, :redhillonrails_core
+    end
+    
+    def initialize_with_redhillonrails_core(*args)
+      initialize_without_redhillonrails_core(*args)
+      adapter = nil
+      case adapter_name
+      when 'MySQL' 
+        adapter = 'MysqlAdapter'
+      when 'PostgreSQL' 
+        adapter = 'PostgresqlAdapter'
+      when 'SQLite' 
+        adapter = 'SqliteAdapter'
+      end
+      if adapter 
+        adapter_module = RedHillConsulting::Core::ActiveRecord::ConnectionAdapters.const_get(adapter)
+        self.class.send(:include, adapter_module) unless self.class.include?(adapter_module)
       end
     end
     
