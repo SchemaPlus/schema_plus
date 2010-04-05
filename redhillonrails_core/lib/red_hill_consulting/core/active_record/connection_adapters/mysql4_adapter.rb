@@ -9,7 +9,7 @@ module RedHillConsulting::Core::ActiveRecord::ConnectionAdapters
       tables.each do |table|
         results = execute("SHOW CREATE TABLE #{table}")
         results.each do |row|
-          row[1].each do |line|
+          row[1].lines.each do |line|
             if line =~ /^  CONSTRAINT [`"](.+?)[`"] FOREIGN KEY \([`"](.+?)[`"]\) REFERENCES [`"](.+?)[`"] \((.+?)\)( ON DELETE (.+?))?( ON UPDATE (.+?))?,?$/
               name = $1
               column_names = $2
