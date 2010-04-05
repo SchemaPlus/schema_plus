@@ -5,6 +5,10 @@ rescue
   require 'active_record'
 end
 
+# TODO: only needed adapters should be required here
+require 'active_record/connection_adapters/postgresql_adapter'
+require 'active_record/connection_adapters/mysql_adapter'
+require 'active_record/connection_adapters/sqlite3_adapter'
 require 'red_hill_consulting/core'
 require 'red_hill_consulting/core/active_record'
 require 'red_hill_consulting/core/active_record/base'
@@ -30,25 +34,16 @@ ActiveRecord::ConnectionAdapters::Column.send(:include, RedHillConsulting::Core:
 ActiveRecord::ConnectionAdapters::AbstractAdapter.send(:include, RedHillConsulting::Core::ActiveRecord::ConnectionAdapters::AbstractAdapter)
 ActiveRecord::ConnectionAdapters::SchemaStatements.send(:include, RedHillConsulting::Core::ActiveRecord::ConnectionAdapters::SchemaStatements)
 
-begin
-  ActiveRecord::ConnectionAdapters::PostgreSQLAdapter.send(:include, RedHillConsulting::Core::ActiveRecord::ConnectionAdapters::PostgresqlAdapter)
-rescue
+ActiveRecord::ConnectionAdapters::PostgreSQLAdapter.send(:include, RedHillConsulting::Core::ActiveRecord::ConnectionAdapters::PostgresqlAdapter)
+
+ActiveRecord::ConnectionAdapters::MysqlColumn.send(:include, RedHillConsulting::Core::ActiveRecord::ConnectionAdapters::MysqlColumn)
+ActiveRecord::ConnectionAdapters::MysqlAdapter.send(:include, RedHillConsulting::Core::ActiveRecord::ConnectionAdapters::MysqlAdapter)
+if ActiveRecord::Base.connection.send(:version)[0] < 5
+  #include MySql4Adapter
+  ActiveRecord::ConnectionAdapters::MysqlAdapter.send(:include, RedHillConsulting::Core::ActiveRecord::ConnectionAdapters::Mysql4Adapter)
+else
+  #include MySql5Adapter
+  ActiveRecord::ConnectionAdapters::MysqlAdapter.send(:include, RedHillConsulting::Core::ActiveRecord::ConnectionAdapters::Mysql5Adapter)
 end
 
-begin
-  ActiveRecord::ConnectionAdapters::MysqlColumn.send(:include, RedHillConsulting::Core::ActiveRecord::ConnectionAdapters::MysqlColumn)
-  ActiveRecord::ConnectionAdapters::MysqlAdapter.send(:include, RedHillConsulting::Core::ActiveRecord::ConnectionAdapters::MysqlAdapter)
-  if ActiveRecord::Base.connection.send(:version)[0] < 5
-    #include MySql4Adapter
-    ActiveRecord::ConnectionAdapters::MysqlAdapter.send(:include, RedHillConsulting::Core::ActiveRecord::ConnectionAdapters::Mysql4Adapter)
-  else
-    #include MySql5Adapter
-    ActiveRecord::ConnectionAdapters::MysqlAdapter.send(:include, RedHillConsulting::Core::ActiveRecord::ConnectionAdapters::Mysql5Adapter)
-  end
-rescue   
-end
-
-begin
-  ActiveRecord::ConnectionAdapters::SQLite3Adapter.send(:include, RedHillConsulting::Core::ActiveRecord::ConnectionAdapters::Sqlite3Adapter)
-rescue
-end
+ActiveRecord::ConnectionAdapters::SQLite3Adapter.send(:include, RedHillConsulting::Core::ActiveRecord::ConnectionAdapters::Sqlite3Adapter)
