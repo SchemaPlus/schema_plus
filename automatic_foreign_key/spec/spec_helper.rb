@@ -5,8 +5,10 @@ require 'automatic_foreign_key'
 require 'spec'
 require 'spec/autorun'
 require 'connection'
+Dir[File.dirname(__FILE__) + "/support/**/*.rb"].each {|f| require f}
 
 Spec::Runner.configure do |config|
+  config.include(AutomaticForeignKeyMatchers)
 end
 
 def load_schema
