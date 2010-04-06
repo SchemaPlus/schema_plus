@@ -51,9 +51,9 @@ require 'spec/rake/spectask'
   end
 end
 
-desc 'Run postgresql tests'
+desc 'Run postgresql and mysql tests'
 task :spec do 
-  %w[postgresql].each do |adapter|
+  %w[postgresql mysql].each do |adapter|
     Rake::Task["#{adapter}:spec"].invoke
   end
 end
@@ -99,4 +99,22 @@ task :build_postgresql_databases => 'postgresql:build_databases'
 task :drop_postgresql_databases => 'postgresql:drop_databases'
 task :rebuild_postgresql_databases => 'postgresql:rebuild_databases'
 
+MYSQL_DB_USER = 'afk'
+namespace :mysql do
+  desc 'Build the MySQL test databases'
+  task :build_databases do
+    %x( echo "create DATABASE afk_unittest DEFAULT CHARACTER SET utf8 DEFAULT COLLATE utf8_unicode_ci " | mysql --user=#{MYSQL_DB_USER})
+  end
 
+  desc 'Drop the MySQL test databases' 
+  task :drop_databases do
+    %x( mysqladmin --user=#{MYSQL_DB_USER} -f drop afk_unittest )
+  end
+
+  desc 'Rebuild the MySQL test databases'
+  task :rebuild_databases => [:drop_databases, :build_databases]
+end
+
+task :build_mysql_databases => 'mysql:build_databases'
+task :drop_mysql_databases => 'mysql:drop_databases'
+task :rebuild_mysql_databases => 'mysql:rebuild_databases'

@@ -1,12 +1,15 @@
-print "Using PostgreSQL\n"
+print "Using MySQL\n"
 require 'logger'
 
 ActiveRecord::Base.logger = Logger.new("debug.log")
 
 ActiveRecord::Base.configurations = {
   'afk' => {
-    :adapter => 'postgresql',
+    :adapter => 'mysql',
     :database => 'afk_unittest',
+    :username => 'afk',
+    :encoding => 'utf8',
+    :socket => '/var/run/mysqld/mysqld.sock',
     :min_messages => 'warning'
   }
 
