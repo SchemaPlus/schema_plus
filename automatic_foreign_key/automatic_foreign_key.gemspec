@@ -5,11 +5,11 @@
 
 Gem::Specification.new do |s|
   s.name = %q{automatic_foreign_key}
-  s.version = "1.0.2"
+  s.version = "1.0.5"
 
   s.required_rubygems_version = Gem::Requirement.new(">= 0") if s.respond_to? :required_rubygems_version=
   s.authors = ["Michał Łomnicki"]
-  s.date = %q{2010-03-30}
+  s.date = %q{2010-04-06}
   s.description = %q{Automatic Key Migrations is a gem that automatically generates foreign-key
 constraints when creating tables. It uses SQL-92 syntax and as such should be compatible with most databases that support foreign-key constraints.}
   s.email = %q{michal.lomnicki@gmail.com}
@@ -32,27 +32,51 @@ constraints when creating tables. It uses SQL-92 syntax and as such should be co
      "lib/automatic_foreign_key/active_record/connection_adapters/table_definition.rb",
      "lib/automatic_foreign_key/active_record/migration.rb",
      "lib/generators/automatic_foreign_key/migration_generator.rb",
-     "lib/generators/automatic_foreign_key/templates/migration.rb"
+     "lib/generators/automatic_foreign_key/templates/migration.rb",
+     "spec/aaa_create_tables_spec.rb",
+     "spec/connections/mysql/connection.rb",
+     "spec/connections/postgresql/connection.rb",
+     "spec/migration_spec.rb",
+     "spec/models/comment.rb",
+     "spec/models/post.rb",
+     "spec/models/user.rb",
+     "spec/references_spec.rb",
+     "spec/schema/schema.rb",
+     "spec/spec_helper.rb",
+     "spec/support/matchers/automatic_foreign_key_matchers.rb"
   ]
   s.homepage = %q{http://github.com/mlomnicki/automatic_foreign_key}
   s.rdoc_options = ["--charset=UTF-8"]
   s.require_paths = ["lib"]
   s.rubygems_version = %q{1.3.6}
   s.summary = %q{Automatically generate foreign-key constraints when creating tables}
+  s.test_files = [
+    "spec/schema/schema.rb",
+     "spec/connections/postgresql/connection.rb",
+     "spec/connections/mysql/connection.rb",
+     "spec/aaa_create_tables_spec.rb",
+     "spec/support/matchers/automatic_foreign_key_matchers.rb",
+     "spec/spec_helper.rb",
+     "spec/references_spec.rb",
+     "spec/migration_spec.rb",
+     "spec/models/user.rb",
+     "spec/models/post.rb",
+     "spec/models/comment.rb"
+  ]
 
   if s.respond_to? :specification_version then
     current_version = Gem::Specification::CURRENT_SPECIFICATION_VERSION
     s.specification_version = 3
 
     if Gem::Version.new(Gem::RubyGemsVersion) >= Gem::Version.new('1.2.0') then
-      s.add_runtime_dependency(%q<redhillonrails_core>, [">= 1.0.2"])
+      s.add_runtime_dependency(%q<redhillonrails_core>, [">= 1.0.4.1"])
       s.add_runtime_dependency(%q<activerecord>, [">= 2.2"])
     else
-      s.add_dependency(%q<redhillonrails_core>, [">= 1.0.2"])
+      s.add_dependency(%q<redhillonrails_core>, [">= 1.0.4.1"])
       s.add_dependency(%q<activerecord>, [">= 2.2"])
     end
   else
-    s.add_dependency(%q<redhillonrails_core>, [">= 1.0.2"])
+    s.add_dependency(%q<redhillonrails_core>, [">= 1.0.4.1"])
     s.add_dependency(%q<activerecord>, [">= 2.2"])
   end
 end
