@@ -12,7 +12,7 @@ constraints when creating tables. It uses SQL-92 syntax and as such should be co
     gem.email = "michal.lomnicki@gmail.com"
     gem.homepage = "http://github.com/mlomnicki/automatic_foreign_key"
     gem.authors = ["Michał Łomnicki"]
-    gem.add_dependency "redhillonrails_core", ">= 1.0.2"
+    gem.add_dependency "redhillonrails_core", ">= 1.0.4"
     gem.add_dependency "activerecord", ">= 2.2"
     # gem is a Gem::Specification... see http://www.rubygems.org/read/chapter/20 for additional settings
   end
