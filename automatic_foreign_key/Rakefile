@@ -7,8 +7,8 @@ begin
   Jeweler::Tasks.new do |gem|
     gem.name = "automatic_foreign_key"
     gem.summary = %Q{Automatically generate foreign-key constraints when creating tables}
-    gem.description = %Q{Automatic Key Migrations is a gem that automatically generates foreign-key
-constraints when creating tables. It uses SQL-92 syntax and as such should be compatible with most databases that support foreign-key constraints.}
+    gem.description = %Q{Automatic Foreign Key automatically generates foreign-key
+constraints when creating tables or adding columns. It uses SQL-92 syntax and as such should be compatible with most databases that support foreign-key constraints.}
     gem.email = "michal.lomnicki@gmail.com"
     gem.homepage = "http://github.com/mlomnicki/automatic_foreign_key"
     gem.authors = ["Michał Łomnicki"]
