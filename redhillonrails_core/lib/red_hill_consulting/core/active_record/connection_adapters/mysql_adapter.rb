@@ -8,13 +8,13 @@ module RedHillConsulting::Core::ActiveRecord::ConnectionAdapters
     end
 
     def connect_with_redhillonrails_core(*args)
-      returning connect_without_redhillonrails_core(*args) do 
-        if version[0] < 5
-          self.class.send(:include, Mysql4Adapter) unless self.class.include?(Mysql4Adapter)
-        else
-          self.class.send(:include, Mysql5Adapter) unless self.class.include?(Mysql5Adapter)
-        end
+      result = connect_without_redhillonrails_core(*args)  
+      if version[0] < 5
+        self.class.send(:include, Mysql4Adapter) unless self.class.include?(Mysql4Adapter)
+      else
+        self.class.send(:include, Mysql5Adapter) unless self.class.include?(Mysql5Adapter)
       end
+      result
     end
 
     def set_table_comment(table_name, comment)
