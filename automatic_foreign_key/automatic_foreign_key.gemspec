@@ -5,13 +5,13 @@
 
 Gem::Specification.new do |s|
   s.name = %q{automatic_foreign_key}
-  s.version = "1.0.5"
+  s.version = "1.1.0"
 
   s.required_rubygems_version = Gem::Requirement.new(">= 0") if s.respond_to? :required_rubygems_version=
-  s.authors = ["Michał Łomnicki"]
-  s.date = %q{2010-04-06}
-  s.description = %q{Automatic Key Migrations is a gem that automatically generates foreign-key
-constraints when creating tables. It uses SQL-92 syntax and as such should be compatible with most databases that support foreign-key constraints.}
+  s.authors = ["Micha\305\202 \305\201omnicki"]
+  s.date = %q{2010-06-12}
+  s.description = %q{Automatic Foreign Key automatically generates foreign-key
+constraints when creating tables or adding columns. It uses SQL-92 syntax and as such should be compatible with most databases that support foreign-key constraints.}
   s.email = %q{michal.lomnicki@gmail.com}
   s.extra_rdoc_files = [
     "README.rdoc"
@@ -43,7 +43,9 @@ constraints when creating tables. It uses SQL-92 syntax and as such should be co
      "spec/references_spec.rb",
      "spec/schema/schema.rb",
      "spec/spec_helper.rb",
-     "spec/support/matchers/automatic_foreign_key_matchers.rb"
+     "spec/support/matchers/automatic_foreign_key_matchers.rb",
+     "spec/support/matchers/have_index.rb",
+     "spec/support/matchers/reference.rb"
   ]
   s.homepage = %q{http://github.com/mlomnicki/automatic_foreign_key}
   s.rdoc_options = ["--charset=UTF-8"]
@@ -55,7 +57,9 @@ constraints when creating tables. It uses SQL-92 syntax and as such should be co
      "spec/connections/postgresql/connection.rb",
      "spec/connections/mysql/connection.rb",
      "spec/aaa_create_tables_spec.rb",
+     "spec/support/matchers/have_index.rb",
      "spec/support/matchers/automatic_foreign_key_matchers.rb",
+     "spec/support/matchers/reference.rb",
      "spec/spec_helper.rb",
      "spec/references_spec.rb",
      "spec/migration_spec.rb",
