@@ -16,6 +16,18 @@ module AutomaticForeignKey
     end
 
   end
+
+  # Default FK update action 
+  mattr_accessor :on_update
+  
+  # Default FK delete action 
+  mattr_accessor :on_delete
+
+  # Create an index after creating FK (default false)
+  mattr_accessor :auto_index
+  @@auto_index = nil
+
+
 end
 
 ActiveRecord::Base.send(:include, AutomaticForeignKey::ActiveRecord::Base)

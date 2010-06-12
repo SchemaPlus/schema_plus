@@ -68,6 +68,71 @@ describe ActiveRecord::Migration do
       end
     end
 
+    it "should create an index if specified" do
+      add_column(:post_id, :integer, :index => true) do
+        @model.should have_index.on(:post_id)
+      end
+    end
+
+    it "should create a unique index if specified" do
+      add_column(:post_id, :integer, :index => { :unique => true }) do
+        @model.should have_unique_index.on(:post_id)
+      end
+    end
+
+    it "should allow custom name for index" do
+      index_name = 'comments_post_id_unique_index'
+      add_column(:post_id, :integer, :index => { :unique => true, :name => index_name }) do
+        @model.should have_unique_index(:name => index_name).on(:post_id)
+      end
+    end
+
+    it "should auto-create index if specified in global options" do
+      AutomaticForeignKey.auto_index = true
+      add_column(:post_id, :integer) do
+        @model.should have_index.on(:post_id)
+      end
+      AutomaticForeignKey.auto_index = false
+    end
+
+    it "should allow to overwrite auto_index options in column definition" do
+      AutomaticForeignKey.auto_index = true
+      add_column(:post_id, :integer, :index => false) do
+        # MySQL creates an index on foreign by default
+        # and we can do nothing with that
+        unless mysql?
+          @model.should_not have_index.on(:post_id)
+        end
+      end
+      AutomaticForeignKey.auto_index = false
+    end
+
+    it "should use default on_update action" do
+      AutomaticForeignKey.on_update = :cascade
+      add_column(:post_id, :integer) do
+        @model.should reference.on(:post_id).on_update(:cascade) 
+      end
+      AutomaticForeignKey.on_update = nil
+    end
+
+    it "should use default on_delete action" do
+      AutomaticForeignKey.on_delete = :cascade
+      add_column(:post_id, :integer) do
+        @model.should reference.on(:post_id).on_delete(:cascade) 
+      end
+      AutomaticForeignKey.on_delete = nil
+    end
+
+    it "should allow to overwrite default actions" do
+      AutomaticForeignKey.on_delete = :cascade
+      AutomaticForeignKey.on_update = :restrict
+      add_column(:post_id, :integer, :on_update => :set_null, :on_delete => :set_null) do
+        @model.should reference.on(:post_id).on_delete(:set_null).on_update(:set_null)
+      end
+      AutomaticForeignKey.on_delete = nil
+    end
+
+    protected
     def add_column(column_name, *args)
       table = @model.table_name
       ActiveRecord::Migration.suppress_messages do
@@ -81,10 +146,14 @@ describe ActiveRecord::Migration do
   end
     
   def foreign_key(model, column)
-    columns = Array(column)
+    columns = Array(column).collect(&:to_s)
     model.foreign_keys.detect { |fk| fk.table_name == model.table_name && fk.column_names == columns } 
   end
-  
+
+  def mysql?
+    ActiveRecord::Base.connection.adapter_name == 'MySQL'
+  end
+
   def create_table(model, columns_with_options)
     ActiveRecord::Migration.suppress_messages do
       ActiveRecord::Migration.create_table model.table_name, :force => true do |t|
