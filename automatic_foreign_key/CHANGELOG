@@ -1,3 +1,6 @@
+1.1
+    * create index within foreign key (auto index)
+    * global configuration for: auto_index and on_update/on_delete actions
 1.0.2
     * rails 3 generator
 1.0.1

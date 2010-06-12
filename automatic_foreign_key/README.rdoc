@@ -77,6 +77,33 @@ configuration properties:
 * <code>config.active_record.table_name_prefix</code>
 * <code>config.active_record.table_name_suffix</code>
 
+=== Auto Indices ===
+
+It's very common to create an index on foreign key. You can instruct
+AutomaticForeignKey to add an index after adding foreign key.
+
+  create_table :orders, :id => false do |t|
+    ...
+    t.integer :order_id, :index => true
+  end
+
+If you want to pass some options for index use hash params.
+
+  create_table :bills, :id => false do |t|
+    ...
+    t.integer :order_id, :index => { :unique => true, :name => 'foo_index' }
+  end
+
+That option is useless for MySQL users as their RDBMS adds indices on foreign
+keys by default. However PostgreSQL users may have fun with that feature.
+
+=== Configuration ===
+
+For customization purposes create config/initializers/automatic_foreign_key.rb file:
+AutomaticForeignKey.auto_index = true # create indices on FKs by default
+AutomaticForeignKey.on_update = :cascade # cascade as default on_update action
+AutomaticForeignKey.on_delete = :restrtic # restrict as default on_delete action
+
 === Rails 3 compatibility
 
     Automatic foreign key is fully compatibly with Rails 3.
