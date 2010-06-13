@@ -77,7 +77,7 @@ configuration properties:
 * <code>config.active_record.table_name_prefix</code>
 * <code>config.active_record.table_name_suffix</code>
 
-=== Auto Indices ===
+=== Auto Indices 
 
 It's very common to create an index on foreign key. You can instruct
 AutomaticForeignKey to add an index after adding foreign key.
@@ -94,10 +94,12 @@ If you want to pass some options for index use hash params.
     t.integer :order_id, :index => { :unique => true, :name => 'foo_index' }
   end
 
-That option is useless for MySQL users as their RDBMS adds indices on foreign
+==== NOTE
+
+Auto indexing option is useless for MySQL users as their RDBMS adds indices on foreign
 keys by default. However PostgreSQL users may have fun with that feature.
 
-=== Configuration ===
+=== Configuration
 
 For customization purposes create config/initializers/automatic_foreign_key.rb file:
 AutomaticForeignKey.auto_index = true # create indices on FKs by default
