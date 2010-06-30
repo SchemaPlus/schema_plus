@@ -7,11 +7,11 @@ module RedHillConsulting::Core::ActiveRecord::ConnectionAdapters
     end
 
     def set_table_comment(table_name, comment)
-      execute "COMMENT ON TABLE #{table_name} IS '#{quote_string(comment)}'"
+      execute "COMMENT ON TABLE #{quote_table_name(table_name)} IS '#{quote_string(comment)}'"
     end
 
     def clear_table_comment(table_name)
-      execute "COMMENT ON TABLE #{table_name} IS NULL"
+      execute "COMMENT ON TABLE #{quote_table_name(table_name)} IS NULL"
     end
 
     def add_index(table_name, column_name, options = {})
@@ -27,7 +27,7 @@ module RedHillConsulting::Core::ActiveRecord::ConnectionAdapters
 
       quoted_column_names = column_names.map { |e| options[:case_sensitive] == false && e.to_s !~ /_id$/ ? "LOWER(#{quote_column_name(e)})" : quote_column_name(e) }
 
-      execute "CREATE #{index_type} INDEX #{quote_column_name(index_name)} ON #{table_name} (#{quoted_column_names.join(", ")})"
+      execute "CREATE #{index_type} INDEX #{quote_column_name(index_name)} ON #{quote_table_name(table_name)} (#{quoted_column_names.join(", ")})"
     end
 
     def indexes_with_redhillonrails_core(table_name, name = nil)
