@@ -15,13 +15,44 @@ end
 describe ActiveRecord::Migration do
 
   context "when table is created" do
+    before(:all) do
+      @model = Post
+    end
+    
+
     it "should create foreign keys" do
-      create_table(Post,  :user_id => {}, 
+      create_table(@model,  :user_id => {}, 
                           :author_id => { :references => :users },
                           :member_id => { :references => nil } )
-      Post.should reference(:users, :id).on(:user_id)
-      Post.should reference(:users, :id).on(:author_id)
-      Post.should_not reference.on(:member_id)
+      @model.should reference(:users, :id).on(:user_id)
+      @model.should reference(:users, :id).on(:author_id)
+      @model.should_not reference.on(:member_id)
+    end
+
+    it "should use default on_cascade action" do
+      AutomaticForeignKey.on_update = :cascade
+      create_table(@model, :user_id => {})
+      AutomaticForeignKey.on_update = nil
+      @model.should reference.on(:user_id).on_update(:cascade) 
+    end
+
+    it "should use default on_cascade action" do
+      AutomaticForeignKey.on_delete = :cascade
+      create_table(@model, :user_id => {})
+      AutomaticForeignKey.on_delete = nil
+      @model.should reference.on(:user_id).on_delete(:cascade) 
+    end
+
+    it "should create an index if specified" do
+      create_table(@model, :state => { :index => true }) 
+      @model.should have_index.on(:state)
+    end
+    
+    it "should auto-create index if specified in global options" do
+      AutomaticForeignKey.auto_index = nil
+      create_table(@model, :state => {}) 
+      @model.should have_index.on(:state)
+      AutomaticForeignKey.auto_index = false
     end
 
   end

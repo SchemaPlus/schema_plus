@@ -33,20 +33,10 @@ module AutomaticForeignKey::ActiveRecord
         index = options.fetch(:index, AutomaticForeignKey.auto_index)
         references = ActiveRecord::Base.references(table_name, column_name, options)
         if references
-          set_default_update_and_delete_actions!(options)
+          AutomaticForeignKey.set_default_update_and_delete_actions!(options)
           add_foreign_key(table_name, column_name, references.first, references.last, options) 
         end
-        add_index(table_name, column_name, options_for_index(index)) if index
-      end
-
-      private
-      def options_for_index(index)
-        index.is_a?(Hash) ? index : {}
-      end
-
-      def set_default_update_and_delete_actions!(options)
-        options[:on_update] = options.fetch(:on_update, AutomaticForeignKey.on_update)
-        options[:on_delete] = options.fetch(:on_delete, AutomaticForeignKey.on_delete)
+        add_index(table_name, column_name, AutomaticForeignKey.options_for_index(index)) if index
       end
 
     end

@@ -1,7 +1,11 @@
+require 'active_support'
+require 'active_support/core_ext/module/attr_accessor_with_default'
+
 module AutomaticForeignKey::ActiveRecord::ConnectionAdapters
   module TableDefinition
     def self.included(base)
       base.class_eval do
+        attr_accessor_with_default :indices, Array.new
         alias_method_chain :column, :automatic_foreign_key
         alias_method_chain :primary_key, :automatic_foreign_key
       end
@@ -14,7 +18,15 @@ module AutomaticForeignKey::ActiveRecord::ConnectionAdapters
     def column_with_automatic_foreign_key(name, type, options = {})
       column_without_automatic_foreign_key(name, type, options)
       references = ActiveRecord::Base.references(self.name, name, options)
-      foreign_key(name, references.first, references.last, options) if references
+      if references
+        AutomaticForeignKey.set_default_update_and_delete_actions!(options)
+        foreign_key(name, references.first, references.last, options) 
+      end
+      index = options.fetch(:index, AutomaticForeignKey.auto_index)
+      if index
+        # append [column_name, index_options] pair
+        self.indices << [name, AutomaticForeignKey.options_for_index(index)]
+      end
       self
     end
 
