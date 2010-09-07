@@ -102,9 +102,9 @@ keys by default. However PostgreSQL users may have fun with that feature.
 === Configuration
 
 For customization purposes create config/initializers/automatic_foreign_key.rb file:
-AutomaticForeignKey.auto_index = true # create indices on FKs by default
-AutomaticForeignKey.on_update = :cascade # cascade as default on_update action
-AutomaticForeignKey.on_delete = :restrtic # restrict as default on_delete action
+    AutomaticForeignKey.auto_index = true # create indices on FKs by default
+    AutomaticForeignKey.on_update = :cascade # cascade as default on_update action
+    AutomaticForeignKey.on_delete = :restrict # restrict as default on_delete action
 
 === Rails 3 compatibility
 
