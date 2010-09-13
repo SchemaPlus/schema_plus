@@ -48,11 +48,15 @@ describe ActiveRecord::Migration do
       @model.should have_index.on(:state)
     end
     
-    it "should auto-create index if specified in global options" do
+    it "should auto-index foreign keys only" do
+      AutomaticForeignKey.auto_index = true
+      create_table(@model,  :user_id => {},
+                            :application_id => { :references => nil },
+                            :state => {})
+      @model.should have_index.on(:user_id)
+      @model.should_not have_index.on(:application_id)
+      @model.should_not have_index.on(:state)
       AutomaticForeignKey.auto_index = nil
-      create_table(@model, :state => {}) 
-      @model.should have_index.on(:state)
-      AutomaticForeignKey.auto_index = false
     end
 
   end
@@ -118,10 +122,18 @@ describe ActiveRecord::Migration do
       end
     end
 
-    it "should auto-create index if specified in global options" do
+    it "should auto-index if specified in global options" do
       AutomaticForeignKey.auto_index = true
       add_column(:post_id, :integer) do
         @model.should have_index.on(:post_id)
+      end
+      AutomaticForeignKey.auto_index = false
+    end
+
+    it "should auto-index foreign keys only" do
+      AutomaticForeignKey.auto_index = true
+      add_column(:state, :integer) do
+        @model.should_not have_index.on(:state)
       end
       AutomaticForeignKey.auto_index = false
     end

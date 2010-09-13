@@ -30,13 +30,16 @@ module AutomaticForeignKey::ActiveRecord
       #
       def add_column(table_name, column_name, type, options = {})
         super
-        index = options.fetch(:index, AutomaticForeignKey.auto_index)
         references = ActiveRecord::Base.references(table_name, column_name, options)
         if references
           AutomaticForeignKey.set_default_update_and_delete_actions!(options)
           add_foreign_key(table_name, column_name, references.first, references.last, options) 
+          if index = options.fetch(:index, AutomaticForeignKey.auto_index)
+            add_index(table_name, column_name, AutomaticForeignKey.options_for_index(index))
+          end
+        elsif options[:index]
+          add_index(table_name, column_name, AutomaticForeignKey.options_for_index(options[:index]))
         end
-        add_index(table_name, column_name, AutomaticForeignKey.options_for_index(index)) if index
       end
 
     end

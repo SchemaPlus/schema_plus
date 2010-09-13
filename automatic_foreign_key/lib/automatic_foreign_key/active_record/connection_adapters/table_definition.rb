@@ -5,14 +5,17 @@ module AutomaticForeignKey::ActiveRecord::ConnectionAdapters
   module TableDefinition
     def self.included(base)
       base.class_eval do
-        attr_accessor_with_default :indices, Array.new
         alias_method_chain :column, :automatic_foreign_key
         alias_method_chain :primary_key, :automatic_foreign_key
       end
     end
-
+        
     def primary_key_with_automatic_foreign_key(name, options = {})
       column(name, :primary_key, options)
+    end
+
+    def indices
+      @indices ||= []
     end
 
     def column_with_automatic_foreign_key(name, type, options = {})
@@ -21,11 +24,12 @@ module AutomaticForeignKey::ActiveRecord::ConnectionAdapters
       if references
         AutomaticForeignKey.set_default_update_and_delete_actions!(options)
         foreign_key(name, references.first, references.last, options) 
-      end
-      index = options.fetch(:index, AutomaticForeignKey.auto_index)
-      if index
-        # append [column_name, index_options] pair
-        self.indices << [name, AutomaticForeignKey.options_for_index(index)]
+        if index = options.fetch(:index, AutomaticForeignKey.auto_index)
+          # append [column_name, index_options] pair
+          self.indices << [name, AutomaticForeignKey.options_for_index(index)]
+        end
+      elsif options[:index]
+        self.indices << [name, AutomaticForeignKey.options_for_index(options[:index])]
       end
       self
     end

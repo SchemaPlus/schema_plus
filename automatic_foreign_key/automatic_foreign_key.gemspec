@@ -8,7 +8,7 @@ Gem::Specification.new do |s|
   s.version = "1.1.5"
 
   s.required_rubygems_version = Gem::Requirement.new(">= 0") if s.respond_to? :required_rubygems_version=
-  s.authors = ["Micha\305\202 \305\201omnicki"]
+  s.authors = ["Michał Łomnicki"]
   s.date = %q{2010-09-07}
   s.description = %q{Automatic Foreign Key automatically generates foreign-key
 constraints when creating tables or adding columns. It uses SQL-92 syntax and as such should be compatible with most databases that support foreign-key constraints.}
@@ -29,6 +29,7 @@ constraints when creating tables or adding columns. It uses SQL-92 syntax and as
      "install.rb",
      "lib/automatic_foreign_key.rb",
      "lib/automatic_foreign_key/active_record/base.rb",
+     "lib/automatic_foreign_key/active_record/connection_adapters/schema_statements.rb",
      "lib/automatic_foreign_key/active_record/connection_adapters/table_definition.rb",
      "lib/automatic_foreign_key/active_record/migration.rb",
      "lib/generators/automatic_foreign_key/migration_generator.rb",
@@ -50,7 +51,7 @@ constraints when creating tables or adding columns. It uses SQL-92 syntax and as
   s.homepage = %q{http://github.com/mlomnicki/automatic_foreign_key}
   s.rdoc_options = ["--charset=UTF-8"]
   s.require_paths = ["lib"]
-  s.rubygems_version = %q{1.3.6}
+  s.rubygems_version = %q{1.3.7}
   s.summary = %q{Automatically generate foreign-key constraints when creating tables}
   s.test_files = [
     "spec/schema/schema.rb",
@@ -72,7 +73,7 @@ constraints when creating tables or adding columns. It uses SQL-92 syntax and as
     current_version = Gem::Specification::CURRENT_SPECIFICATION_VERSION
     s.specification_version = 3
 
-    if Gem::Version.new(Gem::RubyGemsVersion) >= Gem::Version.new('1.2.0') then
+    if Gem::Version.new(Gem::VERSION) >= Gem::Version.new('1.2.0') then
       s.add_runtime_dependency(%q<redhillonrails_core>, [">= 1.0.4.1"])
       s.add_runtime_dependency(%q<activerecord>, [">= 2.2"])
     else
