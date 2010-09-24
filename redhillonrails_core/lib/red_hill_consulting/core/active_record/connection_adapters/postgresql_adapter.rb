@@ -43,7 +43,7 @@ module RedHillConsulting::Core::ActiveRecord::ConnectionAdapters
       SQL
 
       result.each do |row|
-        if row[2]=~ /\((.*LOWER\([^:]+(::text)?\).*)\)$/i
+        if row[2]=~ /\((.*LOWER\([^:]+(::text)?\).*)\)/i
           indexes.delete_if { |index| index.name == row[0] }
           column_names = $1.split(", ").map do |name|
             name = $1 if name =~ /^LOWER\(([^:]+)(::text)?\)$/i
