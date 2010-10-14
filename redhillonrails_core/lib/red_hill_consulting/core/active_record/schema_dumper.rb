@@ -28,6 +28,7 @@ module RedHillConsulting::Core::ActiveRecord
         stream.print "  add_index #{index.table.inspect}, #{index.columns.inspect}, :name => #{index.name.inspect}"
         stream.print ", :unique => true" if index.unique
         stream.print ", :case_sensitive => false" unless index.case_sensitive?
+        stream.print ", :conditions => #{index.conditions.inspect}" unless index.conditions.blank?
         stream.puts
       end
       stream.puts unless indexes.empty?

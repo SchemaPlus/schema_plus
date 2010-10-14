@@ -118,6 +118,12 @@ indexes for a given model--<code>ActiveRecord::Base</code>--class. For example:
 
 Would return all the indexes for the +invoices+ table.
 
+=== Partial Indexes (indexes with conditions)
+
+Partial indexes index only a portion of the database. Only PostgreSQL supports this feature.
+
+  add_index :users, :username, :unique => true, :conditions => {:state => "active"}
+
 === Schema Defining
 
 The plugin also adds a method--<code>defining?()</code>--to

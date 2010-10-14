@@ -21,13 +21,20 @@ module RedHillConsulting::Core::ActiveRecord::ConnectionAdapters
       if Hash === options # legacy support, since this param was a string
         index_type = options[:unique] ? "UNIQUE" : ""
         index_name = options[:name] || index_name
+        conditions = options[:conditions]
       else
         index_type = options
       end
 
       quoted_column_names = column_names.map { |e| options[:case_sensitive] == false && e.to_s !~ /_id$/ ? "LOWER(#{quote_column_name(e)})" : quote_column_name(e) }
 
-      execute "CREATE #{index_type} INDEX #{quote_column_name(index_name)} ON #{quote_table_name(table_name)} (#{quoted_column_names.join(", ")})"
+      sql = "CREATE #{index_type} INDEX #{quote_column_name(index_name)} ON #{quote_table_name(table_name)} (#{quoted_column_names.join(", ")})"
+      sql += " WHERE (#{ ActiveRecord::Base.send(:sanitize_sql, conditions, quote_table_name(table_name)) })" if conditions
+      execute sql
+    end
+
+    def supports_partial_indexes?
+      true
     end
 
     def indexes_with_redhillonrails_core(table_name, name = nil)
@@ -38,10 +45,10 @@ module RedHillConsulting::Core::ActiveRecord::ConnectionAdapters
          WHERE c.relname = '#{table_name}'
            AND c.oid = i.indrelid AND i.indexrelid = c2.oid
            AND i.indisprimary = 'f'
-           AND i.indexprs IS NOT NULL
          ORDER BY 1
       SQL
 
+      indexes.delete_if {|index| index.columns.compact.empty?}
       result.each do |row|
         if row[2]=~ /\((.*LOWER\([^:]+(::text)?\).*)\)/i
           indexes.delete_if { |index| index.name == row[0] }
@@ -50,8 +57,20 @@ module RedHillConsulting::Core::ActiveRecord::ConnectionAdapters
             name = $1 if name =~ /^"(.*)"$/
             name
           end
+
           index = ActiveRecord::ConnectionAdapters::IndexDefinition.new(table_name, row[0], row[1] == "t", column_names)
           index.case_sensitive = false
+          indexes << index
+
+        elsif row[2][/WHERE/i] then
+          indexes.delete_if { |index| index.name == row[0] }
+
+          raise ArgumentError, "Failed to find column names from #{row.inspect}" unless row[2] =~ /using.*[(]([^)]+)[)]/i
+          column_names = $1.split(",").map(&:strip)
+          index = ActiveRecord::ConnectionAdapters::IndexDefinition.new(table_name, row[0], row[1] == "t", column_names)
+          index.case_sensitive = false
+          conds = row[2].split(/where /i, 2)[1]
+          index.conditions = conds
           indexes << index
         end
       end
