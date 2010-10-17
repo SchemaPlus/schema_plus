@@ -5,11 +5,11 @@
 
 Gem::Specification.new do |s|
   s.name = %q{redhillonrails_core}
-  s.version = "1.0.6.adgear"
+  s.version = "1.0.7"
 
   s.required_rubygems_version = Gem::Requirement.new(">= 0") if s.respond_to? :required_rubygems_version=
-  s.authors = ["Micha\305\202 \305\201omnicki"]
-  s.date = %q{2010-09-24}
+  s.authors = ["Michał Łomnicki"]
+  s.date = %q{2010-10-17}
   s.description = %q{RedHill on Rails Core is a plugin that features to support other RedHill on Rails plugins. It creates and drops views and foreign-keys or obtains indexes directly from a model class.}
   s.email = %q{michal.lomnicki@gmail.com}
   s.extra_rdoc_files = [
@@ -48,14 +48,14 @@ Gem::Specification.new do |s|
   s.homepage = %q{http://github.com/mlomnicki/redhillonrails_core}
   s.rdoc_options = ["--charset=UTF-8"]
   s.require_paths = ["lib"]
-  s.rubygems_version = %q{1.3.6}
+  s.rubygems_version = %q{1.3.7}
   s.summary = %q{RedHill on Rails Core is a plugin that features to support other RedHill on Rails plugins}
 
   if s.respond_to? :specification_version then
     current_version = Gem::Specification::CURRENT_SPECIFICATION_VERSION
     s.specification_version = 3
 
-    if Gem::Version.new(Gem::RubyGemsVersion) >= Gem::Version.new('1.2.0') then
+    if Gem::Version.new(Gem::VERSION) >= Gem::Version.new('1.2.0') then
     else
     end
   else
