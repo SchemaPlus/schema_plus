@@ -58,5 +58,10 @@ module RedHillConsulting::Core::ActiveRecord::ConnectionAdapters
       reverse_foreign_keys(name).each { |foreign_key| remove_foreign_key(foreign_key.table_name, foreign_key.name, options) }
       drop_table_without_redhillonrails_core(name, options)
     end
+
+    def supports_partial_indexes?
+      false
+    end
+
   end
 end

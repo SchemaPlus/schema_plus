@@ -36,41 +36,41 @@ module RedHillConsulting::Core::ActiveRecord::ConnectionAdapters
     def supports_partial_indexes?
       true
     end
+      
+    INDEX_CASE_INSENSITIVE_REGEX = /\((.*LOWER\([^:]+(::text)?\).*)\)/i
+    INDEX_PARTIAL_REGEX = /\((.*)\)\s+WHERE (.*)$/i
 
     def indexes_with_redhillonrails_core(table_name, name = nil)
       indexes = indexes_without_redhillonrails_core(table_name, name)
+      # Process indexes containg expressions and partial indexes
+      # Ie. consider 
       result = query(<<-SQL, name)
         SELECT c2.relname, i.indisunique, pg_catalog.pg_get_indexdef(i.indexrelid, 0, true)
           FROM pg_catalog.pg_class c, pg_catalog.pg_class c2, pg_catalog.pg_index i
          WHERE c.relname = '#{table_name}'
            AND c.oid = i.indrelid AND i.indexrelid = c2.oid
-           AND i.indisprimary = 'f'
+           AND i.indisprimary = 'f' 
+           AND (i.indexprs IS NOT NULL OR i.indpred IS NOT NULL)
          ORDER BY 1
       SQL
 
-      indexes.delete_if {|index| index.columns.compact.empty?}
-      result.each do |row|
-        if row[2]=~ /\((.*LOWER\([^:]+(::text)?\).*)\)/i
-          indexes.delete_if { |index| index.name == row[0] }
-          column_names = $1.split(", ").map do |name|
-            name = $1 if name =~ /^LOWER\(([^:]+)(::text)?\)$/i
-            name = $1 if name =~ /^"(.*)"$/
-            name
-          end
 
-          index = ActiveRecord::ConnectionAdapters::IndexDefinition.new(table_name, row[0], row[1] == "t", column_names)
-          index.case_sensitive = false
-          indexes << index
+      # Correctly process complex indexes, ie:
+      # CREATE INDEX test_index ON custom_pages USING btree (lower(title::text), created_at) WHERE kind = 1 AND author_id = 3
+      result.each do |(index_name, unique, index_def)|
+        case_sensitive_match = INDEX_CASE_INSENSITIVE_REGEX.match(index_def)
+        partial_index_match = INDEX_PARTIAL_REGEX.match(index_def)
+        if case_sensitive_match || partial_index_match
+          # column_definitions may be ie. 'LOWER(lower)' or 'login, deleted_at' or LOWER(login), deleted_at
+          column_definitions = case_sensitive_match ? case_sensitive_match[1] : partial_index_match[1] 
 
-        elsif row[2][/WHERE/i] then
-          indexes.delete_if { |index| index.name == row[0] }
+          indexes.delete_if { |index| index.name == index_name } # prevent duplicated indexes
+          column_names = determine_index_column_names(column_definitions)
 
-          raise ArgumentError, "Failed to find column names from #{row.inspect}" unless row[2] =~ /using.*[(]([^)]+)[)]/i
-          column_names = $1.split(",").map(&:strip)
-          index = ActiveRecord::ConnectionAdapters::IndexDefinition.new(table_name, row[0], row[1] == "t", column_names)
-          index.case_sensitive = false
-          conds = row[2].split(/where /i, 2)[1]
-          index.conditions = conds
+          index = ActiveRecord::ConnectionAdapters::IndexDefinition.new(table_name, index_name, unique == "t", column_names)
+          index.case_sensitive = !!case_sensitive_match
+          # conditions may be ie. active = true AND deleted_at IS NULL. 
+          index.conditions = partial_index_match[2] if partial_index_match 
           indexes << index
         end
       end
@@ -146,5 +146,16 @@ module RedHillConsulting::Core::ActiveRecord::ConnectionAdapters
 
       foreign_keys
     end
+
+    # Converts form like: column1, LOWER(column2)
+    # to: column1, column2
+    def determine_index_column_names(column_definitions)
+      column_definitions.split(", ").map do |name|
+        name = $1 if name =~ /^LOWER\(([^:]+)(::text)?\)$/i
+        name = $1 if name =~ /^"(.*)"$/
+          name
+      end
+    end
+
   end
 end
