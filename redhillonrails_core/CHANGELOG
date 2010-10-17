@@ -1,3 +1,7 @@
+1.0.6
+    * Fixed case-sensitive indexes
+1.0.5
+    * added missing quoting
 1.0.4
     * Autoloading
 1.0.3
