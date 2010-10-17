@@ -1,13 +1,32 @@
-NOTE: This plugin was created by harukizaemon(http://github.com/harukizaemon) but is not supported currently by him.
+= Credits
+
+This plugin was created by harukizaemon(http://github.com/harukizaemon) but is not supported currently by him.
+I've forked it to make it edge-rails compatible and to introduce new features.
 
 = RedHill on Rails Core
 
-RedHill on Rails Core is a plugin that features to support other RedHill on Rails plugins.  Those features include:
+RedHill on Rails Core provides bunch of useful database features:
 
 * Creating and dropping views;
 * Creating and removing foreign-keys;
+* Creating partial indexes (postgresql only)
 * Obtaining indexes directly from a model class; and
 * Determining when <code>Schema.define()</code> is running.
+
+=== Installation
+
+As a gem
+
+{{{
+  gem install redhillonrails_core
+}}}
+
+...or as a plugin
+
+{{{
+    script/plugin install http://github.com/mlomnicki/redhillonrails_core.git
+}}}
+
 
 === View Support
 
@@ -124,12 +143,6 @@ Partial indexes index only a portion of the database. Only PostgreSQL supports t
 
   add_index :users, :username, :unique => true, :conditions => {:state => "active"}
 
-=== Schema Defining
-
-The plugin also adds a method--<code>defining?()</code>--to
-<code>ActiveRecord::Schema</code> to indicate when <code>define()</code> is running. This is necessary
-as some migration plugins must change their behaviour accordingly.
-
 === Case-insensitive Indexes
 
 For PostgreSQL, you can add an option <code>:case_sensitive => false</code> to <code>add_index</code>
@@ -147,14 +160,14 @@ Note also that this ties in well with Rails built-in support for case-insensitiv
 
   validates_uniqueness_of :name, :case_sensitive => false
 
-=== See Also
+=== Schema Defining
 
-* Foreign Key Associations (foreign_key_associations)
-* Foreign Key Migrations (foreign_key_migrations)
-* Row Version Migrations (row_version_migrations)
-* Schema Validations (schema_validations)
+The plugin also adds a method--<code>defining?()</code>--to
+<code>ActiveRecord::Schema</code> to indicate when <code>define()</code> is running. This is necessary
+as some migration plugins must change their behaviour accordingly.
 
-=== License
+=== Contributors
 
-This plugin is copyright 2006 by RedHill Consulting, Pty. Ltd. and is released
-under the MIT license.
+* François Beausoleil - http://github.com/francois
+* Greg Barnett
+
