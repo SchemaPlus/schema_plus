@@ -27,7 +27,7 @@ module RedHillConsulting::Core::ActiveRecord::ConnectionAdapters
       conditions = options[:conditions]
 
       if column_names.empty? then
-        sql = "CREATE #{index_type} INDEX #{quote_column_name(index_name)} ON #{quote_table_name(table_name)} USING #{options[:expression]}"
+        sql = "CREATE #{index_type} INDEX #{quote_column_name(index_name)} ON #{quote_table_name(table_name)} #{options[:expression]}"
       else
         quoted_column_names = column_names.map { |e| options[:case_sensitive] == false && e.to_s !~ /_id$/ ? "LOWER(#{quote_column_name(e)})" : quote_column_name(e) }
 
