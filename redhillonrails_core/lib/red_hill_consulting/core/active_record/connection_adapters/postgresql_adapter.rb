@@ -17,16 +17,14 @@ module RedHillConsulting::Core::ActiveRecord::ConnectionAdapters
     def add_index(table_name, column_name, options = {})
       column_name, options = [], column_name if column_name.is_a?(Hash)
       column_names = Array(column_name)
-      raise ArgumentError, "No columns and :expression missing from options - cannot create index" if column_names.empty? && options[:expression].blank?
-      index_name   = column_names.empty? ? options[:name] : index_name(table_name, :column => column_names)
-
-      if Hash === options # legacy support, since this param was a string
-        index_type = options[:unique] ? "UNIQUE" : ""
-        index_name = options[:name] || index_name
-        conditions = options[:conditions]
-      else
-        index_type = options
+      if column_names.empty?
+        raise ArgumentError, "No columns and :expression missing from options - cannot create index" if options[:expression].blank?
+        raise ArgumentError, "Index name not given. Pass :name option" if options[:name].blank?
       end
+        
+      index_type = options[:unique] ? "UNIQUE" : ""
+      index_name = options[:name] || index_name(table_name, column_names)
+      conditions = options[:conditions]
 
       if column_names.empty? then
         sql = "CREATE #{index_type} INDEX #{quote_column_name(index_name)} ON #{quote_table_name(table_name)} USING #{options[:expression]}"

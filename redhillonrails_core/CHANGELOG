@@ -1,5 +1,8 @@
+1.0.8
+    * handle expressions when creating indexes
+    * relay on ActiveRecord add_index method when handling legacy API
 1.0.7
-    * support for partial indexes 
+    * support for partial indexes
 1.0.6
     * Fixed case-sensitive indexes
 1.0.5
