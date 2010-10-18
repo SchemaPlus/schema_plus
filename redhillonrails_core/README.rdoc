@@ -16,17 +16,12 @@ RedHill on Rails Core provides bunch of useful database features:
 === Installation
 
 As a gem
-
-{{{
+    
   gem install redhillonrails_core
-}}}
 
 ...or as a plugin
 
-{{{
-    script/plugin install http://github.com/mlomnicki/redhillonrails_core.git
-}}}
-
+  script/plugin install http://github.com/mlomnicki/redhillonrails_core.git
 
 === View Support
 
