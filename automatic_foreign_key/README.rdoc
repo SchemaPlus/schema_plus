@@ -4,6 +4,18 @@ Automatic Foreign Key is an ActiveRecord extension that automatically generates 
 constraints when creating tables. It uses SQL-92 syntax and as such should be
 compatible with most databases that support foreign-key constraints.
 
+=== Installation
+
+As a gem
+    
+  gem install automatic_foreign_key
+
+...or as a plugin
+
+  script/plugin install http://github.com/mlomnicki/automatic_foreign_key.git
+
+=== Usage
+
 In the simplest case, the plugin assumes that if you have a column named
 +customer_id+ that you want a foreign-key constraint generated that references
 the +id+ column in the +customers+ table:
