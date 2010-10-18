@@ -26,6 +26,7 @@ module RedHillConsulting::Core::ActiveRecord
           columns_without_redhillonrails_core
           cols = columns_hash
           indexes.each do |index|
+            next if index.columns.empty?
             column_name = index.columns.reverse.detect { |name| name !~ /_id$/ } || index.columns.last
             column = cols[column_name]
             column.case_sensitive = index.case_sensitive?
