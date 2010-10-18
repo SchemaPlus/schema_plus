@@ -28,6 +28,10 @@ module AutomaticForeignKey
   mattr_accessor :auto_index
   @@auto_index = nil
 
+  def self.setup(&block)
+    yield self
+  end
+
   def self.options_for_index(index)
     index.is_a?(Hash) ? index : {}
   end
