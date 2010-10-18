@@ -138,6 +138,19 @@ Partial indexes index only a portion of the database. Only PostgreSQL supports t
 
   add_index :users, :username, :unique => true, :conditions => {:state => "active"}
 
+=== Indexing using an arbitrary expression
+
+PostgreSQL supports using creating indexes using arbitrary functions, such as <code>LOWER(name)</code>
+(better served with the case-insensitive support), or <code>LOWER(SUBSTR(body, 1, 100))</code>. This
+can even be used to create full text indexes:
+
+  add_index :documents, :name => "index_documents_on_body_full_text", :expression => "gin (to_tsvector('english', body))"
+
+Expression is a pass-through: no quoting, escaping is done on it. Presumably, this expression is
+part of migrations, or at least, code under your control.
+
+Only the PostgreSQL adapter supports this feature.
+
 === Case-insensitive Indexes
 
 For PostgreSQL, you can add an option <code>:case_sensitive => false</code> to <code>add_index</code>

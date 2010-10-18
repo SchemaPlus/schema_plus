@@ -25,10 +25,17 @@ module RedHillConsulting::Core::ActiveRecord
     def indexes_with_redhillonrails_core(table, stream)
       indexes = @connection.indexes(table)
       indexes.each do |index|
-        stream.print "  add_index #{index.table.inspect}, #{index.columns.inspect}, :name => #{index.name.inspect}"
-        stream.print ", :unique => true" if index.unique
-        stream.print ", :case_sensitive => false" unless index.case_sensitive?
-        stream.print ", :conditions => #{index.conditions.inspect}" unless index.conditions.blank?
+        if index.expression.blank? then
+          stream.print "  add_index #{index.table.inspect}, #{index.columns.inspect}, :name => #{index.name.inspect}"
+          stream.print ", :unique => true" if index.unique
+          stream.print ", :case_sensitive => false" unless index.case_sensitive?
+          stream.print ", :conditions => #{index.conditions.inspect}" unless index.conditions.blank?
+        else
+          stream.print "  add_index #{index.table.inspect}"
+          stream.print ", :expression => #{index.expression.inspect}"
+          stream.print ", :name => #{index.name.inspect}"
+        end
+
         stream.puts
       end
       stream.puts unless indexes.empty?

@@ -15,8 +15,10 @@ module RedHillConsulting::Core::ActiveRecord::ConnectionAdapters
     end
 
     def add_index(table_name, column_name, options = {})
+      column_name, options = [], column_name if column_name.is_a?(Hash)
       column_names = Array(column_name)
-      index_name   = index_name(table_name, :column => column_names)
+      raise ArgumentError, "No columns and :expression missing from options - cannot create index" if column_names.empty? && options[:expression].blank?
+      index_name   = column_names.empty? ? options[:name] : index_name(table_name, :column => column_names)
 
       if Hash === options # legacy support, since this param was a string
         index_type = options[:unique] ? "UNIQUE" : ""
@@ -26,10 +28,14 @@ module RedHillConsulting::Core::ActiveRecord::ConnectionAdapters
         index_type = options
       end
 
-      quoted_column_names = column_names.map { |e| options[:case_sensitive] == false && e.to_s !~ /_id$/ ? "LOWER(#{quote_column_name(e)})" : quote_column_name(e) }
+      if column_names.empty? then
+        sql = "CREATE #{index_type} INDEX #{quote_column_name(index_name)} ON #{quote_table_name(table_name)} USING #{options[:expression]}"
+      else
+        quoted_column_names = column_names.map { |e| options[:case_sensitive] == false && e.to_s !~ /_id$/ ? "LOWER(#{quote_column_name(e)})" : quote_column_name(e) }
 
-      sql = "CREATE #{index_type} INDEX #{quote_column_name(index_name)} ON #{quote_table_name(table_name)} (#{quoted_column_names.join(", ")})"
-      sql += " WHERE (#{ ActiveRecord::Base.send(:sanitize_sql, conditions, quote_table_name(table_name)) })" if conditions
+        sql = "CREATE #{index_type} INDEX #{quote_column_name(index_name)} ON #{quote_table_name(table_name)} (#{quoted_column_names.join(", ")})"
+        sql += " WHERE (#{ ActiveRecord::Base.send(:sanitize_sql, conditions, quote_table_name(table_name)) })" if conditions
+      end
       execute sql
     end
 
@@ -39,6 +45,7 @@ module RedHillConsulting::Core::ActiveRecord::ConnectionAdapters
       
     INDEX_CASE_INSENSITIVE_REGEX = /\((.*LOWER\([^:]+(::text)?\).*)\)/i
     INDEX_PARTIAL_REGEX = /\((.*)\)\s+WHERE (.*)$/i
+    INDEX_NON_BTREE_REGEX = /((?:gin|gist|hash).*)$/i
 
     def indexes_with_redhillonrails_core(table_name, name = nil)
       indexes = indexes_without_redhillonrails_core(table_name, name)
@@ -71,6 +78,13 @@ module RedHillConsulting::Core::ActiveRecord::ConnectionAdapters
           index.case_sensitive = !!case_sensitive_match
           # conditions may be ie. active = true AND deleted_at IS NULL. 
           index.conditions = partial_index_match[2] if partial_index_match 
+          indexes << index
+
+        elsif non_btree_match = INDEX_NON_BTREE_REGEX.match(index_def) then
+          indexes.delete_if { |index| index.name == index_name } # prevent duplicated indexes
+
+          index = ActiveRecord::ConnectionAdapters::IndexDefinition.new(table_name, index_name, false, [])
+          index.expression = non_btree_match[1]
           indexes << index
         end
       end
