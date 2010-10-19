@@ -1,0 +1,16 @@
+GEM
+  remote: http://rubygems.org/
+  specs:
+    activerecord (2.3.10)
+      activesupport (= 2.3.10)
+    activesupport (2.3.10)
+    micronaut (0.3.0)
+    pg (0.9.0)
+
+PLATFORMS
+  ruby
+
+DEPENDENCIES
+  activerecord (< 3.0.0)
+  micronaut
+  pg
