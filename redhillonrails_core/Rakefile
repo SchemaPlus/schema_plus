@@ -42,10 +42,6 @@ rescue LoadError
   end
 end
 
-task :test => :check_dependencies
-
-task :default => :test
-
 require 'rake/rdoctask'
 Rake::RDocTask.new do |rdoc|
   version = File.exist?('VERSION') ? File.read('VERSION') : ""
@@ -54,4 +50,27 @@ Rake::RDocTask.new do |rdoc|
   rdoc.title = "redhillonrails_core #{version}"
   rdoc.rdoc_files.include('README*')
   rdoc.rdoc_files.include('lib/**/*.rb')
+end
+
+require "micronaut/rake_task"
+Micronaut::RakeTask.new(:examples) do |examples|
+  examples.pattern = "spec/**/*_spec.rb"
+  examples.ruby_opts << "-Ilib -Ispec"
+end
+
+Micronaut::RakeTask.new(:rcov) do |examples|
+  examples.pattern = "spec/**/*_spec.rb"
+  examples.rcov_opts = "-Ilib -Ispec"
+  examples.rcov = true
+end
+
+task :examples => :check_dependencies
+
+task :default => :examples
+
+namespace :postgresql do
+  task :examples do
+    ENV["ADAPTER"] = "postgresql"
+    Rake::Task["examples"].invoke
+  end
 end
