@@ -128,3 +128,37 @@ describe RedHillConsulting::Core::ActiveRecord::ConnectionAdapters::PostgresqlAd
   end
 
 end
+
+describe RedHillConsulting::Core::ActiveRecord::ConnectionAdapters::PostgresqlAdapter, "expression indexes" do
+
+  before :all do
+    @migrator = Class.new(ActiveRecord::Migration) do
+      def self.up
+        create_table :users do |t|
+          t.string :username, :state
+        end
+
+        add_index :users, :expression => "gin (to_tsvector('english', username))", :name => "index_users_full_text"
+      end
+
+      def self.down
+        drop_table :users
+      end
+    end
+  end
+
+  it "should parse conditional index and report conditions" do
+    indexes = User.indexes
+    indexes.length.should == 1
+
+    index = indexes.first
+    index.unique.should == false
+    index.should be_case_sensitive
+    index.columns.should be_nil
+
+    # FIXME: This is subject to change depending on the PostgreSQL version
+    index.conditions.should be_nil
+    index.expression.should == "gin (to_tsvector('english'::regconfig, username::text))"
+  end
+
+end

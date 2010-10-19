@@ -83,7 +83,7 @@ module RedHillConsulting::Core::ActiveRecord::ConnectionAdapters
         elsif non_btree_match = INDEX_NON_BTREE_REGEX.match(index_def) then
           indexes.delete_if { |index| index.name == index_name } # prevent duplicated indexes
 
-          index = ActiveRecord::ConnectionAdapters::IndexDefinition.new(table_name, index_name, false, [])
+          index = ActiveRecord::ConnectionAdapters::IndexDefinition.new(table_name, index_name, false, nil)
           index.expression = non_btree_match[1]
           indexes << index
         end
