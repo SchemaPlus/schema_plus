@@ -19,18 +19,6 @@ describe RedHillConsulting::Core::ActiveRecord::ConnectionAdapters::PostgresqlAd
     end
   end
 
-  before do
-    @migrator.up
-  end
-
-  before do
-    User.reset_column_information
-  end
-
-  after do
-    @migrator.down
-  end
-
   it "should parse the index and return appropriate information" do
     indexes = User.indexes
     indexes.length.should == 1
@@ -61,18 +49,6 @@ describe RedHillConsulting::Core::ActiveRecord::ConnectionAdapters::PostgresqlAd
         drop_table :users
       end
     end
-  end
-
-  before do
-    @migrator.up
-  end
-
-  before do
-    User.reset_column_information
-  end
-
-  after do
-    @migrator.down
   end
 
   it "should parse the index and return appropriate information" do

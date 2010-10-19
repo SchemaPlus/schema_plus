@@ -24,3 +24,17 @@ when "postgresql"
 else
   raise ArgumentError, "ADAPTER environment variable left unset: run tests and set ADAPTER to a known value. Valid values are: postgresql"
 end
+
+Micronaut.configure do |c|
+  c.before :each do
+    @migrator.up
+  end
+
+  c.before :each do
+    User.reset_column_information
+  end
+
+  c.after :each do
+    @migrator.down
+  end
+end
