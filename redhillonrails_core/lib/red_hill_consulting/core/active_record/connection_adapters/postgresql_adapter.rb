@@ -75,7 +75,7 @@ module RedHillConsulting::Core::ActiveRecord::ConnectionAdapters
           column_names = determine_index_column_names(column_definitions)
 
           index = ActiveRecord::ConnectionAdapters::IndexDefinition.new(table_name, index_name, unique == "t", column_names)
-          index.case_sensitive = !!case_sensitive_match
+          index.case_sensitive = !case_sensitive_match
           # conditions may be ie. active = true AND deleted_at IS NULL. 
           index.conditions = partial_index_match[2] if partial_index_match 
           indexes << index
