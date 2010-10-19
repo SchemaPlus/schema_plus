@@ -1,4 +1,4 @@
-require "spec_helper"
+require "example_helper"
 require "red_hill_consulting/core/active_record/connection_adapters/postgresql_adapter"
 
 describe RedHillConsulting::Core::ActiveRecord::ConnectionAdapters::PostgresqlAdapter, "simple indexes" do

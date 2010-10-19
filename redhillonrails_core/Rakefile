@@ -54,13 +54,13 @@ end
 
 require "micronaut/rake_task"
 Micronaut::RakeTask.new(:examples) do |examples|
-  examples.pattern = "spec/**/*_spec.rb"
-  examples.ruby_opts << "-Ilib -Ispec"
+  examples.pattern = "examples/**/*_example.rb"
+  examples.ruby_opts << "-Ilib -Iexamples"
 end
 
 Micronaut::RakeTask.new(:rcov) do |examples|
-  examples.pattern = "spec/**/*_spec.rb"
-  examples.rcov_opts = "-Ilib -Ispec"
+  examples.pattern = "examples/**/*_example.rb"
+  examples.rcov_opts = "-Ilib -Iexamples"
   examples.rcov = true
 end
 
