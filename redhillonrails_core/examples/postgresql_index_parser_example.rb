@@ -162,3 +162,37 @@ describe RedHillConsulting::Core::ActiveRecord::ConnectionAdapters::PostgresqlAd
   end
 
 end
+
+describe RedHillConsulting::Core::ActiveRecord::ConnectionAdapters::PostgresqlAdapter, "case insensitive + partial index" do
+
+  before :all do
+    @migrator = Class.new(ActiveRecord::Migration) do
+      def self.up
+        create_table :users do |t|
+          t.string :username, :state
+        end
+
+        add_index :users, :username, :unique => true, :case_sensitive => false, :conditions => {:state => %w(active suspended invited)}
+      end
+
+      def self.down
+        drop_table :users
+      end
+    end
+  end
+
+  it "should parse as an expression index" do
+    indexes = User.indexes
+    indexes.length.should == 1
+
+    index = indexes.first
+    index.unique.should == false   # We don't attempt to determine if this is true/false when it's an expression index
+    index.should be_case_sensitive # Same here: return the default value - expression trumps all other values
+    index.columns.should be_nil    # And we know the columns aren't specified when it's an expression
+
+    # FIXME: This is subject to change depending on the PostgreSQL version
+    index.conditions.should be_nil
+    index.expression.should == "btree (lower(username::text)) WHERE state::text = ANY (ARRAY['active'::character varying, 'suspended'::character varying, 'invited'::character varying]::text[])"
+  end
+
+end
