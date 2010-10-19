@@ -20,14 +20,16 @@ end
 # We drop and reload the schema on all specs, to make it easier to know what'll be in the DB
 case ENV["ADAPTER"]
 when "postgresql"
-  ActiveRecord::Base.establish_connection :adapter => "postgresql", :database => "redhillonrails_core_test"
+  ActiveRecord::Base.establish_connection :adapter => "postgresql", :database => "redhillonrails_core_test", :min_messages => "warning"
 else
   raise ArgumentError, "ADAPTER environment variable left unset: run tests and set ADAPTER to a known value. Valid values are: postgresql"
 end
 
 Micronaut.configure do |c|
   c.before :each do
-    @migrator.up
+    @migrator.suppress_messages do
+      @migrator.up
+    end
   end
 
   c.before :each do
@@ -35,6 +37,8 @@ Micronaut.configure do |c|
   end
 
   c.after :each do
-    @migrator.down
+    @migrator.suppress_messages do
+      @migrator.down
+    end
   end
 end
