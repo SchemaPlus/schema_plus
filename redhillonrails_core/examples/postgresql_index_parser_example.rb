@@ -23,6 +23,10 @@ describe RedHillConsulting::Core::ActiveRecord::ConnectionAdapters::PostgresqlAd
     @migrator.up
   end
 
+  before do
+    User.reset_column_information
+  end
+
   after do
     @migrator.down
   end
@@ -61,6 +65,10 @@ describe RedHillConsulting::Core::ActiveRecord::ConnectionAdapters::PostgresqlAd
 
   before do
     @migrator.up
+  end
+
+  before do
+    User.reset_column_information
   end
 
   after do
