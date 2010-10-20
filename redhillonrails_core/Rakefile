@@ -12,6 +12,10 @@ begin
     gem.homepage = "http://github.com/mlomnicki/redhillonrails_core"
     gem.authors = ["Michał Łomnicki"]
     # gem is a Gem::Specification... see http://www.rubygems.org/read/chapter/20 for additional settings
+
+    gem.add_dependency "activerecord", "< 3.0.0"
+
+    gem.add_development_dependency "micronaut"
   end
   Jeweler::GemcutterTasks.new
 rescue LoadError
@@ -38,10 +42,6 @@ rescue LoadError
   end
 end
 
-task :test => :check_dependencies
-
-task :default => :test
-
 require 'rake/rdoctask'
 Rake::RDocTask.new do |rdoc|
   version = File.exist?('VERSION') ? File.read('VERSION') : ""
@@ -50,4 +50,27 @@ Rake::RDocTask.new do |rdoc|
   rdoc.title = "redhillonrails_core #{version}"
   rdoc.rdoc_files.include('README*')
   rdoc.rdoc_files.include('lib/**/*.rb')
+end
+
+require "micronaut/rake_task"
+Micronaut::RakeTask.new(:examples) do |examples|
+  examples.pattern = "examples/**/*_example.rb"
+  examples.ruby_opts << "-Ilib -Iexamples"
+end
+
+Micronaut::RakeTask.new(:rcov) do |examples|
+  examples.pattern = "examples/**/*_example.rb"
+  examples.rcov_opts = "-Ilib -Iexamples"
+  examples.rcov = true
+end
+
+task :examples => :check_dependencies
+
+task :default => :examples
+
+namespace :postgresql do
+  task :examples do
+    ENV["ADAPTER"] = "postgresql"
+    Rake::Task["examples"].invoke
+  end
 end

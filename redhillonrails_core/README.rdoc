@@ -172,6 +172,15 @@ The plugin also adds a method--<code>defining?()</code>--to
 <code>ActiveRecord::Schema</code> to indicate when <code>define()</code> is running. This is necessary
 as some migration plugins must change their behaviour accordingly.
 
+=== Examples
+
+redhillonrails_core uses Micronaut for specing. The examples are split per-database adapter. Run using Bundler:
+
+  $ bundle install
+  $ bundle exec rake postgresql:examples
+
+Running examples only will fail since the environment won't be setup properly.
+
 === Contributors
 
 * François Beausoleil - http://github.com/francois

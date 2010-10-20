@@ -65,7 +65,18 @@ module RedHillConsulting::Core::ActiveRecord::ConnectionAdapters
       result.each do |(index_name, unique, index_def)|
         case_sensitive_match = INDEX_CASE_INSENSITIVE_REGEX.match(index_def)
         partial_index_match = INDEX_PARTIAL_REGEX.match(index_def)
-        if case_sensitive_match || partial_index_match
+        if non_btree_match = INDEX_NON_BTREE_REGEX.match(index_def) || (case_sensitive_match && partial_index_match) then
+          # If we have both types of indexes simultaneously, we don't try to parse it all: simply assume it's an expression index
+          indexes.delete_if { |index| index.name == index_name } # prevent duplicated indexes
+
+          index = ActiveRecord::ConnectionAdapters::IndexDefinition.new(table_name, index_name, false, nil)
+          index.expression = if case_sensitive_match then
+                               index_def.split(/using/i, 2).last.strip
+                             else
+                               non_btree_match[1]
+                             end
+          indexes << index
+        elsif case_sensitive_match || partial_index_match then
           # column_definitions may be ie. 'LOWER(lower)' or 'login, deleted_at' or LOWER(login), deleted_at
           column_definitions = case_sensitive_match ? case_sensitive_match[1] : partial_index_match[1] 
 
@@ -73,17 +84,11 @@ module RedHillConsulting::Core::ActiveRecord::ConnectionAdapters
           column_names = determine_index_column_names(column_definitions)
 
           index = ActiveRecord::ConnectionAdapters::IndexDefinition.new(table_name, index_name, unique == "t", column_names)
-          index.case_sensitive = !!case_sensitive_match
+          index.case_sensitive = !case_sensitive_match
           # conditions may be ie. active = true AND deleted_at IS NULL. 
           index.conditions = partial_index_match[2] if partial_index_match 
           indexes << index
 
-        elsif non_btree_match = INDEX_NON_BTREE_REGEX.match(index_def) then
-          indexes.delete_if { |index| index.name == index_name } # prevent duplicated indexes
-
-          index = ActiveRecord::ConnectionAdapters::IndexDefinition.new(table_name, index_name, false, [])
-          index.expression = non_btree_match[1]
-          indexes << index
         end
       end
 
