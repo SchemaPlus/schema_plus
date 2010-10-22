@@ -142,7 +142,7 @@ Partial indexes index only a portion of the database. Only PostgreSQL supports t
 
 Create expression-based indexes:
 
-  add_index :users, [:first_name, :last_name], :expression => 'LOWER(first_name || last_name)'
+  add_index :users, [:first_name, :last_name], :expression => 'LOWER(first_name || ' ' || last_name)'
   add_index :places, :expression => 'sin(lat) * cos(lng)', :name => 'index_places_on_something'
   add_index :documents, :body, :expression => "USING gin (to_tsvector('english', body))" 
 
