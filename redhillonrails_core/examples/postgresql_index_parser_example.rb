@@ -138,7 +138,7 @@ describe RedHillConsulting::Core::ActiveRecord::ConnectionAdapters::PostgresqlAd
           t.string :username, :state
         end
 
-        add_index :users, :expression => "gin (to_tsvector('english', username))", :name => "index_users_full_text"
+        add_index :users, :expression => "USING gin (to_tsvector('english', username))", :name => "index_users_full_text"
       end
 
       def self.down
