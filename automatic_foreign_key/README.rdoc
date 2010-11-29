@@ -4,6 +4,9 @@ Automatic Foreign Key is an ActiveRecord extension that automatically generates 
 constraints when creating tables. It uses SQL-92 syntax and as such should be
 compatible with most databases that support foreign-key constraints.
 
+As a bonus, the extension also allows you to create indices on columns via
+options to the schema column definition statements.
+
 === Installation
 
 As a gem
@@ -110,6 +113,22 @@ If you want to pass some options for index use hash params.
 
 Auto indexing option is useless for MySQL users as their RDBMS adds indices on foreign
 keys by default. However PostgreSQL users may have fun with that feature.
+
+=== Column Indices 
+
+You can create an index on any column by specifying the +:index+ option.
+
+  create_table :users do |t|
+    ...
+    t.string :role, :index => true
+  end
+
+If you want to pass some options for rails' +add_index()+ you can use hash params.
+
+  create_table :users do |t|
+    ...
+    t.string :userid, :index => { :unique => true }
+  end
 
 === Configuration
 
