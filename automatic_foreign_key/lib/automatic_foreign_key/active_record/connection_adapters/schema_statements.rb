@@ -14,7 +14,8 @@ module AutomaticForeignKey::ActiveRecord::ConnectionAdapters
         indices = table_definition.indices
       end
       indices.each do |column_name, index_options|
-        add_index(table, column_name, index_options)
+        column_names = [column_name] + Array.wrap(index_options.delete(:with))
+        add_index(table, column_names, index_options)
       end 
     end
 

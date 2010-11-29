@@ -47,6 +47,12 @@ describe ActiveRecord::Migration do
       create_table(@model, :state => { :index => true }) 
       @model.should have_index.on(:state)
     end
+
+    it "should create a multiple-column index if specified" do
+      create_table(@model, :city => {},
+                   :state => { :index => {:with => :city} } ) 
+      @model.should have_index.on([:state, :city])
+    end
     
     it "should auto-index foreign keys only" do
       AutomaticForeignKey.auto_index = true

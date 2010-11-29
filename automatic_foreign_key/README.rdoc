@@ -130,6 +130,17 @@ If you want to pass some options for rails' +add_index()+ you can use hash param
     t.string :userid, :index => { :unique => true }
   end
 
+You can also define a multi-column index by specifying a +:with+ option
+listing one or more additional columns to be passed to +add_index()+.
+
+  create_table :users do |t|
+    t.integer :group_id
+    t.integer :member_number, :index => { :with => :group_id, :unique => true }
+    t.integer :country_code
+    t.string  :area_code
+    t.string  :local_phone,   :index => { :with => [:country_code, :area_code], :unique => true }
+  end
+
 === Configuration
 
 For customization purposes create config/initializers/automatic_foreign_key.rb file:
