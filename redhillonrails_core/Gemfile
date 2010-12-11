@@ -8,11 +8,11 @@ group :development, :test do
   gem "jeweler"
   gem "micronaut"
 
-  platform :ruby_18 do
+  platforms :ruby_18 do
     gem "ruby-debug"
   end
 
-  platform :ruby_19 do
+  platforms :ruby_19 do
     gem "ruby-debug19"
   end
 end
