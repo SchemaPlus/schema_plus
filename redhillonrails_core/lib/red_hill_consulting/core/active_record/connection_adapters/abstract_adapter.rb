@@ -9,7 +9,11 @@ module RedHillConsulting::Core::ActiveRecord::ConnectionAdapters
       initialize_without_redhillonrails_core(*args)
       adapter = nil
       case adapter_name
-      when 'MySQL' 
+      # name of MySQL adapter depends on mysql gem
+      # * with mysql gem adapter is named MySQL
+      # * with mysql2 gem adapter is named Mysql2
+      # Here we handle this and hopefully futher adapter names
+      when /^MySQL/i 
         adapter = 'MysqlAdapter'
       when 'PostgreSQL' 
         adapter = 'PostgresqlAdapter'
