@@ -24,7 +24,7 @@ module RedHillConsulting::Core::ActiveRecord::ConnectionAdapters
   autoload :Mysql4Adapter, 'red_hill_consulting/core/active_record/connection_adapters/mysql4_adapter'
   autoload :Mysql5Adapter, 'red_hill_consulting/core/active_record/connection_adapters/mysql5_adapter'
   autoload :PostgresqlAdapter, 'red_hill_consulting/core/active_record/connection_adapters/postgresql_adapter'
-  autoload :Sqlite3Adapter, 'red_hill_consulting/core/active_record/connection_adapters/mysql_adapter'
+  autoload :Sqlite3Adapter, 'red_hill_consulting/core/active_record/connection_adapters/sqlite3_adapter'
 end
 
 ActiveRecord::Base.send(:include, RedHillConsulting::Core::ActiveRecord::Base)
