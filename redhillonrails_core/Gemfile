@@ -1,7 +1,7 @@
 source :rubygems
 
 gem "pg"
-gem "activerecord", "< 3.0.0"
+gem "activerecord"
 gem "rake"
 
 group :development, :test do
