@@ -1,3 +1,5 @@
+1.0.9.1
+    * get rid of ActiveRecord < 3.0.0 dependency
 1.0.9
     * compatibility fix for mysql2 gem
 1.0.8

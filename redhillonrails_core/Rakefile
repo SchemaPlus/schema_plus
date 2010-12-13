@@ -13,7 +13,7 @@ begin
     gem.authors = ["Michał Łomnicki"]
     # gem is a Gem::Specification... see http://www.rubygems.org/read/chapter/20 for additional settings
 
-    gem.add_dependency "activerecord", "< 3.0.0"
+    gem.add_dependency "activerecord"
 
     gem.add_development_dependency "micronaut"
   end
