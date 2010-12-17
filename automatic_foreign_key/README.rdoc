@@ -153,7 +153,7 @@ For customization purposes create config/initializers/automatic_foreign_key.rb f
 
 === Rails 3 compatibility
 
-    Automatic foreign key is fully compatibly with Rails 3.
+    Automatic foreign key is fully compatible with Rails 3.
 
 === Rails 2.x compatibility
     
