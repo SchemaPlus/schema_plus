@@ -6,8 +6,8 @@ begin
   require 'jeweler'
   Jeweler::Tasks.new do |gem|
     gem.name = "redhillonrails_core"
-    gem.summary = %Q{RedHill on Rails Core is a plugin that features to support other RedHill on Rails plugins}
-    gem.description = %Q{RedHill on Rails Core is a plugin that features to support other RedHill on Rails plugins. It creates and drops views and foreign-keys or obtains indexes directly from a model class.}
+    gem.summary = %Q{Adds support in ActiveRecord for foreign_keys, complex indexes and other database-related stuff}
+    gem.description = %Q{Adds support in ActiveRecord for foreign_keys, complex indexes and other database-related stuff. Easily create foreign_keys, complex indexes, views and table comments.}
     gem.email = "michal.lomnicki@gmail.com"
     gem.homepage = "http://github.com/mlomnicki/redhillonrails_core"
     gem.authors = ["Michał Łomnicki"]
