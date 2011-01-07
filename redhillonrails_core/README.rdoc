@@ -152,16 +152,17 @@ Note also that this ties in well with Rails built-in support for case-insensitiv
 redhillonrails_core is tested using similar approach to ActiveRecord tests.
 However we use rspec in favor of Test::Unit
 
+First you have to fetch sources from github as specs are not inculded in a gem.
+
+  $ git clone https://mlomnicki@github.com/mlomnicki/redhillonrails_core.git
+  $ cd redhillonrails_core
   $ bundle install
-  $ rake postgresql:build_database
-  $ bundle exec rake spec postgresql:spec
-
-
-To run tests for all adapters
-
+  $ rake postgresql:build_database # create redhillonrails user first
+  $ rake mysql:build_database  # create user as above
   $ bundle exec rake spec
 
-Running examples only will fail since the environment won't be setup properly.
+  # to run postgresql specs only
+  $ bundle exec rake spec postgresql:spec 
 
 === Contributors
 
