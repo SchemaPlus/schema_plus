@@ -18,7 +18,7 @@ module RedHillConsulting::Core::ActiveRecord::ConnectionAdapters
       when 'PostgreSQL' 
         adapter = 'PostgresqlAdapter'
       when 'SQLite' 
-        adapter = 'SqliteAdapter'
+        adapter = 'Sqlite3Adapter'
       end
       if adapter 
         adapter_module = RedHillConsulting::Core::ActiveRecord::ConnectionAdapters.const_get(adapter)
