@@ -43,7 +43,7 @@ module RedHillConsulting::Core::ActiveRecord::ConnectionAdapters
       
     INDEX_CASE_INSENSITIVE_REGEX = /\((.*LOWER\([^:]+(::text)?\).*)\)/i
     INDEX_PARTIAL_REGEX = /\((.*)\)\s+WHERE (.*)$/i
-    INDEX_NON_BTREE_REGEX = /((?:gin|gist|hash).*)$/i
+    INDEX_NON_BTREE_REGEX = /USING (?:(?!btree)).*/i
 
     def indexes_with_redhillonrails_core(table_name, name = nil)
       indexes = indexes_without_redhillonrails_core(table_name, name)
@@ -65,18 +65,14 @@ module RedHillConsulting::Core::ActiveRecord::ConnectionAdapters
       result.each do |(index_name, unique, index_def)|
         case_sensitive_match = INDEX_CASE_INSENSITIVE_REGEX.match(index_def)
         partial_index_match = INDEX_PARTIAL_REGEX.match(index_def)
-        if non_btree_match = INDEX_NON_BTREE_REGEX.match(index_def) || (case_sensitive_match && partial_index_match) then
+        if non_btree_match = INDEX_NON_BTREE_REGEX.match(index_def) 
           # If we have both types of indexes simultaneously, we don't try to parse it all: simply assume it's an expression index
           indexes.delete_if { |index| index.name == index_name } # prevent duplicated indexes
 
           index = ActiveRecord::ConnectionAdapters::IndexDefinition.new(table_name, index_name, false, nil)
-          index.expression = if case_sensitive_match then
-                               index_def.split(/using/i, 2).last.strip
-                             else
-                               non_btree_match[1]
-                             end
+          index.expression = non_btree_match[0]
           indexes << index
-        elsif case_sensitive_match || partial_index_match then
+        elsif case_sensitive_match || partial_index_match 
           # column_definitions may be ie. 'LOWER(lower)' or 'login, deleted_at' or LOWER(login), deleted_at
           column_definitions = case_sensitive_match ? case_sensitive_match[1] : partial_index_match[1] 
 
@@ -170,7 +166,7 @@ module RedHillConsulting::Core::ActiveRecord::ConnectionAdapters
       column_definitions.split(", ").map do |name|
         name = $1 if name =~ /^LOWER\(([^:]+)(::text)?\)$/i
         name = $1 if name =~ /^"(.*)"$/
-          name
+        name
       end
     end
 
