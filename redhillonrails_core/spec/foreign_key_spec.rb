@@ -6,7 +6,7 @@ require 'models/comment'
 
 describe "Foreign Key" do
 
-  let(:migration) { ActiveRecord::Migration }
+  let(:migration) { ::ActiveRecord::Migration }
 
   context "when is added", "posts(author_id)" do
 

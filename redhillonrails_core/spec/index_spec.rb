@@ -4,7 +4,7 @@ require 'models/user'
 
 describe "add_index" do
 
-  let(:migration) { ActiveRecord::Migration }
+  let(:migration) { ::ActiveRecord::Migration }
 
   after(:each) do
     migration.suppress_messages do
@@ -27,7 +27,7 @@ describe "add_index" do
     index_for(:login).name.should == 'users_login_index'
   end
 
-  if ActiveRecord::Base.connection.class.include?(RedHillConsulting::Core::ActiveRecord::ConnectionAdapters::PostgresqlAdapter)
+  if ::ActiveRecord::Base.connection.class.include?(RedhillonrailsCore::ActiveRecord::ConnectionAdapters::PostgresqlAdapter)
 
     it "should assign conditions" do
       add_index(:users, :login, :conditions => 'deleted_at IS NULL')

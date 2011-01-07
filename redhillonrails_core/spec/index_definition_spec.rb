@@ -4,7 +4,7 @@ require 'models/user'
 
 describe "Index definition" do
 
-  let(:migration) { ActiveRecord::Migration }
+  let(:migration) { ::ActiveRecord::Migration }
 
   context "when index is multicolumn" do
     before(:each) do
@@ -27,7 +27,7 @@ describe "Index definition" do
 
   end
 
-  if ActiveRecord::Base.connection.class.include?(RedHillConsulting::Core::ActiveRecord::ConnectionAdapters::PostgresqlAdapter)
+  if ::ActiveRecord::Base.connection.class.include?(RedhillonrailsCore::ActiveRecord::ConnectionAdapters::PostgresqlAdapter)
 
     context "when case insensitive is added" do
 
