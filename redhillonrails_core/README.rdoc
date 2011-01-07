@@ -1,19 +1,20 @@
-= Credits
+= Disclaimer
 
-This plugin was created by harukizaemon(http://github.com/harukizaemon) but is not supported currently by him.
-I've forked it to make it edge-rails compatible and to introduce new features.
+redhillonrails_core was originally created by http://github.com/harukizaemon but it was retired and is no longer supported.
+
+That fork is intended to make redhillonrails_core compatible with edge rails and introduce some new features.
 
 = RedHill on Rails Core
 
-RedHill on Rails Core provides bunch of useful database features:
+Goal of redhillonrails_core is to provided missing ActiveRecord support for
+database specific features:
 
-* Creating and dropping views;
-* Creating and removing foreign-keys;
-* Creating partial indexes (postgresql only)
-* Obtaining indexes directly from a model class; and
-* Determining when <code>Schema.define()</code> is running.
+* foreign_keys
+* case-insensitive and partial indexes (pgsql only)
+* views
+* table comments
 
-=== Installation
+== Installation
 
 As a gem
     
@@ -23,13 +24,11 @@ As a gem
 
   script/plugin install http://github.com/mlomnicki/redhillonrails_core.git
 
-=== View Support
+== Compatibility 
 
-The plugin provides a mechanism for creating and dropping views as well as
-preserving views when performing a schema dump:
-
-  create_view :normal_customers, "SELECT * FROM customers WHERE status = 'normal'"
-  drop_view :normal_customers
+* Ruby - 1.8, 1.9
+* ActiveRecord - 2.X, 3.X
+* Databases - PostgreSQL, MySQL, SQLite3 (most features should also run on others)
 
 === Foreign Key Support
 
@@ -115,12 +114,14 @@ There is also a rake tasks to show all database tables and their comments:
 
   rake db:comments
 
-The plugin fully supports and understands the following active-record
-configuration properties:
+=== View Support
 
-* <code>config.active_record.pluralize_table_names</code>
-* <code>config.active_record.table_name_prefix</code>
-* <code>config.active_record.table_name_suffix</code>
+The plugin provides a mechanism for creating and dropping views as well as
+preserving views when performing a schema dump:
+
+  create_view :normal_customers, "SELECT * FROM customers WHERE status = 'normal'"
+  drop_view :normal_customers
+
 
 === Model Indexes
 
@@ -166,23 +167,25 @@ Note also that this ties in well with Rails built-in support for case-insensitiv
 
   validates_uniqueness_of :name, :case_sensitive => false
 
-=== Schema Defining
+=== Tests
 
-The plugin also adds a method--<code>defining?()</code>--to
-<code>ActiveRecord::Schema</code> to indicate when <code>define()</code> is running. This is necessary
-as some migration plugins must change their behaviour accordingly.
-
-=== Examples
-
-redhillonrails_core uses Micronaut for specing. The examples are split per-database adapter. Run using Bundler:
+redhillonrails_core is tested using similar approach to ActiveRecord tests.
+However we use rspec in favor of Test::Unit
 
   $ bundle install
-  $ bundle exec rake postgresql:examples
+  $ rake postgresql:build_database
+  $ bundle exec rake spec postgresql:spec
+
+
+To run tests for all adapters
+
+  $ bundle exec rake spec
 
 Running examples only will fail since the environment won't be setup properly.
 
 === Contributors
 
+* Michał Łomnicki
 * François Beausoleil - http://github.com/francois
 * Greg Barnett
 
