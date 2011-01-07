@@ -6,14 +6,6 @@ module RedHillConsulting::Core::ActiveRecord::ConnectionAdapters
       end
     end
 
-    def set_table_comment(table_name, comment)
-      execute "COMMENT ON TABLE #{quote_table_name(table_name)} IS '#{quote_string(comment)}'"
-    end
-
-    def clear_table_comment(table_name)
-      execute "COMMENT ON TABLE #{quote_table_name(table_name)} IS NULL"
-    end
-
     def add_index(table_name, column_name, options = {})
       column_name, options = [], column_name if column_name.is_a?(Hash)
       column_names = Array(column_name)

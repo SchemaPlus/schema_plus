@@ -12,7 +12,6 @@ database specific features:
 * foreign_keys
 * case-insensitive and partial indexes (pgsql only)
 * views
-* table comments
 
 == Installation
 
@@ -94,25 +93,6 @@ each test, you should list your fixtures in order of parent->child. For example:
   fixtures :customers, :products, :orders, :order_lines
 
 Rails will then set-up and tear-down the fixtures in the correct sequence.
-
-Some databases (PostgreSQL and MySQL for example) allow you to set a comment for a
-table. You can do this for existing tables by using:
-
-  set_table_comment :orders, "All pending and processed orders"
-
-or even at the time of creation:
-
-  create_table :orders, :comment => "All pending and processed orders" do |t|
-    ...
-  end
-
-You can clear table comments using:
-
-  clear_table_comment :orders
-
-There is also a rake tasks to show all database tables and their comments:
-
-  rake db:comments
 
 === View Support
 

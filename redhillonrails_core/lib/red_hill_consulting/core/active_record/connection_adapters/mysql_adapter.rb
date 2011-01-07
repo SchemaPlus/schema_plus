@@ -6,14 +6,6 @@ module RedHillConsulting::Core::ActiveRecord::ConnectionAdapters
       end
     end
 
-    def set_table_comment(table_name, comment)
-      execute "ALTER TABLE #{quote_table_name(table_name)} COMMENT='#{quote_string(comment)}'"
-    end
-    
-    def clear_table_comment(table_name)
-      execute "ALTER TABLE #{quote_table_name(table_name)} COMMENT=''"
-    end
-
     def remove_foreign_key(table_name, foreign_key_name, options = {})
       execute "ALTER TABLE #{quote_table_name(table_name)} DROP FOREIGN KEY #{foreign_key_name}"
     end
