@@ -1,3 +1,8 @@
+1.1.0
+    * dropped Mysql4 compatibility
+    * added specs regarding foreign_keys
+    * added specs regarding indexes
+    * fixed included module for sqlite3
 1.0.9.1
     * get rid of ActiveRecord < 3.0.0 dependency
 1.0.9
