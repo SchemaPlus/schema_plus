@@ -14,8 +14,6 @@ begin
     # gem is a Gem::Specification... see http://www.rubygems.org/read/chapter/20 for additional settings
 
     gem.add_dependency "activerecord"
-
-    gem.add_development_dependency "micronaut"
   end
   Jeweler::GemcutterTasks.new
 rescue LoadError
@@ -52,25 +50,64 @@ Rake::RDocTask.new do |rdoc|
   rdoc.rdoc_files.include('lib/**/*.rb')
 end
 
-require "micronaut/rake_task"
-Micronaut::RakeTask.new(:examples) do |examples|
-  examples.pattern = "examples/**/*_example.rb"
-  examples.ruby_opts << "-Ilib -Iexamples"
-end
-
-Micronaut::RakeTask.new(:rcov) do |examples|
-  examples.pattern = "examples/**/*_example.rb"
-  examples.rcov_opts = "-Ilib -Iexamples"
-  examples.rcov = true
-end
-
-task :examples => :check_dependencies
-
-task :default => :examples
-
-namespace :postgresql do
-  task :examples do
-    ENV["ADAPTER"] = "postgresql"
-    Rake::Task["examples"].invoke
+require 'spec/rake/spectask'
+%w[postgresql mysql mysql2 sqlite3].each do |adapter|
+  namespace adapter do
+    Spec::Rake::SpecTask.new(:spec) do |spec|
+      spec.libs << 'lib' << 'spec' << "spec/connections/#{adapter}"
+      spec.spec_files = FileList['spec/**/*_spec.rb']
+    end
   end
 end
+
+desc 'Run postgresql mysql, mysql2 and sqlite3 specs'
+task :spec do 
+  %w[postgresql mysql mysql2 sqlite3].each do |adapter|
+    Rake::Task["#{adapter}:spec"].invoke
+  end
+end
+
+task :spec => :check_dependencies
+
+task :default => :spec
+
+namespace :postgresql do
+  desc 'Build the PostgreSQL test databases'
+  task :build_databases do
+    %x( createdb -E UTF8 redhillonrails_core_test )
+    %x( createdb -E UTF8 redhillonrails_core_test2 )
+  end
+
+  desc 'Drop the PostgreSQL test databases'
+  task :drop_databases do
+    %x( dropdb redhillonrails_core_unittest )
+    %x( dropdb redhillonrails_core_unittest2 )
+  end
+
+  desc 'Rebuild the PostgreSQL test databases'
+  task :rebuild_databases => [:drop_databases, :build_databases]
+end
+
+task :build_postgresql_databases => 'postgresql:build_databases'
+task :drop_postgresql_databases => 'postgresql:drop_databases'
+task :rebuild_postgresql_databases => 'postgresql:rebuild_databases'
+
+MYSQL_DB_USER = 'redhillonrails_core'
+namespace :mysql do
+  desc 'Build the MySQL test databases'
+  task :build_databases do
+    %x( echo "create DATABASE redhillonrails_core_test DEFAULT CHARACTER SET utf8 DEFAULT COLLATE utf8_unicode_ci " | mysql --user=#{MYSQL_DB_USER})
+  end
+
+  desc 'Drop the MySQL test databases' 
+  task :drop_databases do
+    %x( mysqladmin --user=#{MYSQL_DB_USER} -f drop redhillonrails_core_test )
+  end
+
+  desc 'Rebuild the MySQL test databases'
+  task :rebuild_databases => [:drop_databases, :build_databases]
+end
+
+task :build_mysql_databases => 'mysql:build_databases'
+task :drop_mysql_databases => 'mysql:drop_databases'
+task :rebuild_mysql_databases => 'mysql:rebuild_databases'
