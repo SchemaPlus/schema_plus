@@ -26,15 +26,17 @@ module RedhillonrailsCore
       def indexes_with_redhillonrails_core(table, stream)
         indexes = @connection.indexes(table)
         indexes.each do |index|
-          if index.expression.blank? then
+          unless index.columns.blank? 
             stream.print "  add_index #{index.table.inspect}, #{index.columns.inspect}, :name => #{index.name.inspect}"
             stream.print ", :unique => true" if index.unique
+            stream.print ", :kind => \"#{index.kind}\"" unless index.kind.blank?
             stream.print ", :case_sensitive => false" unless index.case_sensitive?
             stream.print ", :conditions => #{index.conditions.inspect}" unless index.conditions.blank?
           else
             stream.print "  add_index #{index.table.inspect}"
-            stream.print ", :expression => #{index.expression.inspect}"
             stream.print ", :name => #{index.name.inspect}"
+            stream.print ", :kind => \"#{index.kind}\"" unless index.kind.blank?
+            stream.print ", :expression => #{index.expression.inspect}"
           end
 
           stream.puts
