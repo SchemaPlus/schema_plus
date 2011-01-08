@@ -31,13 +31,14 @@ describe "add_index" do
 
     it "should assign conditions" do
       add_index(:users, :login, :conditions => 'deleted_at IS NULL')
-      index_for(:login).conditions.should == 'deleted_at IS NULL'
+      index_for(:login).conditions.should == '(deleted_at IS NULL)'
     end
 
     it "should assign expression" do
-      add_index(:users, :expression => "USING hash (login) WHERE deleted_at IS NULL", :name => 'users_login_index')
+      add_index(:users, :expression => "USING hash (upper(login)) WHERE deleted_at IS NULL", :name => 'users_login_index')
       @index = User.indexes.detect { |i| i.expression.present? }
-      @index.expression.should == "USING hash (login) WHERE deleted_at IS NULL"
+      @index.expression.should == "upper((login)::text)"
+      @index.conditions.should == "(deleted_at IS NULL)"
     end
 
     it "should raise if no column given and expression is missing" do
