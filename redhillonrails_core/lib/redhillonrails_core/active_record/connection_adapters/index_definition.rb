@@ -2,7 +2,7 @@ module RedhillonrailsCore
   module ActiveRecord
     module ConnectionAdapters
       module IndexDefinition
-        attr_accessor :conditions, :expression
+        attr_accessor :conditions, :expression, :kind
 
         def case_sensitive?
           @case_sensitive.nil? ? true : @case_sensitive

@@ -35,54 +35,44 @@ module RedhillonrailsCore
           true
         end
 
-        INDEX_CASE_INSENSITIVE_REGEX = /\((.*LOWER\([^:]+(::text)?\).*)\)/i
-        INDEX_PARTIAL_REGEX = /\((.*)\)\s+WHERE (.*)$/i
-        INDEX_NON_BTREE_REGEX = /USING (?:(?!btree)).*/i
-
         def indexes_with_redhillonrails_core(table_name, name = nil)
-          indexes = indexes_without_redhillonrails_core(table_name, name)
-          # Process indexes containg expressions and partial indexes
-          # Ie. consider 
+          schemas = schema_search_path.split(/,/).map { |p| quote(p) }.join(',')
           result = query(<<-SQL, name)
-        SELECT c2.relname, i.indisunique, pg_catalog.pg_get_indexdef(i.indexrelid, 0, true)
-          FROM pg_catalog.pg_class c, pg_catalog.pg_class c2, pg_catalog.pg_index i
-         WHERE c.relname = '#{table_name}'
-           AND c.oid = i.indrelid AND i.indexrelid = c2.oid
-           AND i.indisprimary = 'f' 
-           AND (i.indexprs IS NOT NULL OR i.indpred IS NOT NULL)
-         ORDER BY 1
+           SELECT distinct i.relname, d.indisunique, d.indkey, m.amname, t.oid, 
+                    pg_get_expr(d.indpred, t.oid), pg_get_expr(d.indexprs, t.oid)
+             FROM pg_class t, pg_class i, pg_index d, pg_am m
+           WHERE i.relkind = 'i'
+             AND i.relam = m.oid
+             AND d.indexrelid = i.oid
+             AND d.indisprimary = 'f'
+             AND t.oid = d.indrelid
+             AND t.relname = '#{table_name}'
+             AND i.relnamespace IN (SELECT oid FROM pg_namespace WHERE nspname IN (#{schemas}) )
+          ORDER BY i.relname
           SQL
 
+          result.map do |(index_name, is_unique, indkey, kind, oid, conditions, expression)|
+            unique = (is_unique == 't')
+            index_keys = indkey.split(" ")
 
-          # Correctly process complex indexes, ie:
-          # CREATE INDEX test_index ON custom_pages USING btree (lower(title::text), created_at) WHERE kind = 1 AND author_id = 3
-          result.each do |(index_name, unique, index_def)|
-            case_sensitive_match = INDEX_CASE_INSENSITIVE_REGEX.match(index_def)
-          partial_index_match = INDEX_PARTIAL_REGEX.match(index_def)
-          if non_btree_match = INDEX_NON_BTREE_REGEX.match(index_def) 
-            # If we have both types of indexes simultaneously, we don't try to parse it all: simply assume it's an expression index
-            indexes.delete_if { |index| index.name == index_name } # prevent duplicated indexes
+            columns = Hash[query(<<-SQL, "Columns for index #{index_name} on #{table_name}")]
+            SELECT a.attnum, a.attname
+            FROM pg_attribute a
+            WHERE a.attrelid = #{oid}
+            AND a.attnum IN (#{index_keys.join(",")})
+            SQL
 
-            index = ::ActiveRecord::ConnectionAdapters::IndexDefinition.new(table_name, index_name, false, nil)
-            index.expression = non_btree_match[0]
-            indexes << index
-          elsif case_sensitive_match || partial_index_match 
-            # column_definitions may be ie. 'LOWER(lower)' or 'login, deleted_at' or LOWER(login), deleted_at
-            column_definitions = case_sensitive_match ? case_sensitive_match[1] : partial_index_match[1] 
-
-            indexes.delete_if { |index| index.name == index_name } # prevent duplicated indexes
-            column_names = determine_index_column_names(column_definitions)
-
-            index = ::ActiveRecord::ConnectionAdapters::IndexDefinition.new(table_name, index_name, unique == "t", column_names)
-            index.case_sensitive = !case_sensitive_match
-            # conditions may be ie. active = true AND deleted_at IS NULL. 
-            index.conditions = partial_index_match[2] if partial_index_match 
-            indexes << index
-
+            column_names = columns.values_at(*index_keys).compact
+            if md = expression.try(:match, /^lower\(\(?([^)]+)\)?(::text)?\)$/i)
+              column_names << md[1]
+            end
+            index = ::ActiveRecord::ConnectionAdapters::IndexDefinition.new(table_name, index_name, unique, column_names)
+            index.conditions = conditions
+            index.case_sensitive = !(expression =~ /lower/i)
+            index.kind = kind unless kind.downcase == "btree"
+            index.expression = expression
+            index
           end
-          end
-
-          indexes
         end
 
         def foreign_keys(table_name, name = nil)
