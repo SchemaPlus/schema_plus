@@ -1,6 +1,8 @@
 print "Using MySQL2\n"
 require 'logger'
 
+ActiveRecord::Base.logger = Logger.new("debug.log")
+
 ActiveRecord::Base.configurations = {
   'redhillonrails' => {
     :adapter => 'mysql2',

@@ -1,6 +1,8 @@
 print "Using SQLite3\n"
 require 'logger'
 
+ActiveRecord::Base.logger = Logger.new("debug.log")
+
 ActiveRecord::Base.configurations = {
   'redhillonrails' => {
     :adapter => 'sqlite3',
