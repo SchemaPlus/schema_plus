@@ -73,8 +73,6 @@ task :spec do
   end
 end
 
-task :spec => :check_dependencies
-
 task :default => :spec
 
 namespace :postgresql do
