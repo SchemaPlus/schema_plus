@@ -1,15 +1,14 @@
 source :rubygems
 
-gem "pg"
-gem "mysql"
-gem "mysql2"
-gem "activerecord", "~> 3.0.3"
-gem "rake"
-gem "sqlite3-ruby", "~> 1.3.1"
+gem "activerecord"
 
 group :development, :test do
-  gem "jeweler"
+  gem "jeweler", "~> 1.5"
   gem "rspec", '~> 1.3'
+  gem "pg"
+  gem "mysql"
+  gem "mysql2"
+  gem "sqlite3-ruby", "~> 1.3.1"
 end
 
 # vim: ft=ruby

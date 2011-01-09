@@ -13,8 +13,6 @@ begin
     gem.authors = ["Michał Łomnicki"]
     # gem is a Gem::Specification... see http://www.rubygems.org/read/chapter/20 for additional settings
 
-    gem.add_dependency "activerecord"
-
     gem.files.exclude ".gitignore"
     gem.files.exclude ".document"
     gem.files.exclude ".rvmrc"
