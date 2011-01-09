@@ -1,5 +1,5 @@
-require 'generators/active_record'
-require 'active_record'
+require 'rails/generators'
+require 'rails/generators/active_record'
 
 module AutomaticForeignKey
   class MigrationGenerator < ::ActiveRecord::Generators::Base
@@ -22,15 +22,15 @@ module AutomaticForeignKey
     end
 
     def determine_foreign_keys
-      returning [] do |foreign_keys| 
-        connection = ::ActiveRecord::Base.connection
-        connection.tables.each do |table_name|
-          connection.columns(table_name).each do |column|
-            references = ::ActiveRecord::Base.references(table_name, column.name)
-            foreign_keys << ::RedHillConsulting::Core::ActiveRecord::ConnectionAdapters::ForeignKeyDefinition.new(nil, table_name, column.name, references.first, references.last) if references
-          end
+      foreign_keys = []
+      connection = ::ActiveRecord::Base.connection
+      connection.tables.each do |table_name|
+        connection.columns(table_name).each do |column|
+          references = ::ActiveRecord::Base.references(table_name, column.name)
+          foreign_keys << ::RedhillonrailsCore::ActiveRecord::ConnectionAdapters::ForeignKeyDefinition.new(nil, table_name, column.name, references.first, references.last) if references
         end
       end
+      foreign_keys
     end
   end
 end
