@@ -20,7 +20,6 @@ begin
     gem.files.exclude ".rvmrc"
     gem.files.exclude "Gemfile"
     gem.files.exclude "Gemfile.lock"
-    gem.files.exclude "spec/**/*"
     gem.files.exclude "Rakefile"
     gem.files.exclude "VERSION"
   end
