@@ -1,5 +1,4 @@
 begin
-  require 'active_support'
   require 'redhillonrails_core'
 rescue
   gem 'redhillonrails_core'
