@@ -4,7 +4,7 @@ module RedhillonrailsCore
       module PostgresqlAdapter
         def self.included(base)
           base.class_eval do
-            alias_method_chain :indexes, :redhillonrails_core
+            remove_method :indexes
           end
         end
 
@@ -35,7 +35,7 @@ module RedhillonrailsCore
           true
         end
 
-        def indexes_with_redhillonrails_core(table_name, name = nil)
+        def indexes(table_name, name = nil)
           schemas = schema_search_path.split(/,/).map { |p| quote(p) }.join(',')
           result = query(<<-SQL, name)
            SELECT distinct i.relname, d.indisunique, d.indkey, m.amname, t.oid, 
