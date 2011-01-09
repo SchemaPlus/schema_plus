@@ -28,7 +28,8 @@ module AutomaticForeignKey::ActiveRecord
         elsif column_name == 'parent_id'
           [table_name, :id]
         elsif column_name =~ /^(.*)_id$/
-          [pluralized_table_name($1), :id]
+          determined_table_name = ActiveRecord::Base.pluralize_table_names ? $1.to_s.pluralize : $1
+          [determined_table_name, :id]
         end
       end
     end
