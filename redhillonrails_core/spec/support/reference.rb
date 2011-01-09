@@ -34,7 +34,7 @@ module RedhillonrailsCoreMatchers
       target_column_names = @column_names.present? ? "(#{@column_names.join(', ')})" : "" 
       destinantion_column_names = @references_table_name ? "#{@references_table_name}(#{@references_column_names.join(', ')})" : "anything"
       invert = should_not ? 'not' : ''
-      "Expected #{@model.table_name}#{target_column_names} #{invert} to reference #{destinantion_column_names}"
+      "Expected #{@model.table_name}#{target_column_names} to #{invert} reference #{destinantion_column_names}"
     end
 
     def failure_message_for_should_not
