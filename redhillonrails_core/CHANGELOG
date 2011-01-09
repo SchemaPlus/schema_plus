@@ -1,3 +1,5 @@
+1.1.1
+    * quote values for foreign key definition
 1.1.0
     * standard gem layout (no more RedHillConsulting module)
     * got rid of table comments support
