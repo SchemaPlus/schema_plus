@@ -59,8 +59,6 @@ module RedhillonrailsCore
           load_foreign_keys("to_table_name", table_name, name)
         end
 
-        # TODO: tests!
-
         private
 
         def quoted_columns(columns)
