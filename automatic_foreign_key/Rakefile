@@ -12,8 +12,8 @@ constraints when creating tables or adding columns. It uses SQL-92 syntax and as
     gem.email = "michal.lomnicki@gmail.com"
     gem.homepage = "http://github.com/mlomnicki/automatic_foreign_key"
     gem.authors = ["Michał Łomnicki"]
-    gem.add_dependency "redhillonrails_core", ">= 1.1.0"
-    gem.add_dependency "activerecord"
+    gem.files.exclude "Gemfile"
+    gem.files.exclude "Gemfile.lock"
     # gem is a Gem::Specification... see http://www.rubygems.org/read/chapter/20 for additional settings
   end
   Jeweler::GemcutterTasks.new
@@ -57,8 +57,6 @@ task :spec do
     Rake::Task["#{adapter}:spec"].invoke
   end
 end
-
-task :spec => :check_dependencies
 
 task :default => :spec
 
