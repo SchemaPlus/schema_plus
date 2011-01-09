@@ -200,7 +200,7 @@ describe ActiveRecord::Migration do
   end
 
   def mysql?
-    ActiveRecord::Base.connection.adapter_name == 'MySQL'
+    ActiveRecord::Base.connection.adapter_name =~ /^mysql/i
   end
 
   def create_table(model, columns_with_options)

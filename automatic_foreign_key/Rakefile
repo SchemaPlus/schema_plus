@@ -42,7 +42,7 @@ rescue LoadError
 end
 
 require 'spec/rake/spectask'
-%w[postgresql mysql].each do |adapter|
+%w[postgresql mysql mysql2].each do |adapter|
   namespace adapter do
     Spec::Rake::SpecTask.new(:spec) do |spec|
       spec.libs << 'lib' << 'spec' << "spec/connections/#{adapter}"
@@ -53,7 +53,7 @@ end
 
 desc 'Run postgresql and mysql tests'
 task :spec do 
-  %w[postgresql mysql].each do |adapter|
+  %w[postgresql mysql mysql2].each do |adapter|
     Rake::Task["#{adapter}:spec"].invoke
   end
 end
