@@ -1,4 +1,5 @@
 1.1.0
+    * standard gem layout (no more RedHillConsulting module)
     * got rid of table comments support
     * dropped Mysql4 compatibility
     * added specs regarding foreign_keys

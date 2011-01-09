@@ -5,75 +5,69 @@
 
 Gem::Specification.new do |s|
   s.name = %q{redhillonrails_core}
-  s.version = "1.0.9.1"
+  s.version = "1.1.0"
 
   s.required_rubygems_version = Gem::Requirement.new(">= 0") if s.respond_to? :required_rubygems_version=
-  s.authors = ["Michał Łomnicki"]
-  s.date = %q{2010-12-13}
-  s.description = %q{RedHill on Rails Core is a plugin that features to support other RedHill on Rails plugins. It creates and drops views and foreign-keys or obtains indexes directly from a model class.}
+  s.authors = ["Micha\305\202 \305\201omnicki"]
+  s.date = %q{2011-01-09}
+  s.description = %q{Adds support in ActiveRecord for foreign_keys, complex indexes and other database-related stuff. Easily create foreign_keys, complex indexes and views.}
   s.email = %q{michal.lomnicki@gmail.com}
   s.extra_rdoc_files = [
     "README.rdoc"
   ]
   s.files = [
-    ".document",
-     ".gitignore",
-     ".rvmrc",
-     "CHANGELOG",
-     "Gemfile",
-     "Gemfile.lock",
+    "CHANGELOG",
      "MIT-LICENSE",
      "README.rdoc",
-     "Rakefile",
-     "VERSION",
-     "examples/example_helper.rb",
-     "examples/postgresql_index_parser_example.rb",
      "init.rb",
-     "lib/red_hill_consulting/core.rb",
-     "lib/red_hill_consulting/core/active_record.rb",
-     "lib/red_hill_consulting/core/active_record/base.rb",
-     "lib/red_hill_consulting/core/active_record/connection_adapters/abstract_adapter.rb",
-     "lib/red_hill_consulting/core/active_record/connection_adapters/column.rb",
-     "lib/red_hill_consulting/core/active_record/connection_adapters/foreign_key_definition.rb",
-     "lib/red_hill_consulting/core/active_record/connection_adapters/index_definition.rb",
-     "lib/red_hill_consulting/core/active_record/connection_adapters/mysql4_adapter.rb",
-     "lib/red_hill_consulting/core/active_record/connection_adapters/mysql5_adapter.rb",
-     "lib/red_hill_consulting/core/active_record/connection_adapters/mysql_adapter.rb",
-     "lib/red_hill_consulting/core/active_record/connection_adapters/mysql_column.rb",
-     "lib/red_hill_consulting/core/active_record/connection_adapters/postgresql_adapter.rb",
-     "lib/red_hill_consulting/core/active_record/connection_adapters/schema_statements.rb",
-     "lib/red_hill_consulting/core/active_record/connection_adapters/sqlite3_adapter.rb",
-     "lib/red_hill_consulting/core/active_record/connection_adapters/table_definition.rb",
-     "lib/red_hill_consulting/core/active_record/schema.rb",
-     "lib/red_hill_consulting/core/active_record/schema_dumper.rb",
      "lib/redhillonrails_core.rb",
-     "redhillonrails_core.gemspec",
-     "tasks/db/comments.rake"
+     "lib/redhillonrails_core/active_record/base.rb",
+     "lib/redhillonrails_core/active_record/connection_adapters/abstract_adapter.rb",
+     "lib/redhillonrails_core/active_record/connection_adapters/column.rb",
+     "lib/redhillonrails_core/active_record/connection_adapters/foreign_key_definition.rb",
+     "lib/redhillonrails_core/active_record/connection_adapters/index_definition.rb",
+     "lib/redhillonrails_core/active_record/connection_adapters/mysql_adapter.rb",
+     "lib/redhillonrails_core/active_record/connection_adapters/mysql_column.rb",
+     "lib/redhillonrails_core/active_record/connection_adapters/postgresql_adapter.rb",
+     "lib/redhillonrails_core/active_record/connection_adapters/sqlite3_adapter.rb",
+     "lib/redhillonrails_core/active_record/connection_adapters/table_definition.rb",
+     "lib/redhillonrails_core/active_record/schema.rb",
+     "lib/redhillonrails_core/active_record/schema_dumper.rb",
+     "redhillonrails_core.gemspec"
   ]
   s.homepage = %q{http://github.com/mlomnicki/redhillonrails_core}
   s.rdoc_options = ["--charset=UTF-8"]
   s.require_paths = ["lib"]
-  s.rubygems_version = %q{1.3.7}
-  s.summary = %q{RedHill on Rails Core is a plugin that features to support other RedHill on Rails plugins}
+  s.rubygems_version = %q{1.3.6}
+  s.summary = %q{Adds support in ActiveRecord for foreign_keys, complex indexes and other database-related stuff}
   s.test_files = [
-    "examples/example_helper.rb",
-     "examples/postgresql_index_parser_example.rb"
+    "spec/schema/schema.rb",
+     "spec/foreign_key_spec.rb",
+     "spec/schema_dumper_spec.rb",
+     "spec/connections/mysql2/connection.rb",
+     "spec/connections/postgresql/connection.rb",
+     "spec/connections/sqlite3/connection.rb",
+     "spec/connections/mysql/connection.rb",
+     "spec/support/reference.rb",
+     "spec/index_definition_spec.rb",
+     "spec/spec_helper.rb",
+     "spec/index_spec.rb",
+     "spec/models/user.rb",
+     "spec/models/post.rb",
+     "spec/models/comment.rb"
   ]
 
   if s.respond_to? :specification_version then
     current_version = Gem::Specification::CURRENT_SPECIFICATION_VERSION
     s.specification_version = 3
 
-    if Gem::Version.new(Gem::VERSION) >= Gem::Version.new('1.2.0') then
+    if Gem::Version.new(Gem::RubyGemsVersion) >= Gem::Version.new('1.2.0') then
       s.add_runtime_dependency(%q<activerecord>, [">= 0"])
-      s.add_development_dependency(%q<micronaut>, [">= 0"])
     else
       s.add_dependency(%q<activerecord>, [">= 0"])
-      s.add_dependency(%q<micronaut>, [">= 0"])
     end
   else
     s.add_dependency(%q<activerecord>, [">= 0"])
-    s.add_dependency(%q<micronaut>, [">= 0"])
   end
 end
 
