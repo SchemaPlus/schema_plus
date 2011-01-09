@@ -3,7 +3,7 @@ require 'rails/generators/active_record'
 
 module AutomaticForeignKey
   class MigrationGenerator < ::ActiveRecord::Generators::Base
-    argument :name, :default => 'create_automatic_foreign_keys'
+    argument :name, :default => 'create_foreign_keys'
 
     def self.source_root
       File.expand_path(File.join(File.dirname(__FILE__), 'templates'))
