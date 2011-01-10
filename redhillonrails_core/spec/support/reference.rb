@@ -26,7 +26,7 @@ module RedhillonrailsCoreMatchers
             (@on_delete ? fk.on_delete == @on_delete : true)
         end
       else
-        !!@result
+        !@result.empty?
       end
     end
 
