@@ -18,7 +18,6 @@ describe "Schema dump" do
     end
   end
 
-
   unless ::ActiveRecord::Base.connection.class.include?(RedhillonrailsCore::ActiveRecord::ConnectionAdapters::Sqlite3Adapter)
 
     it "should include foreign_key options" do

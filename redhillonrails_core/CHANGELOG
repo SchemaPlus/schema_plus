@@ -1,3 +1,5 @@
+1.1.2
+    * don't quote constraint name (bugfix)
 1.1.1
     * quote values for foreign key definition
 1.1.0
