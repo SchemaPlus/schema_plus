@@ -1,3 +1,5 @@
+1.1.7
+    * handle references for change_column
 1.1
     * create index within foreign key (auto index)
     * global configuration for: auto_index and on_update/on_delete actions

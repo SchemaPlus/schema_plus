@@ -5,8 +5,7 @@ module AutomaticForeignKey::ActiveRecord
     end
 
     module ClassMethods
-      # Overrides standard ActiveRecord add column and adds 
-      # foreign key if column references other column
+      # Overrides ActiveRecord#add_column and adds foreign key if column references other column
       #
       # add_column('comments', 'post_id', :integer)
       #   # creates a column and adds foreign key on posts(id)
@@ -30,6 +29,17 @@ module AutomaticForeignKey::ActiveRecord
       #
       def add_column(table_name, column_name, type, options = {})
         super
+        handle_column_options(table_name, column_name, options)
+      end
+
+      def change_column(table_name, column_name, type, options = {})
+        super
+        remove_foreign_key_if_exists(table_name, column_name)
+        handle_column_options(table_name, column_name, options)
+      end
+
+      protected
+      def handle_column_options(table_name, column_name, options)
         references = ActiveRecord::Base.references(table_name, column_name, options)
         if references
           AutomaticForeignKey.set_default_update_and_delete_actions!(options)
@@ -40,6 +50,12 @@ module AutomaticForeignKey::ActiveRecord
         elsif options[:index]
           add_index(table_name, column_name, AutomaticForeignKey.options_for_index(options[:index]))
         end
+      end
+
+      def remove_foreign_key_if_exists(table_name, column_name)
+        foreign_keys = ActiveRecord::Base.connection.foreign_keys(table_name.to_s)
+        fk = foreign_keys.detect { |fk| fk.table_name == table_name.to_s && fk.column_names == Array(column_name).collect(&:to_s) }
+        remove_foreign_key(table_name, fk.name) if fk
       end
 
     end

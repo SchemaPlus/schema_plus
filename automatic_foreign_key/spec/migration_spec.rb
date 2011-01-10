@@ -15,10 +15,10 @@ end
 describe ActiveRecord::Migration do
 
   context "when table is created" do
-    before(:all) do
+
+    before(:each) do
       @model = Post
     end
-    
 
     it "should create foreign keys" do
       create_table(@model,  :user_id => {}, 
@@ -69,7 +69,7 @@ describe ActiveRecord::Migration do
 
   context "when column is added" do
 
-    before(:all) do
+    before(:each) do
       @model = Comment
     end
 
@@ -189,6 +189,48 @@ describe ActiveRecord::Migration do
         @model.reset_column_information
         yield if block_given?
         ActiveRecord::Migration.remove_column(table, column_name)
+      end
+    end
+
+  end
+
+  context "when column is changed" do
+
+    before(:each) do
+      @model = Comment
+    end
+
+    it "should create foreign key" do
+      change_column :user, :string, :references => [:users, :login]
+      @model.should reference(:users, :login).on(:user)
+      change_column :user, :string, :references => nil
+    end
+
+    context "and initially references to users table" do
+
+      it "should have foreign key" do
+        @model.should reference(:users)
+      end
+
+      it "should drop foreign key afterwards" do
+        change_column :user_id, :integer, :references => :members
+        @model.should_not reference(:users)
+        change_column :user_id, :integer, :references => :users
+      end
+
+      it "should reference pointed table afterwards" do
+        change_column :user_id, :integer, :references => :members
+        @model.should reference(:members)
+      end
+
+    end
+    
+    protected
+    def change_column(column_name, *args)
+      table = @model.table_name
+      ActiveRecord::Migration.suppress_messages do
+        ActiveRecord::Migration.change_column(table, column_name, *args)
+        @model.reset_column_information
       end
     end
 
