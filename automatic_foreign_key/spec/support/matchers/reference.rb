@@ -14,7 +14,7 @@ module AutomaticForeignKeyMatchers
       if @references_table_name
         @result = @model.foreign_keys.select do |fk|
           fk.references_table_name == @references_table_name && 
-            fk.references_column_names == @references_column_names
+            @references_column_names.empty? ? true : fk.references_column_names == @references_column_names 
         end
       else
         @result = @model.foreign_keys
@@ -26,7 +26,7 @@ module AutomaticForeignKeyMatchers
             (@on_delete ? fk.on_delete == @on_delete : true)
         end
       else
-        !!@result
+        !@result.empty?
       end
     end
 
