@@ -1,7 +1,7 @@
 source :rubygems
 
 gem "activerecord"
-gem "redhillonrails_core", "~> 1.1.1"
+gem "redhillonrails_core", "~> 1.1.2"
 
 group :development, :test do
     gem "jeweler", "~> 1.5"
