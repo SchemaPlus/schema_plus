@@ -43,7 +43,7 @@ module RedhillonrailsCore
         end
 
         def pluralized_table_name(table_name)
-          ActiveRecord::Base.pluralize_table_names ? table_name.to_s.pluralize : table_name
+          ::ActiveRecord::Base.pluralize_table_names ? table_name.to_s.pluralize : table_name
         end
 
         def indexes
