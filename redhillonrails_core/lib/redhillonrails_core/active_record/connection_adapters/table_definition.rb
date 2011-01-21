@@ -22,7 +22,7 @@ module RedhillonrailsCore
 
         def to_sql_with_redhillonrails_core
           sql = to_sql_without_redhillonrails_core
-          sql << ', ' << @foreign_keys * ', ' unless @foreign_keys.empty? || ::ActiveRecord::Schema.defining?
+          sql << ', ' << @foreign_keys * ', ' unless @foreign_keys.empty?
           sql
         end
       end

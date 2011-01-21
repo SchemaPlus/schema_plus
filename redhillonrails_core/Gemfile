@@ -8,7 +8,7 @@ group :development, :test do
   gem "pg"
   gem "mysql"
   gem "mysql2"
-  gem "sqlite3-ruby", "~> 1.3.1"
+  gem "sqlite3", "~> 1.3.1"
 end
 
 # vim: ft=ruby

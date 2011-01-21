@@ -14,18 +14,14 @@ describe "Schema dump" do
 
   it "should include foreign_key definition" do
     with_foreign_key Post, :user_id, :users, :id do
-      dump.should match(to_regexp(%q{add_foreign_key "posts", ["user_id"], "users", ["id"]}))
+      dump.should match(to_regexp(%q{t.foreign_key ["user_id"], "users", ["id"]}))
     end
   end
 
-  unless ::ActiveRecord::Base.connection.class.include?(RedhillonrailsCore::ActiveRecord::ConnectionAdapters::Sqlite3Adapter)
-
-    it "should include foreign_key options" do
-      with_foreign_key Post, :user_id, :users, :id, :on_update => :cascade, :on_delete => :set_null do
-        dump.should match(to_regexp(%q{add_foreign_key "posts", ["user_id"], "users", ["id"], :on_update => :cascade, :on_delete => :set_null}))
-      end
+  it "should include foreign_key options" do
+    with_foreign_key Post, :user_id, :users, :id, :on_update => :cascade, :on_delete => :set_null do
+      dump.should match(to_regexp(%q{t.foreign_key ["user_id"], "users", ["id"], :on_update => :cascade, :on_delete => :set_null}))
     end
-
   end
 
   it "should include index definition" do
@@ -80,13 +76,26 @@ describe "Schema dump" do
   end
 
   def with_foreign_key(model, columns, referenced_table_name, referenced_columns, options = {})
+    table_columns = model.columns.reject{|column| column.name == 'id'}
     ActiveRecord::Migration.suppress_messages do
-      ActiveRecord::Migration.add_foreign_key(model.table_name, columns, referenced_table_name, referenced_columns, options)
+      ActiveRecord::Migration.create_table model.table_name, :force => true do |t|
+        table_columns.each do |column|
+          t.column column.name, column.type
+        end
+        t.foreign_key columns, referenced_table_name, referenced_columns, options
+      end
     end
     model.reset_column_information
-    yield
-    ActiveRecord::Migration.suppress_messages do
-      ActiveRecord::Migration.remove_foreign_key(model.table_name, determine_foreign_key_name(model, columns, options))
+    begin
+      yield
+    ensure
+      ActiveRecord::Migration.suppress_messages do
+        ActiveRecord::Migration.create_table model.table_name, :force => true do |t|
+          table_columns.each do |column|
+            t.column column.name, column.type
+          end
+        end
+      end
     end
   end
   
@@ -95,9 +104,12 @@ describe "Schema dump" do
       ActiveRecord::Migration.add_index(model.table_name, columns, options)
     end
     model.reset_column_information
-    yield
-    ActiveRecord::Migration.suppress_messages do
-      ActiveRecord::Migration.remove_index(model.table_name, :name => determine_index_name(model, columns, options))
+    begin
+      yield
+    ensure
+      ActiveRecord::Migration.suppress_messages do
+        ActiveRecord::Migration.remove_index(model.table_name, :name => determine_index_name(model, columns, options))
+      end
     end
   end
 

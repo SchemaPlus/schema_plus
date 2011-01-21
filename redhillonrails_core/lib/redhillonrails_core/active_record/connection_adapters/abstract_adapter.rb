@@ -61,7 +61,9 @@ module RedhillonrailsCore
         end
 
         def drop_table_with_redhillonrails_core(name, options = {})
-          reverse_foreign_keys(name).each { |foreign_key| remove_foreign_key(foreign_key.table_name, foreign_key.name, options) }
+          unless ::ActiveRecord::Base.connection.class.include?(RedhillonrailsCore::ActiveRecord::ConnectionAdapters::Sqlite3Adapter)
+            reverse_foreign_keys(name).each { |foreign_key| remove_foreign_key(foreign_key.table_name, foreign_key.name, options) }
+          end
           drop_table_without_redhillonrails_core(name, options)
         end
 

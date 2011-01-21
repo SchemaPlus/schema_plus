@@ -9,8 +9,8 @@ module RedhillonrailsCore
         end
 
         def to_dump
-          dump = "add_foreign_key"
-          dump << " #{table_name.inspect}, [#{Array(column_names).collect{ |name| name.inspect }.join(', ')}]"
+          dump = "  t.foreign_key"
+          dump << " [#{Array(column_names).collect{ |name| name.inspect }.join(', ')}]"
           dump << ", #{references_table_name.inspect}, [#{Array(references_column_names).collect{ |name| name.inspect }.join(', ')}]"
           dump << ", :on_update => :#{on_update}" if on_update
           dump << ", :on_delete => :#{on_delete}" if on_delete

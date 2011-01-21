@@ -12,3 +12,4 @@ ActiveRecord::Base.configurations = {
 }
 
 ActiveRecord::Base.establish_connection 'redhillonrails'
+ActiveRecord::Base.connection.execute('PRAGMA FOREIGN_KEYS = 1')

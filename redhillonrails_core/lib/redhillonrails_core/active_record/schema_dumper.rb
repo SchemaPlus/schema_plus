@@ -1,9 +1,14 @@
+require 'tsort'
+
 module RedhillonrailsCore
   module ActiveRecord
     module SchemaDumper
+      include TSort
+
       def self.included(base)
         base.class_eval do
           private
+          alias_method_chain :table, :redhillonrails_core
           alias_method_chain :tables, :redhillonrails_core
           alias_method_chain :indexes, :redhillonrails_core
         end
@@ -12,15 +17,43 @@ module RedhillonrailsCore
       private
 
       def tables_with_redhillonrails_core(stream)
-        @foreign_keys = StringIO.new
+        @table_dumps = {}
         begin
-          tables_without_redhillonrails_core(stream)
-          @foreign_keys.rewind
-          stream.print @foreign_keys.read
+          tables_without_redhillonrails_core(nil)
+
+          tsort().each do |table|
+            stream.print @table_dumps[table]
+          end
+
           views(stream)
         ensure
-          @foreign_keys = nil
+          @table_dumps = nil
         end
+      end
+
+      def tsort_each_node(&block)
+        @table_dumps.keys.sort.each(&block)
+      end
+
+      def tsort_each_child(table, &block)
+        @connection.foreign_keys(table).collect(&:references_table_name).sort.uniq.each(&block)
+      end
+
+      def table_with_redhillonrails_core(table, ignore)
+
+        stream = StringIO.new
+        table_without_redhillonrails_core(table, stream)
+        stream.rewind
+        table_dump = stream.read
+
+        if i = (table_dump =~ /^\s*[e]nd\s*$/)
+          stream = StringIO.new
+          foreign_keys(table, stream)
+          stream.rewind
+          table_dump.insert i, stream.read
+        end
+
+        @table_dumps[table] = table_dump
       end
 
       def indexes_with_redhillonrails_core(table, stream)
@@ -42,18 +75,14 @@ module RedhillonrailsCore
           stream.puts
         end
         stream.puts unless indexes.empty?
-
-        foreign_keys(table, @foreign_keys)
       end
 
       def foreign_keys(table, stream)
         foreign_keys = @connection.foreign_keys(table)
         foreign_keys.each do |foreign_key|
           stream.print "  "
-          stream.print foreign_key.to_dump
-          stream.puts
+          stream.puts foreign_key.to_dump
         end
-        stream.puts unless foreign_keys.empty?
       end
 
       def views(stream)

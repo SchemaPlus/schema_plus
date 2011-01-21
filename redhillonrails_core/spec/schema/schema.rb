@@ -14,8 +14,7 @@ ActiveRecord::Schema.define do
   create_table :comments, :force => true do |t|
     t.text :body
     t.integer :post_id
+    t.foreign_key :post_id, :posts, :id
   end
-
-  add_foreign_key :comments, :post_id, :posts, :id
 
 end
