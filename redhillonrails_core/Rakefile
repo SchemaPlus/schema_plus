@@ -96,7 +96,7 @@ task :build_postgresql_databases => 'postgresql:build_databases'
 task :drop_postgresql_databases => 'postgresql:drop_databases'
 task :rebuild_postgresql_databases => 'postgresql:rebuild_databases'
 
-MYSQL_DB_USER = 'redhillonrails_core'
+MYSQL_DB_USER = 'redhillonrails'
 namespace :mysql do
   desc 'Build the MySQL test databases'
   task :build_databases do
