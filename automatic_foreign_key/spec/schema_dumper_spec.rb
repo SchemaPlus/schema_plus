@@ -12,9 +12,11 @@ describe "Schema dump" do
     stream.string
   end
 
-  it "shouldn't include :index option for index" do
-    add_column(:author_id, :integer, :references => :users, :index => true) do
-      dump.should_not match(/index => true/)
+  unless ActiveRecord::Base.connection.adapter_name =~ /^sqlite/i
+    it "shouldn't include :index option for index" do
+      add_column(:author_id, :integer, :references => :users, :index => true) do
+        dump.should_not match(/index => true/)
+      end
     end
   end
     

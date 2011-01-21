@@ -13,9 +13,8 @@ ActiveRecord::Schema.define do
     t.string :content
     t.integer :user
     t.integer :user_id
+    t.foreign_key :user_id, :users, :id
   end
-
-  add_foreign_key :comments, :user_id, :users, :id
 
   create_table :posts, :force => true do |t|
     t.string :content
