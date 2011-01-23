@@ -2,6 +2,7 @@
     * added install generator
     * fixed doubled auto-index inside Schema.define
     * upgraded to RSpec 2
+    * got rid of jeweler in favor of bundler
 1.1.8
     * depend on redhillonrails_core 1.1.2
 1.1.7

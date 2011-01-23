@@ -1,53 +1,11 @@
-# encoding: utf-8
-require 'rubygems'
-require 'rake'
-
-begin
-  require 'jeweler'
-  Jeweler::Tasks.new do |gem|
-    gem.name = "automatic_foreign_key"
-    gem.summary = %Q{Automatically generate foreign-key constraints when creating tables}
-    gem.description = %Q{Automatic Foreign Key automatically generates foreign-key
-constraints when creating tables or adding columns. It uses SQL-92 syntax and as such should be compatible with most databases that support foreign-key constraints.}
-    gem.email = "michal.lomnicki@gmail.com"
-    gem.homepage = "http://github.com/mlomnicki/automatic_foreign_key"
-    gem.authors = ["Michał Łomnicki"]
-    gem.files.exclude "Gemfile"
-    gem.files.exclude "Gemfile.lock"
-    # gem is a Gem::Specification... see http://www.rubygems.org/read/chapter/20 for additional settings
-  end
-  Jeweler::GemcutterTasks.new
-rescue LoadError
-  puts "Jeweler (or a dependency) not available. Install it with: gem install jeweler"
-end
-
-require 'rake/testtask'
-Rake::TestTask.new(:test) do |test|
-  test.libs << 'lib' << 'test'
-  test.pattern = 'test/**/test_*.rb'
-  test.verbose = true
-end
-
-begin
-  require 'rcov/rcovtask'
-  Rcov::RcovTask.new do |test|
-    test.libs << 'test'
-    test.pattern = 'test/**/test_*.rb'
-    test.verbose = true
-  end
-rescue LoadError
-  task :rcov do
-    abort "RCov is not available. In order to run rcov, you must: sudo gem install spicycode-rcov"
-  end
-end
+require 'bundler'
+Bundler::GemHelper.install_tasks
 
 require 'rspec/core/rake_task'
 %w[postgresql mysql mysql2].each do |adapter|
   namespace adapter do
     RSpec::Core::RakeTask.new(:spec) do |spec|
       spec.rspec_opts = "-Ispec/connections/#{adapter}"
-      #spec.pattern = ['lib', 'spec', "spec/connections/#{adapter}"]
-      #spec.pattern = 'spec/**/*_spec.rb'
     end
   end
 end
