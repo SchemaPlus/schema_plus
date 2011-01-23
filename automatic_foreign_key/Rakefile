@@ -41,12 +41,13 @@ rescue LoadError
   end
 end
 
-require 'spec/rake/spectask'
+require 'rspec/core/rake_task'
 %w[postgresql mysql mysql2].each do |adapter|
   namespace adapter do
-    Spec::Rake::SpecTask.new(:spec) do |spec|
-      spec.libs << 'lib' << 'spec' << "spec/connections/#{adapter}"
-      spec.spec_files = FileList['spec/**/*_spec.rb']
+    RSpec::Core::RakeTask.new(:spec) do |spec|
+      spec.rspec_opts = "-Ispec/connections/#{adapter}"
+      #spec.pattern = ['lib', 'spec', "spec/connections/#{adapter}"]
+      #spec.pattern = 'spec/**/*_spec.rb'
     end
   end
 end
@@ -59,12 +60,6 @@ task :spec do
 end
 
 task :default => :spec
-
-Spec::Rake::SpecTask.new(:rcov) do |spec|
-  spec.libs << 'lib' << 'spec'
-  spec.pattern = 'spec/**/*_spec.rb'
-  spec.rcov = true
-end
 
 require 'rake/rdoctask'
 Rake::RDocTask.new do |rdoc|
