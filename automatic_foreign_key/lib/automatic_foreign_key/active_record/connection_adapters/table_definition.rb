@@ -24,7 +24,7 @@ module AutomaticForeignKey::ActiveRecord::ConnectionAdapters
       if references
         AutomaticForeignKey.set_default_update_and_delete_actions!(options)
         foreign_key(name, references.first, references.last, options) 
-        if index = options.fetch(:index, AutomaticForeignKey.auto_index)
+        if index = afk_index_options(options)
           # append [column_name, index_options] pair
           self.indices << [name, AutomaticForeignKey.options_for_index(index)]
         end
@@ -40,5 +40,15 @@ module AutomaticForeignKey::ActiveRecord::ConnectionAdapters
       options[:on_delete] = options.delete(:dependent) if options.has_key?(:dependent)
       column("#{table.to_s.singularize}_id".to_sym, :integer, options)
     end
+
+    protected
+    def afk_index_options(options)
+      options.fetch(:index,  afk_use_auto_index?)
+    end
+
+    def afk_use_auto_index?
+      AutomaticForeignKey.auto_index && !ActiveRecord::Schema.defining?
+    end
+
   end
 end
