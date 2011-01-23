@@ -5,6 +5,8 @@ rescue
   require 'redhillonrails_core'
 end
 
+require 'automatic_foreign_key/version'
+
 module AutomaticForeignKey
   module ActiveRecord
     autoload :Base, 'automatic_foreign_key/active_record/base'
