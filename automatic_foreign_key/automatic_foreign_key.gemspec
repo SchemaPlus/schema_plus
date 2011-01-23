@@ -20,7 +20,7 @@ constraints when creating tables or adding columns. It uses SQL-92 syntax and as
   s.executables   = `git ls-files -- bin/*`.split("\n").map{ |f| File.basename(f) }
   s.require_paths = ["lib"]
 
-  s.add_dependency("active_record", ">= 2")
+  s.add_dependency("activerecord", ">= 2")
   s.add_dependency("redhillonrails_core", "~> 1.1.2")
       
   s.add_development_dependency("rspec", "~> 2.4.0")
