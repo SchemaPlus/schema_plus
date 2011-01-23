@@ -33,13 +33,11 @@ namespace :postgresql do
   desc 'Build the PostgreSQL test databases'
   task :build_databases do
     %x( createdb -E UTF8 afk_unittest )
-    %x( createdb -E UTF8 afk_unittest2 )
   end
 
   desc 'Drop the PostgreSQL test databases'
   task :drop_databases do
     %x( dropdb afk_unittest )
-    %x( dropdb afk_unittest2 )
   end
 
   desc 'Rebuild the PostgreSQL test databases'
