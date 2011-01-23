@@ -13,6 +13,7 @@ describe ActiveRecord::Base do
 end
 
 describe ActiveRecord::Migration do
+  include AutomaticForeignKeyHelpers
 
   context "when table is created" do
 
@@ -239,10 +240,6 @@ describe ActiveRecord::Migration do
   def foreign_key(model, column)
     columns = Array(column).collect(&:to_s)
     model.foreign_keys.detect { |fk| fk.table_name == model.table_name && fk.column_names == columns } 
-  end
-
-  def mysql?
-    ActiveRecord::Base.connection.adapter_name =~ /^mysql/i
   end
 
   def create_table(model, columns_with_options)

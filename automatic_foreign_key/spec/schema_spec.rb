@@ -6,6 +6,13 @@ describe ActiveRecord::Schema do
 
   let(:connection) { ActiveRecord::Base.connection }
 
+  after(:all) do
+    # revert to general schema
+    ActiveRecord::Migration.suppress_messages do
+      load 'schema/schema.rb'
+    end
+  end
+
   context "defining with auto_index" do
 
     it "should pass" do
@@ -36,7 +43,10 @@ describe ActiveRecord::Schema do
         create_table :posts, :force => true do |t|
           t.integer :user_id
         end
-        add_index :posts, :user_id
+        # mysql will create index on FK automatically
+        unless AutomaticForeignKeyHelpers.mysql?
+          add_index :posts, :user_id
+        end
       end
     end
   end
