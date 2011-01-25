@@ -84,8 +84,8 @@ namespace :postgresql do
 
   desc 'Drop the PostgreSQL test databases'
   task :drop_databases do
-    %x( dropdb redhillonrails_core_unittest )
-    %x( dropdb redhillonrails_core_unittest2 )
+    %x( dropdb redhillonrails_core_test )
+    %x( dropdb redhillonrails_core_test2 )
   end
 
   desc 'Rebuild the PostgreSQL test databases'
