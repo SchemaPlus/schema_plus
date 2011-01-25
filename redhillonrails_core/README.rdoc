@@ -157,8 +157,8 @@ First you have to fetch sources from github as specs are not inculded in a gem.
   $ git clone https://mlomnicki@github.com/mlomnicki/redhillonrails_core.git
   $ cd redhillonrails_core
   $ bundle install
-  $ rake postgresql:build_database # create redhillonrails user first
-  $ rake mysql:build_database  # create user as above
+  $ rake postgresql:build_databases # create redhillonrails user first
+  $ rake mysql:build_databases  # create user as above
   $ bundle exec rake spec
 
   # to run postgresql specs only
