@@ -1,0 +1,40 @@
+GEM
+  remote: http://rubygems.org/
+  specs:
+    activemodel (3.0.3)
+      activesupport (= 3.0.3)
+      builder (~> 2.1.2)
+      i18n (~> 0.4)
+    activerecord (3.0.3)
+      activemodel (= 3.0.3)
+      activesupport (= 3.0.3)
+      arel (~> 2.0.2)
+      tzinfo (~> 0.3.23)
+    activesupport (3.0.3)
+    arel (2.0.7)
+    builder (2.1.2)
+    git (1.2.5)
+    i18n (0.5.0)
+    jeweler (1.5.2)
+      bundler (~> 1.0.0)
+      git (>= 1.2.5)
+      rake
+    mysql (2.8.1)
+    mysql2 (0.2.6)
+    pg (0.10.0)
+    rake (0.8.7)
+    rspec (1.3.1)
+    sqlite3 (1.3.3)
+    tzinfo (0.3.24)
+
+PLATFORMS
+  ruby
+
+DEPENDENCIES
+  activerecord
+  jeweler (~> 1.5)
+  mysql
+  mysql2
+  pg
+  rspec (~> 1.3)
+  sqlite3 (~> 1.3.1)
