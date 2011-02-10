@@ -1,0 +1,67 @@
+= Foreign Key Associations
+
+Foreign Key Associations is a plugin that automatically creates associations
+based on foreign-keys. The associations are created at runtime--ie. as your
+ActiveRecord models are loaded--so they will always be up-to-date.
+
+For example, given a foreign-key from a +customer_id+ column in an +orders+
+table to an +id+ column in a +customers+ table, the plugin creates:
+
+  Order.belongs_to :customer
+  Customer.has_many :orders
+
+If there is a uniqueness constraint--eg unique index--on a foreign-key column,
+then the plugin will creates a +has_one+ instead of a +has_many+.
+
+For example, given a foreign-key from an +order_id+ column with a uniqueness
+constraint in an +invoices+ table to an +id+ column in an +orders+ table, the
+plugin creates:
+
+  Invoice.belongs_to :order
+  Order.has_one :invoice
+
+Additionally, if there is a +position+ column in the child table, the parent
+association will be created with an +order+ clause.
+
+For example, given a foreign-key from a +order_id+ column in an +order_lines+
+table containing a +position+ column, to an +id+ column in a +orders+ table,
+the plugin creates:
+
+  OrderLine.belongs_to :orders
+  Order.has_many :lines, :order => :position
+
+The plugin also supports the creation of +has_and_belongs_to_many+
+associations.
+
+For example, given the tables +product_product_categories+ with foreign-keys
+to both the +product+ and +product_categories+ tables, the plugin creates:
+
+  Product.has_and_belongs_to_many :categories
+  ProductCategory.has_and_belongs_to_many :products
+
+And finally, notice that in one of the previous examples, the association
+name used for the <code>Order.has_many</code> is <code>:lines</code> and not
+<code>:order_lines</code>. More specifically, the plugin removes the prefix
+from +has_many+ and +has_one+ associations if the the name of parent class
+forms a proper prefix of the child class name.
+
+
+The plugin fully supports and understands the following active-record
+configuration properties:
+
+* <code>config.active_record.pluralize_table_names</code>
+* <code>config.active_record.table_name_prefix</code>
+* <code>config.active_record.table_name_suffix</code>
+
+=== Dependencies
+
+* RedHill on Rails Core (redhillonrails_core)
+
+=== See Also
+
+* Foreign Key Migrations (foreign_key_migrations).
+
+=== License
+
+This plugin is copyright 2006 by RedHill Consulting, Pty. Ltd. and is released
+under the MIT license.

@@ -1,0 +1,89 @@
+[REVISION 20071128]
+
+[FIXED] Workaround to ensure plugin is only ever loaded once.
+
+[REVISION 20071117]
+
+[FIXED] Existing associations being overwritten.
+
+[REVISION 20070528]
+
+[NEW] Generation of has_and_belongs_to_many associations (see README for more details).
+
+[REVISION 20070525]
+
+[FIXED] Temporary work-around for HABTM associations: The code no longer barfs but you'll need to define the association manually. Still working on automatically generating the association but needed to get a fix out quickly.
+
+[REVISION 20070412]
+
+[FIXED] Eager loading tries to pull in a class before the association is defined, which throws an ActiveRecord::ConfigurationError.
+
+[REVISION 20070321]
+
+[FIXED] Sub-class meta-data missing if loaded before super-class.
+
+[REVISION 20070224]
+
+[FIXED] Removed useless assignment of class variable.
+
+[REVISION 20070214]
+
+[FIXED] Syntax error when generating associations from classes inside a module. Eg. CGI::Session::ActiveRecordStore::Session.
+
+[REVISION 20061206]
+
+[CHANGED] Lazily load meta-data during allocate/new rather than inherited.
+
+[FIXED] Explicit table name ignored.
+
+[FIXED] has_many/has_one relationships not loaded unless foreign key class has already been loaded.
+
+[REVISION 20061013]
+
+[NEW] install.rb informs user of missing dependencies.
+
+[CHANGED] Separate modules into individual files.
+
+[REVISION 20061012]
+
+[CHANGED] Only read meta-data for base-classes.
+
+[REVISION 20061011]
+
+[CHANGED] Use include rather than extend in init.rb as this is more general. Plugin code can then determine if it needs to use extend or not.
+
+[REVISION 20061020]
+
+[FIXED] Breaks abstract class inheritance. If classes are named 'AbstractXxx' they will be treated as abstract. This is somewhat of a work-around for the current implementation however I believe it is a sensible choice for now.
+
+[REVISION 20060919]
+
+[FIXED] Only create has_one associations if the uniqueness constraint specifies no scope.
+
+[REVISION 20060915]
+
+[NEW] has_many associations generated with an order clause if the belongs_to table contains a position column. For example, given a foreign-key from a +order_id+ column in an order_lines table containing a position column, to an id column in a orders table, the plugin generates: OrderLines.belongs_to :orders and Order.has_many :order_lines, :order => :position.
+
+[NEW] Remove prefix from has_many and has_one associations if the the name of parent class forms a proper prefix of the child class name. For example, Order.has_many :lines rather than Order.has_many :order_lines.
+
+[REVISION 20060912]
+
+[FIXED] 'Before updating scaffolding from new DB schema, try creating a table for your model (<model>)' when running ./script/generate scaffold <model>. Seems the scaffold sandbox dynamically creates classes which have no name.
+
+[REVISION 20060909]
+
+[CHANGED] Replaced dependence on defunct Foreign Key Support plugin with one on RedHill on Rails Core.
+
+[REVISION 20060907]
+
+[NEW] Generate has_one based on uniqueness constraints.
+
+[REVISION 20060906]
+
+[NEW] Generate belongs_to.
+
+[NEW] Generate has_many.
+
+[REVISION 20060905]
+
+[NEW] Initial version.
