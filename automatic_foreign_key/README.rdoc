@@ -1,0 +1,174 @@
+= Automatic Foreign Key
+
+Automatic Foreign Key is an ActiveRecord extension that automatically generates foreign-key
+constraints when creating tables. It uses SQL-92 syntax and as such should be
+compatible with most databases that support foreign-key constraints.
+
+As a bonus, the extension also allows you to create indices on columns via
+options to the schema column definition statements.
+
+=== Installation
+
+As a gem
+    
+  gem install automatic_foreign_key
+
+...or as a plugin
+
+  script/plugin install http://github.com/mlomnicki/automatic_foreign_key.git
+
+=== Usage
+
+In the simplest case, the plugin assumes that if you have a column named
++customer_id+ that you want a foreign-key constraint generated that references
+the +id+ column in the +customers+ table:
+
+  create_table :orders do |t|
+    t.column :customer_id, :integer, :null => false
+    ...
+  end
+
+If you have multiple columns referencing a table or for whatever reason, your
+column name isn't the same as the referenced table name, you can use the
+<code>:references</code> option:
+
+  create_table :orders do |t|
+    t.column :ordered_by_id, :integer, :null => false, :references => :customers
+    ...
+  end
+
+If you have a column with a name ending in +_id+ for which you do not wish a
+foreign-key to be generated, you can use <code>:references => nil</code>:
+
+  create_table :orders do |t|
+    t.column :external_id, :integer, :null => false, :references => nil
+    ...
+  end
+
+Sometimes you may (for legacy reasons) need to reference a primary key column that is
+named something other than +id+. In this case you can specify the name of the column:
+
+  create_table :orders do |t|
+    t.column :ordered_by_pk, :integer, :null => false, :references => [:customers, :pk]
+    ...
+  end
+
+You also have the option of specifying what to do on delete/update using
+<code>:on_delete</code>/<code>:on_update</code>, respectively to one of:
+<code>:cascade</code>; <code>:restrict</code>; and <code>:set_null</code>:
+
+  create_table :orders do |t|
+    t.column :customer_id, :integer, :on_delete => :set_null, :on_update => :cascade
+    ...
+  end
+
+If your database supports it (for example PostgreSQL) you can also mark the constraint as deferrable:
+
+  create_table :orders do |t|
+    t.column :customer_id, :integer, :deferrable => true
+    ...
+  end
+
+By convention, if a column is named +parent_id+ it will be treated as a circular reference to
+the table in which it is defined.
+
+Sometimes you may (for legacy reasons) need to name your primary key column such that it
+would be misinterpreted as a foreign-key (say for example if you named the primary key
++order_id+). In this case you can manually create the primary key as follows:
+
+  create_table :orders, :id => false do |t|
+    ...
+    t.primary_key :order_id, :references => nil
+  end
+
+There is also a generator for creating foreign keys on a database that currently has none:
+
+  ruby script/generate foreign_key_migration
+
+The plugin fully supports and understands the following active-record
+configuration properties:
+
+* <code>config.active_record.pluralize_table_names</code>
+* <code>config.active_record.table_name_prefix</code>
+* <code>config.active_record.table_name_suffix</code>
+
+=== Auto Indices 
+
+It's very common to create an index on foreign key. You can instruct
+AutomaticForeignKey to add an index after adding foreign key.
+
+  create_table :orders, :id => false do |t|
+    ...
+    t.integer :order_id, :index => true
+  end
+
+If you want to pass some options for index use hash params.
+
+  create_table :bills, :id => false do |t|
+    ...
+    t.integer :order_id, :index => { :unique => true, :name => 'foo_index' }
+  end
+
+==== NOTE
+
+Auto indexing option is useless for MySQL users as their RDBMS adds indices on foreign
+keys by default. However PostgreSQL users may have fun with that feature.
+
+=== Column Indices 
+
+You can create an index on any column by specifying the +:index+ option.
+
+  create_table :users do |t|
+    ...
+    t.string :role, :index => true
+  end
+
+If you want to pass some options for rails' +add_index()+ you can use hash params.
+
+  create_table :users do |t|
+    ...
+    t.string :userid, :index => { :unique => true }
+  end
+
+You can also define a multi-column index by specifying a +:with+ option
+listing one or more additional columns to be passed to +add_index()+.
+
+  create_table :users do |t|
+    t.integer :group_id
+    t.integer :member_number, :index => { :with => :group_id, :unique => true }
+    t.integer :country_code
+    t.string  :area_code
+    t.string  :local_phone,   :index => { :with => [:country_code, :area_code], :unique => true }
+  end
+
+=== Configuration
+
+For customization purposes create config/initializers/automatic_foreign_key.rb file:
+
+  AutomaticForeignKey.setup do |config|
+    config.auto_index = true # create indices on FKs by default
+    config.on_update = :cascade # cascade as default on_update action
+    config.on_delete = :restrict # restrict as default on_delete action
+  end
+
+=== Rails 3 compatibility
+
+    Automatic foreign key is fully compatible with Rails 3.
+
+=== Rails 2.x compatibility
+    
+    Everything but generator is compatible
+
+=== Dependencies
+
+* RedHill on Rails Core (redhillonrails_core).
+
+=== NOTE
+
+* Code was created by harukizaemon(http://github.com/harukizaemon) but is not supported currently by him.
+* Former name was foreign_key_migrations
+
+=== License
+
+This plugin is copyright 2010 by Michał Łomnicki and is released
+under the MIT license.
