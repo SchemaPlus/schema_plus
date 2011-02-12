@@ -1,0 +1,342 @@
+= ActiveSchema
+
+ActiveSchema is an ActiveRecord extension that provides support for
+defining foreign keys and indexes in database migrations and schemas, as
+well as for defining model validations and associations based on the
+database.
+
+=== Installation
+
+As a gem
+    
+  gem install active_schema
+
+...or as a plugin
+
+  rails plugin install http://github.com/lomba/active_schema.git
+
+== Foreign Key Creation
+
+== In Column Definitions
+
+ActiveSchema allows you to specify a foreign-key constraint for any column,
+by specifying the <code>:references</code> option:
+
+  create_table :orders do |t|
+    t.integer :customer_id, :references => :customers, :null => false
+    ...
+  end
+
+The above form is common enough that ActiveSchema defaults to automatically
+assuming that if you have a column named <code>thing_id</code>, you want a
+foreign-key constraint to reference the +id+ column of table +things+.  So
+the simple case above works automatically:
+
+  create_table :orders do |t|
+    t.integer :customer_id, :null => false
+    ...
+  end
+
+If for some reason the column name isn't same as the referenced table name
+(e.g. you may have multiple columns referencing one table or for whatever
+reason), you can override the table name using the <code>:references</code>
+option:
+
+  create_table :orders do |t|
+    t.integer :ordered_by_id, :null => false, :references => :customers
+    ...
+  end
+
+If you have a column with a name ending in +_id+ for which you do not wish a
+foreign-key to be generated, you can use <code>:references => nil</code>:
+
+  create_table :orders do |t|
+    t.integer :external_id, :null => false, :references => nil
+    ...
+  end
+
+You may also globally disable the automatic beavhior for +_id+ columns (see
+Configuration below).  The <code>:references</code> option will remain
+available.
+
+Sometimes you may (for legacy reasons) need to reference a primary key column that is
+named something other than +id+. In this case you can specify the name of the column:
+
+  create_table :orders do |t|
+    t.integer :ordered_by_pk, :null => false, :references => [:customers, :pk]
+    ...
+  end
+
+You also have the option of specifying what to do on delete/update using
+<code>:on_delete</code>/<code>:on_update</code>, respectively to one of:
+<code>:cascade</code>; <code>:restrict</code>; and <code>:set_null</code>:
+
+  create_table :orders do |t|
+    t.integer :customer_id, :on_delete => :set_null, :on_update => :cascade
+    ...
+  end
+
+If your database supports it (for example PostgreSQL) you can also mark the constraint as deferrable:
+
+  create_table :orders do |t|
+    t.integer :customer_id, :deferrable => true
+    ...
+  end
+
+By default, the foreign key will be assigned a name by the underlying database. However, 
+you can override the default assignment using the <code>:name</code> option:
+
+  create_table :orders do |t|
+    t.integer :customer_id, :name => :orders_customer_id_foreign_key
+    ...
+  end
+
+By convention, if a column is named +parent_id+ it will be treated as a circular reference to
+the table in which it is defined.
+
+Sometimes you may (for legacy reasons) need to name your primary key column such that it
+would be misinterpreted as a foreign-key (say for example if you named the primary key
++order_id+). In this case you can manually create the primary key as follows:
+
+  create_table :orders, :id => false do |t|
+    ...
+    t.primary_key :order_id, :references => nil
+  end
+
+=== In Table Definitions
+
+You can add a foreign key explicitly when defining a table (rather than as
+part of the column definition).  For example:
+
+  create_table :orders do |t|
+    ...
+    t.foreign_key :customer_id, :customers, :id
+  end
+
+As with column definitions, you may specify 
+<code>:on_delete</code>, <code>:on_update</code>, and
+<code>:deferrable</code>, for example:
+
+  create_table :orders do |t|
+    ...
+    t.foreign_key :customer_id, :customers, :id, :on_delete => :set_null, :on_update => :cascade
+  end
+
+=== Adding and Removing, Querying, and Miscellania
+
+You may create foreign-key constraints at any time, using
+<code>add_foreign_key</code>.  The first paramter is the table name, the
+rest are the same as for table definitions.  For example:
+
+  ActiveRecord::Migration.add_foreign_key(:orders, :customer_id, :customers, :id, :on_delete => :set_null, :on_update => :cascade)
+
+If you need to drop a foreign-key, use:
+
+  ActiveRecord::Migration.remove_foreign_key :orders, :orders_ordered_by_id_fkey
+
+(NOTE: Sqlite3 does not support altering a table to add or remove
+foreign-key constraints.  If you're using Sqlite3, the above methods will
+throw an error.)
+
+You can also query the foreign keys for a model yourself by calling <code>foreign_keys()</code>:
+
+  Order.foreign_keys
+
+Or for an arbitrary table by calling <code>foreign_keys(table_name)</code> on a database adapter.
+
+Either method returns an array of the following meta-data:
+
+* +name+ - The name of the foreign key constraint;
+* +table_name+ - The table for which the foreign-key was generated;
+* +column_names+ - The column names in the table;
+* +references_table_name+ - The table referenced by the foreign-key; and
+* +references_column_names+ - The columns names in the referenced table.
+
+
+The plugin also ensures that all foreign keys are output when performing a
+schema dump. This happens automatically when running <code>rake migrate</code> or
+<code>rake db:schema:dump</code>. This has particular implications when running
+unit tests that contain fixtures. To ensure the test data is correctly reset after
+each test, you should list your fixtures in order of parent->child. For example:
+
+  fixtures :customers, :products, :orders, :order_lines
+
+Rails will then set-up and tear-down the fixtures in the correct sequence.
+
+=== Auto Foreign Key Indexes
+
+ActiveSchema will by default create an index on each foreign key [TODO].
+
+If you want to pass some options for the index use hash params (see Index Creation below):
+
+  create_table :bills, :id => false do |t|
+    ...
+    t.integer :order_id, :index => { :unique => true, :name => 'foo_index' }
+  end
+
+If you do not want an index to be created, you can specify
+
+  create_table :bills, :id => false do |t|
+    ...
+    t.integer :order_id, :index => nil
+  end
+
+If you never want foreign key indexes to be automatically created, you can
+disable this default (see Configuration below).  Indexes can still be
+created by using the <code>:index</code> option.
+
+==== NOTE
+
+Auto indexing is unnecessary for MySQL users as their RDBMS adds indexes on foreign
+keys by default. 
+
+=== For Existing Databases
+
+There is a generator for creating foreign keys on a database that currently has none:
+
+  rails generate foreign_key_migration
+
+=== Table Names
+
+ActiveSchema supports and understands the following active-record
+configuration properties:
+
+* <code>config.active_record.pluralize_table_names</code>
+* <code>config.active_record.table_name_prefix</code>
+* <code>config.active_record.table_name_suffix</code>
+
+== Column Indexes
+
+You can create an index on any column by specifying the +:index+ option.
+
+  create_table :users do |t|
+    ...
+    t.string :role, :index => true
+  end
+
+If you want to pass some options for rails' +add_index()+ you can use hash params.
+
+  create_table :users do |t|
+    ...
+    t.string :userid, :index => { :unique => true }
+  end
+
+You can also define a multi-column index by specifying a +:with+ option
+listing one or more additional columns to be passed to +add_index()+.
+
+  create_table :users do |t|
+    t.integer :group_id
+    t.integer :member_number, :index => { :with => :group_id, :unique => true }
+    t.integer :country_code
+    t.string  :area_code
+    t.string  :local_phone,   :index => { :with => [:country_code, :area_code], :unique => true }
+  end
+
+== Configuration
+
+For customization purposes create config/initializers/automatic_foreign_key.rb file:
+
+  ActiveSchema.setup do |config|
+    config.foreign_keys.auto_create = true # create FKs for columns named _id
+    config.foreign_keys.auto_index = true # create indexes on FKs by default
+    config.foreign_keys.on_update = :cascade # cascade as default on_update action
+    config.foreign_keys.on_delete = :restrict # restrict as default on_delete action
+  end
+
+
+=== View Support
+
+The plugin provides a mechanism for creating and dropping views as well as
+preserving views when performing a schema dump:
+
+  create_view :normal_customers, "SELECT * FROM customers WHERE status = 'normal'"
+  drop_view :normal_customers
+
+
+=== Model Indexes
+
+ActiveRecord::Base already provides a method on connection for obtaining the
+indexes for a given table. This plugin now makes it possible to obtain the
+indexes for a given model--<code>ActiveRecord::Base</code>--class. For example:
+
+  Invoice.indexes
+
+Would return all the indexes for the +invoices+ table.
+
+=== Partial Indexes (indexes with conditions)
+
+Partial indexes index only a portion of the database. Only PostgreSQL supports this feature.
+
+  add_index :users, :username, :unique => true, :conditions => {:state => "active"}
+
+=== Indexing using an arbitrary expression (PostgreSQL only)
+
+Create expression-based indexes:
+
+  add_index :users, [:first_name, :last_name], :expression => 'LOWER(first_name || ' ' || last_name)'
+  add_index :places, :expression => 'sin(lat) * cos(lng)', :name => 'index_places_on_something'
+  add_index :documents, :body, :expression => "USING gin (to_tsvector('english', body))" 
+
+Expression is a pass-through: no quoting, escaping is done on it. Presumably, this expression is
+part of migrations, or at least, code under your control.
+
+=== Case-insensitive Indexes
+
+For PostgreSQL, you can add an option <code>:case_sensitive => false</code> to <code>add_index</code>
+which will generate an expression index of the form:
+
+  LOWER(column_name)
+
+This means finder queries of the form:
+
+  WHERE LOWER(column_name) = LOWER(?)
+
+are able to use the indexes rather require, in the worst case, full-table scans.
+
+Note also that this ties in well with Rails built-in support for case-insensitive searching:
+
+  validates_uniqueness_of :name, :case_sensitive => false
+
+== NOTES
+
+=== Compatibility
+
+* Rails 3 compatibility
+
+    Automatic foreign key is fully compatible with Rails 3.
+
+* Rails 2.x compatibility
+    
+    Everything but generator is compatible
+
+=== Testing
+
+ActiveSchema is tested using rspec.
+
+First you have to fetch sources from github as specs are not inculded in a gem.
+
+  $ git clone https://dbsupport@github.com/dbsupport/active_schema.git
+  $ cd active_schema
+  $ bundle install
+  $ rake postgresql:build_databases # create redhillonrails user first
+  $ rake mysql:build_databases  # create user as above
+  $ rake spec
+
+  # to run postgresql specs only
+  $ rake spec postgresql:spec 
+
+=== History
+
+* ActiveSchema is derived from several "Red Hill On Rails" plugins
+  originally created by harukizaemon(http://github.com/harukizaemon)
+  with later contributions from 
+  * Michał Łomnicki
+  * François Beausoleil - http://github.com/francois
+  * Greg Barnett
+  * Ronen Barzel
+
+* ActiveSchema was created in 2011 by Michal Lomnicki and Ronen Barzel
+
+=== License
+
+This plugin is released under the MIT license.

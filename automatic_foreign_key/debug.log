@@ -1,0 +1,133 @@
+# Logfile created on Wed Feb 09 23:16:52 -0800 2011 by logger.rb/22285
+D, [2011-02-09T23:16:53.270863 #18697] DEBUG -- :   [1m[36mSQL (0.3ms)[0m  [1mPRAGMA FOREIGN_KEYS = 1[0m
+D, [2011-02-09T23:16:53.282073 #18697] DEBUG -- :   [1m[35mSQL (0.3ms)[0m  select sqlite_version(*)
+D, [2011-02-09T23:16:53.295265 #18697] DEBUG -- :   [1m[36mSQL (12.8ms)[0m  [1m SELECT name
+ FROM sqlite_master
+ WHERE type = 'table' AND NOT name = 'sqlite_sequence'
+[0m
+D, [2011-02-09T23:16:53.323667 #18697] DEBUG -- :   [1m[35mSQL (26.9ms)[0m  CREATE TABLE "users" ("id" INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, "login" varchar(255)) 
+D, [2011-02-09T23:16:53.333180 #18697] DEBUG -- :   [1m[36mSQL (0.2ms)[0m  [1mPRAGMA index_list("users")[0m
+D, [2011-02-09T23:16:53.341424 #18697] DEBUG -- :   [1m[35mSQL (7.8ms)[0m  CREATE UNIQUE INDEX "index_users_on_login" ON "users" ("login")
+D, [2011-02-09T23:16:53.348280 #18697] DEBUG -- :   [1m[36mSQL (5.6ms)[0m  [1m SELECT name
+ FROM sqlite_master
+ WHERE type = 'table' AND NOT name = 'sqlite_sequence'
+[0m
+D, [2011-02-09T23:16:53.350469 #18697] DEBUG -- :   [1m[35mSQL (1.8ms)[0m  CREATE TABLE "members" ("id" INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, "login" varchar(255)) 
+D, [2011-02-09T23:16:53.352134 #18697] DEBUG -- :   [1m[36mSQL (0.4ms)[0m  [1m SELECT name
+ FROM sqlite_master
+ WHERE type = 'table' AND NOT name = 'sqlite_sequence'
+[0m
+D, [2011-02-09T23:16:53.361643 #18697] DEBUG -- :   [1m[35mSQL (9.0ms)[0m  CREATE TABLE "comments" ("id" INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, "content" varchar(255), "user" integer, "user_id" integer) 
+D, [2011-02-09T23:16:53.362982 #18697] DEBUG -- :   [1m[36mSQL (0.5ms)[0m  [1m SELECT name
+ FROM sqlite_master
+ WHERE type = 'table' AND NOT name = 'sqlite_sequence'
+[0m
+D, [2011-02-09T23:16:53.368123 #18697] DEBUG -- :   [1m[35mSQL (4.7ms)[0m  CREATE TABLE "posts" ("id" INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, "content" varchar(255)) 
+D, [2011-02-09T23:16:53.793891 #18697] DEBUG -- :   [1m[36mSQL (0.4ms)[0m  [1m SELECT name
+ FROM sqlite_master
+ WHERE type = 'table' AND NOT name = 'sqlite_sequence'
+[0m
+D, [2011-02-09T23:16:53.794367 #18697] DEBUG -- :   [1m[35mSQL (0.2ms)[0m   SELECT *
+ FROM sqlite3_foreign_keys
+ WHERE "to_table_name" = 'posts'
+
+D, [2011-02-09T23:16:53.794446 #18697] DEBUG -- : SQLite3::SQLException: no such table: sqlite3_foreign_keys:         SELECT *
+          FROM sqlite3_foreign_keys
+         WHERE "to_table_name" = 'posts'
+
+D, [2011-02-09T23:16:53.796086 #18697] DEBUG -- :   [1m[36mSQL (0.3ms)[0m  [1m SELECT name
+ FROM sqlite_master
+ WHERE type = 'table' AND NOT name = 'sqlite_sequence'
+[0m
+D, [2011-02-09T23:16:53.796511 #18697] DEBUG -- :   [1m[35mSQL (0.2ms)[0m   SELECT *
+ FROM sqlite3_foreign_keys
+ WHERE "to_table_name" = 'posts'
+
+D, [2011-02-09T23:16:53.796588 #18697] DEBUG -- : SQLite3::SQLException: no such table: sqlite3_foreign_keys:         SELECT *
+          FROM sqlite3_foreign_keys
+         WHERE "to_table_name" = 'posts'
+
+D, [2011-02-09T23:16:53.798209 #18697] DEBUG -- :   [1m[36mSQL (0.3ms)[0m  [1m SELECT name
+ FROM sqlite_master
+ WHERE type = 'table' AND NOT name = 'sqlite_sequence'
+[0m
+D, [2011-02-09T23:16:53.798663 #18697] DEBUG -- :   [1m[35mSQL (0.2ms)[0m   SELECT *
+ FROM sqlite3_foreign_keys
+ WHERE "to_table_name" = 'posts'
+
+D, [2011-02-09T23:16:53.798753 #18697] DEBUG -- : SQLite3::SQLException: no such table: sqlite3_foreign_keys:         SELECT *
+          FROM sqlite3_foreign_keys
+         WHERE "to_table_name" = 'posts'
+
+D, [2011-02-09T23:16:53.800263 #18697] DEBUG -- :   [1m[36mSQL (0.4ms)[0m  [1m SELECT name
+ FROM sqlite_master
+ WHERE type = 'table' AND NOT name = 'sqlite_sequence'
+[0m
+D, [2011-02-09T23:16:53.800759 #18697] DEBUG -- :   [1m[35mSQL (0.2ms)[0m   SELECT *
+ FROM sqlite3_foreign_keys
+ WHERE "to_table_name" = 'posts'
+
+D, [2011-02-09T23:16:53.800851 #18697] DEBUG -- : SQLite3::SQLException: no such table: sqlite3_foreign_keys:         SELECT *
+          FROM sqlite3_foreign_keys
+         WHERE "to_table_name" = 'posts'
+
+D, [2011-02-09T23:16:53.802475 #18697] DEBUG -- :   [1m[36mSQL (0.3ms)[0m  [1m SELECT name
+ FROM sqlite_master
+ WHERE type = 'table' AND NOT name = 'sqlite_sequence'
+[0m
+D, [2011-02-09T23:16:53.802996 #18697] DEBUG -- :   [1m[35mSQL (0.2ms)[0m   SELECT *
+ FROM sqlite3_foreign_keys
+ WHERE "to_table_name" = 'posts'
+
+D, [2011-02-09T23:16:53.803081 #18697] DEBUG -- : SQLite3::SQLException: no such table: sqlite3_foreign_keys:         SELECT *
+          FROM sqlite3_foreign_keys
+         WHERE "to_table_name" = 'posts'
+
+D, [2011-02-09T23:16:53.805032 #18697] DEBUG -- :   [1m[36mSQL (0.4ms)[0m  [1m SELECT name
+ FROM sqlite_master
+ WHERE type = 'table' AND NOT name = 'sqlite_sequence'
+[0m
+D, [2011-02-09T23:16:53.805514 #18697] DEBUG -- :   [1m[35mSQL (0.2ms)[0m   SELECT *
+ FROM sqlite3_foreign_keys
+ WHERE "to_table_name" = 'posts'
+
+D, [2011-02-09T23:16:53.805594 #18697] DEBUG -- : SQLite3::SQLException: no such table: sqlite3_foreign_keys:         SELECT *
+          FROM sqlite3_foreign_keys
+         WHERE "to_table_name" = 'posts'
+
+D, [2011-02-09T23:16:53.911613 #18697] DEBUG -- :   [1m[36mSQL (0.4ms)[0m  [1m SELECT name
+ FROM sqlite_master
+ WHERE type = 'table' AND NOT name = 'sqlite_sequence'
+[0m
+D, [2011-02-09T23:16:53.912099 #18697] DEBUG -- :   [1m[35mSQL (0.2ms)[0m   SELECT *
+ FROM sqlite3_foreign_keys
+ WHERE "to_table_name" = 'users'
+
+D, [2011-02-09T23:16:53.912178 #18697] DEBUG -- : SQLite3::SQLException: no such table: sqlite3_foreign_keys:         SELECT *
+          FROM sqlite3_foreign_keys
+         WHERE "to_table_name" = 'users'
+
+D, [2011-02-09T23:16:53.914122 #18697] DEBUG -- :   [1m[36mSQL (0.3ms)[0m  [1m SELECT name
+ FROM sqlite_master
+ WHERE type = 'table' AND NOT name = 'sqlite_sequence'
+[0m
+D, [2011-02-09T23:16:53.914580 #18697] DEBUG -- :   [1m[35mSQL (0.2ms)[0m   SELECT *
+ FROM sqlite3_foreign_keys
+ WHERE "to_table_name" = 'users'
+
+D, [2011-02-09T23:16:53.914659 #18697] DEBUG -- : SQLite3::SQLException: no such table: sqlite3_foreign_keys:         SELECT *
+          FROM sqlite3_foreign_keys
+         WHERE "to_table_name" = 'users'
+
+D, [2011-02-09T23:16:53.916887 #18697] DEBUG -- :   [1m[36mSQL (0.3ms)[0m  [1m SELECT name
+ FROM sqlite_master
+ WHERE type = 'table' AND NOT name = 'sqlite_sequence'
+[0m
+D, [2011-02-09T23:16:53.917309 #18697] DEBUG -- :   [1m[35mSQL (0.2ms)[0m   SELECT *
+ FROM sqlite3_foreign_keys
+ WHERE "to_table_name" = 'users'
+
+D, [2011-02-09T23:16:53.917388 #18697] DEBUG -- : SQLite3::SQLException: no such table: sqlite3_foreign_keys:         SELECT *
+          FROM sqlite3_foreign_keys
+         WHERE "to_table_name" = 'users'
+
