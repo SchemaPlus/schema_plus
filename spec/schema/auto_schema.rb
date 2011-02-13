@@ -13,7 +13,6 @@ ActiveRecord::Schema.define do
     t.string :content
     t.integer :user
     t.integer :user_id
-    t.foreign_key :user_id, :users, :id
   end
 
   create_table :posts, :force => true do |t|
