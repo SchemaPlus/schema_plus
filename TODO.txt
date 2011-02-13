@@ -1,0 +1,19 @@
+* Pull in the generators in from automatic_foreign_key.
+
+* Delete the automatic_foreign_key and redhillonrails_core subdirectories.
+
+* Merge in foreign_key_assocation from its subdirectory.
+  * Create configuration to enable/disable it.
+  * Create spec tests for it.
+
+* Merge in schema_valiations from latest version on github.
+  * Create configuration to enable/disable it.
+  * Create spec tests for it.
+
+Clean up README.rdoc
+
+* General cleanups -- get rid of methods no longer used, "features" we no
+  longer desire, etc.
+
+  * The spec tests were jammed together inelegantly to deal with the fact that they used different schemas.  That could be made cleaner.
+  * Should we get rid of t.belongs_to?
