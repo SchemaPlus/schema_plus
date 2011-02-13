@@ -29,6 +29,7 @@ describe ActiveRecord::Schema do
   def define_schema
     ActiveRecord::Migration.suppress_messages do
       schema.define do
+        connection.tables.each do |table| drop_table table end
 
         create_table :users, :force => true do
         end

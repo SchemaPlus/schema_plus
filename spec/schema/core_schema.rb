@@ -1,4 +1,5 @@
 ActiveRecord::Schema.define do
+  connection.tables.each do |table| drop_table table end
 
   create_table :users, :force => true do |t|
     t.string :login
