@@ -3,6 +3,14 @@ module ActiveSchema
     module ConnectionAdapters
       module Sqlite3Adapter
 
+        def add_foreign_key(table_name, column_names, references_table_name, references_column_names, options = {})
+          raise NotImplementedError, "Sqlite3 does not support altering a table to add foreign key constraints (table #{table_name.inspect} column #{column_names.inspect})"
+        end
+
+        def remove_foreign_key(table_name, foreign_key_name)
+          raise NotImplementedError, "Sqlite3 does not support altering a table to remove foreign key constraints (table #{table_name.inspect} constraint #{foreign_key_name.inspect})"
+        end
+
         def move_table(from, to, options = {}, &block) #:nodoc:
           copy_table(from, to, options, &block)
           drop_table(from, options)

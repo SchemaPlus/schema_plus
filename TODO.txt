@@ -2,11 +2,6 @@
 
 * Delete the automatic_foreign_key and redhillonrails_core subdirectories.
 
-* Sqlite3 adapter should raise "Undefined" exceptions on attempts to
-  add/remove a foreign key; currently an attempt will yield a syntax error
-  which is cryptic.
-  * Add a spec test for this case
-
 * Schema dumper should use :references on columns rather than
   t.foreign_key, to avoid double definition when loading schema with
   fk.auto_create enabled.

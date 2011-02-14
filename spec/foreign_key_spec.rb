@@ -12,7 +12,21 @@ describe "Foreign Key" do
 
   let(:migration) { ::ActiveRecord::Migration }
 
-  unless ActiveSchemaHelpers.sqlite3?
+  if ActiveSchemaHelpers.sqlite3?
+
+    it "raises an exception when attempting to add" do
+      expect { 
+        add_foreign_key(:posts, :author_id, :users, :id, :on_update => :cascade, :on_delete => :restrict)
+      }.should raise_error(NotImplementedError)
+    end
+
+    it "raises an exception when attempting to remove" do
+      expect { 
+        remove_foreign_key(:posts, "dummy")
+      }.should raise_error(NotImplementedError)
+    end
+
+  else
 
     context "when is added", "posts(author_id)" do
 
@@ -84,25 +98,25 @@ describe "Foreign Key" do
 
     end
 
-    protected
-    def add_foreign_key(*args)
-      migration.suppress_messages do
-        migration.add_foreign_key(*args)
-      end
-      User.reset_column_information
-      Post.reset_column_information
-      Comment.reset_column_information
-    end
+  end
 
-    def remove_foreign_key(*args)
-      migration.suppress_messages do
-        migration.remove_foreign_key(*args)
-      end
-      User.reset_column_information
-      Post.reset_column_information
-      Comment.reset_column_information
+  protected
+  def add_foreign_key(*args)
+    migration.suppress_messages do
+      migration.add_foreign_key(*args)
     end
+    User.reset_column_information
+    Post.reset_column_information
+    Comment.reset_column_information
+  end
 
+  def remove_foreign_key(*args)
+    migration.suppress_messages do
+      migration.remove_foreign_key(*args)
+    end
+    User.reset_column_information
+    Post.reset_column_information
+    Comment.reset_column_information
   end
 
 end
