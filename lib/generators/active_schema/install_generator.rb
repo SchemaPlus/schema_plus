@@ -1,11 +1,11 @@
-module AutomaticForeignKey
+module ActiveSchema
   module Generators
     class InstallGenerator < ::Rails::Generators::Base
-      desc "Copy automatic foreign key default files"
+      desc "Install ActiveSchema configuration file"
       source_root File.expand_path('../templates', __FILE__)
 
       def copy_initializers
-        copy_file 'automatic_foreign_key.rb', 'config/initializers/automatic_foreign_key.rb'
+        copy_file 'active_schema.rb', 'config/initializers/active_schema.rb'
       end
 
     end

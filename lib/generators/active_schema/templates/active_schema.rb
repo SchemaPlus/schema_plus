@@ -1,4 +1,4 @@
-AutomaticForeignKey.setup do |config|
+ActiveSchema.setup do |config|
 
   # Default ON UPDATE action
   # Available values are :cascade, :restrict, :set_null, :set_default, :no_action

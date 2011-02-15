@@ -1,9 +1,9 @@
 require 'rails/generators'
 require 'rails/generators/active_record'
 
-module AutomaticForeignKey
+module ActiveSchema
   module Generators
-    class MigrationGenerator < ::ActiveRecord::Generators::Base
+    class ForeignKeysGenerator < ::ActiveRecord::Generators::Base
       argument :name, :default => 'create_foreign_keys'
 
       def self.source_root
@@ -12,7 +12,7 @@ module AutomaticForeignKey
 
       def create_migration_file
         set_local_assigns!
-        migration_template 'migration.rb', "db/migrate/#{file_name}"
+        migration_template 'create_foreign_keys.rb', "db/migrate/#{file_name}"
       end
 
       protected
@@ -27,8 +27,8 @@ module AutomaticForeignKey
         connection = ::ActiveRecord::Base.connection
         connection.tables.each do |table_name|
           connection.columns(table_name).each do |column|
-            references = ::ActiveRecord::Base.references(table_name, column.name)
-            foreign_keys << ::RedhillonrailsCore::ActiveRecord::ConnectionAdapters::ForeignKeyDefinition.new(nil, table_name, column.name, references.first, references.last) if references
+            references = ::ActiveRecord::Migration.get_references(table_name, column.name)
+            foreign_keys << ::ActiveSchema::ActiveRecord::ConnectionAdapters::ForeignKeyDefinition.new(nil, table_name, column.name, references.first, references.last) if references
           end
         end
         foreign_keys
