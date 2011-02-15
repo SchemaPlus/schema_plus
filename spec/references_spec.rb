@@ -11,12 +11,23 @@ describe 'get_references method' do
     @destinantion_column = :id
   end
 
+  around(:each) do |example|
+    with_auto_create do
+      example.run
+    end
+  end
+
   it "should accept table name and column name to references" do
     lambda { @target.get_references(@table_name, @column_name) }.should_not raise_error
   end
 
   it "should return an array" do
     @target.get_references(@table_name, @column_name).should be_an(Array)
+  end
+
+  it "should return nil if auto_create is disabled" do
+    ActiveSchema.config.foreign_keys.auto_create = false
+    @target.get_references(@table_name, @column_name).should be_nil
   end
 
   it "should split column name to table name and primary key" do

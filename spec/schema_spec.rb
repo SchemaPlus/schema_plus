@@ -6,21 +6,23 @@ describe ActiveRecord::Schema do
 
   let(:connection) { ActiveRecord::Base.connection }
 
-  context "defining with auto_index" do
+  context "defining with auto_index and auto_create" do
+
+    around(:each) do |example|
+      with_auto_index do
+        with_auto_create do
+          example.run
+        end
+      end
+    end
 
     it "should pass" do
-
-      with_auto_index do
-        expect { define_schema }.should_not raise_error
-      end
-
+      expect { define_schema }.should_not raise_error
     end
 
     it "should create only explicity added indexes" do
-      with_auto_index do
-        define_schema
-        connection.tables.collect { |table| connection.indexes(table) }.flatten.should have(1).item
-      end
+      define_schema
+      connection.tables.collect { |table| connection.indexes(table) }.flatten.should have(1).item
     end
 
   end
@@ -52,6 +54,16 @@ describe ActiveRecord::Schema do
       yield
     ensure
       ActiveSchema.config.foreign_keys.auto_index = old_value
+    end
+  end
+
+  def with_auto_create(value = true)
+    old_value = ActiveSchema.config.foreign_keys.auto_create
+    ActiveSchema.config.foreign_keys.auto_create = value
+    begin
+      yield
+    ensure
+      ActiveSchema.config.foreign_keys.auto_create = old_value
     end
   end
 
