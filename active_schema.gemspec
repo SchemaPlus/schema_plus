@@ -6,9 +6,9 @@ Gem::Specification.new do |s|
   s.name        = "active_schema"
   s.version     = ActiveSchema::VERSION
   s.platform    = Gem::Platform::RUBY
-  s.authors     = ["Michał Łomnicki"]
-  s.email       = ["michal.lomnicki@gmail.com"]
-  s.homepage    = "https://github.com/dbsupport/active_schema"
+  s.authors     = ["Ronen Barzel", "Michał Łomnicki"]
+  s.email       = ["ronen@barzel.org", "michal.lomnicki@gmail.com"]
+  s.homepage    = "https://github.com/lomba/active_schema"
   s.summary     = "Provides ActiveRecord support for foreign keys, database defined validations and associations."
   s.description = "ActiveSchema is an ActiveRecord extension that provides support for defining foreign keys and indexes in database migrations and schemas, as well as for defining model validations and associations based on the database."
 
