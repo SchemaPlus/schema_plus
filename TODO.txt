@@ -1,5 +1,3 @@
-* Pull in the generators in from automatic_foreign_key.
-
 * Delete the automatic_foreign_key and redhillonrails_core subdirectories.
 
 * Schema dumper should use :references on columns rather than
