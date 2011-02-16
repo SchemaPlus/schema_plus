@@ -1,0 +1,157 @@
+[REVISION 20090206]
+
+[CHANGED] Only validate uniqueness if the column changes value.
+
+[REVISION 20090127]
+
+[FIXED] Deprecation warning relating too i18n (github/crishoj).
+
+[REVISION 20080131]
+
+[FIXED] belongs_to associations failing when no table exists.
+
+[REVISION 20071128]
+
+[FIXED] Workaround to ensure plugin is only ever loaded once.
+
+[REVISION 20070321]
+
+[FIXED] Sub-class meta-data missing if loaded before super-class.
+
+[REVISION 20070302]
+
+[NEW] Validation may be limited to specific columns by calling schema_validations from within your model class, passing either a single column (:only => :name) or an array of columns (:except => [:isocode, :iddcode]).
+
+[CHANGED] Use symbols rather than strings when calling validation methods as this seems to be the "way of the future" :).
+
+[REVISION 20070224]
+
+[FIXED] Removed useless assignment of class variable.
+
+[REVISION 20070221]
+
+[NEW] Where possible, validates_uniqueness_of adds the :case_sensitivity option based on the presence of case-insensitive indexes.
+
+[REVISION 20061203]
+
+[CHANGED] Lazily load meta-data during allocate/new rather than inherited.
+
+[FIXED] Explicit table name ignored.
+
+[REVISION 20061202]
+
+[CHANGED] Use Rails 1.2 alias_method_chain.
+
+[CHANGED] Separate modules into individual files.
+
+[REVISION 20061114]
+
+[FIXED] NOT NULL columns with a default not marked as required for update.
+
+[REVISION 20061013]
+
+[NEW] install.rb informs user of missing dependencies.
+
+[REVISION 20061012]
+
+[CHANGED] Only read meta-data for base-classes.
+
+[REVISION 20061011]
+
+[CHANGED] Use include rather than extend in init.rb as this is more general. Plugin code can then determine if it needs to use extend or not.
+
+[REVISION 20061020]
+
+[FIXED] Breaks abstract class inheritance. If classes are named 'AbstractXxx' they will be treated as abstract. This is somewhat of a work-around for the current implementation however I believe it is a sensible choice for now.
+
+[REVISION 20060924]
+
+[FIXED] validates_uniqueness_of causes new records to fail when nullable column is null and there exists another record where the value of the column is also null. NULL values should always be considered unique.
+
+[REVISION 20060915]
+
+[NEW] Multi-column unique indexes are converted to validates_uniqueness_of with scope. The column validated for uniqueness is either the last column not ending in '_id' or simply the last column. This follows the typical composite unique index column ordering where the scoping is specified first but will attempt to find the last non-foreign-key column just-in-case. Eg, both add_index :states, [:country_id, :name], :unique => true and add_index :states, [:name, :country_id], :unique => true would result in <code>validates_uniqueness_of :name, :scope => [:country_id].
+
+[REVISION 20060914]
+
+[CHANGED] Removed unnecessary condition from validates_presence_of for associations.
+
+[REVISION 20060913]
+
+[FIXED] validates_presence_of for associations causes new records to fail.
+
+[REVISION 20060912]
+
+[FIXED] 'Before updating scaffolding from new DB schema, try creating a table for your model (<model>)' when running ./script/generate scaffold <model>. Seems the scaffold sandbox dynamically creates classes which have no name.
+
+[REVISION 20060911]
+
+[CHANGED] Revert to nil defaults--as opposed to blank--now that the MySQL behaviour has been patched in redhillonrails_core.
+
+[REVISION 20060909]
+
+[NEW] Dependency on RedHill on Rails Core.
+
+[NEW] validates_uniqueness_of for associations.
+
+[FIXED] validates_presence_of for associations.
+
+[REVISION 20060908]
+
+[FIXED] validates_presence_of not being applied under MySQL; empty defaults are represented as blank rather than nil.
+
+[NEW] validates_uniqueness_of for associations.
+
+[REVISION 20060818]
+
+[FIXED] 'Before updating scaffolding from new DB schema, try creating a table for your model (<model>)' when running ./script/generate scaffold <model>.
+
+[FIXED] 'relation "system_settings" does not exist' when running a migrate with system_settings plugin installed.
+
+[REVISION 20060816]
+
+[FIXED] Overly greedy regex ignoring all date/time columns.
+
+[REVISION 20060812]
+
+[CHANGED] Documentation updated to reflect the fact that no further action is required once the plugin is installed.
+
+[REVISION 20060812]
+
+[FIXED] Documentation mentions :integer => true options; this should have read :only_integer => true.
+
+[REVISION 20060803]
+
+[FIXED] Revision 50 comments out the validates_presence_of magic on line 13 in belongs_to_with_schema_validations.
+
+[REVISION 20060802]
+
+[NEW] Support for validates_uniqueness_of for single-column unique indexes.
+
+[CHANGED] Error message for boolean fields to be the same as the default for validates_presence_of
+
+[REVISION 20060723]
+
+[FIXED] Workaround for a "feature" of the way validates_presence_of handles boolean fields. See http://dev.rubyonrails.org/ticket/5090 and http://dev.rubyonrails.org/ticket/3334
+
+[REVISION 20060719]
+
+[NEW] Support validates_presence_of for belongs_to associations.
+
+[REVISION 20060718]
+
+[FIXED] String test checks #class instead of #klass
+
+[CHANGED] Separated out check for null from validation of numericality. This means you'll get a "xxx can't be blank" rather than an "xx isn't a number" which seems more intuitive to me.
+
+[FIXED] Default check should consider nil explicitly to allow for false.
+
+[REVISION 20060717]
+
+[NEW] Initial version.
+
+[FIXED] Ignore columns ending in: _id, _count, _at, _on.
+
+[NEW] Support validates_numericality_of for numbers (including :integer => true)
+
+[NEW] Support validates_length_of for strings
