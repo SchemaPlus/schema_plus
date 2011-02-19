@@ -60,7 +60,7 @@ module ActiveSchema::ActiveRecord
           references = options[:references]
           references = [references, :id] unless references.nil? || references.is_a?(Array)
           references
-        elsif ActiveSchema.config.foreign_keys.auto_create
+        elsif ActiveSchema.config.foreign_keys.auto_create && !ActiveRecord::Schema.defining?
           if column_name == 'parent_id'
             [table_name, :id]
           elsif column_name =~ /^(.*)_id$/
