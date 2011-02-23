@@ -1,5 +1,7 @@
 require File.expand_path(File.dirname(__FILE__) + '/spec_helper')
 
+# This spec is too tricky and definately needs refactoring.
+
 ActiveRecord::Migration.suppress_messages do
   ActiveRecord::Schema.define do
     connection.tables.each do |table| drop_table table end
@@ -20,8 +22,11 @@ ActiveRecord::Migration.suppress_messages do
     end
     add_index :reviews, :article_id, :unique => true
 
+    create_table :blogs, :force => true
+
     create_table :pingbacks, :force => true do |t|
       t.integer :article_id, :null => false
+      t.integer :blog_id
       t.string :url, :limit => 2048, :null => false
       t.float :popularity, :null => false
     end
@@ -34,27 +39,34 @@ ActiveRecord::Migration.suppress_messages do
   end
 end
 
-ActiveSchema.config.validations.auto_create = true
+ActiveRecordSchemaValidations = Class.new(ActiveRecord::Base)
+ActiveRecordSchemaValidations.extend(ActiveSchema::ActiveRecord::SchemaValidations::Core)
 
-class Article < ActiveRecord::Base
+ActiveRecordSchemaValidationsAuto = Class.new(ActiveRecordSchemaValidations)
+ActiveRecordSchemaValidationsAuto.extend(ActiveSchema::ActiveRecord::SchemaValidations::AutoCreate)
+
+class Blog < ActiveRecordSchemaValidations
 end
-class Review < ActiveRecord::Base
-  belongs_to :article
-  belongs_to :news_article, :class_name => 'Article', :foreign_key => :article_id
-  schema_validations :except => :content
-end
 
-ActiveSchema.config.validations.auto_create = false
-
-class Pingback < ActiveRecord::Base
-  belongs_to :article
-  belongs_to :news_article, :class_name => 'Article', :foreign_key => :article_id
+class Pingback < ActiveRecordSchemaValidations
+  belongs_to :blog
+  belongs_to :homepage, :class_name => 'Blog', :foreign_key => :blog_id
   schema_validations :only => [:url, :article]
 end
 
-class Like < ActiveRecord::Base
+class Like < ActiveRecordSchemaValidations
   belongs_to :dummy_association
   schema_validations :except => :source
+end
+
+ActiveSchema.setup { |config| config.validations.auto_create = true }
+
+class Article < ActiveRecordSchemaValidationsAuto
+end
+class Review < ActiveRecordSchemaValidationsAuto
+  belongs_to :article
+  belongs_to :news_article, :class_name => 'Article', :foreign_key => :article_id
+  schema_validations :except => :content
 end
 
 describe "SchemaValidations" do
@@ -124,7 +136,7 @@ describe "SchemaValidations" do
     end
 
     it "should validate associations with unmatched column and name" do
-      Review.new.should have(1).error_on(:news_article)
+      Review.new.should have(1).error_on(:homepage)
     end
 
     def valid_attributes

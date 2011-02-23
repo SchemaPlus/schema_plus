@@ -3,7 +3,6 @@ module ActiveSchema
     module Base
       def self.included(base)
         base.extend(ClassMethods)
-        base.extend(ActiveSchema::ActiveRecord::SchemaValidations)
       end
 
       module ClassMethods

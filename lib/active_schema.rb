@@ -14,10 +14,12 @@ require 'active_schema/active_record/connection_adapters/column'
 require 'active_schema/active_record/connection_adapters/foreign_key_definition'
 require 'active_schema/active_record/connection_adapters/index_definition'
 require 'active_schema/active_record/connection_adapters/mysql_column'
-require 'active_schema/active_record/schema_validations'
 
 module ActiveSchema
   module ActiveRecord
+
+    autoload :SchemaValidations, 'active_schema/active_record/schema_validations'
+
     module ConnectionAdapters
       autoload :MysqlAdapter, 'active_schema/active_record/connection_adapters/mysql_adapter'
       autoload :PostgresqlAdapter, 'active_schema/active_record/connection_adapters/postgresql_adapter'
@@ -45,6 +47,10 @@ module ActiveSchema
     @@foreign_keys = ForeignKeys.new
 
     class Validations
+      # Enable SchemaValidations feature
+      cattr_accessor :enable
+      @@enable = false
+
       # Automatically create validations basing on database schema
       cattr_accessor :auto_create
       @@auto_create = false
@@ -59,6 +65,16 @@ module ActiveSchema
 
   def self.setup(&block)
     yield config
+    post_setup
+  end
+
+  def self.post_setup
+    if config.validations.enable
+      @schema_validations_enabled ||= ::ActiveRecord::Base.extend(ActiveSchema::ActiveRecord::SchemaValidations::Core)
+      if config.validations.auto_create
+        @schema_validations_auto_create ||= ::ActiveRecord::Base.extend(ActiveSchema::ActiveRecord::SchemaValidations::AutoCreate)
+      end
+    end
   end
 
   def self.options_for_index(index)
