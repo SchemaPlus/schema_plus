@@ -31,6 +31,9 @@ describe ActiveRecord::Base do
       reflection.options[:class_name].should == "Comment"
       reflection.options[:foreign_key].should == "post_id"
     end
+    it "shouldn't raise an exception when model is instantiated" do
+      expect { @post.new }.should_not raise_error
+    end
   end
 
   it "should override auto_create negatively" do
