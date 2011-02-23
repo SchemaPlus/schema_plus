@@ -3,7 +3,7 @@ require 'active_support/core_ext/module/aliasing'
 
 module ActiveSchema
   module ActiveRecord
-    module SchemaValidations
+    module Validations
 
       module Core
 

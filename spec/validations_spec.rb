@@ -65,7 +65,7 @@ class Review < ActiveRecord::Base
   schema_validations :except => :content
 end
 
-describe "SchemaValidations" do
+describe "Validations" do
 
   context "auto-created" do
 

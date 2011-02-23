@@ -18,7 +18,7 @@ require 'active_schema/active_record/connection_adapters/mysql_column'
 module ActiveSchema
   module ActiveRecord
 
-    autoload :SchemaValidations, 'active_schema/active_record/schema_validations'
+    autoload :Validations, 'active_schema/active_record/validations'
 
     module ConnectionAdapters
       autoload :MysqlAdapter, 'active_schema/active_record/connection_adapters/mysql_adapter'
@@ -70,9 +70,9 @@ module ActiveSchema
 
   def self.post_setup
     if config.validations.enable
-      @schema_validations_enabled ||= ::ActiveRecord::Base.extend(ActiveSchema::ActiveRecord::SchemaValidations::Core)
+      ::ActiveRecord::Base.extend(ActiveSchema::ActiveRecord::Validations::Core)
       if config.validations.auto_create
-        @schema_validations_auto_create ||= ::ActiveRecord::Base.extend(ActiveSchema::ActiveRecord::SchemaValidations::AutoCreate)
+        ::ActiveRecord::Base.extend(ActiveSchema::ActiveRecord::Validations::AutoCreate)
       end
     end
   end
