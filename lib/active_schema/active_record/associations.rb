@@ -35,6 +35,8 @@ module ActiveSchema
       protected
 
       def load_active_schema_associations
+        return unless active_schema_config.associations.auto_create?
+
         # Don't bother if: it's already been loaded; the class is abstract; not a base class; or the table doesn't exist
         return if @active_schema_associations_loaded || abstract_class? || !base_class? || !table_exists?
         @active_schema_associations_loaded = true

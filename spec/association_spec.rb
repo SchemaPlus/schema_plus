@@ -33,6 +33,39 @@ describe ActiveRecord::Base do
     end
   end
 
+  it "should override auto_create negatively" do
+    with_associations_auto_create(true) do
+      create_tables(
+        "posts", {}, {},
+        "comments", {}, { :post_id => {} }
+      )
+      @post = Class.new(ActiveRecord::Base) do
+        set_table_name "posts"
+        active_schema :associations => { :auto_create => false }
+      end
+      @comment = Class.new(ActiveRecord::Base) do set_table_name "comments" end
+      @post.reflect_on_association(:comments).should be_nil
+      @comment.reflect_on_association(:post).should_not be_nil
+    end
+  end
+
+  it "should override auto_create positively" do
+    with_associations_auto_create(false) do
+      create_tables(
+        "posts", {}, {},
+        "comments", {}, { :post_id => {} }
+      )
+      @post = Class.new(ActiveRecord::Base) do
+        set_table_name "posts"
+        active_schema :associations => { :auto_create => true }
+      end
+      @comment = Class.new(ActiveRecord::Base) do set_table_name "comments" end
+      @post.reflect_on_association(:comments).should_not be_nil
+      @comment.reflect_on_association(:post).should be_nil
+    end
+  end
+
+
   context "with unique index" do
     before(:all) do
       create_tables(
@@ -162,13 +195,23 @@ describe ActiveRecord::Base do
 
   protected
 
-  def with_fk_auto_create(&block)
+  def with_fk_auto_create(value = true, &block)
     save = ActiveSchema.config.foreign_keys.auto_create
     begin
-      ActiveSchema.config.foreign_keys.auto_create = true
+      ActiveSchema.config.foreign_keys.auto_create = value
       yield
     ensure
       ActiveSchema.config.foreign_keys.auto_create = save
+    end
+  end
+
+  def with_associations_auto_create(value, &block)
+    save = ActiveSchema.config.associations.auto_create
+    begin
+      ActiveSchema.config.associations.auto_create = value
+      yield
+    ensure
+      ActiveSchema.config.associations.auto_create = save
     end
   end
 

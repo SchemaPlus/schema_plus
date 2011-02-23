@@ -44,6 +44,13 @@ module ActiveSchema
     end
     has_value :foreign_keys, :klass => ForeignKeys, :default => ForeignKeys.new
 
+    class Associations < Valuable
+      # Automatically create associations based on foreign keys
+      has_value :auto_create, :klass => :boolean, :default => true
+    end
+    has_value :associations, :klass => Associations, :default => Associations.new
+
+
     def dup 
       self.class.new(Hash[attributes.collect{ |key, val| [key, Valuable === val ?  val.class.new(val.attributes) : val] }])
     end
