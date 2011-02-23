@@ -26,7 +26,7 @@ ActiveRecord::Migration.suppress_messages do
 
     create_table :pingbacks, :force => true do |t|
       t.integer :article_id, :null => false
-      t.integer :blog_id
+      t.integer :blog_id, :null => false
       t.string :url, :limit => 2048, :null => false
       t.float :popularity, :null => false
     end
@@ -39,31 +39,27 @@ ActiveRecord::Migration.suppress_messages do
   end
 end
 
-ActiveRecordSchemaValidations = Class.new(ActiveRecord::Base)
-ActiveRecordSchemaValidations.extend(ActiveSchema::ActiveRecord::SchemaValidations::Core)
+ActiveSchema.setup { |config| config.validations.enable = true }
 
-ActiveRecordSchemaValidationsAuto = Class.new(ActiveRecordSchemaValidations)
-ActiveRecordSchemaValidationsAuto.extend(ActiveSchema::ActiveRecord::SchemaValidations::AutoCreate)
-
-class Blog < ActiveRecordSchemaValidations
+class Blog < ActiveRecord::Base
 end
 
-class Pingback < ActiveRecordSchemaValidations
+class Pingback < ActiveRecord::Base
   belongs_to :blog
   belongs_to :homepage, :class_name => 'Blog', :foreign_key => :blog_id
-  schema_validations :only => [:url, :article]
+  schema_validations :only => [:url, :blog]
 end
 
-class Like < ActiveRecordSchemaValidations
+class Like < ActiveRecord::Base
   belongs_to :dummy_association
   schema_validations :except => :source
 end
 
 ActiveSchema.setup { |config| config.validations.auto_create = true }
 
-class Article < ActiveRecordSchemaValidationsAuto
+class Article < ActiveRecord::Base
 end
-class Review < ActiveRecordSchemaValidationsAuto
+class Review < ActiveRecord::Base
   belongs_to :article
   belongs_to :news_article, :class_name => 'Article', :foreign_key => :article_id
   schema_validations :except => :content
@@ -136,7 +132,7 @@ describe "SchemaValidations" do
     end
 
     it "should validate associations with unmatched column and name" do
-      Review.new.should have(1).error_on(:homepage)
+      Review.new.should have(1).error_on(:news_article)
     end
 
     def valid_attributes
@@ -165,7 +161,7 @@ describe "SchemaValidations" do
     it "should validate fields passed to :only option" do
       pingback = Pingback.new
       pingback.should have(1).error_on(:url)
-      pingback.should have(1).error_on(:article)
+      pingback.should have(1).error_on(:blog)
     end
 
     it "shouldn't validate skipped fields" do
