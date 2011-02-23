@@ -63,7 +63,6 @@ module ActiveSchema
           connection.reverse_foreign_keys(table_name, "#{name} Reverse Foreign Keys")
         end
 
-        protected
         def active_schema_config
           @active_schema_config ||= ActiveSchema.config.dup
         end

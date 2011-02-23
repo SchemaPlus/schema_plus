@@ -41,15 +41,15 @@ module ActiveSchema
       # Default FK delete action 
       has_value :on_delete
     end
-
     has_value :foreign_keys, :klass => ForeignKeys, :default => ForeignKeys.new
 
-    def dup
-      self.class.new(Hash[@attributes.collect{|key, val| [key, val.dup]}])
+    def dup 
+      self.class.new(Hash[attributes.collect{ |key, val| [key, Valuable === val ?  val.class.new(val.attributes) : val] }])
     end
 
     def update_attributes(opts)
-      opts.keys.each { |key| self.send(key).update_attributes(opts.delete(key)) if self.respond_to? key and Hash === opts[key] }
+      opts = opts.dup
+      opts.keys.each { |key| self.send(key).update_attributes(opts.delete(key)) if self.class.attributes.include? key and Hash === opts[key] }
       super(opts)
       self
     end
