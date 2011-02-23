@@ -60,14 +60,44 @@ describe ActiveRecord::Migration do
     end
     
     it "should auto-index foreign keys only" do
-      ActiveSchema.config.foreign_keys.auto_index = true
-      create_table(@model,  :user_id => {},
-                            :application_id => { :references => nil },
-                            :state => {})
-      @model.should have_index.on(:user_id)
-      @model.should_not have_index.on(:application_id)
-      @model.should_not have_index.on(:state)
-      ActiveSchema.config.foreign_keys.auto_index = nil
+      with_fk_config(:auto_index => true) do
+        create_table(@model,  :user_id => {},
+                     :application_id => { :references => nil },
+                     :state => {})
+        @model.should have_index.on(:user_id)
+        @model.should_not have_index.on(:application_id)
+        @model.should_not have_index.on(:state)
+      end
+    end
+
+    it "should override foreign key auto_create positively" do
+      with_fk_config(:auto_create => false) do
+        create_table_opts(@model, {:foreign_keys => {:auto_create => true}}, :user_id => {})
+        @model.should reference(:users, :id).on(:user_id)
+      end
+    end
+
+    it "should override foreign key auto_create negatively" do
+      with_fk_config(:auto_create => true) do
+        create_table_opts(@model, {:foreign_keys => {:auto_create => false}}, :user_id => {})
+        @model.should_not reference.on(:user_id)
+      end
+    end
+
+    it "should override foreign key auto_index positively" do
+      with_fk_config(:auto_index => false) do 
+        create_table_opts(@model, {:foreign_keys => {:auto_index => true}}, :user_id => {})
+        @model.should have_index.on(:user_id)
+      end
+    end
+
+    unless ActiveSchemaHelpers.mysql?
+      it "should override foreign key auto_index negatively" do
+        with_fk_config(:auto_index => true) do 
+          create_table_opts(@model, {:foreign_keys => {:auto_index => false}}, :user_id => {})
+          @model.should_not have_index.on(:user_id)
+        end
+      end
     end
 
   end
@@ -249,9 +279,9 @@ describe ActiveRecord::Migration do
     model.foreign_keys.detect { |fk| fk.table_name == model.table_name && fk.column_names == columns } 
   end
 
-  def create_table(model, columns_with_options)
+  def create_table_opts(model, table_options, columns_with_options)
     ActiveRecord::Migration.suppress_messages do
-      ActiveRecord::Migration.create_table model.table_name, :force => true do |t|
+      ActiveRecord::Migration.create_table model.table_name, table_options.merge(:force => true) do |t|
         columns_with_options.each_pair do |column, options|
           t.integer column, options
         end
@@ -259,6 +289,21 @@ describe ActiveRecord::Migration do
       model.reset_column_information
     end
   end
+
+  def create_table(model, columns_with_options)
+    create_table_opts(model, {}, columns_with_options)
+  end
+
+  def with_fk_config(opts, &block)
+    save = Hash[opts.keys.collect{|key| [key, ActiveSchema.config.foreign_keys.send(key)]}]
+    begin
+      ActiveSchema.config.foreign_keys.update_attributes(opts)
+      yield
+    ensure
+      ActiveSchema.config.foreign_keys.update_attributes(save)
+    end
+  end
+
 
 end
 
