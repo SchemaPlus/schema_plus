@@ -43,6 +43,14 @@ module ActiveSchema
     end
     cattr_reader :foreign_keys
     @@foreign_keys = ForeignKeys.new
+
+    class Validations
+      # Automatically create validations basing on database schema
+      cattr_accessor :auto_create
+      @@auto_create = false
+    end
+    cattr_reader :validations
+    @@validations = Validations.new
   end
 
   def self.config
