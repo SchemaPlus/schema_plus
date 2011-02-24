@@ -89,11 +89,8 @@ module ActiveSchema
   end
 
   def self.post_setup
-    if config.validations.enable
-      ::ActiveRecord::Base.extend(ActiveSchema::ActiveRecord::Validations::Core)
-      if config.validations.auto_create
-        ::ActiveRecord::Base.extend(ActiveSchema::ActiveRecord::Validations::AutoCreate)
-      end
+    if config.validations.auto_create
+      ::ActiveRecord::Base.extend(ActiveSchema::ActiveRecord::Validations::AutoCreate)
     end
   end
 

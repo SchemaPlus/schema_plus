@@ -1,73 +1,28 @@
 require File.expand_path(File.dirname(__FILE__) + '/spec_helper')
 
-# This spec is too tricky and definately needs refactoring.
-
-ActiveRecord::Migration.suppress_messages do
-  ActiveRecord::Schema.define do
-    connection.tables.each do |table| drop_table table end
-
-    create_table :articles, :force => true do |t|
-      t.string :title, :limit => 50
-      t.text  :content, :null => false
-      t.integer :state
-      t.float   :average_mark, :null => false
-      t.boolean :active, :null => false
-    end
-    add_index :articles, :title, :unique => true
-    add_index :articles, [:state, :active], :unique => true
-
-    create_table :reviews, :force => true do |t|
-      t.integer :article_id, :null => false
-      t.string :content, :limit => 200
-    end
-    add_index :reviews, :article_id, :unique => true
-
-    create_table :blogs, :force => true
-
-    create_table :pingbacks, :force => true do |t|
-      t.integer :article_id, :null => false
-      t.integer :blog_id, :null => false
-      t.string :url, :limit => 2048, :null => false
-      t.float :popularity, :null => false
-    end
-
-    create_table :likes, :force => true do |t|
-      t.string :username, :limit => 50, :null => false
-      t.string :source, :limit => 100, :null => false
-    end
-
-  end
-end
-
-ActiveSchema.setup { |config| config.validations.enable = true }
-
-class Blog < ActiveRecord::Base
-end
-
-class Pingback < ActiveRecord::Base
-  belongs_to :blog
-  belongs_to :homepage, :class_name => 'Blog', :foreign_key => :blog_id
-  schema_validations :only => [:url, :blog]
-end
-
-class Like < ActiveRecord::Base
-  belongs_to :dummy_association
-  schema_validations :except => :source
-end
-
-ActiveSchema.setup { |config| config.validations.auto_create = true }
-
-class Article < ActiveRecord::Base
-end
-class Review < ActiveRecord::Base
-  belongs_to :article
-  belongs_to :news_article, :class_name => 'Article', :foreign_key => :article_id
-  schema_validations :except => :content
-end
-
 describe "Validations" do
 
+  before(:all) do
+    define_schema
+    # TODO: it should work regardless of auto-associations
+    ActiveSchema.config.associations.auto_create = false
+  end
+
   context "auto-created" do
+    around(:each) do |example|
+      Article = new_model do
+        extend ActiveSchema::ActiveRecord::Validations::AutoCreate
+      end
+
+      Review = new_model do
+        extend ActiveSchema::ActiveRecord::Validations::AutoCreate
+        belongs_to :article
+        belongs_to :news_article, :class_name => 'Article', :foreign_key => :article_id
+      end
+      Review.schema_validations :except => :content
+      example.call
+      auto_remove
+    end
 
     it "should be valid with valid attributes" do
       Article.new(valid_attributes).should be_valid
@@ -121,14 +76,10 @@ describe "Validations" do
     it "should validate uniqueness of belongs_to association" do
       article = Article.create(valid_attributes)
       article.should be_valid
-      review1 = Review.create(:article => article)
+      review1 = Review.create(:article => article, :author => 'michal')
       review1.should be_valid
-      review2 = Review.new(:article => article)
+      review2 = Review.new(:article => article, :author => 'michal')
       review2.should have_at_least(1).error_on(:article_id)
-    end
-
-    it "shouldn't validate association on unexisting column" do
-      Pingback.new.should have(:no).errors_on(:dummy_association)
     end
 
     it "should validate associations with unmatched column and name" do
@@ -148,6 +99,16 @@ describe "Validations" do
   end
 
   context "auto-created but changed" do
+    around(:each) do |example|
+      Review = new_model do
+        extend ActiveSchema::ActiveRecord::Validations::AutoCreate
+        belongs_to :article
+        belongs_to :news_article, :class_name => 'Article', :foreign_key => :article_id
+      end
+      Review.schema_validations :except => :content
+      example.call
+      auto_remove
+    end
 
     it "shouldn't validate fields passed to :except option" do
       too_big_content = 'a' * 1000
@@ -157,32 +118,106 @@ describe "Validations" do
   end
 
   context "manually invoked" do
+    around(:each) do |example|
+      Article = new_model do
+      end
+      Article.schema_validations :only => [:title, :state]
+
+      Review = new_model do
+        belongs_to :dummy_association
+      end
+      Review.schema_validations :except => :content
+      example.call
+      auto_remove
+    end
 
     it "should validate fields passed to :only option" do
-      pingback = Pingback.new
-      pingback.should have(1).error_on(:url)
-      pingback.should have(1).error_on(:blog)
+      too_big_title = 'a' * 100
+      wrong_state = 'unknown'
+      article = Article.new(:title => too_big_title, :state => wrong_state)
+      article.should have(1).error_on(:title)
+      article.should have(1).error_on(:state)
     end
 
     it "shouldn't validate skipped fields" do
-      pingback = Pingback.new
-      pingback.should have(:no).errors_on(:popularity)
+      article = Article.new
+      article.should have(:no).errors_on(:content)
+      article.should have(:no).errors_on(:average_mark)
+    end
+
+    it "shouldn't validate association on unexisting column" do
+      Review.new.should have(:no).errors_on(:dummy_association)
     end
 
     it "shouldn't validate fields passed to :except option" do
-      like = Like.new
-      like.should have(:no).errors_on(:source)
+      Review.new.should have(:no).errors_on(:content)
     end
 
     it "should validate all fields but passed to :except option" do
-      like = Like.new
-      like.should have(1).error_on(:username)
-    end
-
-    it "shouldn't validate associations not included in :only option" do
-      Pingback.new.should have(:no).errors_on(:news_article)
+      Review.new.should have(1).error_on(:author)
     end
 
   end
 
+  context "manually invoked" do
+    around(:each) do |example|
+      Review = new_model do
+        belongs_to :article
+      end
+      Review.schema_validations :only => [:title]
+      example.call
+      auto_remove
+    end
+
+    it "shouldn't validate associations not included in :only option" do
+      Review.new.should have(:no).errors_on(:article)
+    end
+
+  end
+
+  protected
+  def new_model(&block)
+    @autocreated_models ||= []
+    model = Class.new(ActiveRecord::Base, &block)
+    @autocreated_models << model
+    model
+  end
+
+  def auto_remove
+    # assign to local var otherwise ruby will
+    # get @autocreated_models in Object scope
+    autocreated_models = @autocreated_models
+    Object.class_eval do
+      autocreated_models.try(:each) do |model|
+        remove_const model.name.to_sym
+      end
+    end
+    @autocreated_models = []
+  end
+
+  def define_schema
+    ActiveRecord::Migration.suppress_messages do
+      ActiveRecord::Schema.define do
+        connection.tables.each do |table| drop_table table end
+
+        create_table :articles, :force => true do |t|
+          t.string :title, :limit => 50
+          t.text  :content, :null => false
+          t.integer :state
+          t.float   :average_mark, :null => false
+          t.boolean :active, :null => false
+        end
+        add_index :articles, :title, :unique => true
+        add_index :articles, [:state, :active], :unique => true
+
+        create_table :reviews, :force => true do |t|
+          t.integer :article_id, :null => false
+          t.string :author, :null => false
+          t.string :content, :limit => 200
+        end
+        add_index :reviews, :article_id, :unique => true
+
+      end
+    end
+  end
 end

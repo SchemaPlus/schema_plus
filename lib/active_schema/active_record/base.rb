@@ -4,6 +4,7 @@ module ActiveSchema
       def self.included(base)
         base.extend(ClassMethods)
         base.extend(ActiveSchema::ActiveRecord::Associations)
+        base.extend(ActiveSchema::ActiveRecord::Validations::Core)
       end
 
       module ClassMethods
