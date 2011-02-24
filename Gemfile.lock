@@ -3,6 +3,7 @@ PATH
   specs:
     active_schema (0.1.0.pre1)
       activerecord (>= 2)
+      valuable
 
 GEM
   remote: http://rubygems.org/
@@ -34,6 +35,7 @@ GEM
     rspec-mocks (2.4.0)
     sqlite3 (1.3.3)
     tzinfo (0.3.24)
+    valuable (0.8.5)
 
 PLATFORMS
   ruby

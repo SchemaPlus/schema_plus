@@ -54,13 +54,13 @@ module ActiveSchema::ActiveRecord
       # Also the referenced id column may be specified:
       #   get_references('addresses', 'member_id', :references => ['users', 'uuid'])
       #   # => ['users', 'uuid']
-      def get_references(table_name, column_name, options = {})
+      def get_references(table_name, column_name, options = {}, config=nil)
         column_name = column_name.to_s
         if options.has_key?(:references)
           references = options[:references]
           references = [references, :id] unless references.nil? || references.is_a?(Array)
           references
-        elsif ActiveSchema.config.foreign_keys.auto_create && !ActiveRecord::Schema.defining?
+        elsif (config || ActiveSchema.config).foreign_keys.auto_create? && !ActiveRecord::Schema.defining?
           if column_name == 'parent_id'
             [table_name, :id]
           elsif column_name =~ /^(.*)_id$/

@@ -1,6 +1,7 @@
 require 'active_support'
 require 'active_support/core_ext/class/attribute_accessors'
 require 'active_record'
+require 'valuable'
 
 require 'active_schema/version'
 require 'active_schema/active_record/base'
@@ -25,27 +26,41 @@ module ActiveSchema
   end
 
   # Configuration parameters 
-  class Config
-    class ForeignKeys
-      # Automatically create FK for columns named _id
-      cattr_accessor :auto_create
-      @@auto_create = true
+  class Config < Valuable
 
-      # Create an index after creating FK (default false)
-      cattr_accessor :auto_index
+    class ForeignKeys < Valuable
+      # Automatically create FK for columns named _id
+      has_value :auto_create, :klass => :boolean, :default => true
+
+      # Create an index after creating FK
+      has_value :auto_index, :klass => :boolean, :default => true
 
       # Default FK update action 
-      cattr_accessor :on_update
+      has_value :on_update
 
       # Default FK delete action 
-      cattr_accessor :on_delete
+      has_value :on_delete
     end
-    cattr_reader :foreign_keys
-    @@foreign_keys = ForeignKeys.new
+    has_value :foreign_keys, :klass => ForeignKeys, :default => ForeignKeys.new
+
+    def dup 
+      self.class.new(Hash[attributes.collect{ |key, val| [key, Valuable === val ?  val.class.new(val.attributes) : val] }])
+    end
+
+    def update_attributes(opts)
+      opts = opts.dup
+      opts.keys.each { |key| self.send(key).update_attributes(opts.delete(key)) if self.class.attributes.include? key and Hash === opts[key] }
+      super(opts)
+      self
+    end
+
+    def merge(opts)
+      dup.update_attributes(opts)
+    end
   end
 
   def self.config
-    @@config ||= Config.new
+    @config ||= Config.new
   end
 
   def self.setup(&block)

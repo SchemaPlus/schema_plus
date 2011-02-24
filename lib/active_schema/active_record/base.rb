@@ -14,6 +14,11 @@ module ActiveSchema
           end
         end
 
+        # class decorator
+        def active_schema(opts)
+          @active_schema_config = ActiveSchema.config.merge(opts)
+        end
+
         def base_class?
           self == base_class
         end
@@ -56,6 +61,10 @@ module ActiveSchema
 
         def reverse_foreign_keys
           connection.reverse_foreign_keys(table_name, "#{name} Reverse Foreign Keys")
+        end
+
+        def active_schema_config
+          @active_schema_config ||= ActiveSchema.config.dup
         end
       end
     end
