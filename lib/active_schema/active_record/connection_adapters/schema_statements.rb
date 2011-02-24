@@ -8,8 +8,13 @@ module ActiveSchema::ActiveRecord::ConnectionAdapters
     end
 
     def create_table_with_active_schema(table, options = {})
+      options = options.dup
+      config_options = {}
+      options.keys.each { |key| config_options[key] = options.delete(key) if ActiveSchema.config.class.attributes.include? key }
+
       indexes = nil
       create_table_without_active_schema(table, options) do |table_definition|
+        table_definition.active_schema_config = ActiveSchema.config.merge(config_options)
         yield table_definition if block_given?
         indexes = table_definition.indexes
       end

@@ -6,6 +6,7 @@ require 'rspec/core/rake_task'
   namespace adapter do
     RSpec::Core::RakeTask.new(:spec) do |spec|
       spec.rspec_opts = "-Ispec/connections/#{adapter}"
+      spec.fail_on_error = false
     end
   end
 end

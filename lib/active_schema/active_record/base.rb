@@ -3,6 +3,7 @@ module ActiveSchema
     module Base
       def self.included(base)
         base.extend(ClassMethods)
+        base.extend(ActiveSchema::ActiveRecord::Associations)
       end
 
       module ClassMethods
@@ -12,6 +13,11 @@ module ActiveSchema
             alias_method_chain :abstract_class?, :active_schema
             alias_method_chain :reset_column_information, :active_schema
           end
+        end
+
+        # class decorator
+        def active_schema(opts)
+          @active_schema_config = ActiveSchema.config.merge(opts)
         end
 
         def base_class?
@@ -56,6 +62,10 @@ module ActiveSchema
 
         def reverse_foreign_keys
           connection.reverse_foreign_keys(table_name, "#{name} Reverse Foreign Keys")
+        end
+
+        def active_schema_config
+          @active_schema_config ||= ActiveSchema.config.dup
         end
       end
     end

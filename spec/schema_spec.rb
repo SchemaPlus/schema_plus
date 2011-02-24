@@ -25,6 +25,11 @@ describe ActiveRecord::Schema do
       connection.tables.collect { |table| connection.indexes(table) }.flatten.should have(1).item
     end
 
+    it "should create only explicity added foriegn keys" do
+      define_schema
+      connection.tables.collect { |table| connection.foreign_keys(table) }.flatten.should have(1).item
+    end
+
   end
 
   protected
@@ -38,6 +43,7 @@ describe ActiveRecord::Schema do
 
         create_table :posts, :force => true do |t|
           t.integer :user_id
+          t.foreign_key :user_id, :users, :id
         end
         # mysql will create index on FK automatically
         unless ActiveSchemaHelpers.mysql?

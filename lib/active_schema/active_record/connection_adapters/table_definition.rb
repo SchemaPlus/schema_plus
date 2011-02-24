@@ -1,5 +1,8 @@
 module ActiveSchema::ActiveRecord::ConnectionAdapters
   module TableDefinition
+
+    attr_accessor :active_schema_config
+
     def self.included(base)
       base.class_eval do
         attr_accessor :name
@@ -21,7 +24,7 @@ module ActiveSchema::ActiveRecord::ConnectionAdapters
 
     def column_with_active_schema(name, type, options = {})
       column_without_active_schema(name, type, options)
-      if references = ActiveRecord::Migration.get_references(self.name, name, options)
+      if references = ActiveRecord::Migration.get_references(self.name, name, options, active_schema_config)
         ActiveSchema.set_default_update_and_delete_actions!(options)
         foreign_key(name, references.first, references.last, options) 
         if index = fk_index_options(options)
@@ -62,7 +65,7 @@ module ActiveSchema::ActiveRecord::ConnectionAdapters
     end
 
     def fk_use_auto_index?
-      ActiveSchema.config.foreign_keys.auto_index && !ActiveRecord::Schema.defining?
+      active_schema_config.foreign_keys.auto_index? && !ActiveRecord::Schema.defining?
     end
 
   end
