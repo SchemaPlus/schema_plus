@@ -24,7 +24,7 @@ module ActiveSchema
 
       def new_with_active_schema_associations(*args)
         load_active_schema_associations
-        new_without_active_schema(*args) { |*block_args| yield(*block_args) if block_given? }
+        new_without_active_schema_associations(*args) { |*block_args| yield(*block_args) if block_given? }
       end
 
       def reflections_with_active_schema_associations
