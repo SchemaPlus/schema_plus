@@ -196,6 +196,51 @@ describe ActiveRecord::Base do
     end
   end
 
+  context "regarding existing methods" do
+    before(:all) do
+      create_tables(
+        "types", {}, {},
+        "posts", {}, {:type_id => {}}
+      )
+    end
+    it "should define association normally if no existing method is defined" do
+      @type_without = Class.new(ActiveRecord::Base) do set_table_name "types" end
+      @type_without.reflect_on_association(:posts).should_not be_nil # sanity check for this context
+    end
+    it "should not define association over existing public method" do
+      @type_with = Class.new(ActiveRecord::Base) do
+        set_table_name "types"
+        def posts
+          :existing
+        end
+      end
+      @type_with.reflect_on_association(:posts).should be_nil
+    end
+    it "should not define association over existing private method" do
+      @type_with = Class.new(ActiveRecord::Base) do
+        set_table_name "types"
+        private
+        def posts
+          :existing
+        end
+      end
+      @type_with.reflect_on_association(:posts).should be_nil
+    end
+    it "should define association :type over (deprecated) kernel method" do
+      @post_without = Class.new(ActiveRecord::Base) do set_table_name "posts" end
+      @post_without.reflect_on_association(:type).should_not be_nil
+    end
+    it "should not define association :type over model method" do
+      @post_with = Class.new(ActiveRecord::Base) do
+        set_table_name "posts"
+        def type
+          :existing
+        end
+      end
+      @post_with.reflect_on_association(:type).should be_nil
+    end
+  end
+
   protected
 
   def with_fk_auto_create(value = true, &block)

@@ -118,7 +118,7 @@ module ActiveSchema
           end
         end
         name = name.to_sym
-        if name == :type or !method_defined?(name)
+        if (!method_defined?(name) && !private_method_defined?(name)) or (name == :type && [Object, Kernel].include?(instance_method(:type).owner))
           send macro, name, opts
         end
       end
