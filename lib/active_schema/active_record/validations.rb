@@ -49,7 +49,7 @@ module ActiveSchema
         protected
         def load_schema_validations(options = {})
           # Don't bother if: it's already been loaded; the class is abstract; not a base class; or the table doesn't exist
-          return if @schema_validations_loaded || schema_validations_loaded || abstract_class? || !base_class? || name.blank? || !table_exists?
+          return if self.schema_validations_loaded || schema_validations_loaded || abstract_class? || !base_class? || name.blank? || !table_exists?
           validated_columns = options[:validated_columns] || self.schema_validated_columns || possible_schema_validated_columns
           validated_associations = options[:validated_associations] || self.schema_validated_associations || possible_schema_validated_associations
           load_column_validations(validated_columns)
@@ -164,7 +164,6 @@ module ActiveSchema
         end
 
       end # module AutoCreate
-
 
     end
   end
