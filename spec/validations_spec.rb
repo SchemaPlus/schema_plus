@@ -19,7 +19,7 @@ describe "Validations" do
         belongs_to :article
         belongs_to :news_article, :class_name => 'Article', :foreign_key => :article_id
       end
-      Review.schema_validations :except => :content
+      Review.active_schema :validations => { :except => :content }
       example.call
       auto_remove
     end
@@ -105,7 +105,7 @@ describe "Validations" do
         belongs_to :article
         belongs_to :news_article, :class_name => 'Article', :foreign_key => :article_id
       end
-      Review.schema_validations :except => :content
+      Review.active_schema :validations => { :except => :content }
       example.call
       auto_remove
     end
@@ -121,12 +121,12 @@ describe "Validations" do
     around(:each) do |example|
       Article = new_model do
       end
-      Article.schema_validations :only => [:title, :state]
+      Article.active_schema :validations => { :only => [:title, :state] }
 
       Review = new_model do
         belongs_to :dummy_association
       end
-      Review.schema_validations :except => :content
+      Review.active_schema :validations => { :except => :content }
       example.call
       auto_remove
     end
@@ -164,13 +164,18 @@ describe "Validations" do
       Review = new_model do
         belongs_to :article
       end
-      Review.schema_validations :only => [:title]
+      @columns = Review.content_columns.dup
+      Review.active_schema :validations => { :only => [:title] }
       example.call
       auto_remove
     end
 
     it "shouldn't validate associations not included in :only option" do
       Review.new.should have(:no).errors_on(:article)
+    end
+
+    it "shouldn't change content columns of the model" do
+      @columns.should == Review.content_columns
     end
 
   end

@@ -38,20 +38,21 @@ module ActiveSchema
         #  * :only - auto-validate only given attributes
         #  * :except - auto-validate all but given attributes
         #
-        def schema_validations(options = {})
-          self.schema_validated_columns ||= possible_schema_validated_columns.dup
-          self.schema_validated_associations ||= possible_schema_validated_associations.dup
-          schema_validations_filter!(schema_validated_columns, schema_validations_excluded_columns, options)
-          schema_validations_filter!(schema_validated_associations, schema_validations_excluded_associations, options)
+        def active_schema(*)
+          super
+          self.schema_validated_columns ||= possible_schema_validated_columns
+          self.schema_validated_associations ||= possible_schema_validated_associations
+          schema_validations_filter!(schema_validated_columns, schema_validations_excluded_columns)
+          schema_validations_filter!(schema_validated_associations, schema_validations_excluded_associations)
           load_schema_validations
         end
 
         protected
-        def load_schema_validations(options = {})
+        def load_schema_validations
           # Don't bother if: it's already been loaded; the class is abstract; not a base class; or the table doesn't exist
           return if self.schema_validations_loaded || schema_validations_loaded || abstract_class? || !base_class? || name.blank? || !table_exists?
-          validated_columns = options[:validated_columns] || self.schema_validated_columns || possible_schema_validated_columns
-          validated_associations = options[:validated_associations] || self.schema_validated_associations || possible_schema_validated_associations
+          validated_columns = self.schema_validated_columns || possible_schema_validated_columns
+          validated_associations = self.schema_validated_associations || possible_schema_validated_associations
           load_column_validations(validated_columns)
           load_association_validations(validated_associations)
           self.schema_validations_loaded = true
@@ -105,11 +106,11 @@ module ActiveSchema
         end
 
         def possible_schema_validated_columns(model = self)
-          model.content_columns
+          model.content_columns.dup
         end
 
         def possible_schema_validated_associations(model = self)
-          model.reflect_on_all_associations(:belongs_to)
+          model.reflect_on_all_associations(:belongs_to).dup
         end
 
         def schema_validations_excluded_columns
@@ -120,15 +121,15 @@ module ActiveSchema
           @schema_validated_associations ||= []
         end
 
-        def schema_validations_filter!(fields, default_excludes, options)
-          if options[:only]
-            filter_key, filter_method = :only, :select!
-          elsif options[:except]
-            filter_key, filter_method = :except, :reject!
+        def schema_validations_filter!(fields, default_excludes)
+          if filtered_fields = active_schema_config.validations.only
+            filter_method = :select!
+          elsif filtered_fields = active_schema_config.validations.except
+            filter_method = :reject!
           else
             return
           end
-          filtered_fields = Array(options[filter_key]).collect(&:to_sym)
+          filtered_fields = Array(filtered_fields).collect(&:to_sym)
           fields.send(filter_method) do |field|
             filtered_fields.include?(field.name.to_sym)
           end

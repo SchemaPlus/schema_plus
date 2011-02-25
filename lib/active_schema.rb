@@ -50,6 +50,7 @@ module ActiveSchema
     class Associations < Valuable
       # Automatically create associations based on foreign keys
       has_value :auto_create, :klass => :boolean, :default => true
+
     end
     has_value :associations, :klass => Associations, :default => Associations.new
 
@@ -58,6 +59,12 @@ module ActiveSchema
       has_value :enable, :klass => :boolean, :default => true
       # Automatically create validations based on database constraints
       has_value :auto_create, :klass => :boolean, :default => true
+
+      # Auto-validates given fields only
+      has_value :only
+
+      # Auto-validates all but given fields
+      has_value :except
     end
     has_value :validations, :klass => Validations, :default => Validations.new
 
