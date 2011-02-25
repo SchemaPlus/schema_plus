@@ -10,18 +10,17 @@ describe "Validations" do
 
   context "auto-created" do
     around(:each) do |example|
-      Article = new_model do
-        extend ActiveSchema::ActiveRecord::Validations::AutoCreate
-      end
+      with_auto_validations do
+        Article = new_model
 
-      Review = new_model do
-        extend ActiveSchema::ActiveRecord::Validations::AutoCreate
-        belongs_to :article
-        belongs_to :news_article, :class_name => 'Article', :foreign_key => :article_id
+        Review = new_model do
+          belongs_to :article
+          belongs_to :news_article, :class_name => 'Article', :foreign_key => :article_id
+        end
+        Review.active_schema :validations => { :except => :content }
+        example.call
+        auto_remove
       end
-      Review.active_schema :validations => { :except => :content }
-      example.call
-      auto_remove
     end
 
     it "should be valid with valid attributes" do
@@ -100,14 +99,15 @@ describe "Validations" do
 
   context "auto-created but changed" do
     around(:each) do |example|
-      Review = new_model do
-        extend ActiveSchema::ActiveRecord::Validations::AutoCreate
-        belongs_to :article
-        belongs_to :news_article, :class_name => 'Article', :foreign_key => :article_id
+      with_auto_validations do
+        Review = new_model do
+          belongs_to :article
+          belongs_to :news_article, :class_name => 'Article', :foreign_key => :article_id
+        end
+        Review.active_schema :validations => { :except => :content }
+        example.call
+        auto_remove
       end
-      Review.active_schema :validations => { :except => :content }
-      example.call
-      auto_remove
     end
 
     it "shouldn't validate fields passed to :except option" do
@@ -180,6 +180,46 @@ describe "Validations" do
 
   end
 
+  context "when inheriting from ActiveRecord::Base" do
+    after(:each) do
+      auto_remove
+    end
+
+    context "with enabled auto-validations" do
+      around(:each) { |example| with_auto_validations(true, &example) }
+
+      it "should extend child class with AutoCreate module" do
+        Review = new_model
+        class << Review; self; end.included_modules.should include(ActiveSchema::ActiveRecord::Validations::AutoCreate)
+      end
+    end
+
+    context "with disabled auto-validations" do
+      around(:each) { |example| with_auto_validations(false, &example) }
+
+      it "shouldn't extend child class with AutoCreate module" do
+        Review = new_model
+        class << Review; self; end.included_modules.should_not include(ActiveSchema::ActiveRecord::Validations::AutoCreate)
+      end
+    end
+
+  end
+
+  context "when inheriting from already initialized class" do
+    after(:each) do
+      auto_remove
+    end
+
+    it "should add features only once" do
+      with_auto_validations do
+        PremiumReview = new_model
+        Review = new_model
+        PremiumReview.should_not_receive(:extend).with(ActiveSchema::ActiveRecord::Validations::AutoCreate)
+        Review.inherited(PremiumReview)
+      end
+    end
+  end
+
   protected
   def new_model(&block)
     @autocreated_models ||= []
@@ -198,6 +238,16 @@ describe "Validations" do
       end
     end
     @autocreated_models = []
+  end
+
+  def with_auto_validations(value = true)
+    old_value = ActiveSchema.config.validations.auto_create
+    begin
+      ActiveSchema.config.validations.auto_create = value
+      yield
+    ensure
+      ActiveSchema.config.validations.auto_create = old_value
+    end
   end
 
   def define_schema

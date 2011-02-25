@@ -16,6 +16,13 @@ module ActiveSchema
           klass.class_inheritable_accessor :schema_validations_loaded
         end
 
+        def inherited(klass)
+          if ActiveSchema.config.validations.auto_create && self == ::ActiveRecord::Base
+            klass.extend(AutoCreate)
+          end
+          super
+        end
+
         # Adds schema-based validations to model.
         # Attributes as well as associations are validated.
         # For instance if there is column
