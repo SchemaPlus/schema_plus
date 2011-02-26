@@ -8,6 +8,10 @@ Dir[File.dirname(__FILE__) + "/support/**/*.rb"].each {|f| require f}
 
 RSpec.configure do |config|
   config.include(ActiveSchemaMatchers)
+  config.include(ActiveSchemaHelpers)
+  config.after(:each) do
+    auto_remove
+  end
 end
 
 def load_schema(name)
