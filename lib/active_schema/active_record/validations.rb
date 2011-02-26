@@ -8,17 +8,19 @@ module ActiveSchema
       module Core
 
         def self.extended(klass)
-          # which columns are auto-validated
-          klass.class_inheritable_accessor :schema_validated_columns
-          # which associations are auto-validated
-          klass.class_inheritable_accessor :schema_validated_associations
-          # indicates if auto-validations are created already
-          klass.class_inheritable_accessor :schema_validations_loaded
         end
 
         def inherited(klass)
-          if ActiveSchema.config.validations.auto_create && self == ::ActiveRecord::Base
-            klass.extend(AutoCreate)
+          if self == ::ActiveRecord::Base
+            # which columns are auto-validated
+            klass.cattr_accessor :schema_validated_columns
+            # which associations are auto-validated
+            klass.cattr_accessor :schema_validated_associations
+            # indicates if auto-validations are created already
+            klass.cattr_accessor :schema_validations_loaded
+            if ActiveSchema.config.validations.auto_create
+              klass.extend(AutoCreate)
+            end
           end
           super
         end
@@ -47,6 +49,7 @@ module ActiveSchema
         #
         def active_schema(*)
           super
+          return unless create_schema_validations?
           self.schema_validated_columns ||= possible_schema_validated_columns
           self.schema_validated_associations ||= possible_schema_validated_associations
           schema_validations_filter!(schema_validated_columns, schema_validations_excluded_columns)
@@ -57,7 +60,7 @@ module ActiveSchema
         protected
         def load_schema_validations
           # Don't bother if: it's already been loaded; the class is abstract; not a base class; or the table doesn't exist
-          return if self.schema_validations_loaded || schema_validations_loaded || abstract_class? || !base_class? || name.blank? || !table_exists?
+          return unless create_schema_validations?
           validated_columns = self.schema_validated_columns || possible_schema_validated_columns
           validated_associations = self.schema_validated_associations || possible_schema_validated_associations
           load_column_validations(validated_columns)
@@ -120,6 +123,10 @@ module ActiveSchema
           model.reflect_on_all_associations(:belongs_to).dup
         end
 
+        def create_schema_validations?
+           !(schema_validations_loaded || abstract_class? || name.blank? || !table_exists?)
+        end
+
         def schema_validations_excluded_columns
           @schema_validations_excluded_columns ||= %w[created_at updated_at created_on updated_on]
         end
@@ -162,12 +169,12 @@ module ActiveSchema
         end
 
         def new_with_schema_validations(*args)
-          load_schema_validations
+          base_class.load_schema_validations
           new_without_schema_validations(*args)
         end
 
         def instantiate_with_schema_validations(record)
-          load_schema_validations
+          base_class.load_schema_validations
           instantiate_without_schema_validations(record)
         end
 

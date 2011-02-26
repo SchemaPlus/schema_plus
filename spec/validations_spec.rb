@@ -9,17 +9,15 @@ describe "Validations" do
   end
 
   context "auto-created" do
-    around(:each) do |example|
+    before(:each) do
       with_auto_validations do
         Article = new_model
 
         Review = new_model do
           belongs_to :article
           belongs_to :news_article, :class_name => 'Article', :foreign_key => :article_id
+          active_schema :validations => { :except => :content }
         end
-        Review.active_schema :validations => { :except => :content }
-        example.call
-        auto_remove
       end
     end
 
@@ -98,15 +96,13 @@ describe "Validations" do
   end
 
   context "auto-created but changed" do
-    around(:each) do |example|
+    before(:each) do
       with_auto_validations do
         Review = new_model do
           belongs_to :article
           belongs_to :news_article, :class_name => 'Article', :foreign_key => :article_id
         end
         Review.active_schema :validations => { :except => :content }
-        example.call
-        auto_remove
       end
     end
 
@@ -118,17 +114,14 @@ describe "Validations" do
   end
 
   context "manually invoked" do
-    around(:each) do |example|
-      Article = new_model do
-      end
+    before(:each) do
+      Article = new_model
       Article.active_schema :validations => { :only => [:title, :state] }
 
       Review = new_model do
         belongs_to :dummy_association
+        active_schema :validations => { :except => :content }
       end
-      Review.active_schema :validations => { :except => :content }
-      example.call
-      auto_remove
     end
 
     it "should validate fields passed to :only option" do
@@ -160,14 +153,12 @@ describe "Validations" do
   end
 
   context "manually invoked" do
-    around(:each) do |example|
+    before(:each) do
       Review = new_model do
         belongs_to :article
       end
       @columns = Review.content_columns.dup
       Review.active_schema :validations => { :only => [:title] }
-      example.call
-      auto_remove
     end
 
     it "shouldn't validate associations not included in :only option" do
@@ -181,9 +172,6 @@ describe "Validations" do
   end
 
   context "when inheriting from ActiveRecord::Base" do
-    after(:each) do
-      auto_remove
-    end
 
     context "with enabled auto-validations" do
       around(:each) { |example| with_auto_validations(true, &example) }
@@ -206,9 +194,6 @@ describe "Validations" do
   end
 
   context "when inheriting from already initialized class" do
-    after(:each) do
-      auto_remove
-    end
 
     it "should add features only once" do
       with_auto_validations do
@@ -218,28 +203,37 @@ describe "Validations" do
         Review.inherited(PremiumReview)
       end
     end
+
+  end
+
+  context "when used with STI" do
+    around(:each) { |example| with_auto_validations(&example) }
+
+    it "should be marked as loaded for descendants" do
+      Review = new_model
+      PremiumReview = new_model(Review)
+      PremiumReview.new
+      Review.schema_validations_loaded.should be_true
+      PremiumReview.schema_validations_loaded.should be_true
+    end
+
+    it "should set validations on base class" do
+      Review = new_model
+      PremiumReview = new_model(Review)
+      PremiumReview.new
+      Review.new.should have(1).error_on(:author)
+    end
+
+    it "shouldn't create doubled validations" do
+      Review = new_model
+      Review.new
+      PremiumReview = new_model(Review)
+      PremiumReview.new.should have(1).error_on(:author)
+    end
+
   end
 
   protected
-  def new_model(&block)
-    @autocreated_models ||= []
-    model = Class.new(ActiveRecord::Base, &block)
-    @autocreated_models << model
-    model
-  end
-
-  def auto_remove
-    # assign to local var otherwise ruby will
-    # get @autocreated_models in Object scope
-    autocreated_models = @autocreated_models
-    Object.class_eval do
-      autocreated_models.try(:each) do |model|
-        remove_const model.name.to_sym
-      end
-    end
-    @autocreated_models = []
-  end
-
   def with_auto_validations(value = true)
     old_value = ActiveSchema.config.validations.auto_create
     begin
@@ -269,6 +263,7 @@ describe "Validations" do
           t.integer :article_id, :null => false
           t.string :author, :null => false
           t.string :content, :limit => 200
+          t.string :type
         end
         add_index :reviews, :article_id, :unique => true
 
