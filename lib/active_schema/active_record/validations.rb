@@ -7,9 +7,6 @@ module ActiveSchema
 
       module Core
 
-        def self.extended(klass)
-        end
-
         def inherited(klass)
           if self == ::ActiveRecord::Base
             # which columns are auto-validated
