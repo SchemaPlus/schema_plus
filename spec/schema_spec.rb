@@ -42,12 +42,7 @@ describe ActiveRecord::Schema do
         end
 
         create_table :posts, :force => true do |t|
-          t.integer :user_id
-          t.foreign_key :user_id, :users, :id
-        end
-        # mysql will create index on FK automatically
-        unless ActiveSchemaHelpers.mysql?
-          add_index :posts, :user_id
+          t.integer :user_id, :references => :users, :index => true
         end
       end
     end

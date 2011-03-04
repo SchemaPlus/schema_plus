@@ -48,9 +48,19 @@ describe ActiveRecord::Migration do
       @model.should reference.on(:user_id).on_delete(:cascade) 
     end
 
-    it "should create an index if specified" do
+    it "should create an index if specified on column" do
       create_table(@model, :state => { :index => true }) 
       @model.should have_index.on(:state)
+    end
+
+    it "should create an index if specified explicitly" do
+      create_table_opts(@model, {}, {:state => {}}, {:state => {}}) 
+      @model.should have_index.on(:state)
+    end
+
+    it "should create a unique index if specified explicitly" do
+      create_table_opts(@model, {}, {:state => {}}, {:state => {:unique => true}}) 
+      @model.should have_unique_index.on(:state)
     end
 
     it "should create a multiple-column index if specified" do
@@ -98,6 +108,14 @@ describe ActiveRecord::Migration do
           @model.should_not have_index.on(:user_id)
         end
       end
+
+      it "should disable auto-index for a column" do
+        with_fk_config(:auto_index => true) do
+          create_table(@model,  :user_id => { :index => false })
+          @model.should_not have_index.on(:user_id)
+        end
+      end
+
     end
 
   end
@@ -186,7 +204,7 @@ describe ActiveRecord::Migration do
         add_column(:post_id, :integer, :index => false) do
           # MySQL creates an index on foreign by default
           # and we can do nothing with that
-          unless mysql?
+          unless ActiveSchemaHelpers.mysql?
             @model.should_not have_index.on(:post_id)
           end
         end
@@ -279,11 +297,14 @@ describe ActiveRecord::Migration do
     model.foreign_keys.detect { |fk| fk.table_name == model.table_name && fk.column_names == columns } 
   end
 
-  def create_table_opts(model, table_options, columns_with_options)
+  def create_table_opts(model, table_options, columns_with_options, indexes={})
     ActiveRecord::Migration.suppress_messages do
       ActiveRecord::Migration.create_table model.table_name, table_options.merge(:force => true) do |t|
         columns_with_options.each_pair do |column, options|
           t.integer column, options
+        end
+        indexes.each_pair do |column, options|
+          t.index column, options
         end
       end
       model.reset_column_information

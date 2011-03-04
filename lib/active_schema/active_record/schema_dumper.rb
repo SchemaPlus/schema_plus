@@ -65,6 +65,8 @@ module ActiveSchema
             stream.print ", :kind => \"#{index.kind}\"" unless index.kind.blank?
             stream.print ", :case_sensitive => false" unless index.case_sensitive?
             stream.print ", :conditions => #{index.conditions.inspect}" unless index.conditions.blank?
+            index_lengths = index.lengths.compact if index.lengths.is_a?(Array)
+            stream.print ", :length => #{Hash[*index.columns.zip(index.lengths).flatten].inspect}" if index_lengths.present?
           else
             stream.print "  add_index #{index.table.inspect}"
             stream.print ", :name => #{index.name.inspect}"

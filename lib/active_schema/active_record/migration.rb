@@ -73,14 +73,20 @@ module ActiveSchema::ActiveRecord
       protected
       def handle_column_options(table_name, column_name, options)
         if references = get_references(table_name, column_name, options)
+          if index = options.fetch(:index, ActiveSchema.config.foreign_keys.auto_index? && !ActiveRecord::Schema.defining?)
+            column_index(table_name, column_name, index)
+          end
           ActiveSchema.set_default_update_and_delete_actions!(options)
           add_foreign_key(table_name, column_name, references.first, references.last, options) 
-          if index = options.fetch(:index, ActiveSchema.config.foreign_keys.auto_index)
-            add_index(table_name, column_name, ActiveSchema.options_for_index(index))
-          end
         elsif options[:index]
-          add_index(table_name, column_name, ActiveSchema.options_for_index(options[:index]))
+          column_index(table_name, column_name, ActiveSchema.options_for_index(options[:index]))
         end
+      end
+
+      def column_index(table_name, column_name, options)
+        options = {} if options == true
+        column_name = [column_name] + Array.wrap(options.delete(:with)).compact
+        add_index(table_name, column_name, options)
       end
 
       def remove_foreign_key_if_exists(table_name, column_name)
