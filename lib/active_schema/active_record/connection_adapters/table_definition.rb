@@ -45,12 +45,7 @@ module ActiveSchema::ActiveRecord::ConnectionAdapters
     end
 
     def index(column_name, options={})
-      index_definition = ActiveRecord::ConnectionAdapters::IndexDefinition.new(self.name, options[:name], options[:unique], column_name, options[:lengths])
-      index_definition.conditions = options[:conditions]
-      index_definition.expression = options[:expression]
-      index_definition.kind = options[:kind]
-      index_definition.case_sensitive = options[:case_sensitive]
-      @indexes << index_definition
+      @indexes << ::ActiveRecord::ConnectionAdapters::IndexDefinition.new(self.name, column_name, options)
     end
 
     def foreign_key(column_names, references_table_name, references_column_names, options = {})

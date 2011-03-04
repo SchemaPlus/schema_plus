@@ -2,7 +2,25 @@ module ActiveSchema
   module ActiveRecord
     module ConnectionAdapters
       module IndexDefinition
+        def self.included(base)
+          base.alias_method_chain :initialize, :active_schema
+        end
+        
         attr_accessor :conditions, :expression, :kind
+
+        def initialize_with_active_schema(*args)
+          # same args as add_index(table_name, column_names, options={})
+          if args.length == 2 or (args.length == 3 && Hash === args.last)
+            table_name, column_names, options = args + [{}]
+            initialize_without_active_schema(table_name, options[:name], options[:unique], column_names, options[:lengths])
+            self.conditions = options[:conditions]
+            self.expression = options[:expression]
+            self.kind = options[:kind]
+            self.case_sensitive = options[:case_sensitive]
+          else # backwards compatibility
+            initialize_without_active_schema(*args)
+          end
+        end
 
         def case_sensitive?
           @case_sensitive.nil? ? true : @case_sensitive
