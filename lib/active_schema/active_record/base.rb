@@ -12,8 +12,44 @@ module ActiveSchema
             alias_method_chain :columns, :active_schema
             alias_method_chain :abstract_class?, :active_schema
             alias_method_chain :reset_column_information, :active_schema
+
+            alias_method_chain :allocate, :active_schema
+            alias_method_chain :new, :active_schema
+            alias_method_chain :reflections, :active_schema
           end
         end
+
+        def inherited(child)
+          active_schema_extensions if self != ::ActiveRecord::Base
+          super
+        end
+
+        def allocate_with_active_schema
+          active_schema_extensions
+          allocate_without_active_schema
+        end
+
+        def new_with_active_schema(*args)
+          active_schema_extensions
+          new_without_active_schema(*args) { |*block_args| yield(*block_args) if block_given? }
+        end
+
+        def reflections_with_active_schema
+          active_schema_extensions
+          reflections_without_active_schema
+        end
+
+        private
+
+        def active_schema_extensions
+          # Don't bother if: already extended; or the class is abstract; not a base class; or the table doesn't exist
+          return if @active_schema_extended || abstract_class? || !base_class? || !table_exists?
+
+          @active_schema_extended = true
+          load_active_schema_associations if active_schema_config.associations.auto_create?
+        end
+
+        public
 
         # class decorator
         def active_schema(opts)
