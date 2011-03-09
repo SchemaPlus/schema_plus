@@ -47,6 +47,13 @@ module ActiveSchema
     class Associations < Valuable
       # Automatically create associations based on foreign keys
       has_value :auto_create, :klass => :boolean, :default => true
+
+      # Use concise naming (strip out common prefixes from class names)
+      has_value :concise_names, :klass => :boolean, :default => true
+
+      # Always create full-name association, i.e. if creating a concise
+      # name, also create a second association with the full name.
+      has_value :full_names_always, :klass => :boolean, :default => false
     end
     has_value :associations, :klass => Associations, :default => Associations.new
 
