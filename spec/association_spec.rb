@@ -159,8 +159,9 @@ describe ActiveRecord::Base do
     end
   end
 
-  context "with shared prefix" do
-    before(:all) do
+  context "regarding concise names" do
+
+    def prefix_one
       create_tables(
         "posts", {}, {},
         "post_comments", {}, { :post_id => {} }
@@ -168,12 +169,99 @@ describe ActiveRecord::Base do
       @post = Class.new(ActiveRecord::Base) do set_table_name "posts" end
       @comment = Class.new(ActiveRecord::Base) do set_table_name "post_comments" end
     end
-    it "should use concise association name" do
-      reflection = @post.reflect_on_association(:comments)
-      reflection.should_not be_nil
-      reflection.macro.should == :has_many
-      reflection.options[:class_name].should == "PostComment"
-      reflection.options[:foreign_key].should == "post_id"
+
+    def suffix_one
+      create_tables(
+        "posts", {}, {},
+        "comment_posts", {}, { :post_id => {} }
+      )
+      @post = Class.new(ActiveRecord::Base) do set_table_name "posts" end
+      @comment = Class.new(ActiveRecord::Base) do set_table_name "comment_posts" end
+    end
+
+    def prefix_both
+      create_tables(
+        "blog_page_posts", {}, {},
+        "blog_page_comments", {}, { :blog_page_post_id => {} }
+      )
+      @post = Class.new(ActiveRecord::Base) do set_table_name "blog_page_posts" end
+      @comment = Class.new(ActiveRecord::Base) do set_table_name "blog_page_comments" end
+    end
+
+    it "should use concise association name for one prefix" do
+      with_associations_config(:auto_create => true, :concise_names => true) do
+        prefix_one
+        reflection = @post.reflect_on_association(:comments)
+        reflection.should_not be_nil
+        reflection.macro.should == :has_many
+        reflection.options[:class_name].should == "PostComment"
+        reflection.options[:foreign_key].should == "post_id"
+      end
+    end
+
+    it "should use concise association name for one suffix" do
+      with_associations_config(:auto_create => true, :concise_names => true) do
+        suffix_one
+        reflection = @post.reflect_on_association(:comments)
+        reflection.should_not be_nil
+        reflection.macro.should == :has_many
+        reflection.options[:class_name].should == "CommentPost"
+        reflection.options[:foreign_key].should == "post_id"
+      end
+    end
+
+    it "should use concise association name for shared prefixes" do
+      with_associations_config(:auto_create => true, :concise_names => true) do
+        prefix_both
+        reflection = @post.reflect_on_association(:comments)
+        reflection.should_not be_nil
+        reflection.macro.should == :has_many
+        reflection.options[:class_name].should == "BlogPageComment"
+        reflection.options[:foreign_key].should == "blog_page_post_id"
+      end
+    end
+
+    it "should use full names and not concise names when so configured" do
+      with_associations_config(:auto_create => true, :concise_names => false) do
+        prefix_one
+        reflection = @post.reflect_on_association(:post_comments)
+        reflection.should_not be_nil
+        reflection.macro.should == :has_many
+        reflection.options[:class_name].should == "PostComment"
+        reflection.options[:foreign_key].should == "post_id"
+        reflection = @post.reflect_on_association(:comments)
+        reflection.should be_nil
+      end
+    end
+
+    it "should use concise names and not full names when so configured" do
+      with_associations_config(:auto_create => true, :concise_names => true, :full_names_always => false) do
+        prefix_one
+        reflection = @post.reflect_on_association(:comments)
+        reflection.should_not be_nil
+        reflection.macro.should == :has_many
+        reflection.options[:class_name].should == "PostComment"
+        reflection.options[:foreign_key].should == "post_id"
+        reflection = @post.reflect_on_association(:post_comments)
+        reflection.should be_nil
+      end
+    end
+
+    it "should use both concise names and full names when so configured" do
+      with_associations_config(:auto_create => true, :concise_names => true, :full_names_always => true) do
+        prefix_one
+        reflection = @post.reflect_on_association(:comments)
+        reflection.should_not be_nil
+        reflection.macro.should == :has_many
+        reflection.options[:class_name].should == "PostComment"
+        reflection.options[:foreign_key].should == "post_id"
+        reflection = @post.reflect_on_association(:post_comments)
+        reflection.should_not be_nil
+        reflection.macro.should == :has_many
+        reflection.options[:class_name].should == "PostComment"
+        reflection.options[:foreign_key].should == "post_id"
+        reflection = @post.reflect_on_association(:post_comments)
+      end
     end
   end
 
@@ -254,12 +342,16 @@ describe ActiveRecord::Base do
   end
 
   def with_associations_auto_create(value, &block)
-    save = ActiveSchema.config.associations.auto_create
+    with_associations_config(:auto_create => value, &block)
+  end
+
+  def with_associations_config(opts, &block)
+    save = Hash[opts.keys.collect{|key| [key, ActiveSchema.config.associations.send(key)]}]
     begin
-      ActiveSchema.config.associations.auto_create = value
+      ActiveSchema.config.associations.update_attributes(opts)
       yield
     ensure
-      ActiveSchema.config.associations.auto_create = save
+      ActiveSchema.config.associations.update_attributes(save)
     end
   end
 
