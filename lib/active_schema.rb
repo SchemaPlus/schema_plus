@@ -1,6 +1,3 @@
-require 'active_support'
-require 'active_support/core_ext/class/attribute_accessors'
-require 'active_record'
 require 'valuable'
 
 require 'active_schema/version'
@@ -16,6 +13,7 @@ require 'active_schema/active_record/connection_adapters/foreign_key_definition'
 require 'active_schema/active_record/connection_adapters/index_definition'
 require 'active_schema/active_record/connection_adapters/mysql_column'
 require 'active_schema/active_record/associations'
+require 'active_schema/railtie'
 
 module ActiveSchema
   module ActiveRecord
@@ -91,14 +89,16 @@ module ActiveSchema
     options[:on_delete] = options.fetch(:on_delete, ActiveSchema.config.foreign_keys.on_delete)
   end
 
-end
+  def self.insert_into_active_record
+    ::ActiveRecord::Base.send(:include, ActiveSchema::ActiveRecord::Base)
+    ::ActiveRecord::ConnectionAdapters::AbstractAdapter.send(:include, ActiveSchema::ActiveRecord::ConnectionAdapters::AbstractAdapter)
+    ::ActiveRecord::ConnectionAdapters::Column.send(:include, ActiveSchema::ActiveRecord::ConnectionAdapters::Column)
+    ::ActiveRecord::ConnectionAdapters::IndexDefinition.send(:include, ActiveSchema::ActiveRecord::ConnectionAdapters::IndexDefinition)
+    ::ActiveRecord::ConnectionAdapters::SchemaStatements.send(:include, ActiveSchema::ActiveRecord::ConnectionAdapters::SchemaStatements)
+    ::ActiveRecord::ConnectionAdapters::TableDefinition.send(:include, ActiveSchema::ActiveRecord::ConnectionAdapters::TableDefinition)
+    ::ActiveRecord::Migration.send(:include, ActiveSchema::ActiveRecord::Migration)
+    ::ActiveRecord::Schema.send(:include, ActiveSchema::ActiveRecord::Schema)
+    ::ActiveRecord::SchemaDumper.send(:include, ActiveSchema::ActiveRecord::SchemaDumper)
+  end
 
-ActiveRecord::Base.send(:include, ActiveSchema::ActiveRecord::Base)
-ActiveRecord::ConnectionAdapters::AbstractAdapter.send(:include, ActiveSchema::ActiveRecord::ConnectionAdapters::AbstractAdapter)
-ActiveRecord::ConnectionAdapters::Column.send(:include, ActiveSchema::ActiveRecord::ConnectionAdapters::Column)
-ActiveRecord::ConnectionAdapters::IndexDefinition.send(:include, ActiveSchema::ActiveRecord::ConnectionAdapters::IndexDefinition)
-ActiveRecord::ConnectionAdapters::SchemaStatements.send(:include, ActiveSchema::ActiveRecord::ConnectionAdapters::SchemaStatements)
-ActiveRecord::ConnectionAdapters::TableDefinition.send(:include, ActiveSchema::ActiveRecord::ConnectionAdapters::TableDefinition)
-ActiveRecord::Migration.send(:include, ActiveSchema::ActiveRecord::Migration)
-ActiveRecord::Schema.send(:include, ActiveSchema::ActiveRecord::Schema)
-ActiveRecord::SchemaDumper.send(:include, ActiveSchema::ActiveRecord::SchemaDumper)
+end
