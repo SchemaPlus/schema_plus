@@ -4,42 +4,9 @@ module ActiveSchema
   module ActiveRecord
     module Associations
 
-      def self.extended(base)
-        class << base
-          alias_method_chain :allocate, :active_schema_associations
-          alias_method_chain :new, :active_schema_associations
-          alias_method_chain :reflections, :active_schema_associations
-        end
-      end
-
-      def inherited(child)
-        load_active_schema_associations unless self == ::ActiveRecord::Base
-        super
-      end
-
-      def allocate_with_active_schema_associations
-        load_active_schema_associations
-        allocate_without_active_schema_associations
-      end
-
-      def new_with_active_schema_associations(*args)
-        load_active_schema_associations
-        new_without_active_schema_associations(*args) { |*block_args| yield(*block_args) if block_given? }
-      end
-
-      def reflections_with_active_schema_associations
-        load_active_schema_associations
-        reflections_without_active_schema_associations
-      end
-
       protected
 
       def load_active_schema_associations
-        return unless active_schema_config.associations.auto_create?
-
-        # Don't bother if: it's already been loaded; the class is abstract; not a base class; or the table doesn't exist
-        return if @active_schema_associations_loaded || abstract_class? || !base_class? || !table_exists?
-        @active_schema_associations_loaded = true
 
         reverse_foreign_keys.each do | foreign_key |
           if foreign_key.table_name =~ /^#{table_name}_(.*)$/ || foreign_key.table_name =~ /^(.*)_#{table_name}$/
