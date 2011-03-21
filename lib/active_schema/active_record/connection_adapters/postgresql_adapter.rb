@@ -132,8 +132,8 @@ module ActiveSchema
               on_update = $5
               on_delete = $7
               deferrable = $9 == "DEFERRABLE"
-              on_update = on_update.downcase.gsub(' ', '_').to_sym if on_update
-              on_delete = on_delete.downcase.gsub(' ', '_').to_sym if on_delete
+              on_update = on_update ? on_update.downcase.gsub(' ', '_').to_sym : :no_action
+              on_delete = on_delete ? on_delete.downcase.gsub(' ', '_').to_sym : :no_action
 
               foreign_keys << ForeignKeyDefinition.new(name,
                                                        from_table_name, column_names.split(', '),

@@ -7,6 +7,10 @@ module ActiveSchema
         def initialize(name, table_name, column_names, references_table_name, references_column_names, on_update = nil, on_delete = nil, deferrable = nil)
           ACTIONS.has_key?(on_update) or raise(ArgumentError, "invalid :on_update action: #{on_update.inspect}") if on_update
           ACTIONS.has_key?(on_delete) or raise(ArgumentError, "invalid :on_delete action: #{on_delete.inspect}") if on_delete
+          if ::ActiveRecord::Base.connection.adapter_name =~ /^mysql/i
+            raise(NotImplementedError, "MySQL does not support ON UPDATE SET DEFAULT") if on_update == :set_default
+            raise(NotImplementedError, "MySQL does not support ON DELETE SET DEFAULT") if on_delete == :set_default
+          end
           super(name, unquote(table_name), unquote(column_names), unquote(references_table_name), unquote(references_column_names), on_update, on_delete, deferrable)
         end
 

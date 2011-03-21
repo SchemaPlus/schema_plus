@@ -101,6 +101,31 @@ describe ActiveRecord::Migration do
       end
     end
 
+    actions = [:cascade, :restrict, :set_null, :set_default, :no_action]
+
+    if ActiveSchemaHelpers.mysql?
+      actions.delete(:set_default)
+      it "should raise a not-implemented error for on_update => :set_default" do
+        expect { create_table(@model, :user_id => {:on_update => :set_default}) }.should raise_error(NotImplementedError)
+      end
+
+      it "should raise a not-implemented error for on_delete => :set_default" do
+        expect { create_table(@model, :user_id => {:on_delete => :set_default}) }.should raise_error(NotImplementedError)
+      end
+    end
+
+    actions.each do |action|
+      it "should create and detect on_update #{action.inspect}" do
+        create_table(@model, :user_id => {:on_update => action})
+        @model.should reference.on(:user_id).on_update(action)
+      end
+
+      it "should create and detect on_delete #{action.inspect}" do
+        create_table(@model, :user_id => {:on_delete => action})
+        @model.should reference.on(:user_id).on_delete(action)
+      end
+    end
+
     it "should raise an error for an invalid on_update action" do
         expect { create_table(@model, :user_id => {:on_update => :invalid}) }.should raise_error(ArgumentError)
     end

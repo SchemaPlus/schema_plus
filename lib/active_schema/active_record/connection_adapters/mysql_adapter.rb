@@ -33,8 +33,8 @@ module ActiveSchema
                 references_column_names = $4
                 on_update = $8
                 on_delete = $6
-                on_update = on_update.downcase.gsub(' ', '_').to_sym if on_update
-                on_delete = on_delete.downcase.gsub(' ', '_').to_sym if on_delete
+                on_update = on_update ? on_update.downcase.gsub(' ', '_').to_sym : :restrict
+                on_delete = on_delete ? on_delete.downcase.gsub(' ', '_').to_sym : :restrict
 
                 foreign_keys << ForeignKeyDefinition.new(name,
                                                          table_name, column_names.gsub('`', '').split(', '),
