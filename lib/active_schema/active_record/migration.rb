@@ -76,8 +76,9 @@ module ActiveSchema::ActiveRecord
           if index = options.fetch(:index, ActiveSchema.config.foreign_keys.auto_index? && !ActiveRecord::Schema.defining?)
             column_index(table_name, column_name, index)
           end
-          ActiveSchema.set_default_update_and_delete_actions!(options)
-          add_foreign_key(table_name, column_name, references.first, references.last, options) 
+          add_foreign_key(table_name, column_name, references.first, references.last,
+                          options.reverse_merge(:on_update => ActiveSchema.config.foreign_keys.on_update,
+                                                :on_delete => ActiveSchema.config.foreign_keys.on_delete))
         elsif options[:index]
           column_index(table_name, column_name, ActiveSchema.options_for_index(options[:index]))
         end

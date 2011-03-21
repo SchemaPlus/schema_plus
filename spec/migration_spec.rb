@@ -34,20 +34,6 @@ describe ActiveRecord::Migration do
       @model.should_not reference.on(:member_id)
     end
 
-    it "should use default on_cascade action" do
-      ActiveSchema.config.foreign_keys.on_update = :cascade
-      create_table(@model, :user_id => {})
-      ActiveSchema.config.foreign_keys.on_update = nil
-      @model.should reference.on(:user_id).on_update(:cascade) 
-    end
-
-    it "should use default on_cascade action" do
-      ActiveSchema.config.foreign_keys.on_delete = :cascade
-      create_table(@model, :user_id => {})
-      ActiveSchema.config.foreign_keys.on_delete = nil
-      @model.should reference.on(:user_id).on_delete(:cascade) 
-    end
-
     it "should create an index if specified on column" do
       create_table(@model, :state => { :index => true }) 
       @model.should have_index.on(:state)
@@ -123,6 +109,48 @@ describe ActiveRecord::Migration do
       it "should create and detect on_delete #{action.inspect}" do
         create_table(@model, :user_id => {:on_delete => action})
         @model.should reference.on(:user_id).on_delete(action)
+      end
+    end
+
+    it "should use default on_update action" do
+      with_fk_config(:on_update => :cascade) do
+        create_table_opts(@model, {:foreign_keys => {}}, :user_id => {})
+        @model.should reference.on(:user_id).on_update(:cascade)
+      end
+    end
+
+    it "should use default on_delete action" do
+      with_fk_config(:on_delete => :cascade) do
+        create_table_opts(@model, {:foreign_keys => {}}, :user_id => {})
+        @model.should reference.on(:user_id).on_delete(:cascade)
+      end
+    end
+
+    it "should override on_update action per table" do
+      with_fk_config(:on_update => :cascade) do
+        create_table_opts(@model, {:foreign_keys => {:on_update => :restrict}}, :user_id => {})
+        @model.should reference.on(:user_id).on_update(:restrict)
+      end
+    end
+
+    it "should override on_delete action per table" do
+      with_fk_config(:on_delete => :cascade) do
+        create_table_opts(@model, {:foreign_keys => {:on_delete => :restrict}}, :user_id => {})
+        @model.should reference.on(:user_id).on_delete(:restrict)
+      end
+    end
+
+    it "should override on_update action per column" do
+      with_fk_config(:on_update => :cascade) do
+        create_table_opts(@model, {:foreign_keys => {:on_update => :restruct}}, :user_id => {:on_update => :set_null})
+        @model.should reference.on(:user_id).on_update(:set_null)
+      end
+    end
+
+    it "should override on_delete action per column" do
+      with_fk_config(:on_delete => :cascade) do
+        create_table_opts(@model, {:foreign_keys => {:on_delete => :restrict}}, :user_id => {:on_delete => :set_null})
+        @model.should reference.on(:user_id).on_delete(:set_null)
       end
     end
 

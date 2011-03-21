@@ -30,8 +30,9 @@ module ActiveSchema::ActiveRecord::ConnectionAdapters
         if index = options.fetch(:index, fk_use_auto_index?)
           self.column_index(name, index)
         end
-        ActiveSchema.set_default_update_and_delete_actions!(options)
-        foreign_key(name, references.first, references.last, options) 
+        foreign_key(name, references.first, references.last,
+                    options.reverse_merge(:on_update => active_schema_config.foreign_keys.on_update,
+                                          :on_delete => active_schema_config.foreign_keys.on_delete))
       elsif options[:index]
         self.column_index(name, options[:index])
       end

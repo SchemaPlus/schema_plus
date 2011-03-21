@@ -84,11 +84,6 @@ module ActiveSchema
     index.is_a?(Hash) ? index : {}
   end
 
-  def self.set_default_update_and_delete_actions!(options)
-    options[:on_update] = options.fetch(:on_update, ActiveSchema.config.foreign_keys.on_update)
-    options[:on_delete] = options.fetch(:on_delete, ActiveSchema.config.foreign_keys.on_delete)
-  end
-
   def self.insert_into_active_record
     ::ActiveRecord::Base.send(:include, ActiveSchema::ActiveRecord::Base)
     ::ActiveRecord::ConnectionAdapters::AbstractAdapter.send(:include, ActiveSchema::ActiveRecord::ConnectionAdapters::AbstractAdapter)
