@@ -101,6 +101,14 @@ describe ActiveRecord::Migration do
       end
     end
 
+    it "should raise an error for an invalid on_update action" do
+        expect { create_table(@model, :user_id => {:on_update => :invalid}) }.should raise_error(ArgumentError)
+    end
+
+    it "should raise an error for an invalid on_delete action" do
+        expect { create_table(@model, :user_id => {:on_delete => :invalid}) }.should raise_error(ArgumentError)
+    end
+
     unless ActiveSchemaHelpers.mysql?
       it "should override foreign key auto_index negatively" do
         with_fk_config(:auto_index => true) do 

@@ -5,6 +5,8 @@ module ActiveSchema
         ACTIONS = { :cascade => "CASCADE", :restrict => "RESTRICT", :set_null => "SET NULL", :set_default => "SET DEFAULT", :no_action => "NO ACTION" }.freeze
 
         def initialize(name, table_name, column_names, references_table_name, references_column_names, on_update = nil, on_delete = nil, deferrable = nil)
+          ACTIONS.has_key?(on_update) or raise(ArgumentError, "invalid :on_update action: #{on_update.inspect}") if on_update
+          ACTIONS.has_key?(on_delete) or raise(ArgumentError, "invalid :on_delete action: #{on_delete.inspect}") if on_delete
           super(name, unquote(table_name), unquote(column_names), unquote(references_table_name), unquote(references_column_names), on_update, on_delete, deferrable)
         end
 
@@ -83,7 +85,6 @@ module ActiveSchema
         def __unqoute(value)
           value.to_s.sub(/^["`](.*)["`]$/, '\1')
         end
-
       end
     end
   end
