@@ -80,7 +80,7 @@ module ActiveSchema::ActiveRecord
                           options.reverse_merge(:on_update => ActiveSchema.config.foreign_keys.on_update,
                                                 :on_delete => ActiveSchema.config.foreign_keys.on_delete))
         elsif options[:index]
-          column_index(table_name, column_name, ActiveSchema.options_for_index(options[:index]))
+          column_index(table_name, column_name, options[:index])
         end
       end
 

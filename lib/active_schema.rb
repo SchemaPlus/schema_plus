@@ -80,10 +80,6 @@ module ActiveSchema
     yield config
   end
 
-  def self.options_for_index(index)
-    index.is_a?(Hash) ? index : {}
-  end
-
   def self.insert_into_active_record
     ::ActiveRecord::Base.send(:include, ActiveSchema::ActiveRecord::Base)
     ::ActiveRecord::ConnectionAdapters::AbstractAdapter.send(:include, ActiveSchema::ActiveRecord::ConnectionAdapters::AbstractAdapter)
