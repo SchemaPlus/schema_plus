@@ -13,7 +13,7 @@ require 'active_schema/active_record/connection_adapters/foreign_key_definition'
 require 'active_schema/active_record/connection_adapters/index_definition'
 require 'active_schema/active_record/connection_adapters/mysql_column'
 require 'active_schema/active_record/associations'
-require 'active_schema/railtie'
+require 'active_schema/railtie' if defined?(Rails)
 
 module ActiveSchema
   module ActiveRecord
@@ -80,7 +80,7 @@ module ActiveSchema
     yield config
   end
 
-  def self.insert_into_active_record
+  def self.insert
     ::ActiveRecord::Base.send(:include, ActiveSchema::ActiveRecord::Base)
     ::ActiveRecord::ConnectionAdapters::AbstractAdapter.send(:include, ActiveSchema::ActiveRecord::ConnectionAdapters::AbstractAdapter)
     ::ActiveRecord::ConnectionAdapters::Column.send(:include, ActiveSchema::ActiveRecord::ConnectionAdapters::Column)

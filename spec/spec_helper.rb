@@ -6,7 +6,7 @@ require 'active_record'
 require 'active_schema'
 require 'connection'
 
-ActiveSchema.insert_into_active_record
+ActiveSchema.insert
 
 Dir[File.dirname(__FILE__) + "/support/**/*.rb"].each {|f| require f}
 

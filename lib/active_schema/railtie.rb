@@ -1,11 +1,9 @@
-require 'rails'
-
 module ActiveSchema
   class Railtie < Rails::Railtie
 
-    config.after_initialize do
+    initializer 'active_schema.insert', :after => :load_config_initializers do
       ActiveSupport.on_load :active_record do
-        ActiveSchema.insert_into_active_record
+        ActiveSchema.insert
       end
     end
 
