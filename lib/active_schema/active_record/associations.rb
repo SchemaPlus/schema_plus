@@ -122,7 +122,8 @@ module ActiveSchema
         names << name_concise if _use_concise_name?
         names.uniq.collect(&:to_sym).each do |name|
           if (!method_defined?(name) && !private_method_defined?(name)) or (name == :type && [Object, Kernel].include?(instance_method(:type).owner))
-            send macro, name, opts
+            logger.info "ActiveSchema: #{self.name || self.table_name.classify}.#{macro} #{name.inspect}, #{opts.inspect[1...-1]}"
+            send macro, name, opts.dup
           end
         end
       end
