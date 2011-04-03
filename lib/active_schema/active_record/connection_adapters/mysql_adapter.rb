@@ -4,12 +4,13 @@ module ActiveSchema
       module MysqlAdapter
         def self.included(base)
           base.class_eval do
+            alias_method_chain :tables, :active_schema
             alias_method_chain :remove_column, :active_schema
           end
         end
 
-        def remove_foreign_key(table_name, foreign_key_name, options = {})
-          execute "ALTER TABLE #{quote_table_name(table_name)} DROP FOREIGN KEY #{foreign_key_name}"
+        def tables_with_active_schema
+          tables_without_active_schema - views
         end
 
         def remove_column_with_active_schema(table_name, column_name)
@@ -18,6 +19,11 @@ module ActiveSchema
           end
           remove_column_without_active_schema(table_name, column_name)
         end
+
+        def remove_foreign_key(table_name, foreign_key_name, options = {})
+          execute "ALTER TABLE #{quote_table_name(table_name)} DROP FOREIGN KEY #{foreign_key_name}"
+        end
+
 
         def foreign_keys(table_name, name = nil)
           results = execute("SHOW CREATE TABLE #{quote_table_name(table_name)}", name)
@@ -70,6 +76,27 @@ module ActiveSchema
           end
 
           foreign_keys
+        end
+
+        def views(name = nil)
+          views = []
+          execute("SELECT table_name FROM information_schema.views WHERE table_schema = SCHEMA()").each do |row|
+            views << row[0]
+          end
+          views
+        end
+
+        def view_definition(view_name, name = nil)
+          result = execute("SELECT view_definition, check_option FROM information_schema.views WHERE table_schema = SCHEMA() AND table_name = #{quote(view_name)}")
+          return nil unless (result.respond_to?(:num_rows) ? result.num_rows : result.to_a.size) > 0 # mysql vs mysql2
+          row = result.respond_to?(:fetch_row) ? result.fetch_row : result.first
+          sql = row[0]
+          sql.gsub!(%r{#{quote_table_name(current_database)}[.]}, '')
+          case row[1]
+          when "CASCADED" then sql += " WITH CASCADED CHECK OPTION"
+          when "LOCAL" then sql += " WITH LOCAL CHECK OPTION"
+          end
+          sql
         end
 
       end

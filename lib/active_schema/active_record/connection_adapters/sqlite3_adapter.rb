@@ -24,6 +24,15 @@ module ActiveSchema
           get_foreign_keys(nil, name).select{|definition| definition.references_table_name == table_name}
         end
 
+        def views(name = nil)
+          execute("SELECT name FROM sqlite_master WHERE type='view'", name).collect{|row| row["name"]}
+        end
+
+        def view_definition(view_name, name = nil)
+          sql = execute("SELECT sql FROM sqlite_master WHERE type='view' AND name=#{quote(view_name)}", name).collect{|row| row["sql"]}.first
+          sql.sub(/^CREATE VIEW \S* AS /i, '') unless sql.nil?
+        end
+
         protected
 
         def post_initialize

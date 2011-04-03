@@ -114,7 +114,7 @@ module ActiveSchema
            AND relname = '#{view_name}'
           SQL
           row = result.first
-          row.first unless row.nil?
+          row.first.chomp(';') unless row.nil?
         end
 
         private

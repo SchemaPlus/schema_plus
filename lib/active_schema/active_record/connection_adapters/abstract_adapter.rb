@@ -30,11 +30,11 @@ module ActiveSchema
         end
 
         def create_view(view_name, definition)
-          execute "CREATE VIEW #{view_name} AS #{definition}"
+          execute "CREATE VIEW #{quote_table_name(view_name)} AS #{definition}"
         end
 
         def drop_view(view_name)
-          execute "DROP VIEW #{view_name}"
+          execute "DROP VIEW #{quote_table_name(view_name)}"
         end
 
         def views(name = nil)

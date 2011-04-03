@@ -18,14 +18,19 @@ module ActiveSchema
 
       def tables_with_active_schema(stream)
         @table_dumps = {}
+        @re_view_referent = %r{(?:(?i)FROM|JOIN) \S*\b(#{(@connection.tables + @connection.views).join('|')})\b}
         begin
           tables_without_active_schema(nil)
+
+          @connection.views.each do |view_name|
+            definition = @connection.view_definition(view_name)
+            @table_dumps[view_name] = "  create_view #{view_name.inspect}, #{definition.inspect}\n"
+          end
 
           tsort().each do |table|
             stream.print @table_dumps[table]
           end
 
-          views(stream)
         ensure
           @table_dumps = nil
         end
@@ -36,7 +41,12 @@ module ActiveSchema
       end
 
       def tsort_each_child(table, &block)
-        @connection.foreign_keys(table).collect(&:references_table_name).sort.uniq.each(&block)
+        references = if @connection.views.include?(table)
+                       @connection.view_definition(table).scan(@re_view_referent).flatten
+                     else
+                       @connection.foreign_keys(table).collect(&:references_table_name)
+                     end
+        references.sort.uniq.each(&block)
       end
 
       def table_with_active_schema(table, ignore)
@@ -87,15 +97,6 @@ module ActiveSchema
         end
       end
 
-      def views(stream)
-        views = @connection.views
-        views.each do |view_name|
-          definition = @connection.view_definition(view_name)
-          stream.print "  create_view #{view_name.inspect}, #{definition.inspect}"
-          stream.puts
-        end
-        stream.puts unless views.empty?
-      end
     end
   end
 end
