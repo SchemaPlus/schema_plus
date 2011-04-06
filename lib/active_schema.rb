@@ -80,13 +80,21 @@ module ActiveSchema
     yield config
   end
 
-  def self.insert
-    ::ActiveRecord::Base.send(:include, ActiveSchema::ActiveRecord::Base)
+  def self.insert_connection_adapters
+    return if @inserted_connection_adapters
+    @inserted_connection_adapters = true
     ::ActiveRecord::ConnectionAdapters::AbstractAdapter.send(:include, ActiveSchema::ActiveRecord::ConnectionAdapters::AbstractAdapter)
     ::ActiveRecord::ConnectionAdapters::Column.send(:include, ActiveSchema::ActiveRecord::ConnectionAdapters::Column)
     ::ActiveRecord::ConnectionAdapters::IndexDefinition.send(:include, ActiveSchema::ActiveRecord::ConnectionAdapters::IndexDefinition)
     ::ActiveRecord::ConnectionAdapters::SchemaStatements.send(:include, ActiveSchema::ActiveRecord::ConnectionAdapters::SchemaStatements)
     ::ActiveRecord::ConnectionAdapters::TableDefinition.send(:include, ActiveSchema::ActiveRecord::ConnectionAdapters::TableDefinition)
+  end
+
+  def self.insert
+    return if @inserted
+    @inserted = true
+    insert_connection_adapters
+    ::ActiveRecord::Base.send(:include, ActiveSchema::ActiveRecord::Base)
     ::ActiveRecord::Migration.send(:include, ActiveSchema::ActiveRecord::Migration)
     ::ActiveRecord::Schema.send(:include, ActiveSchema::ActiveRecord::Schema)
     ::ActiveRecord::SchemaDumper.send(:include, ActiveSchema::ActiveRecord::SchemaDumper)

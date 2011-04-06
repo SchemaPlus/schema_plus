@@ -1,10 +1,11 @@
 module ActiveSchema
   class Railtie < Rails::Railtie
+    config.before_initialize do
+      ActiveSchema.insert_connection_adapters
+    end
 
     initializer 'active_schema.insert', :after => :load_config_initializers do
-      ActiveSupport.on_load :active_record do
-        ActiveSchema.insert
-      end
+      ActiveSchema.insert
     end
 
   end
