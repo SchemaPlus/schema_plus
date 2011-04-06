@@ -30,7 +30,7 @@ module ActiveSchema
 
         def view_definition(view_name, name = nil)
           sql = execute("SELECT sql FROM sqlite_master WHERE type='view' AND name=#{quote(view_name)}", name).collect{|row| row["sql"]}.first
-          sql.sub(/^CREATE VIEW \S* AS /i, '') unless sql.nil?
+          sql.sub(/^CREATE VIEW \S* AS\s+/im, '') unless sql.nil?
         end
 
         protected
