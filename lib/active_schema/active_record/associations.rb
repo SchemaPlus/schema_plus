@@ -92,7 +92,7 @@ module ActiveSchema
         when :has_and_belongs_to_many
           name = has_many
           name_concise = has_many_concise
-          opts = {:class_name => referencing_class_name, :join_table => fk.table_name}
+          opts = {:class_name => referencing_class_name, :join_table => fk.table_name, :foreign_key => column_name}
         when :belongs_to
           name = belongs_to
           name_concise = belongs_to_concise
