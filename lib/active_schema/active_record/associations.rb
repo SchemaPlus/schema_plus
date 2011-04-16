@@ -4,9 +4,27 @@ module ActiveSchema
   module ActiveRecord
     module Associations
 
-      protected
+      def self.extended(base)
+        class << base
+          alias_method_chain :reflections, :active_schema
+        end
+      end
 
-      def load_active_schema_associations
+      def reflections_with_active_schema
+        _load_active_schema_associations unless @active_schema_associations_loaded
+        reflections_without_active_schema
+      end
+
+      def define_attribute_methods(*args)
+        super
+        _load_active_schema_associations unless @active_schema_associations_loaded
+      end
+
+      private
+
+      def _load_active_schema_associations
+        @active_schema_associations_loaded = true
+        return unless active_schema_config.associations.auto_create?
 
         reverse_foreign_keys.each do | foreign_key |
           if foreign_key.table_name =~ /^#{table_name}_(.*)$/ || foreign_key.table_name =~ /^(.*)_#{table_name}$/
@@ -25,8 +43,6 @@ module ActiveSchema
           _define_association(:belongs_to, foreign_key)
         end
       end
-
-      private
 
       def _define_association(macro, fk, referencing_table_name = nil)
         return unless fk.column_names.size == 1
