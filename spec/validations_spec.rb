@@ -171,48 +171,13 @@ describe "Validations" do
 
   end
 
-  context "when inheriting from ActiveRecord::Base" do
-
-    context "with enabled auto-validations" do
-      around(:each) { |example| with_auto_validations(true, &example) }
-
-      it "should extend child class with AutoCreate module" do
-        Review = new_model
-        class << Review; self; end.included_modules.should include(ActiveSchema::ActiveRecord::Validations::AutoCreate)
-      end
-    end
-
-    context "with disabled auto-validations" do
-      around(:each) { |example| with_auto_validations(false, &example) }
-
-      it "shouldn't extend child class with AutoCreate module" do
-        Review = new_model
-        class << Review; self; end.included_modules.should_not include(ActiveSchema::ActiveRecord::Validations::AutoCreate)
-      end
-    end
-
-  end
-
-  context "when inheriting from already initialized class" do
-
-    it "should add features only once" do
-      with_auto_validations do
-        PremiumReview = new_model
-        Review = new_model
-        PremiumReview.should_not_receive(:extend).with(ActiveSchema::ActiveRecord::Validations::AutoCreate)
-        Review.inherited(PremiumReview)
-      end
-    end
-
-  end
-
   context "when used with STI" do
     around(:each) { |example| with_auto_validations(&example) }
 
     it "should be marked as loaded for descendants" do
       Review = new_model
       PremiumReview = new_model(Review)
-      PremiumReview.new
+      PremiumReview.new.valid?
       Review.schema_validations_loaded.should be_true
       PremiumReview.schema_validations_loaded.should be_true
     end

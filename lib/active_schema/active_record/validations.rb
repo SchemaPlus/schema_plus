@@ -3,20 +3,28 @@ require 'active_support/core_ext/module/aliasing'
 
 module ActiveSchema
   module ActiveRecord
-    module Validations
-
-      module Core
+      module Validations
 
         def inherited(klass)
           if self == ::ActiveRecord::Base
-            # which columns are auto-validated
-            klass.cattr_accessor :schema_validated_columns
-            # which associations are auto-validated
-            klass.cattr_accessor :schema_validated_associations
-            # indicates if auto-validations are created already
-            klass.cattr_accessor :schema_validations_loaded
-            if ActiveSchema.config.validations.auto_create
-              klass.extend(AutoCreate)
+            klass.instance_eval do
+
+              # which columns are auto-validated
+              cattr_accessor :schema_validated_columns
+              # which associations are auto-validated
+              cattr_accessor :schema_validated_associations
+              # indicates if auto-validations are created already
+              cattr_accessor :schema_validations_loaded
+
+              # create a callback to load the validations before validation
+              # happens.  the callback deletes itself after use (just to
+              # eliminate the callback overhead).
+              before_validation :load_schema_validations
+              private
+              define_method :load_schema_validations do
+                self.class.send :load_schema_validations
+                self.class.skip_callback :validation, :before, :load_schema_validations
+              end
             end
           end
           super
@@ -54,7 +62,8 @@ module ActiveSchema
           load_schema_validations
         end
 
-        protected
+        private
+
         def load_schema_validations
           # Don't bother if: it's already been loaded; the class is abstract; not a base class; or the table doesn't exist
           return unless create_schema_validations?
@@ -121,7 +130,7 @@ module ActiveSchema
         end
 
         def create_schema_validations?
-           !(schema_validations_loaded || abstract_class? || name.blank? || !table_exists?)
+          !(schema_validations_loaded || abstract_class? || name.blank? || !table_exists?)
         end
 
         def schema_validations_excluded_columns
@@ -146,37 +155,7 @@ module ActiveSchema
           end
         end
 
-      end # Core
-
-      # When AutoCreate is enabled schema validations are added to model
-      # transparently. Otherwise one have to invoke <tt>schema_validations</tt>
-      # method inside the model.
-      #
-      # AutoCreate alias_method_chains <tt>ActiveRecord::Base#new</tt> and
-      # <tt>ActiveRecord::Base.instantiate</tt> so it slightly affects
-      # performance. To avoid that AutoCreate module is added only when
-      # validations.auto_create is enabled.
-      module AutoCreate
-
-        def self.extended(klass)
-          class << klass
-            alias_method_chain :new, :schema_validations
-            alias_method_chain :instantiate, :schema_validations
-          end
-        end
-
-        def new_with_schema_validations(*args)
-          base_class.load_schema_validations
-          new_without_schema_validations(*args)
-        end
-
-        def instantiate_with_schema_validations(record)
-          base_class.load_schema_validations
-          instantiate_without_schema_validations(record)
-        end
-
-      end # module AutoCreate
+      end
 
     end
   end
-end
