@@ -1,6 +1,3 @@
-require 'active_support/core_ext/class/inheritable_attributes'
-require 'active_support/core_ext/module/aliasing'
-
 module ActiveSchema
   module ActiveRecord
       module Validations
@@ -8,13 +5,6 @@ module ActiveSchema
         def inherited(klass)
           if self == ::ActiveRecord::Base
             klass.instance_eval do
-
-              # which columns are auto-validated
-              cattr_accessor :schema_validated_columns
-              # which associations are auto-validated
-              cattr_accessor :schema_validated_associations
-              # indicates if auto-validations are created already
-              cattr_accessor :schema_validations_loaded
 
               # create a callback to load the validations before validation
               # happens.  the callback deletes itself after use (just to
@@ -55,10 +45,9 @@ module ActiveSchema
         def active_schema(*)
           super
           return unless create_schema_validations?
-          self.schema_validated_columns ||= possible_schema_validated_columns
-          self.schema_validated_associations ||= possible_schema_validated_associations
-          schema_validations_filter!(schema_validated_columns, schema_validations_excluded_columns)
-          schema_validations_filter!(schema_validated_associations, schema_validations_excluded_associations)
+          set_possible_validations
+          @schema_validated_columns = schema_validations_filter!(@schema_validated_columns, schema_validations_excluded_columns)
+          @schema_validated_associations = schema_validations_filter!(@schema_validated_associations, schema_validations_excluded_associations)
           load_schema_validations
         end
 
@@ -67,11 +56,15 @@ module ActiveSchema
         def load_schema_validations
           # Don't bother if: it's already been loaded; the class is abstract; not a base class; or the table doesn't exist
           return unless create_schema_validations?
-          validated_columns = self.schema_validated_columns || possible_schema_validated_columns
-          validated_associations = self.schema_validated_associations || possible_schema_validated_associations
-          load_column_validations(validated_columns)
-          load_association_validations(validated_associations)
-          self.schema_validations_loaded = true
+          set_possible_validations
+          load_column_validations(@schema_validated_columns)
+          load_association_validations(@schema_validated_associations)
+          @schema_validations_loaded = true
+        end
+
+        def set_possible_validations
+          @schema_validated_columns ||= content_columns.dup
+          @schema_validated_associations ||= reflect_on_all_associations(:belongs_to).dup
         end
 
         def load_column_validations(validated_columns)
@@ -121,16 +114,8 @@ module ActiveSchema
           validates_uniqueness_of name, :scope => scope, :allow_nil => true, :if => condition
         end
 
-        def possible_schema_validated_columns(model = self)
-          model.content_columns.dup
-        end
-
-        def possible_schema_validated_associations(model = self)
-          model.reflect_on_all_associations(:belongs_to).dup
-        end
-
         def create_schema_validations?
-          !(schema_validations_loaded || abstract_class? || name.blank? || !table_exists?)
+          !(@schema_validations_loaded || abstract_class? || name.blank? || !table_exists?)
         end
 
         def schema_validations_excluded_columns
@@ -143,9 +128,9 @@ module ActiveSchema
 
         def schema_validations_filter!(fields, default_excludes)
           if filtered_fields = active_schema_config.validations.only
-            filter_method = :select!
+            filter_method = :select
           elsif filtered_fields = active_schema_config.validations.except
-            filter_method = :reject!
+            filter_method = :reject
           else
             return
           end

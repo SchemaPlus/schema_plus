@@ -174,14 +174,6 @@ describe "Validations" do
   context "when used with STI" do
     around(:each) { |example| with_auto_validations(&example) }
 
-    it "should be marked as loaded for descendants" do
-      Review = new_model
-      PremiumReview = new_model(Review)
-      PremiumReview.new.valid?
-      Review.schema_validations_loaded.should be_true
-      PremiumReview.schema_validations_loaded.should be_true
-    end
-
     it "should set validations on base class" do
       Review = new_model
       PremiumReview = new_model(Review)

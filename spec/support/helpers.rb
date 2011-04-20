@@ -15,7 +15,8 @@ module ActiveSchemaHelpers
 
   def new_model(parent = ::ActiveRecord::Base, &block)
     @autocreated_models ||= []
-    model = Class.new(parent, &block)
+    model = Class.new(parent)
+    model.instance_eval(&block) if block
     @autocreated_models << model
     model
   end
