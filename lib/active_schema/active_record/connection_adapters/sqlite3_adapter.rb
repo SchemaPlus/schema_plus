@@ -24,6 +24,15 @@ module ActiveSchema
           get_foreign_keys(nil, name).select{|definition| definition.references_table_name == table_name}
         end
 
+        def views(name = nil)
+          execute("SELECT name FROM sqlite_master WHERE type='view'", name).collect{|row| row["name"]}
+        end
+
+        def view_definition(view_name, name = nil)
+          sql = execute("SELECT sql FROM sqlite_master WHERE type='view' AND name=#{quote(view_name)}", name).collect{|row| row["sql"]}.first
+          sql.sub(/^CREATE VIEW \S* AS\s+/im, '') unless sql.nil?
+        end
+
         protected
 
         def post_initialize
@@ -51,8 +60,8 @@ module ActiveSchema
               column_names = column_names.gsub('`', '').split(', ')
 
               references_column_names = references_column_names.gsub('`"', '').split(', ')
-              on_update = on_update.downcase.gsub(' ', '_').to_sym if on_update
-              on_delete = on_delete.downcase.gsub(' ', '_').to_sym if on_delete
+              on_update = on_update ? on_update.downcase.gsub(' ', '_').to_sym : :no_action
+              on_delete = on_delete ? on_delete.downcase.gsub(' ', '_').to_sym : :no_action
               foreign_keys << ForeignKeyDefinition.new(nil,
                                                        table_name, column_names,
                                                        references_table_name, references_column_names,

@@ -16,6 +16,8 @@ module ActiveSchema
           end
         end
 
+        public
+
         # class decorator
         def active_schema(opts)
           @active_schema_config = ActiveSchema.config.merge(opts)

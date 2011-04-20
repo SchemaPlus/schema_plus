@@ -2,9 +2,8 @@ ActiveRecord::Schema.define do
   connection.tables.each do |table| drop_table table end
 
   create_table :users, :force => true do |t|
-    t.string :login
+    t.string :login, :index => { :unique => true }
   end
-  add_index :users, :login, :unique => true
 
   create_table :members, :force => true do |t|
     t.string :login

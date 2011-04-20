@@ -66,12 +66,13 @@ module ActiveSchema
             if md = expression.try(:match, /^lower\(\(?([^)]+)\)?(::text)?\)$/i)
               column_names << md[1]
             end
-            index = ::ActiveRecord::ConnectionAdapters::IndexDefinition.new(table_name, index_name, unique, column_names)
-            index.conditions = conditions
-            index.case_sensitive = !(expression =~ /lower/i)
-            index.kind = kind unless kind.downcase == "btree"
-            index.expression = expression
-            index
+            ::ActiveRecord::ConnectionAdapters::IndexDefinition.new(table_name, column_names,
+                                                                    :name => index_name,
+                                                                    :unique => unique,
+                                                                    :conditions => conditions,
+                                                                    :case_sensitive => !(expression =~ /lower/i),
+                                                                    :kind => kind.downcase == "btree" ? nil : kind,
+                                                                    :expression => expression)
           end
         end
 
@@ -113,7 +114,7 @@ module ActiveSchema
            AND relname = '#{view_name}'
           SQL
           row = result.first
-          row.first unless row.nil?
+          row.first.chomp(';') unless row.nil?
         end
 
         private
@@ -131,8 +132,8 @@ module ActiveSchema
               on_update = $5
               on_delete = $7
               deferrable = $9 == "DEFERRABLE"
-              on_update = on_update.downcase.gsub(' ', '_').to_sym if on_update
-              on_delete = on_delete.downcase.gsub(' ', '_').to_sym if on_delete
+              on_update = on_update ? on_update.downcase.gsub(' ', '_').to_sym : :no_action
+              on_delete = on_delete ? on_delete.downcase.gsub(' ', '_').to_sym : :no_action
 
               foreign_keys << ForeignKeyDefinition.new(name,
                                                        from_table_name, column_names.split(', '),

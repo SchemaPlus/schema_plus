@@ -1,6 +1,3 @@
-require 'active_support'
-require 'active_support/core_ext/class/attribute_accessors'
-require 'active_record'
 require 'valuable'
 
 require 'active_schema/version'
@@ -16,6 +13,7 @@ require 'active_schema/active_record/connection_adapters/foreign_key_definition'
 require 'active_schema/active_record/connection_adapters/index_definition'
 require 'active_schema/active_record/connection_adapters/mysql_column'
 require 'active_schema/active_record/associations'
+require 'active_schema/railtie' if defined?(Rails)
 
 module ActiveSchema
   module ActiveRecord
@@ -51,6 +49,12 @@ module ActiveSchema
       # Automatically create associations based on foreign keys
       has_value :auto_create, :klass => :boolean, :default => true
 
+      # Use concise naming (strip out common prefixes from class names)
+      has_value :concise_names, :klass => :boolean, :default => true
+
+      # Always create full-name association, i.e. if creating a concise
+      # name, also create a second association with the full name.
+      has_value :full_names_always, :klass => :boolean, :default => false
     end
     has_value :associations, :klass => Associations, :default => Associations.new
 
@@ -101,23 +105,24 @@ module ActiveSchema
     end
   end
 
-  def self.options_for_index(index)
-    index.is_a?(Hash) ? index : {}
+  def self.insert_connection_adapters
+    return if @inserted_connection_adapters
+    @inserted_connection_adapters = true
+    ::ActiveRecord::ConnectionAdapters::AbstractAdapter.send(:include, ActiveSchema::ActiveRecord::ConnectionAdapters::AbstractAdapter)
+    ::ActiveRecord::ConnectionAdapters::Column.send(:include, ActiveSchema::ActiveRecord::ConnectionAdapters::Column)
+    ::ActiveRecord::ConnectionAdapters::IndexDefinition.send(:include, ActiveSchema::ActiveRecord::ConnectionAdapters::IndexDefinition)
+    ::ActiveRecord::ConnectionAdapters::SchemaStatements.send(:include, ActiveSchema::ActiveRecord::ConnectionAdapters::SchemaStatements)
+    ::ActiveRecord::ConnectionAdapters::TableDefinition.send(:include, ActiveSchema::ActiveRecord::ConnectionAdapters::TableDefinition)
   end
 
-  def self.set_default_update_and_delete_actions!(options)
-    options[:on_update] = options.fetch(:on_update, ActiveSchema.config.foreign_keys.on_update)
-    options[:on_delete] = options.fetch(:on_delete, ActiveSchema.config.foreign_keys.on_delete)
+  def self.insert
+    return if @inserted
+    @inserted = true
+    insert_connection_adapters
+    ::ActiveRecord::Base.send(:include, ActiveSchema::ActiveRecord::Base)
+    ::ActiveRecord::Migration.send(:include, ActiveSchema::ActiveRecord::Migration)
+    ::ActiveRecord::Schema.send(:include, ActiveSchema::ActiveRecord::Schema)
+    ::ActiveRecord::SchemaDumper.send(:include, ActiveSchema::ActiveRecord::SchemaDumper)
   end
 
 end
-
-ActiveRecord::Base.send(:include, ActiveSchema::ActiveRecord::Base)
-ActiveRecord::ConnectionAdapters::AbstractAdapter.send(:include, ActiveSchema::ActiveRecord::ConnectionAdapters::AbstractAdapter)
-ActiveRecord::ConnectionAdapters::Column.send(:include, ActiveSchema::ActiveRecord::ConnectionAdapters::Column)
-ActiveRecord::ConnectionAdapters::IndexDefinition.send(:include, ActiveSchema::ActiveRecord::ConnectionAdapters::IndexDefinition)
-ActiveRecord::ConnectionAdapters::SchemaStatements.send(:include, ActiveSchema::ActiveRecord::ConnectionAdapters::SchemaStatements)
-ActiveRecord::ConnectionAdapters::TableDefinition.send(:include, ActiveSchema::ActiveRecord::ConnectionAdapters::TableDefinition)
-ActiveRecord::Migration.send(:include, ActiveSchema::ActiveRecord::Migration)
-ActiveRecord::Schema.send(:include, ActiveSchema::ActiveRecord::Schema)
-ActiveRecord::SchemaDumper.send(:include, ActiveSchema::ActiveRecord::SchemaDumper)
