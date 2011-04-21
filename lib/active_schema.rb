@@ -96,13 +96,6 @@ module ActiveSchema
 
   def self.setup(&block)
     yield config
-    post_setup
-  end
-
-  def self.post_setup
-    if config.validations.auto_create
-      ::ActiveRecord::Base.extend(ActiveSchema::ActiveRecord::Validations::AutoCreate)
-    end
   end
 
   def self.insert_connection_adapters
