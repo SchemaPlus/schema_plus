@@ -106,13 +106,45 @@ describe "Validations" do
           belongs_to :article
           belongs_to :news_article, :class_name => 'Article', :foreign_key => :article_id
         end
-        Review.active_schema :validations => { :except => :content }
       end
+      too_big_content = 'a' * 1000
+      @review = Review.new(:content => too_big_content)
+    end
+
+    it "would normally have an error" do
+      @review.should have(1).error_on(:content)
     end
 
     it "shouldn't validate fields passed to :except option" do
+      Review.active_schema :validations => { :except => :content }
+      @review.should have(:no).errors_on(:content)
+    end
+
+    it "shouldn't create validations if locally disabled" do
+      Review.active_schema :validations => { :auto_create => false }
+      @review.should have(:no).errors_on(:content)
+    end
+  end
+
+  context "auto-created disabled" do
+    before(:each) do
+      with_auto_validations(false) do
+        Review = new_model do
+          belongs_to :article
+          belongs_to :news_article, :class_name => 'Article', :foreign_key => :article_id
+        end
+      end
       too_big_content = 'a' * 1000
-      Review.new(:content => too_big_content).should have(:no).errors_on(:content)
+      @review = Review.new(:content => too_big_content)
+    end
+
+    it "should not create validation" do
+      @review.should have(:no).errors_on(:content)
+    end
+
+    it "should create validation if locally enabled" do
+      Review.active_schema :validations => { :auto_create => true }
+      @review.should have(1).error_on(:content)
     end
 
   end

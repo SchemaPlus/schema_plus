@@ -115,7 +115,7 @@ module ActiveSchema
         end
 
         def create_schema_validations?
-          !(@schema_validations_loaded || abstract_class? || name.blank? || !table_exists?)
+          active_schema_config.validations.auto_create? && !(@schema_validations_loaded || abstract_class? || name.blank? || !table_exists?)
         end
 
         def schema_validations_excluded_columns
