@@ -73,19 +73,19 @@ module ActiveSchema
 
             # Data-type validation
             if column.type == :integer
-              validates_numericality_of name, :allow_nil => true, :only_integer => true
+              validate_logged :validates_numericality_of, name, :allow_nil => true, :only_integer => true
             elsif column.number?
-              validates_numericality_of name, :allow_nil => true
+              validate_logged :validates_numericality_of, name, :allow_nil => true
             elsif column.text? && column.limit
-              validates_length_of name, :allow_nil => true, :maximum => column.limit
+              validate_logged :validates_length_of, name, :allow_nil => true, :maximum => column.limit
             end
 
             # NOT NULL constraints
             if column.required_on
               if column.type == :boolean
-                validates_inclusion_of name, :in => [true, false], :message => :blank
+                validate_logged :validates_inclusion_of, name, :in => [true, false], :message => :blank
               else
-                validates_presence_of name
+                validate_logged :validates_presence_of, name
               end
             end
 
@@ -100,7 +100,7 @@ module ActiveSchema
             next unless column
 
             # NOT NULL constraints
-            validates_presence_of association.name if column.required_on
+            validate_logged :validates_presence_of, association.name if column.required_on
 
             # UNIQUE constraints
             add_uniqueness_validation(column) if column.unique?
@@ -111,7 +111,7 @@ module ActiveSchema
           scope = column.unique_scope.map(&:to_sym)
           condition = :"#{column.name}_changed?"
           name = column.name.to_sym
-          validates_uniqueness_of name, :scope => scope, :allow_nil => true, :if => condition
+          validate_logged :validates_uniqueness_of, name, :scope => scope, :allow_nil => true, :if => condition
         end
 
         def create_schema_validations?
@@ -138,6 +138,13 @@ module ActiveSchema
           fields.send(filter_method) do |field|
             filtered_fields.include?(field.name.to_sym)
           end
+        end
+
+        def validate_logged(method, arg, opts={})
+          msg = "ActiveSchema validations: #{self.name}.#{method} #{arg.inspect}"
+          msg += ", #{opts.inspect[1...-1]}" if opts.any?
+          logger.info msg
+          send method, arg, opts
         end
 
       end
