@@ -8,6 +8,10 @@ describe "Validations" do
     ActiveSchema.config.associations.auto_create = false
   end
 
+  after(:each) do
+    auto_remove
+  end
+
   context "auto-created" do
     before(:each) do
       with_auto_validations do
@@ -226,5 +230,29 @@ describe "Validations" do
 
       end
     end
+  end
+
+  def new_model(parent = ::ActiveRecord::Base, &block)
+    @autocreated_models ||= []
+    # in ruby 1.9 can use Class.new(parent, &block) but in ruby 1.8 the
+    # parent initialization would clobber the refelctions defined in the
+    # block.  separating it into two separate statements works for both 1.8
+    # and 1.9
+    model = Class.new(parent)
+    model.instance_eval(&block) if block
+    @autocreated_models << model
+    model
+  end
+
+  def auto_remove
+    # assign to local var otherwise ruby will
+    # get @autocreated_models in Object scope
+    autocreated_models = @autocreated_models
+    Object.class_eval do
+      autocreated_models.try(:each) do |model|
+        remove_const model.name.to_sym
+      end
+    end
+    @autocreated_models = []
   end
 end
