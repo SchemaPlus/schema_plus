@@ -1,6 +1,12 @@
+if RUBY_VERSION > "1.9"
+  require 'simplecov'
+  require 'simplecov-gem-adapter'
+  SimpleCov.start "gem"
+end
+
 $LOAD_PATH.unshift(File.dirname(__FILE__))
 $LOAD_PATH.unshift(File.join(File.dirname(__FILE__), '..', 'lib'))
-require 'rubygems'
+
 require 'rspec'
 require 'active_record'
 require 'active_schema'
@@ -31,4 +37,4 @@ def load_auto_schema
   load_schema('auto_schema.rb')
 end
 
-
+SimpleCov.command_name ActiveRecord::Base.connection.adapter_name if defined? SimpleCov
