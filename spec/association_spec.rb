@@ -52,6 +52,117 @@ describe ActiveRecord::Base do
     end
   end
 
+  context "with multiple associations of all types" do
+    before(:each) do
+      create_tables(
+        "owners", {}, {},
+        "colors", {}, {},
+        "widgets", {}, {
+          :owner_id => {},
+        },
+        "parts", {}, { :widget_id => {} },
+        "manifests", {}, { :widget_id => { :index => {:unique => true}} },
+        "colors_widgets", {:id => false}, { :widget_id => {}, :color_id => {} }
+      )
+    end
+
+    def check_reflections(hash)
+      hash.each do |key, val|
+        reflection = @widget.reflect_on_association(key)
+        case val
+        when true then reflection.should_not be_nil
+        else           reflection.should be_nil
+        end
+      end
+    end
+
+    it "should default as expected" do
+      @widget = Class.new(ActiveRecord::Base) do set_table_name "widgets" end
+      check_reflections(:owner => true, :colors => true, :parts => true, :manifest => true)
+    end
+
+    it "should respect :only" do 
+      @widget = Class.new(ActiveRecord::Base) do
+        set_table_name "widgets"
+        active_schema :associations => { :only => :owner }
+      end
+      check_reflections(:owner => true, :colors => false, :parts => false, :manifest => false)
+    end
+
+    it "should respect :except" do 
+      @widget = Class.new(ActiveRecord::Base) do
+        set_table_name "widgets"
+        active_schema :associations => { :except => :owner }
+      end
+      check_reflections(:owner => false, :colors => true, :parts => true, :manifest => true)
+    end
+
+    it "should respect :only_type :belongs_to" do 
+      @widget = Class.new(ActiveRecord::Base) do
+        set_table_name "widgets"
+        active_schema :associations => { :only_type => :belongs_to }
+      end
+      check_reflections(:owner => true, :colors => false, :parts => false, :manifest => false)
+    end
+
+    it "should respect :except_type :belongs_to" do 
+      @widget = Class.new(ActiveRecord::Base) do
+        set_table_name "widgets"
+        active_schema :associations => { :except_type => :belongs_to }
+      end
+      check_reflections(:owner => false, :colors => true, :parts => true, :manifest => true)
+    end
+
+    it "should respect :only_type :has_many" do 
+      @widget = Class.new(ActiveRecord::Base) do
+        set_table_name "widgets"
+        active_schema :associations => { :only_type => :has_many }
+      end
+      check_reflections(:owner => false, :colors => false, :parts => true, :manifest => false)
+    end
+
+    it "should respect :except_type :has_many" do 
+      @widget = Class.new(ActiveRecord::Base) do
+        set_table_name "widgets"
+        active_schema :associations => { :except_type => :has_many }
+      end
+      check_reflections(:owner => true, :colors => true, :parts => false, :manifest => true)
+    end
+
+    it "should respect :only_type :has_one" do 
+      @widget = Class.new(ActiveRecord::Base) do
+        set_table_name "widgets"
+        active_schema :associations => { :only_type => :has_one }
+      end
+      check_reflections(:owner => false, :colors => false, :parts => false, :manifest => true)
+    end
+
+    it "should respect :except_type :has_one" do 
+      @widget = Class.new(ActiveRecord::Base) do
+        set_table_name "widgets"
+        active_schema :associations => { :except_type => :has_one }
+      end
+      check_reflections(:owner => true, :colors => true, :parts => true, :manifest => false)
+    end
+
+    it "should respect :only_type :has_and_belongs_to_many" do 
+      @widget = Class.new(ActiveRecord::Base) do
+        set_table_name "widgets"
+        active_schema :associations => { :only_type => :has_and_belongs_to_many }
+      end
+      check_reflections(:owner => false, :colors => true, :parts => false, :manifest => false)
+    end
+
+    it "should respect :except_type :has_and_belongs_to_many" do 
+      @widget = Class.new(ActiveRecord::Base) do
+        set_table_name "widgets"
+        active_schema :associations => { :except_type => :has_and_belongs_to_many }
+      end
+      check_reflections(:owner => true, :colors => false, :parts => true, :manifest => true)
+    end
+
+  end
+
   it "should override auto_create positively" do
     with_associations_auto_create(false) do
       create_tables(
@@ -235,7 +346,7 @@ describe ActiveRecord::Base do
     end
 
     it "should use concise names and not full names when so configured" do
-      with_associations_config(:auto_create => true, :concise_names => true, :full_names_always => false) do
+      with_associations_config(:auto_create => true, :concise_names => true) do
         prefix_one
         reflection = @post.reflect_on_association(:comments)
         reflection.should_not be_nil
@@ -247,22 +358,7 @@ describe ActiveRecord::Base do
       end
     end
 
-    it "should use both concise names and full names when so configured" do
-      with_associations_config(:auto_create => true, :concise_names => true, :full_names_always => true) do
-        prefix_one
-        reflection = @post.reflect_on_association(:comments)
-        reflection.should_not be_nil
-        reflection.macro.should == :has_many
-        reflection.options[:class_name].should == "PostComment"
-        reflection.options[:foreign_key].should == "post_id"
-        reflection = @post.reflect_on_association(:post_comments)
-        reflection.should_not be_nil
-        reflection.macro.should == :has_many
-        reflection.options[:class_name].should == "PostComment"
-        reflection.options[:foreign_key].should == "post_id"
-        reflection = @post.reflect_on_association(:post_comments)
-      end
-    end
+
   end
 
   context "with joins table" do

@@ -50,7 +50,7 @@ module ActiveSchema
         referencing_table_name ||= fk.table_name
 
         column_name = fk.column_names.first
-        association_name = column_name.sub(/_id$/, '')
+        reference_name = column_name.sub(/_id$/, '')
         references_name = fk.references_table_name.singularize
         referencing_name = referencing_table_name.singularize
 
@@ -60,7 +60,7 @@ module ActiveSchema
         references_concise = _concise_name(references_name, referencing_name)
         referencing_concise = _concise_name(referencing_name, references_name)
 
-        case association_name
+        case reference_name
         when references_name
           belongs_to         = references_name
           belongs_to_concise = references_concise
@@ -94,14 +94,14 @@ module ActiveSchema
           has_many_concise      = "#{referencing_concise.pluralize}_as_#{label}"
 
         else
-          belongs_to            = association_name
-          belongs_to_concise    = association_name
+          belongs_to            = reference_name
+          belongs_to_concise    = reference_name
 
-          has_one               = "#{referencing_name}_as_#{association_name}"
-          has_one_concise       = "#{referencing_concise}_as_#{association_name}"
+          has_one               = "#{referencing_name}_as_#{reference_name}"
+          has_one_concise       = "#{referencing_concise}_as_#{reference_name}"
 
-          has_many              = "#{referencing_name.pluralize}_as_#{association_name}"
-          has_many_concise      = "#{referencing_concise.pluralize}_as_#{association_name}"
+          has_many              = "#{referencing_name.pluralize}_as_#{reference_name}"
+          has_many_concise      = "#{referencing_concise.pluralize}_as_#{reference_name}"
         end
 
         case macro
@@ -133,14 +133,11 @@ module ActiveSchema
             end
           end
         end
-        names = []
-        names << name if _use_full_name?
-        names << name_concise if _use_concise_name?
-        names.uniq.collect(&:to_sym).each do |name|
-          if (!method_defined?(name) && !private_method_defined?(name)) or (name == :type && [Object, Kernel].include?(instance_method(:type).owner))
-            logger.info "ActiveSchema associations: #{self.name || self.table_name.classify}.#{macro} #{name.inspect}, #{opts.inspect[1...-1]}"
-            send macro, name, opts.dup
-          end
+        name = name_concise if _use_concise_name?
+        name = name.to_sym
+        if (_filter_association(macro, name) && !_method_exists?(name))
+          logger.info "ActiveSchema associations: #{self.name || self.table_name.classify}.#{macro} #{name.inspect}, #{opts.inspect[1...-1]}"
+          send macro, name, opts.dup
         end
       end
 
@@ -167,9 +164,21 @@ module ActiveSchema
         active_schema_config.associations.concise_names?
       end
 
-      def _use_full_name?
-        active_schema_config.associations.full_names_always? or not _use_concise_name?
+      def _filter_association(macro, name)
+        config = active_schema_config.associations
+        case
+        when config.only        then Array.wrap(config.only).include?(name)
+        when config.except      then !Array.wrap(config.except).include?(name)
+        when config.only_type   then Array.wrap(config.only_type).include?(macro)
+        when config.except_type then !Array.wrap(config.except_type).include?(macro)
+        else true
+        end
       end
+
+      def _method_exists?(name)
+        method_defined?(name) || private_method_defined?(name) and not (name == :type && [Object, Kernel].include?(instance_method(:type).owner))
+      end
+
     end
   end
 end

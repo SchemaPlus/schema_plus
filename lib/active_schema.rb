@@ -52,9 +52,18 @@ module ActiveSchema
       # Use concise naming (strip out common prefixes from class names)
       has_value :concise_names, :klass => :boolean, :default => true
 
-      # Always create full-name association, i.e. if creating a concise
-      # name, also create a second association with the full name.
-      has_value :full_names_always, :klass => :boolean, :default => false
+      # list of association names to skip
+      has_value :except, :default => nil
+
+      # list of association names to create (overrides :except)
+      has_value :only, :default => nil
+
+      # list of association types to skip
+      has_value :except_type, :default => nil
+
+      # list of association types to create (overrides :except_type)
+      has_value :only_type, :default => nil
+
     end
     has_value :associations, :klass => Associations, :default => Associations.new
 
