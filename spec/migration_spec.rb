@@ -34,6 +34,11 @@ describe ActiveRecord::Migration do
       @model.should_not reference.on(:member_id)
     end
 
+    it "should create foreign key to the same table on parent_id" do
+      create_table(@model,  :parent_id => {})
+      @model.should reference(@model.table_name, :id).on(:parent_id)
+    end
+
     it "should create an index if specified on column" do
       create_table(@model, :state => { :index => true }) 
       @model.should have_index.on(:state)

@@ -15,6 +15,7 @@ module ActiveSchema::ActiveRecord::ConnectionAdapters
       indexes = []
       create_table_without_active_schema(table, options) do |table_definition|
         table_definition.active_schema_config = ActiveSchema.config.merge(config_options)
+        table_definition.name = table
         yield table_definition if block_given?
         indexes = table_definition.indexes
       end
