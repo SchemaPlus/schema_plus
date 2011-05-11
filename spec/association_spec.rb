@@ -270,6 +270,33 @@ describe ActiveRecord::Base do
     end
   end
 
+  context "regarding parent-child relationships" do
+
+    let (:migration) {ActiveRecord::Migration}
+
+    before(:each) do
+      create_tables(
+        "nodes", {:foreign_keys => {:auto_index => false}}, { :parent_id => {} }
+      )
+    end
+
+    it "should use children as the inverse of parent" do
+      @node = Class.new(ActiveRecord::Base) do set_table_name "nodes" end
+      reflection = @node.reflect_on_association(:children)
+      reflection.should_not be_nil
+    end
+
+    it "should use child as the singular inverse of parent" do
+      migration.suppress_messages do
+        migration.add_index(:nodes, :parent_id, :unique => true)
+      end
+      @node = Class.new(ActiveRecord::Base) do set_table_name "nodes" end
+      reflection = @node.reflect_on_association(:child)
+      reflection.should_not be_nil
+    end
+  end
+
+
   context "regarding concise names" do
 
     def prefix_one

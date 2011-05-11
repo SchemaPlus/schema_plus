@@ -61,6 +61,16 @@ module ActiveSchema
         referencing_concise = _concise_name(referencing_name, references_name)
 
         case reference_name
+        when 'parent'
+          belongs_to         = 'parent'
+          belongs_to_concise = 'parent'
+
+          has_one            = 'child'
+          has_one_concise    = 'child'
+
+          has_many           = 'children'
+          has_many_concise   = 'children'
+
         when references_name
           belongs_to         = references_name
           belongs_to_concise = references_concise
