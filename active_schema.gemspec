@@ -26,7 +26,7 @@ Gem::Specification.new do |s|
   s.add_development_dependency("rspec", "~> 2.4.0")
   s.add_development_dependency("pg", "0.10.0")
   s.add_development_dependency("mysql")
-  s.add_development_dependency("mysql2")
+  s.add_development_dependency("mysql2", "~> 0.2.6")
   s.add_development_dependency("sqlite3")
   s.add_development_dependency("simplecov")
   s.add_development_dependency("simplecov-gem-adapter")
