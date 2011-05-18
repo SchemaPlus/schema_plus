@@ -54,13 +54,6 @@ module ActiveSchema::ActiveRecord::ConnectionAdapters
       self
     end
 
-    # Some people liked this; personally I've decided against using it but I'll keep it nonetheless
-    def belongs_to(table, options = {})
-      options = options.merge(:references => table)
-      options[:on_delete] = options.delete(:dependent) if options.has_key?(:dependent)
-      column("#{table.to_s.singularize}_id".to_sym, :integer, options)
-    end
-
     protected
     def column_index(name, options)
       options = {} if options == true

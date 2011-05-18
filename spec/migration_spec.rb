@@ -34,6 +34,11 @@ describe ActiveRecord::Migration do
       @model.should_not reference.on(:member_id)
     end
 
+    it "should create foreign key using t.belongs_to" do
+      create_table(@model,  :user => {:METHOD => :belongs_to})
+      @model.should reference(:users, :id).on(:user_id)
+    end
+
     it "should create foreign key to the same table on parent_id" do
       create_table(@model,  :parent_id => {})
       @model.should reference(@model.table_name, :id).on(:parent_id)
@@ -373,7 +378,8 @@ describe ActiveRecord::Migration do
     ActiveRecord::Migration.suppress_messages do
       ActiveRecord::Migration.create_table model.table_name, table_options.merge(:force => true) do |t|
         columns_with_options.each_pair do |column, options|
-          t.integer column, options
+          method = options.delete(:METHOD) || :integer
+          t.send method, column, options
         end
         indexes.each_pair do |column, options|
           t.index column, options
