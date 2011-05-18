@@ -224,6 +224,32 @@ describe ActiveRecord::Base do
     end
   end
 
+  context "with suffixed column names" do
+    before(:all) do
+      create_tables(
+        "posts", {}, {},
+        "comments", {}, { :post_cited => { :references => :posts} }
+      )
+      @post = Class.new(ActiveRecord::Base) do set_table_name "posts" end
+      @comment = Class.new(ActiveRecord::Base) do set_table_name "comments" end
+    end
+    it "should name belongs_to according to column" do
+      reflection = @comment.reflect_on_association(:post_cited)
+      reflection.should_not be_nil
+      reflection.macro.should == :belongs_to
+      reflection.options[:class_name].should == "Post"
+      reflection.options[:foreign_key].should == "post_cited"
+    end
+
+    it "should name has_many using 'as column'" do
+      reflection = @post.reflect_on_association(:comments_as_cited)
+      reflection.should_not be_nil
+      reflection.macro.should == :has_many
+      reflection.options[:class_name].should == "Comment"
+      reflection.options[:foreign_key].should == "post_cited"
+    end
+  end
+
   context "with arbitrary column names" do
     before(:all) do
       create_tables(
