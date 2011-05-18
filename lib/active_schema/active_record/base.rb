@@ -23,10 +23,6 @@ module ActiveSchema
           @active_schema_config = ActiveSchema.config.merge(opts)
         end
 
-        def base_class?
-          self == base_class
-        end
-
         def abstract_class_with_active_schema?
           abstract_class_without_active_schema? || !(name =~ /^Abstract/).nil?
         end
