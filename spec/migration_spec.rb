@@ -194,6 +194,12 @@ describe ActiveRecord::Migration do
         @model = Comment
       end
 
+      it "should create an index" do
+        add_column(:slug, :string, :index => true) do
+          @model.should have_index.on(:slug)
+        end
+      end
+
       it "should create foreign key" do
         add_column(:post_id, :integer) do
           @model.should reference(:posts, :id).on(:post_id)
