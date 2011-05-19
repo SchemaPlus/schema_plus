@@ -11,7 +11,6 @@ require 'active_schema/active_record/connection_adapters/abstract_adapter'
 require 'active_schema/active_record/connection_adapters/column'
 require 'active_schema/active_record/connection_adapters/foreign_key_definition'
 require 'active_schema/active_record/connection_adapters/index_definition'
-require 'active_schema/active_record/connection_adapters/mysql_column'
 require 'active_schema/active_record/associations'
 require 'active_schema/railtie' if defined?(Rails)
 
