@@ -3,26 +3,28 @@ require File.expand_path(File.dirname(__FILE__) + '/spec_helper')
 require 'models/user'
 
 describe "Index definition" do
+
+  let(:migration) { ::ActiveRecord::Migration }
   
   before(:all) do
     load_core_schema
   end
 
-  let(:migration) { ::ActiveRecord::Migration }
+  around(:each) do |example|
+    migration.suppress_messages do
+      example.run
+    end
+  end
+
+  after(:each) do
+    migration.remove_index :users, :name => 'users_login_index' if migration.index_name_exists? :users, 'users_login_index', true
+  end
 
   context "when index is multicolumn" do
     before(:each) do
-      migration.suppress_messages do
-        migration.execute "CREATE INDEX users_login_index ON users (login, deleted_at)"
-      end
+      migration.execute "CREATE INDEX users_login_index ON users (login, deleted_at)"
       User.reset_column_information
       @index = index_definition(%w[login deleted_at])
-    end
-
-    after(:each) do
-      migration.suppress_messages do
-        migration.remove_index :users, :name => 'users_login_index'
-      end
     end
 
     it "is included in User.indexes" do
@@ -31,22 +33,23 @@ describe "Index definition" do
 
   end
 
+  it "should correctly report supports_partial_indexes?" do
+    query = lambda { migration.execute "CREATE INDEX users_login_index ON users(login) WHERE deleted_at IS NULL" }
+    if migration.supports_partial_indexes?
+      query.should_not raise_error
+    else
+      query.should raise_error
+    end
+  end
+
   if ActiveSchemaHelpers.postgresql?
 
     context "when case insensitive is added" do
 
       before(:each) do
-        migration.suppress_messages do
-          migration.execute "CREATE INDEX users_login_index ON users(LOWER(login))"
-        end
+        migration.execute "CREATE INDEX users_login_index ON users(LOWER(login))"
         User.reset_column_information
         @index = User.indexes.detect { |i| i.expression =~ /lower\(\(login\)::text\)/i }
-      end
-
-      after(:each) do
-        migration.suppress_messages do
-          migration.remove_index :users, :name => 'users_login_index'
-        end
       end
 
       it "is included in User.indexes" do
@@ -70,17 +73,9 @@ describe "Index definition" do
 
     context "when index is partial and column is not downcased" do
       before(:each) do
-        migration.suppress_messages do
-          migration.execute "CREATE INDEX users_login_index ON users(login) WHERE deleted_at IS NULL"
-        end
+        migration.execute "CREATE INDEX users_login_index ON users(login) WHERE deleted_at IS NULL"
         User.reset_column_information
         @index = index_definition("login")
-      end
-
-      after(:each) do
-        migration.suppress_messages do
-          migration.remove_index :users, :name => 'users_login_index'
-        end
       end
 
       it "is included in User.indexes" do
@@ -103,17 +98,9 @@ describe "Index definition" do
 
     context "when index contains expression" do
       before(:each) do
-        migration.suppress_messages do
-          migration.execute "CREATE INDEX users_login_index ON users (extract(EPOCH from deleted_at)) WHERE deleted_at IS NULL"
-        end
+        migration.execute "CREATE INDEX users_login_index ON users (extract(EPOCH from deleted_at)) WHERE deleted_at IS NULL"
         User.reset_column_information
         @index = User.indexes.detect { |i| i.expression.present? }
-      end
-
-      after(:each) do
-        migration.suppress_messages do
-          migration.remove_index :users, :name => 'users_login_index'
-        end
       end
 
       it "exists" do
