@@ -144,17 +144,6 @@ module ActiveSchema
 
           foreign_keys
         end
-
-        # Converts form like: column1, LOWER(column2)
-        # to: column1, column2
-        def determine_index_column_names(column_definitions)
-          column_definitions.split(", ").map do |name|
-            name = $1 if name =~ /^LOWER\(([^:]+)(::text)?\)$/i
-            name = $1 if name =~ /^"(.*)"$/
-              name
-          end
-        end
-
       end
     end
   end
