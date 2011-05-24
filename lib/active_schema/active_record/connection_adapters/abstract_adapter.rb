@@ -54,11 +54,11 @@ module ActiveSchema
 
         def add_foreign_key(table_name, column_names, references_table_name, references_column_names, options = {})
           foreign_key = ForeignKeyDefinition.new(options[:name], table_name, column_names, ::ActiveRecord::Migrator.proper_table_name(references_table_name), references_column_names, options[:on_update], options[:on_delete], options[:deferrable])
-          execute "ALTER TABLE #{table_name} ADD #{foreign_key}"
+          execute "ALTER TABLE #{quote_table_name(table_name)} ADD #{foreign_key}"
         end
 
         def remove_foreign_key(table_name, foreign_key_name, options = {})
-          execute "ALTER TABLE #{table_name} DROP CONSTRAINT #{foreign_key_name}"
+          execute "ALTER TABLE #{quote_table_name(table_name)} DROP CONSTRAINT #{foreign_key_name}"
         end
 
         def drop_table_with_active_schema(name, options = {})

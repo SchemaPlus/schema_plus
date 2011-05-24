@@ -98,6 +98,26 @@ describe "Foreign Key" do
 
     end
 
+    context "when table name is a rerved word" do
+      before(:each) do
+        migration.suppress_messages do
+          migration.create_table :references, :force => true do |t|
+            t.integer :post_id
+          end
+        end
+      end
+
+      it "can add, detect, and remove a foreign key without error" do
+        migration.suppress_messages do
+          expect {
+            migration.add_foreign_key(:references, :post_id, :posts, :id)
+            foreign_key = migration.foreign_keys(:references).detect{|definition| definition.column_names = %[post_id]}
+            migration.remove_foreign_key(:references, foreign_key.name)
+          }.should_not raise_error
+        end
+      end
+    end
+
   end
 
   protected
