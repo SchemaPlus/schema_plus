@@ -6,13 +6,19 @@ module ActiveSchema
 
       def self.extended(base)
         class << base
-          alias_method_chain :reflections, :active_schema
+          alias_method_chain :reflect_on_association, :active_schema
+          alias_method_chain :reflect_on_all_associations, :active_schema
         end
       end
 
-      def reflections_with_active_schema
+      def reflect_on_association_with_active_schema(*args)
         _load_active_schema_associations unless @active_schema_associations_loaded
-        reflections_without_active_schema
+        reflect_on_association_without_active_schema(*args)
+      end
+
+      def reflect_on_all_associations_with_active_schema(*args)
+        _load_active_schema_associations unless @active_schema_associations_loaded
+        reflect_on_all_associations_without_active_schema(*args)
       end
 
       def define_attribute_methods(*args)

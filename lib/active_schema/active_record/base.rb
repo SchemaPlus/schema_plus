@@ -29,7 +29,7 @@ module ActiveSchema
 
         def columns_with_active_schema
           unless @columns
-            columns_without_active_schema
+            @columns = columns_without_active_schema
             cols = columns_hash
             indexes.each do |index|
               next if index.columns.blank?

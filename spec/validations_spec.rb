@@ -127,12 +127,16 @@ describe "Validations" do
   end
 
   context "auto-created disabled" do
+    around(:each) do |example|
+      with_auto_validations(false, &example)
+    end
+
     before(:each) do
-      with_auto_validations(false) do
-        Review = new_model do
-          belongs_to :article
-          belongs_to :news_article, :class_name => 'Article', :foreign_key => :article_id
-        end
+      Article = new_model
+
+      Review = new_model do
+        belongs_to :article
+        belongs_to :news_article, :class_name => 'Article', :foreign_key => :article_id
       end
       too_big_content = 'a' * 1000
       @review = Review.new(:content => too_big_content)
