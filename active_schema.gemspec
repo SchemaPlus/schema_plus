@@ -20,10 +20,11 @@ Gem::Specification.new do |s|
   s.require_paths = ["lib"]
 
   s.add_dependency("activerecord", ">= 3")
-  s.add_dependency("rails", ">= 3.1.0.rc1")
+  s.add_dependency("rails", ">= 3")
   s.add_dependency("valuable")
       
   s.add_development_dependency("rake", "~> 0.8.7")
+  s.add_dependency("rails", ">= 3.1.0.rc1")
   s.add_development_dependency("rspec")
   s.add_development_dependency("pg")
   s.add_development_dependency("mysql")
