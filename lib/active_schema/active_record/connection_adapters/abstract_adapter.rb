@@ -37,20 +37,12 @@ module ActiveSchema
           execute "DROP VIEW #{quote_table_name(view_name)}"
         end
 
-        def views(name = nil)
-          []
-        end
-
-        def view_definition(view_name, name = nil)
-        end
-
-        def foreign_keys(table_name, name = nil)
-          []
-        end
-
-        def reverse_foreign_keys(table_name, name = nil)
-          []
-        end
+        # these are all expected to be defined by subclasses, listing them
+        # here only as templates.
+        def views(name = nil) [] end
+        def view_definition(view_name, name = nil) end
+        def foreign_keys(table_name, name = nil) [] end
+        def reverse_foreign_keys(table_name, name = nil) [] end
 
         def add_foreign_key(table_name, column_names, references_table_name, references_column_names, options = {})
           foreign_key = ForeignKeyDefinition.new(options[:name], table_name, column_names, ::ActiveRecord::Migrator.proper_table_name(references_table_name), references_column_names, options[:on_update], options[:on_delete], options[:deferrable])
