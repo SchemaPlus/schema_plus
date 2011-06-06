@@ -182,13 +182,11 @@ module ActiveSchema
 
       def _filter_association(macro, name)
         config = active_schema_config.associations
-        case
-        when config.only        then Array.wrap(config.only).include?(name)
-        when config.except      then !Array.wrap(config.except).include?(name)
-        when config.only_type   then Array.wrap(config.only_type).include?(macro)
-        when config.except_type then !Array.wrap(config.except_type).include?(macro)
-        else true
-        end
+        return false if config.only        and not Array.wrap(config.only).include?(name)
+        return false if config.except      and     Array.wrap(config.except).include?(name)
+        return false if config.only_type   and not Array.wrap(config.only_type).include?(macro)
+        return false if config.except_type and     Array.wrap(config.except_type).include?(macro)
+        return true
       end
 
       def _method_exists?(name)

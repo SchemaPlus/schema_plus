@@ -54,13 +54,13 @@ module ActiveSchema
       # list of association names to skip
       has_value :except, :default => nil
 
-      # list of association names to create (overrides :except)
+      # list of association names to create
       has_value :only, :default => nil
 
       # list of association types to skip
       has_value :except_type, :default => nil
 
-      # list of association types to create (overrides :except_type)
+      # list of association types to create
       has_value :only_type, :default => nil
 
     end
@@ -73,10 +73,17 @@ module ActiveSchema
       has_value :auto_create, :klass => :boolean, :default => true
 
       # Auto-validates given fields only
-      has_value :only
+      has_value :only, :default => nil
 
       # Auto-validates all but given fields
-      has_value :except
+      has_value :except, :default => [:created_at, :updated_at, :created_on, :updated_on]
+      
+      # list of validation types to skip
+      has_value :except_type, :default => nil
+
+      # list of validation types to create
+      has_value :only_type, :default => nil
+
     end
     has_value :validations, :klass => Validations, :default => Validations.new
 

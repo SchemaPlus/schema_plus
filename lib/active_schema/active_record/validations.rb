@@ -44,10 +44,6 @@ module ActiveSchema
         #
         def active_schema(*)
           super
-          return unless create_schema_validations?
-          set_possible_validations
-          @schema_validated_columns = schema_validations_filter!(@schema_validated_columns, schema_validations_excluded_columns)
-          @schema_validated_associations = schema_validations_filter!(@schema_validated_associations, schema_validations_excluded_associations)
           load_schema_validations
         end
 
@@ -56,19 +52,14 @@ module ActiveSchema
         def load_schema_validations
           # Don't bother if: it's already been loaded; the class is abstract; not a base class; or the table doesn't exist
           return unless create_schema_validations?
-          set_possible_validations
-          load_column_validations(@schema_validated_columns)
-          load_association_validations(@schema_validated_associations)
+          
+          load_column_validations
+          load_association_validations
           @schema_validations_loaded = true
         end
 
-        def set_possible_validations
-          @schema_validated_columns ||= content_columns.dup
-          @schema_validated_associations ||= reflect_on_all_associations(:belongs_to).dup
-        end
-
-        def load_column_validations(validated_columns)
-          validated_columns.each do |column|
+        def load_column_validations
+          content_columns.each do |column|
             name = column.name.to_sym
 
             # Data-type validation
@@ -94,8 +85,8 @@ module ActiveSchema
           end
         end
 
-        def load_association_validations(associations)
-          associations.each do |association|
+        def load_association_validations
+          reflect_on_all_associations(:belongs_to).each do |association|
             colname = if association.respond_to? :foreign_key
                         association.foreign_key         # as of rails 3.1
                       else
@@ -123,33 +114,26 @@ module ActiveSchema
           active_schema_config.validations.auto_create? && !(@schema_validations_loaded || abstract_class? || name.blank? || !table_exists?)
         end
 
-        def schema_validations_excluded_columns
-          @schema_validations_excluded_columns ||= %w[created_at updated_at created_on updated_on]
-        end
-
-        def schema_validations_excluded_associations
-          @schema_validated_associations ||= []
-        end
-
-        def schema_validations_filter!(fields, default_excludes)
-          if filtered_fields = active_schema_config.validations.only
-            filter_method = :select
-          elsif filtered_fields = active_schema_config.validations.except
-            filter_method = :reject
-          else
-            return
-          end
-          filtered_fields = Array(filtered_fields).collect(&:to_sym)
-          fields.send(filter_method) do |field|
-            filtered_fields.include?(field.name.to_sym)
-          end
-        end
-
         def validate_logged(method, arg, opts={})
-          msg = "ActiveSchema validations: #{self.name}.#{method} #{arg.inspect}"
-          msg += ", #{opts.inspect[1...-1]}" if opts.any?
-          logger.info msg
-          send method, arg, opts
+          if _filter_validation(method, arg) 
+            msg = "ActiveSchema validations: #{self.name}.#{method} #{arg.inspect}"
+            msg += ", #{opts.inspect[1...-1]}" if opts.any?
+            logger.info msg
+            send method, arg, opts
+          end
+        end
+
+        def _filter_validation(macro, name)
+          config = active_schema_config.validations
+          types = [macro]
+          if match = macro.to_s.match(/^validates_(.*)_of$/) 
+            types << match[1].to_sym
+          end
+          return false if config.only        and not Array.wrap(config.only).include?(name)
+          return false if config.except      and     Array.wrap(config.except).include?(name)
+          return false if config.only_type   and not (Array.wrap(config.only_type) & types).any?
+          return false if config.except_type and     (Array.wrap(config.except_type) & types).any?
+          return true
         end
 
       end

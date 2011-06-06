@@ -102,6 +102,7 @@ describe "Validations" do
   context "auto-created but changed" do
     before(:each) do
       with_auto_validations do
+        Article = new_model
         Review = new_model do
           belongs_to :article
           belongs_to :news_article, :class_name => 'Article', :foreign_key => :article_id
@@ -113,16 +114,38 @@ describe "Validations" do
 
     it "would normally have an error" do
       @review.should have(1).error_on(:content)
+      @review.should have(1).error_on(:author)
     end
 
     it "shouldn't validate fields passed to :except option" do
       Review.active_schema :validations => { :except => :content }
       @review.should have(:no).errors_on(:content)
+      @review.should have(1).error_on(:author)
     end
+
+    it "shouldn't validate types passed to :except_type option using full validation" do
+      Review.active_schema :validations => { :except_type => :validates_length_of }
+      @review.should have(:no).errors_on(:content)
+      @review.should have(1).error_on(:author)
+    end
+
+    it "shouldn't validate types passed to :except_type option using shorthand" do
+      Review.active_schema :validations => { :except_type => :length }
+      @review.should have(:no).errors_on(:content)
+      @review.should have(1).error_on(:author)
+    end
+
+    it "should only validate type passed to :only_type option" do
+      Review.active_schema :validations => { :only_type => :length }
+      @review.should have(1).error_on(:content)
+      @review.should have(:no).errors_on(:author)
+    end
+
 
     it "shouldn't create validations if locally disabled" do
       Review.active_schema :validations => { :auto_create => false }
       @review.should have(:no).errors_on(:content)
+      @review.should have(:no).error_on(:author)
     end
   end
 
