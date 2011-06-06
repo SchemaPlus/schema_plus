@@ -30,45 +30,45 @@ describe "Schema dump (core)" do
 
   it "should include index definition" do
     with_index Post, :user_id do
-      dump.should match(to_regexp(%q{add_index "posts", ["user_id"]}))
+      dump.should match(to_regexp(%q{t.index ["user_id"]}))
     end
   end
 
   it "should include index name" do
     with_index Post, :user_id, :name => "posts_user_id_index" do
-      dump.should match(to_regexp(%q{add_index "posts", ["user_id"], :name => "posts_user_id_index"}))
+      dump.should match(to_regexp(%q{t.index ["user_id"], :name => "posts_user_id_index"}))
     end
   end
   
   it "should define unique index" do
     with_index Post, :user_id, :name => "posts_user_id_index", :unique => true do
-      dump.should match(to_regexp(%q{add_index "posts", ["user_id"], :name => "posts_user_id_index", :unique => true}))
+      dump.should match(to_regexp(%q{t.index ["user_id"], :name => "posts_user_id_index", :unique => true}))
     end
   end
-  
+
   if ActiveSchemaHelpers.postgresql?
 
     it "should define case insensitive index" do
       with_index Post, :name => "posts_user_body_index", :expression => "USING btree (LOWER(body))" do
-        dump.should match(to_regexp(%q{add_index "posts", ["body"], :name => "posts_user_body_index", :case_sensitive => false}))
+        dump.should match(to_regexp(%q{t.index ["body"], :name => "posts_user_body_index", :case_sensitive => false}))
       end
     end
 
     it "should define conditions" do
       with_index Post, :user_id, :name => "posts_user_id_index", :conditions => "user_id IS NOT NULL" do
-        dump.should match(to_regexp(%q{add_index "posts", ["user_id"], :name => "posts_user_id_index", :conditions => "(user_id IS NOT NULL)"}))
+        dump.should match(to_regexp(%q{t.index ["user_id"], :name => "posts_user_id_index", :conditions => "(user_id IS NOT NULL)"}))
       end
     end
 
     it "should define expression" do
       with_index Post, :name => "posts_freaky_index", :expression => "USING hash (least(id, user_id))" do
-        dump.should match(to_regexp(%q{add_index "posts", :name => "posts_freaky_index", :kind => "hash", :expression => "LEAST(id, user_id)"}))
+        dump.should match(to_regexp(%q{t.index :name => "posts_freaky_index", :kind => "hash", :expression => "LEAST(id, user_id)"}))
       end
     end
 
     it "should define kind" do
       with_index Post, :name => "posts_body_index", :expression => "USING hash (body)" do
-        dump.should match(to_regexp(%q{add_index "posts", ["body"], :name => "posts_body_index", :kind => "hash"}))
+        dump.should match(to_regexp(%q{t.index ["body"], :name => "posts_body_index", :kind => "hash"}))
       end
     end
 

@@ -58,7 +58,8 @@ module ActiveSchema
 
         if i = (table_dump =~ /^\s*[e]nd\s*$/)
           stream = StringIO.new
-          foreign_keys(table, stream)
+          dump_indexes(table, stream)
+          dump_foreign_keys(table, stream)
           stream.rewind
           table_dump.insert i, stream.read
         end
@@ -67,10 +68,16 @@ module ActiveSchema
       end
 
       def indexes_with_active_schema(table, stream)
+        # do nothing.  we've already taken care of indexes as part of
+        # dumping the tables
+      end
+
+      def dump_indexes(table, stream)
         indexes = @connection.indexes(table)
         indexes.each do |index|
+          stream.print "    t.index"
           unless index.columns.blank? 
-            stream.print "  add_index #{index.table.inspect}, #{index.columns.inspect}, :name => #{index.name.inspect}"
+            stream.print " #{index.columns.inspect}, :name => #{index.name.inspect}"
             stream.print ", :unique => true" if index.unique
             stream.print ", :kind => \"#{index.kind}\"" unless index.kind.blank?
             stream.print ", :case_sensitive => false" unless index.case_sensitive?
@@ -78,18 +85,16 @@ module ActiveSchema
             index_lengths = index.lengths.compact if index.lengths.is_a?(Array)
             stream.print ", :length => #{Hash[*index.columns.zip(index.lengths).flatten].inspect}" if index_lengths.present?
           else
-            stream.print "  add_index #{index.table.inspect}"
-            stream.print ", :name => #{index.name.inspect}"
+            stream.print " :name => #{index.name.inspect}"
             stream.print ", :kind => \"#{index.kind}\"" unless index.kind.blank?
             stream.print ", :expression => #{index.expression.inspect}"
           end
 
           stream.puts
         end
-        stream.puts unless indexes.empty?
       end
 
-      def foreign_keys(table, stream)
+      def dump_foreign_keys(table, stream)
         foreign_keys = @connection.foreign_keys(table)
         foreign_keys.each do |foreign_key|
           stream.print "  "
