@@ -28,12 +28,16 @@ def load_schema(name)
 end
 
 def load_core_schema
-  ActiveSchema.config.foreign_keys.auto_create = false;
+  ActiveSchema.setup do |config|
+    config.foreign_keys.auto_create = false;
+  end
   load_schema('core_schema.rb')
 end
 
 def load_auto_schema
-  ActiveSchema.config.foreign_keys.auto_create = true;
+  ActiveSchema.setup do |config|
+    config.foreign_keys.auto_create = true;
+  end
   load_schema('auto_schema.rb')
 end
 
