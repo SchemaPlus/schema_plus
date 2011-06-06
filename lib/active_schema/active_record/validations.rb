@@ -87,12 +87,9 @@ module ActiveSchema
 
         def load_association_validations
           reflect_on_all_associations(:belongs_to).each do |association|
-            colname = if association.respond_to? :foreign_key
-                        association.foreign_key         # as of rails 3.1
-                      else
-                        association.primary_key_name    # deprecated (noisy) in rails 3.1
-                      end
-            column = columns_hash[colname.to_s]
+            # :primary_key_name was deprecated (noisily) in rails 3.1
+            foreign_key_method = (association.respond_to? :foreign_key) ?  :foreign_key : :primary_key_name
+            column = columns_hash[association.send(foreign_key_method).to_s]
             next unless column
 
             # NOT NULL constraints
