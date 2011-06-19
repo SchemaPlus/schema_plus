@@ -9,15 +9,15 @@ describe "Validations" do
   end
 
   after(:each) do
-    auto_remove
+    remove_all_models
   end
 
   context "auto-created" do
     before(:each) do
       with_auto_validations do
-        Article = new_model
+        class Article < ActiveRecord::Base ; end
 
-        Review = new_model do
+        class Review < ActiveRecord::Base
           belongs_to :article
           belongs_to :news_article, :class_name => 'Article', :foreign_key => :article_id
           active_schema :validations => { :except => :content }
@@ -102,8 +102,8 @@ describe "Validations" do
   context "auto-created but changed" do
     before(:each) do
       with_auto_validations do
-        Article = new_model
-        Review = new_model do
+        class Article < ActiveRecord::Base ; end
+        class Review < ActiveRecord::Base
           belongs_to :article
           belongs_to :news_article, :class_name => 'Article', :foreign_key => :article_id
         end
@@ -155,9 +155,9 @@ describe "Validations" do
     end
 
     before(:each) do
-      Article = new_model
+      class Article < ActiveRecord::Base ; end
 
-      Review = new_model do
+      class Review < ActiveRecord::Base
         belongs_to :article
         belongs_to :news_article, :class_name => 'Article', :foreign_key => :article_id
       end
@@ -178,10 +178,10 @@ describe "Validations" do
 
   context "manually invoked" do
     before(:each) do
-      Article = new_model
+      class Article < ActiveRecord::Base ; end
       Article.active_schema :validations => { :only => [:title, :state] }
 
-      Review = new_model do
+      class Review < ActiveRecord::Base
         belongs_to :dummy_association
         active_schema :validations => { :except => :content }
       end
@@ -217,7 +217,7 @@ describe "Validations" do
 
   context "manually invoked" do
     before(:each) do
-      Review = new_model do
+      class Review < ActiveRecord::Base
         belongs_to :article
       end
       @columns = Review.content_columns.dup
@@ -238,16 +238,16 @@ describe "Validations" do
     around(:each) { |example| with_auto_validations(&example) }
 
     it "should set validations on base class" do
-      Review = new_model
-      PremiumReview = new_model(Review)
+      class Review < ActiveRecord::Base ; end
+      class PremiumReview < Review ; end
       PremiumReview.new
       Review.new.should have(1).error_on(:author)
     end
 
     it "shouldn't create doubled validations" do
-      Review = new_model
+      class Review < ActiveRecord::Base ; end
       Review.new
-      PremiumReview = new_model(Review)
+      class PremiumReview < Review ; end
       PremiumReview.new.should have(1).error_on(:author)
     end
 
@@ -291,27 +291,4 @@ describe "Validations" do
     end
   end
 
-  def new_model(parent = ::ActiveRecord::Base, &block)
-    @autocreated_models ||= []
-    # in ruby 1.9 can use Class.new(parent, &block) but in ruby 1.8 the
-    # parent initialization would clobber the refelctions defined in the
-    # block.  separating it into two separate statements works for both 1.8
-    # and 1.9
-    model = Class.new(parent)
-    model.instance_eval(&block) if block
-    @autocreated_models << model
-    model
-  end
-
-  def auto_remove
-    # assign to local var otherwise ruby will
-    # get @autocreated_models in Object scope
-    autocreated_models = @autocreated_models
-    Object.class_eval do
-      autocreated_models.try(:each) do |model|
-        remove_const model.name.to_sym
-      end
-    end
-    @autocreated_models = []
-  end
 end

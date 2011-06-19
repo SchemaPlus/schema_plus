@@ -1,9 +1,6 @@
 # encoding: utf-8
 require File.expand_path(File.dirname(__FILE__) + '/spec_helper')
 
-require 'models/post'
-require 'models/comment'
-
 describe ActiveRecord::Migration do
 
   it "should respond to get_references" do

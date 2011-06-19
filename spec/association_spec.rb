@@ -4,35 +4,39 @@ require File.expand_path(File.dirname(__FILE__) + '/spec_helper')
 describe ActiveRecord::Base do
   include ActiveSchemaHelpers
 
+  after(:each) do
+    remove_all_models
+  end
+
   around(:each) do |example|
     with_fk_auto_create(&example)
   end
 
   context "in basic case" do
-    before(:all) do
+    before(:each) do
       create_tables(
         "posts", {}, {},
         "comments", {}, { :post_id => {} }
       )
-      @post = Class.new(ActiveRecord::Base) do set_table_name "posts" end
-      @comment = Class.new(ActiveRecord::Base) do set_table_name "comments" end
+      class Post < ActiveRecord::Base ; end
+      class Comment < ActiveRecord::Base ; end
     end
     it "should create belongs_to association" do
-      reflection = @comment.reflect_on_association(:post)
+      reflection = Comment.reflect_on_association(:post)
       reflection.should_not be_nil
       reflection.macro.should == :belongs_to
       reflection.options[:class_name].should == "Post"
       reflection.options[:foreign_key].should == "post_id"
     end
     it "should create has_many association" do
-      reflection = @post.reflect_on_association(:comments)
+      reflection = Post.reflect_on_association(:comments)
       reflection.should_not be_nil
       reflection.macro.should == :has_many
       reflection.options[:class_name].should == "Comment"
       reflection.options[:foreign_key].should == "post_id"
     end
     it "shouldn't raise an exception when model is instantiated" do
-      expect { @post.new }.should_not raise_error
+      expect { Post.new }.should_not raise_error
     end
   end
 
@@ -42,13 +46,12 @@ describe ActiveRecord::Base do
         "posts", {}, {},
         "comments", {}, { :post_id => {} }
       )
-      @post = Class.new(ActiveRecord::Base) do
-        set_table_name "posts"
+      class Post < ActiveRecord::Base
         active_schema :associations => { :auto_create => false }
       end
-      @comment = Class.new(ActiveRecord::Base) do set_table_name "comments" end
-      @post.reflect_on_association(:comments).should be_nil
-      @comment.reflect_on_association(:post).should_not be_nil
+      class Comment < ActiveRecord::Base ; end
+      Post.reflect_on_association(:comments).should be_nil
+      Comment.reflect_on_association(:post).should_not be_nil
     end
   end
 
@@ -68,7 +71,7 @@ describe ActiveRecord::Base do
 
     def check_reflections(hash)
       hash.each do |key, val|
-        reflection = @widget.reflect_on_association(key)
+        reflection = Widget.reflect_on_association(key)
         case val
         when true then reflection.should_not be_nil
         else           reflection.should be_nil
@@ -77,85 +80,75 @@ describe ActiveRecord::Base do
     end
 
     it "should default as expected" do
-      @widget = Class.new(ActiveRecord::Base) do set_table_name "widgets" end
+      class Widget < ActiveRecord::Base ; end
       check_reflections(:owner => true, :colors => true, :parts => true, :manifest => true)
     end
 
     it "should respect :only" do 
-      @widget = Class.new(ActiveRecord::Base) do
-        set_table_name "widgets"
+      class Widget < ActiveRecord::Base
         active_schema :associations => { :only => :owner }
       end
       check_reflections(:owner => true, :colors => false, :parts => false, :manifest => false)
     end
 
     it "should respect :except" do 
-      @widget = Class.new(ActiveRecord::Base) do
-        set_table_name "widgets"
+      class Widget < ActiveRecord::Base
         active_schema :associations => { :except => :owner }
       end
       check_reflections(:owner => false, :colors => true, :parts => true, :manifest => true)
     end
 
     it "should respect :only_type :belongs_to" do 
-      @widget = Class.new(ActiveRecord::Base) do
-        set_table_name "widgets"
+      class Widget < ActiveRecord::Base
         active_schema :associations => { :only_type => :belongs_to }
       end
       check_reflections(:owner => true, :colors => false, :parts => false, :manifest => false)
     end
 
     it "should respect :except_type :belongs_to" do 
-      @widget = Class.new(ActiveRecord::Base) do
-        set_table_name "widgets"
+      class Widget < ActiveRecord::Base
         active_schema :associations => { :except_type => :belongs_to }
       end
       check_reflections(:owner => false, :colors => true, :parts => true, :manifest => true)
     end
 
     it "should respect :only_type :has_many" do 
-      @widget = Class.new(ActiveRecord::Base) do
-        set_table_name "widgets"
+      class Widget < ActiveRecord::Base
         active_schema :associations => { :only_type => :has_many }
       end
       check_reflections(:owner => false, :colors => false, :parts => true, :manifest => false)
     end
 
     it "should respect :except_type :has_many" do 
-      @widget = Class.new(ActiveRecord::Base) do
-        set_table_name "widgets"
+      class Widget < ActiveRecord::Base
         active_schema :associations => { :except_type => :has_many }
       end
       check_reflections(:owner => true, :colors => true, :parts => false, :manifest => true)
     end
 
     it "should respect :only_type :has_one" do 
-      @widget = Class.new(ActiveRecord::Base) do
-        set_table_name "widgets"
+      class Widget < ActiveRecord::Base
         active_schema :associations => { :only_type => :has_one }
       end
       check_reflections(:owner => false, :colors => false, :parts => false, :manifest => true)
     end
 
     it "should respect :except_type :has_one" do 
-      @widget = Class.new(ActiveRecord::Base) do
-        set_table_name "widgets"
+      class Widget < ActiveRecord::Base
         active_schema :associations => { :except_type => :has_one }
       end
       check_reflections(:owner => true, :colors => true, :parts => true, :manifest => false)
     end
 
     it "should respect :only_type :has_and_belongs_to_many" do 
-      @widget = Class.new(ActiveRecord::Base) do
-        set_table_name "widgets"
+      class Widget < ActiveRecord::Base
         active_schema :associations => { :only_type => :has_and_belongs_to_many }
       end
       check_reflections(:owner => false, :colors => true, :parts => false, :manifest => false)
     end
 
     it "should respect :except_type :has_and_belongs_to_many" do 
-      @widget = Class.new(ActiveRecord::Base) do
-        set_table_name "widgets"
+      class Widget < ActiveRecord::Base
         active_schema :associations => { :except_type => :has_and_belongs_to_many }
       end
       check_reflections(:owner => true, :colors => false, :parts => true, :manifest => true)
@@ -169,28 +162,27 @@ describe ActiveRecord::Base do
         "posts", {}, {},
         "comments", {}, { :post_id => {} }
       )
-      @post = Class.new(ActiveRecord::Base) do
-        set_table_name "posts"
+      class Post < ActiveRecord::Base
         active_schema :associations => { :auto_create => true }
       end
-      @comment = Class.new(ActiveRecord::Base) do set_table_name "comments" end
-      @post.reflect_on_association(:comments).should_not be_nil
-      @comment.reflect_on_association(:post).should be_nil
+      class Comment < ActiveRecord::Base ; end
+      Post.reflect_on_association(:comments).should_not be_nil
+      Comment.reflect_on_association(:post).should be_nil
     end
   end
 
 
   context "with unique index" do
-    before(:all) do
+    before(:each) do
       create_tables(
         "posts", {}, {},
         "comments", {}, { :post_id => {:index => { :unique => true} } }
       )
-      @post = Class.new(ActiveRecord::Base) do set_table_name "posts" end
-      @comment = Class.new(ActiveRecord::Base) do set_table_name "comments" end
+      class Post < ActiveRecord::Base ; end
+      class Comment < ActiveRecord::Base ; end
     end
     it "should create has_one association" do
-      reflection = @post.reflect_on_association(:comment)
+      reflection = Post.reflect_on_association(:comment)
       reflection.should_not be_nil
       reflection.macro.should == :has_one
       reflection.options[:class_name].should == "Comment"
@@ -199,16 +191,16 @@ describe ActiveRecord::Base do
   end
 
   context "with prefixed column names" do
-    before(:all) do
+    before(:each) do
       create_tables(
         "posts", {}, {},
         "comments", {}, { :subject_post_id => { :references => :posts} }
       )
-      @post = Class.new(ActiveRecord::Base) do set_table_name "posts" end
-      @comment = Class.new(ActiveRecord::Base) do set_table_name "comments" end
+      class Post < ActiveRecord::Base ; end
+      class Comment < ActiveRecord::Base ; end
     end
     it "should name belongs_to according to column" do
-      reflection = @comment.reflect_on_association(:subject_post)
+      reflection = Comment.reflect_on_association(:subject_post)
       reflection.should_not be_nil
       reflection.macro.should == :belongs_to
       reflection.options[:class_name].should == "Post"
@@ -216,7 +208,7 @@ describe ActiveRecord::Base do
     end
 
     it "should name has_many using 'as column'" do
-      reflection = @post.reflect_on_association(:comments_as_subject)
+      reflection = Post.reflect_on_association(:comments_as_subject)
       reflection.should_not be_nil
       reflection.macro.should == :has_many
       reflection.options[:class_name].should == "Comment"
@@ -225,16 +217,16 @@ describe ActiveRecord::Base do
   end
 
   context "with suffixed column names" do
-    before(:all) do
+    before(:each) do
       create_tables(
         "posts", {}, {},
         "comments", {}, { :post_cited => { :references => :posts} }
       )
-      @post = Class.new(ActiveRecord::Base) do set_table_name "posts" end
-      @comment = Class.new(ActiveRecord::Base) do set_table_name "comments" end
+      class Post < ActiveRecord::Base ; end
+      class Comment < ActiveRecord::Base ; end
     end
     it "should name belongs_to according to column" do
-      reflection = @comment.reflect_on_association(:post_cited)
+      reflection = Comment.reflect_on_association(:post_cited)
       reflection.should_not be_nil
       reflection.macro.should == :belongs_to
       reflection.options[:class_name].should == "Post"
@@ -242,7 +234,7 @@ describe ActiveRecord::Base do
     end
 
     it "should name has_many using 'as column'" do
-      reflection = @post.reflect_on_association(:comments_as_cited)
+      reflection = Post.reflect_on_association(:comments_as_cited)
       reflection.should_not be_nil
       reflection.macro.should == :has_many
       reflection.options[:class_name].should == "Comment"
@@ -251,16 +243,16 @@ describe ActiveRecord::Base do
   end
 
   context "with arbitrary column names" do
-    before(:all) do
+    before(:each) do
       create_tables(
         "posts", {}, {},
         "comments", {}, { :subject => {:references => :posts} }
       )
-      @post = Class.new(ActiveRecord::Base) do set_table_name "posts" end
-      @comment = Class.new(ActiveRecord::Base) do set_table_name "comments" end
+      class Post < ActiveRecord::Base ; end
+      class Comment < ActiveRecord::Base ; end
     end
     it "should name belongs_to according to column" do
-      reflection = @comment.reflect_on_association(:subject)
+      reflection = Comment.reflect_on_association(:subject)
       reflection.should_not be_nil
       reflection.macro.should == :belongs_to
       reflection.options[:class_name].should == "Post"
@@ -268,7 +260,7 @@ describe ActiveRecord::Base do
     end
 
     it "should name has_many using 'as column'" do
-      reflection = @post.reflect_on_association(:comments_as_subject)
+      reflection = Post.reflect_on_association(:comments_as_subject)
       reflection.should_not be_nil
       reflection.macro.should == :has_many
       reflection.options[:class_name].should == "Comment"
@@ -278,16 +270,16 @@ describe ActiveRecord::Base do
 
 
   context "with position" do
-    before(:all) do
+    before(:each) do
       create_tables(
         "posts", {}, {},
         "comments", {}, { :post_id => {}, :position => {} }
       )
-      @post = Class.new(ActiveRecord::Base) do set_table_name "posts" end
-      @comment = Class.new(ActiveRecord::Base) do set_table_name "comments" end
+      class Post < ActiveRecord::Base ; end
+      class Comment < ActiveRecord::Base ; end
     end
     it "should create ordered has_many association" do
-      reflection = @post.reflect_on_association(:comments)
+      reflection = Post.reflect_on_association(:comments)
       reflection.should_not be_nil
       reflection.macro.should == :has_many
       reflection.options[:class_name].should == "Comment"
@@ -307,8 +299,8 @@ describe ActiveRecord::Base do
     end
 
     it "should use children as the inverse of parent" do
-      @node = Class.new(ActiveRecord::Base) do set_table_name "nodes" end
-      reflection = @node.reflect_on_association(:children)
+      class Node < ActiveRecord::Base ; end
+      reflection = Node.reflect_on_association(:children)
       reflection.should_not be_nil
     end
 
@@ -316,8 +308,8 @@ describe ActiveRecord::Base do
       migration.suppress_messages do
         migration.add_index(:nodes, :parent_id, :unique => true)
       end
-      @node = Class.new(ActiveRecord::Base) do set_table_name "nodes" end
-      reflection = @node.reflect_on_association(:child)
+      class Node < ActiveRecord::Base ; end
+      reflection = Node.reflect_on_association(:child)
       reflection.should_not be_nil
     end
   end
@@ -330,8 +322,8 @@ describe ActiveRecord::Base do
         "posts", {}, {},
         "post_comments", {}, { :post_id => {} }
       )
-      @post = Class.new(ActiveRecord::Base) do set_table_name "posts" end
-      @comment = Class.new(ActiveRecord::Base) do set_table_name "post_comments" end
+      Object.const_set(:Post, Class.new(ActiveRecord::Base))
+      Object.const_set(:PostComment, Class.new(ActiveRecord::Base))
     end
 
     def suffix_one
@@ -339,8 +331,8 @@ describe ActiveRecord::Base do
         "posts", {}, {},
         "comment_posts", {}, { :post_id => {} }
       )
-      @post = Class.new(ActiveRecord::Base) do set_table_name "posts" end
-      @comment = Class.new(ActiveRecord::Base) do set_table_name "comment_posts" end
+      Object.const_set(:Post, Class.new(ActiveRecord::Base))
+      Object.const_set(:CommentPost, Class.new(ActiveRecord::Base))
     end
 
     def prefix_both
@@ -348,14 +340,14 @@ describe ActiveRecord::Base do
         "blog_page_posts", {}, {},
         "blog_page_comments", {}, { :blog_page_post_id => {} }
       )
-      @post = Class.new(ActiveRecord::Base) do set_table_name "blog_page_posts" end
-      @comment = Class.new(ActiveRecord::Base) do set_table_name "blog_page_comments" end
+      Object.const_set(:BlogPagePost, Class.new(ActiveRecord::Base))
+      Object.const_set(:BlogPageComment, Class.new(ActiveRecord::Base))
     end
 
     it "should use concise association name for one prefix" do
       with_associations_config(:auto_create => true, :concise_names => true) do
         prefix_one
-        reflection = @post.reflect_on_association(:comments)
+        reflection = Post.reflect_on_association(:comments)
         reflection.should_not be_nil
         reflection.macro.should == :has_many
         reflection.options[:class_name].should == "PostComment"
@@ -366,7 +358,7 @@ describe ActiveRecord::Base do
     it "should use concise association name for one suffix" do
       with_associations_config(:auto_create => true, :concise_names => true) do
         suffix_one
-        reflection = @post.reflect_on_association(:comments)
+        reflection = Post.reflect_on_association(:comments)
         reflection.should_not be_nil
         reflection.macro.should == :has_many
         reflection.options[:class_name].should == "CommentPost"
@@ -377,7 +369,7 @@ describe ActiveRecord::Base do
     it "should use concise association name for shared prefixes" do
       with_associations_config(:auto_create => true, :concise_names => true) do
         prefix_both
-        reflection = @post.reflect_on_association(:comments)
+        reflection = BlogPagePost.reflect_on_association(:comments)
         reflection.should_not be_nil
         reflection.macro.should == :has_many
         reflection.options[:class_name].should == "BlogPageComment"
@@ -388,12 +380,12 @@ describe ActiveRecord::Base do
     it "should use full names and not concise names when so configured" do
       with_associations_config(:auto_create => true, :concise_names => false) do
         prefix_one
-        reflection = @post.reflect_on_association(:post_comments)
+        reflection = Post.reflect_on_association(:post_comments)
         reflection.should_not be_nil
         reflection.macro.should == :has_many
         reflection.options[:class_name].should == "PostComment"
         reflection.options[:foreign_key].should == "post_id"
-        reflection = @post.reflect_on_association(:comments)
+        reflection = Post.reflect_on_association(:comments)
         reflection.should be_nil
       end
     end
@@ -401,12 +393,12 @@ describe ActiveRecord::Base do
     it "should use concise names and not full names when so configured" do
       with_associations_config(:auto_create => true, :concise_names => true) do
         prefix_one
-        reflection = @post.reflect_on_association(:comments)
+        reflection = Post.reflect_on_association(:comments)
         reflection.should_not be_nil
         reflection.macro.should == :has_many
         reflection.options[:class_name].should == "PostComment"
         reflection.options[:foreign_key].should == "post_id"
-        reflection = @post.reflect_on_association(:post_comments)
+        reflection = Post.reflect_on_association(:post_comments)
         reflection.should be_nil
       end
     end
@@ -415,17 +407,17 @@ describe ActiveRecord::Base do
   end
 
   context "with joins table" do
-    before(:all) do
+    before(:each) do
       create_tables(
         "posts", {}, {},
         "tags", {}, {},
         "posts_tags", {:id => false}, { :post_id => {}, :tag_id => {}}
       )
-      @post = Class.new(ActiveRecord::Base) do set_table_name "posts" end
-      @tag = Class.new(ActiveRecord::Base) do set_table_name "tags" end
+      class Post < ActiveRecord::Base ; end
+      class Tag < ActiveRecord::Base ; end
     end
     it "should create has_and_belongs_to_many association" do
-      reflection = @post.reflect_on_association(:tags)
+      reflection = Post.reflect_on_association(:tags)
       reflection.should_not be_nil
       reflection.macro.should == :has_and_belongs_to_many
       reflection.options[:class_name].should == "Tag"
@@ -434,48 +426,63 @@ describe ActiveRecord::Base do
   end
 
   context "regarding existing methods" do
-    before(:all) do
+    before(:each) do
       create_tables(
         "types", {}, {},
         "posts", {}, {:type_id => {}}
       )
     end
     it "should define association normally if no existing method is defined" do
-      @type_without = Class.new(ActiveRecord::Base) do set_table_name "types" end
-      @type_without.reflect_on_association(:posts).should_not be_nil # sanity check for this context
+      class Type < ActiveRecord::Base ; end
+      Type.reflect_on_association(:posts).should_not be_nil # sanity check for this context
     end
     it "should not define association over existing public method" do
-      @type_with = Class.new(ActiveRecord::Base) do
-        set_table_name "types"
+      class Type < ActiveRecord::Base
         def posts
           :existing
         end
       end
-      @type_with.reflect_on_association(:posts).should be_nil
+      Type.reflect_on_association(:posts).should be_nil
     end
     it "should not define association over existing private method" do
-      @type_with = Class.new(ActiveRecord::Base) do
-        set_table_name "types"
+      class Type < ActiveRecord::Base
         private
         def posts
           :existing
         end
       end
-      @type_with.reflect_on_association(:posts).should be_nil
+      Type.reflect_on_association(:posts).should be_nil
     end
     it "should define association :type over (deprecated) kernel method" do
-      @post_without = Class.new(ActiveRecord::Base) do set_table_name "posts" end
-      @post_without.reflect_on_association(:type).should_not be_nil
+      class Post < ActiveRecord::Base ; end
+      Post.reflect_on_association(:type).should_not be_nil
     end
     it "should not define association :type over model method" do
-      @post_with = Class.new(ActiveRecord::Base) do
-        set_table_name "posts"
+      class Post < ActiveRecord::Base
         def type
           :existing
         end
       end
-      @post_with.reflect_on_association(:type).should be_nil
+      Post.reflect_on_association(:type).should be_nil
     end
+  end
+
+  context "regarding relations" do
+    before(:each) do
+      create_tables(
+        "posts", {}, {},
+        "comments", {}, { :post_id => {} }
+      )
+      class Post < ActiveRecord::Base ; end
+      class Comment < ActiveRecord::Base ; end
+    end
+
+    it "should define associations before needed by relation" do
+      Post.joins(:comments).all
+      expect { Post.joins(:comments).all }.should_not raise_error
+
+    end
+
   end
 
   protected

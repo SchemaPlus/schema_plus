@@ -32,6 +32,9 @@ def load_core_schema
     config.foreign_keys.auto_create = false;
   end
   load_schema('core_schema.rb')
+  load 'models/user.rb'
+  load 'models/post.rb'
+  load 'models/comment.rb'
 end
 
 def load_auto_schema
@@ -39,6 +42,18 @@ def load_auto_schema
     config.foreign_keys.auto_create = true;
   end
   load_schema('auto_schema.rb')
+  load 'models/user.rb'
+  load 'models/post.rb'
+  load 'models/comment.rb'
 end
+
+def remove_all_models
+    ObjectSpace.each_object(Class) do |c|
+      next unless c.ancestors.include? ActiveRecord::Base
+      next if c == ActiveRecord::Base
+      next if c.name.nil?
+      ActiveSupport::Dependencies.remove_constant c.name
+    end
+  end
 
 SimpleCov.command_name ActiveRecord::Base.connection.adapter_name if defined? SimpleCov

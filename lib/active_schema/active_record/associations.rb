@@ -4,31 +4,44 @@ module ActiveSchema
   module ActiveRecord
     module Associations
 
+      module Relation
+        def self.included(base)
+          base.alias_method_chain :initialize, :active_schema
+        end
+
+        def initialize_with_active_schema(klass, *args)
+          klass.send :_load_active_schema_associations
+          initialize_without_active_schema(klass, *args)
+        end
+      end
+
       def self.extended(base)
         class << base
           alias_method_chain :reflect_on_association, :active_schema
           alias_method_chain :reflect_on_all_associations, :active_schema
         end
+        ::ActiveRecord::Relation.send :include, Relation
       end
 
       def reflect_on_association_with_active_schema(*args)
-        _load_active_schema_associations unless @active_schema_associations_loaded
+        _load_active_schema_associations
         reflect_on_association_without_active_schema(*args)
       end
 
       def reflect_on_all_associations_with_active_schema(*args)
-        _load_active_schema_associations unless @active_schema_associations_loaded
+        _load_active_schema_associations
         reflect_on_all_associations_without_active_schema(*args)
       end
 
       def define_attribute_methods(*args)
         super
-        _load_active_schema_associations unless @active_schema_associations_loaded
+        _load_active_schema_associations
       end
 
       private
 
       def _load_active_schema_associations
+        return if @active_schema_associations_loaded
         @active_schema_associations_loaded = true
         return unless active_schema_config.associations.auto_create?
 
