@@ -28,8 +28,8 @@ module ActiveSchema
         end
 
         def columns_with_active_schema
-          unless @columns
-            @columns = columns_without_active_schema
+          unless @active_schema_extended_columns
+            @active_schema_extended_columns = true
             cols = columns_hash
             indexes.each do |index|
               next if index.columns.blank?
@@ -39,12 +39,12 @@ module ActiveSchema
               column.unique_scope = index.columns.reject { |name| name == column_name } if index.unique
             end
           end
-          @columns
+          columns_without_active_schema
         end
 
         def reset_column_information_with_active_schema
           reset_column_information_without_active_schema
-          @indexes = @foreign_keys = nil
+          @indexes = @foreign_keys = @active_schema_extended_columns = nil
         end
 
         def indexes
