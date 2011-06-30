@@ -1,5 +1,24 @@
 = ActiveSchema
 
+
+== Prerelease!!
+
+This gem is under development and hasn't been formally released yet.  The
+doc below needs a going-over to get everything up to date.  Most everything should still be the same, but there
+are new options and capabilities that haven't been documented yet, and it's
+possible a few small things behave slightly differently.
+
+We're just about ready to release.  Last things are a name change and
+fixing the doc.  To use the prerelease, put this in your Gemfile:
+
+    gem 'active_schema', :git => "https://github.com/lomba/active_schema.git" 
+
+The code currently passes all tests for rais 3.0 and 3.1, using ruby
+1.8.7 and 1.9.2
+
+
+= ------------ From here down is old doc ------------ 
+
 ActiveSchema is an ActiveRecord extension that provides support for
 defining foreign keys and indexes in database migrations and schemas, as
 well as for defining model validations and associations based on the
@@ -10,10 +29,6 @@ database.
 As a gem
     
   gem install active_schema
-
-...or as a plugin
-
-  rails plugin install http://github.com/lomba/active_schema.git
 
 == Foreign Key Creation
 
