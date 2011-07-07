@@ -17,6 +17,18 @@ The code currently passes all tests for rais 3.0 and 3.1, using ruby
 1.8.7 and 1.9.2
 
 
+= ------------ Notes to self -----------
+
+Base:
+
+  column #unique_scope and #case_sensitive
+
+  indexes
+
+  foreign_keys
+
+  reverse_foreign_keys
+
 = ------------ From here down is old doc ------------ 
 
 SchemaPlus is an ActiveRecord extension that provides support for

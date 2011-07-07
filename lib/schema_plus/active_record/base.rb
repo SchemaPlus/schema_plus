@@ -1,14 +1,14 @@
 module SchemaPlus
   module ActiveRecord
     module Base
-      def self.included(base)
+      def self.included(base) #:nodoc:
         base.extend(ClassMethods)
         base.extend(SchemaPlus::ActiveRecord::Associations)
         base.extend(SchemaPlus::ActiveRecord::Validations)
       end
 
-      module ClassMethods
-        def self.extended(base)
+      module ClassMethods #:nodoc:
+        def self.extended(base) #:nodoc:
           class << base
             alias_method_chain :columns, :schema_plus
             alias_method_chain :abstract_class?, :schema_plus
@@ -18,7 +18,10 @@ module SchemaPlus
 
         public
 
-        # class decorator
+        # Per-model override of Config options.  Use via, e.g.
+        #     class MyModel < ActiveRecord::Base
+        #         schema_plus :associations => { :auto_create => false }
+        #     end
         def schema_plus(opts)
           @schema_plus_config = SchemaPlus.config.merge(opts)
         end
@@ -47,18 +50,25 @@ module SchemaPlus
           @indexes = @foreign_keys = @schema_plus_extended_columns = nil
         end
 
+        # Returns a list of IndexDefinition objects, for each index
+        # defind on this model's table.
         def indexes
           @indexes ||= connection.indexes(table_name, "#{name} Indexes")
         end
 
+        # Returns a list of ForeignKeyDefinition objects, for each foreign
+        # key constraint defined in this model's table
         def foreign_keys
           @foreign_keys ||= connection.foreign_keys(table_name, "#{name} Foreign Keys")
         end
 
+        # Returns a list of ForeignKeyDefinition objects, for each foreign
+        # key constraint of other tables that refer to this model's table
         def reverse_foreign_keys
           connection.reverse_foreign_keys(table_name, "#{name} Reverse Foreign Keys")
         end
 
+        private
 
         def schema_plus_config # :nodoc:
           @schema_plus_config ||= SchemaPlus.config.dup

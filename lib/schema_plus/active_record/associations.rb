@@ -4,7 +4,7 @@ module SchemaPlus
   module ActiveRecord
     module Associations
 
-      module Relation
+      module Relation #:nodoc:
         def self.included(base)
           base.alias_method_chain :initialize, :schema_plus
         end
@@ -15,7 +15,7 @@ module SchemaPlus
         end
       end
 
-      def self.extended(base)
+      def self.extended(base) #:nodoc:
         class << base
           alias_method_chain :reflect_on_association, :schema_plus
           alias_method_chain :reflect_on_all_associations, :schema_plus
@@ -63,7 +63,7 @@ module SchemaPlus
         end
       end
 
-      def _define_association(macro, fk, referencing_table_name = nil)
+      def _define_association(macro, fk, referencing_table_name = nil) #:nodoc:
         return unless fk.column_names.size == 1
 
         referencing_table_name ||= fk.table_name
@@ -170,7 +170,7 @@ module SchemaPlus
         end
       end
 
-      def _concise_name(string, other)
+      def _concise_name(string, other) #:nodoc:
         case
         when string =~ /^#{other}_(.*)$/           then $1
         when string =~ /(.*)_#{other}$/            then $1
@@ -179,7 +179,7 @@ module SchemaPlus
         end
       end
 
-      def _common_leader(string, other)
+      def _common_leader(string, other) #:nodoc:
         leader = nil
         other.split('_').each do |part|
           test = "#{leader}#{part}_"
@@ -189,11 +189,11 @@ module SchemaPlus
         return leader
       end
 
-      def _use_concise_name?
+      def _use_concise_name? #:nodoc:
         schema_plus_config.associations.concise_names?
       end
 
-      def _filter_association(macro, name)
+      def _filter_association(macro, name) #:nodoc:
         config = schema_plus_config.associations
         return false if config.only        and not Array.wrap(config.only).include?(name)
         return false if config.except      and     Array.wrap(config.except).include?(name)
@@ -202,7 +202,7 @@ module SchemaPlus
         return true
       end
 
-      def _method_exists?(name)
+      def _method_exists?(name) #:nodoc:
         method_defined?(name) || private_method_defined?(name) and not (name == :type && [Object, Kernel].include?(instance_method(:type).owner))
       end
 

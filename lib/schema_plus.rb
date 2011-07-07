@@ -105,15 +105,25 @@ module SchemaPlus
 
   end
 
+  # Returns the global configuration, i.e., the singleton instance of Config
   def self.config
     @config ||= Config.new
   end
 
-  def self.setup(&block)
+  # Initialization block is passed a global Config instance that can be
+  # used to configure SchemaPlus behavior.  E.g., if you want to disable
+  # automation creation of foreign key constraints for columns name *_id,
+  # put the following in config/initializers/schema_plus.rb :
+  #
+  #    SchemaPlus.setup do |config|
+  #       config.foreign_keys.auto_create = false
+  #    end
+  #
+  def self.setup # :yields: config
     yield config
   end
 
-  def self.insert_connection_adapters
+  def self.insert_connection_adapters #:nodoc:
     return if @inserted_connection_adapters
     @inserted_connection_adapters = true
     ::ActiveRecord::ConnectionAdapters::AbstractAdapter.send(:include, SchemaPlus::ActiveRecord::ConnectionAdapters::AbstractAdapter)
@@ -125,7 +135,7 @@ module SchemaPlus
     ::ActiveRecord::ConnectionAdapters::TableDefinition.send(:include, SchemaPlus::ActiveRecord::ConnectionAdapters::TableDefinition)
   end
 
-  def self.insert
+  def self.insert #:nodoc:
     return if @inserted
     @inserted = true
     insert_connection_adapters
