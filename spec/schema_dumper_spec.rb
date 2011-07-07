@@ -46,7 +46,7 @@ describe "Schema dump (core)" do
     end
   end
 
-  if ActiveSchemaHelpers.postgresql?
+  if SchemaPlusHelpers.postgresql?
 
     it "should define case insensitive index" do
       with_index Post, :name => "posts_user_body_index", :expression => "USING btree (LOWER(body))" do
@@ -144,7 +144,7 @@ describe "Schema dump (auto)" do
     stream.string
   end
 
-  unless ActiveSchemaHelpers.sqlite3?
+  unless SchemaPlusHelpers.sqlite3?
     it "shouldn't include :index option for index" do
       add_column(:author_id, :integer, :references => :users, :index => true) do
         dump.should_not match(/index => true/)

@@ -1,4 +1,4 @@
-module ActiveSchema
+module SchemaPlus
   module ActiveRecord
       module Validations
 
@@ -42,7 +42,7 @@ module ActiveSchema
         #  * :only - auto-validate only given attributes
         #  * :except - auto-validate all but given attributes
         #
-        def active_schema(*)
+        def schema_plus(*)
           super
           load_schema_validations
         end
@@ -108,12 +108,12 @@ module ActiveSchema
         end
 
         def create_schema_validations?
-          active_schema_config.validations.auto_create? && !(@schema_validations_loaded || abstract_class? || name.blank? || !table_exists?)
+          schema_plus_config.validations.auto_create? && !(@schema_validations_loaded || abstract_class? || name.blank? || !table_exists?)
         end
 
         def validate_logged(method, arg, opts={})
           if _filter_validation(method, arg) 
-            msg = "ActiveSchema validations: #{self.name}.#{method} #{arg.inspect}"
+            msg = "SchemaPlus validations: #{self.name}.#{method} #{arg.inspect}"
             msg += ", #{opts.inspect[1...-1]}" if opts.any?
             logger.info msg
             send method, arg, opts
@@ -121,7 +121,7 @@ module ActiveSchema
         end
 
         def _filter_validation(macro, name)
-          config = active_schema_config.validations
+          config = schema_plus_config.validations
           types = [macro]
           if match = macro.to_s.match(/^validates_(.*)_of$/) 
             types << match[1].to_sym

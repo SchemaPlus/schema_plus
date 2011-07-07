@@ -1,4 +1,4 @@
-module ActiveSchema::ActiveRecord
+module SchemaPlus::ActiveRecord
   module Migration
     def self.included(base)
       base.extend(ClassMethods)
@@ -60,7 +60,7 @@ module ActiveSchema::ActiveRecord
           references = options[:references]
           references = [references, :id] unless references.nil? || references.is_a?(Array)
           references
-        elsif (config || ActiveSchema.config).foreign_keys.auto_create? && !ActiveRecord::Schema.defining?
+        elsif (config || SchemaPlus.config).foreign_keys.auto_create? && !ActiveRecord::Schema.defining?
           if column_name == 'parent_id'
             [table_name, :id]
           elsif column_name =~ /^(.*)_id$/
@@ -73,12 +73,12 @@ module ActiveSchema::ActiveRecord
       protected
       def handle_column_options(table_name, column_name, options)
         if references = get_references(table_name, column_name, options)
-          if index = options.fetch(:index, ActiveSchema.config.foreign_keys.auto_index? && !ActiveRecord::Schema.defining?)
+          if index = options.fetch(:index, SchemaPlus.config.foreign_keys.auto_index? && !ActiveRecord::Schema.defining?)
             column_index(table_name, column_name, index)
           end
           add_foreign_key(table_name, column_name, references.first, references.last,
-                          options.reverse_merge(:on_update => ActiveSchema.config.foreign_keys.on_update,
-                                                :on_delete => ActiveSchema.config.foreign_keys.on_delete))
+                          options.reverse_merge(:on_update => SchemaPlus.config.foreign_keys.on_update,
+                                                :on_delete => SchemaPlus.config.foreign_keys.on_delete))
         elsif options[:index]
           column_index(table_name, column_name, options[:index])
         end

@@ -1,4 +1,4 @@
-module ActiveSchema
+module SchemaPlus
   module ActiveRecord
     module ConnectionAdapters
       class ForeignKeyDefinition < Struct.new(:name, :table_name, :column_names, :references_table_name, :references_column_names, :on_update, :on_delete, :deferrable)

@@ -1,4 +1,4 @@
-= ActiveSchema
+= SchemaPlus
 
 
 == Prerelease!!
@@ -11,7 +11,7 @@ possible a few small things behave slightly differently.
 We're just about ready to release.  Last things are a name change and
 fixing the doc.  To use the prerelease, put this in your Gemfile:
 
-    gem 'active_schema', :git => "https://github.com/lomba/active_schema.git" 
+    gem 'schema_plus', :git => "https://github.com/lomba/schema_plus.git" 
 
 The code currently passes all tests for rais 3.0 and 3.1, using ruby
 1.8.7 and 1.9.2
@@ -19,7 +19,7 @@ The code currently passes all tests for rais 3.0 and 3.1, using ruby
 
 = ------------ From here down is old doc ------------ 
 
-ActiveSchema is an ActiveRecord extension that provides support for
+SchemaPlus is an ActiveRecord extension that provides support for
 defining foreign keys and indexes in database migrations and schemas, as
 well as for defining model validations and associations based on the
 database.
@@ -28,13 +28,13 @@ database.
 
 As a gem
     
-  gem install active_schema
+  gem install schema_plus
 
 == Foreign Key Creation
 
 == In Column Definitions
 
-ActiveSchema allows you to specify a foreign-key constraint for any column,
+SchemaPlus allows you to specify a foreign-key constraint for any column,
 by specifying the <code>:references</code> option:
 
   create_table :orders do |t|
@@ -42,7 +42,7 @@ by specifying the <code>:references</code> option:
     ...
   end
 
-The above form is common enough that ActiveSchema defaults to automatically
+The above form is common enough that SchemaPlus defaults to automatically
 assuming that if you have a column named <code>thing_id</code>, you want a
 foreign-key constraint to reference the +id+ column of table +things+.  So
 the simple case above works automatically:
@@ -180,7 +180,7 @@ Rails will then set-up and tear-down the fixtures in the correct sequence.
 
 === Auto Foreign Key Indexes
 
-ActiveSchema will by default create an index on each foreign key [TODO].
+SchemaPlus will by default create an index on each foreign key [TODO].
 
 If you want to pass some options for the index use hash params (see Index Creation below):
 
@@ -213,7 +213,7 @@ There is a generator for creating foreign keys on a database that currently has 
 
 === Table Names
 
-ActiveSchema supports and understands the following active-record
+SchemaPlus supports and understands the following active-record
 configuration properties:
 
 * <code>config.active_record.pluralize_table_names</code>
@@ -251,7 +251,7 @@ listing one or more additional columns to be passed to +add_index()+.
 
 For customization purposes create config/initializers/automatic_foreign_key.rb file:
 
-  ActiveSchema.setup do |config|
+  SchemaPlus.setup do |config|
     config.foreign_keys.auto_create = true # create FKs for columns named _id
     config.foreign_keys.auto_index = true # create indexes on FKs by default
     config.foreign_keys.on_update = :cascade # cascade as default on_update action
@@ -326,12 +326,12 @@ Note also that this ties in well with Rails built-in support for case-insensitiv
 
 === Testing
 
-ActiveSchema is tested using rspec.
+SchemaPlus is tested using rspec.
 
 First you have to fetch sources from github as specs are not inculded in a gem.
 
-  $ git clone https://dbsupport@github.com/dbsupport/active_schema.git
-  $ cd active_schema
+  $ git clone https://dbsupport@github.com/dbsupport/schema_plus.git
+  $ cd schema_plus
   $ bundle install
   $ rake postgresql:build_databases # create redhillonrails user first
   $ rake mysql:build_databases  # create user as above
@@ -342,7 +342,7 @@ First you have to fetch sources from github as specs are not inculded in a gem.
 
 === History
 
-* ActiveSchema is derived from several "Red Hill On Rails" plugins
+* SchemaPlus is derived from several "Red Hill On Rails" plugins
   originally created by harukizaemon(http://github.com/harukizaemon)
   with later contributions from 
   * Michał Łomnicki
@@ -350,7 +350,7 @@ First you have to fetch sources from github as specs are not inculded in a gem.
   * Greg Barnett
   * Ronen Barzel
 
-* ActiveSchema was created in 2011 by Michal Lomnicki and Ronen Barzel
+* SchemaPlus was created in 2011 by Michal Lomnicki and Ronen Barzel
 
 === License
 

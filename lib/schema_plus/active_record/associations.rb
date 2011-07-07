@@ -1,49 +1,49 @@
 require 'ostruct'
 
-module ActiveSchema
+module SchemaPlus
   module ActiveRecord
     module Associations
 
       module Relation
         def self.included(base)
-          base.alias_method_chain :initialize, :active_schema
+          base.alias_method_chain :initialize, :schema_plus
         end
 
-        def initialize_with_active_schema(klass, *args)
-          klass.send :_load_active_schema_associations
-          initialize_without_active_schema(klass, *args)
+        def initialize_with_schema_plus(klass, *args)
+          klass.send :_load_schema_plus_associations
+          initialize_without_schema_plus(klass, *args)
         end
       end
 
       def self.extended(base)
         class << base
-          alias_method_chain :reflect_on_association, :active_schema
-          alias_method_chain :reflect_on_all_associations, :active_schema
+          alias_method_chain :reflect_on_association, :schema_plus
+          alias_method_chain :reflect_on_all_associations, :schema_plus
         end
         ::ActiveRecord::Relation.send :include, Relation
       end
 
-      def reflect_on_association_with_active_schema(*args)
-        _load_active_schema_associations
-        reflect_on_association_without_active_schema(*args)
+      def reflect_on_association_with_schema_plus(*args) #:nodoc:
+        _load_schema_plus_associations
+        reflect_on_association_without_schema_plus(*args)
       end
 
-      def reflect_on_all_associations_with_active_schema(*args)
-        _load_active_schema_associations
-        reflect_on_all_associations_without_active_schema(*args)
+      def reflect_on_all_associations_with_schema_plus(*args) #:nodoc:
+        _load_schema_plus_associations
+        reflect_on_all_associations_without_schema_plus(*args)
       end
 
-      def define_attribute_methods(*args)
+      def define_attribute_methods(*args) #:nodoc:
         super
-        _load_active_schema_associations
+        _load_schema_plus_associations
       end
 
       private
 
-      def _load_active_schema_associations
-        return if @active_schema_associations_loaded
-        @active_schema_associations_loaded = true
-        return unless active_schema_config.associations.auto_create?
+      def _load_schema_plus_associations #:nodoc:
+        return if @schema_plus_associations_loaded
+        @schema_plus_associations_loaded = true
+        return unless schema_plus_config.associations.auto_create?
 
         reverse_foreign_keys.each do | foreign_key |
           if foreign_key.table_name =~ /^#{table_name}_(.*)$/ || foreign_key.table_name =~ /^(.*)_#{table_name}$/
@@ -165,7 +165,7 @@ module ActiveSchema
         name = name_concise if _use_concise_name?
         name = name.to_sym
         if (_filter_association(macro, name) && !_method_exists?(name))
-          logger.info "ActiveSchema associations: #{self.name || self.table_name.classify}.#{macro} #{name.inspect}, #{opts.inspect[1...-1]}"
+          logger.info "SchemaPlus associations: #{self.name || self.table_name.classify}.#{macro} #{name.inspect}, #{opts.inspect[1...-1]}"
           send macro, name, opts.dup
         end
       end
@@ -190,11 +190,11 @@ module ActiveSchema
       end
 
       def _use_concise_name?
-        active_schema_config.associations.concise_names?
+        schema_plus_config.associations.concise_names?
       end
 
       def _filter_association(macro, name)
-        config = active_schema_config.associations
+        config = schema_plus_config.associations
         return false if config.only        and not Array.wrap(config.only).include?(name)
         return false if config.except      and     Array.wrap(config.except).include?(name)
         return false if config.only_type   and not Array.wrap(config.only_type).include?(macro)

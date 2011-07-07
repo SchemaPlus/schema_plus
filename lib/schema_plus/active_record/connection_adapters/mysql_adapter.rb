@@ -1,23 +1,23 @@
-module ActiveSchema
+module SchemaPlus
   module ActiveRecord
     module ConnectionAdapters
       module MysqlAdapter
         def self.included(base)
           base.class_eval do
-            alias_method_chain :tables, :active_schema
-            alias_method_chain :remove_column, :active_schema
+            alias_method_chain :tables, :schema_plus
+            alias_method_chain :remove_column, :schema_plus
           end
         end
 
-        def tables_with_active_schema(name=nil, *args)
-          tables_without_active_schema(name, *args) - views(name)
+        def tables_with_schema_plus(name=nil, *args)
+          tables_without_schema_plus(name, *args) - views(name)
         end
 
-        def remove_column_with_active_schema(table_name, column_name)
+        def remove_column_with_schema_plus(table_name, column_name)
           foreign_keys(table_name).select { |foreign_key| foreign_key.column_names.include?(column_name.to_s) }.each do |foreign_key|
             remove_foreign_key(table_name, foreign_key.name)
           end
-          remove_column_without_active_schema(table_name, column_name)
+          remove_column_without_schema_plus(table_name, column_name)
         end
 
         def remove_foreign_key(table_name, foreign_key_name, options = {})

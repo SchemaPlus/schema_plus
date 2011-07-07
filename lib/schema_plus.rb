@@ -1,28 +1,28 @@
 require 'valuable'
 
-require 'active_schema/version'
-require 'active_schema/active_record/base'
-require 'active_schema/active_record/migration'
-require 'active_schema/active_record/connection_adapters/table_definition'
-require 'active_schema/active_record/connection_adapters/schema_statements'
-require 'active_schema/active_record/schema'
-require 'active_schema/active_record/schema_dumper'
-require 'active_schema/active_record/connection_adapters/abstract_adapter'
-require 'active_schema/active_record/connection_adapters/column'
-require 'active_schema/active_record/connection_adapters/foreign_key_definition'
-require 'active_schema/active_record/connection_adapters/index_definition'
-require 'active_schema/active_record/associations'
-require 'active_schema/railtie' if defined?(Rails)
+require 'schema_plus/version'
+require 'schema_plus/active_record/base'
+require 'schema_plus/active_record/migration'
+require 'schema_plus/active_record/connection_adapters/table_definition'
+require 'schema_plus/active_record/connection_adapters/schema_statements'
+require 'schema_plus/active_record/schema'
+require 'schema_plus/active_record/schema_dumper'
+require 'schema_plus/active_record/connection_adapters/abstract_adapter'
+require 'schema_plus/active_record/connection_adapters/column'
+require 'schema_plus/active_record/connection_adapters/foreign_key_definition'
+require 'schema_plus/active_record/connection_adapters/index_definition'
+require 'schema_plus/active_record/associations'
+require 'schema_plus/railtie' if defined?(Rails)
 
-module ActiveSchema
+module SchemaPlus
   module ActiveRecord
 
-    autoload :Validations, 'active_schema/active_record/validations'
+    autoload :Validations, 'schema_plus/active_record/validations'
 
     module ConnectionAdapters
-      autoload :MysqlAdapter, 'active_schema/active_record/connection_adapters/mysql_adapter'
-      autoload :PostgresqlAdapter, 'active_schema/active_record/connection_adapters/postgresql_adapter'
-      autoload :Sqlite3Adapter, 'active_schema/active_record/connection_adapters/sqlite3_adapter'
+      autoload :MysqlAdapter, 'schema_plus/active_record/connection_adapters/mysql_adapter'
+      autoload :PostgresqlAdapter, 'schema_plus/active_record/connection_adapters/postgresql_adapter'
+      autoload :Sqlite3Adapter, 'schema_plus/active_record/connection_adapters/sqlite3_adapter'
     end
   end
 
@@ -116,23 +116,23 @@ module ActiveSchema
   def self.insert_connection_adapters
     return if @inserted_connection_adapters
     @inserted_connection_adapters = true
-    ::ActiveRecord::ConnectionAdapters::AbstractAdapter.send(:include, ActiveSchema::ActiveRecord::ConnectionAdapters::AbstractAdapter)
-    ::ActiveRecord::ConnectionAdapters::Column.send(:include, ActiveSchema::ActiveRecord::ConnectionAdapters::Column)
-    ::ActiveRecord::ConnectionAdapters::IndexDefinition.send(:include, ActiveSchema::ActiveRecord::ConnectionAdapters::IndexDefinition)
+    ::ActiveRecord::ConnectionAdapters::AbstractAdapter.send(:include, SchemaPlus::ActiveRecord::ConnectionAdapters::AbstractAdapter)
+    ::ActiveRecord::ConnectionAdapters::Column.send(:include, SchemaPlus::ActiveRecord::ConnectionAdapters::Column)
+    ::ActiveRecord::ConnectionAdapters::IndexDefinition.send(:include, SchemaPlus::ActiveRecord::ConnectionAdapters::IndexDefinition)
     # (mysql2 v0.2.7 uses its own IndexDefinition, which is compatible with the monkey patches; so if that constant exists, include the patches
-    ::ActiveRecord::ConnectionAdapters::Mysql2IndexDefinition.send(:include, ActiveSchema::ActiveRecord::ConnectionAdapters::IndexDefinition) if defined? ::ActiveRecord::ConnectionAdapters::Mysql2IndexDefinition
-    ::ActiveRecord::ConnectionAdapters::SchemaStatements.send(:include, ActiveSchema::ActiveRecord::ConnectionAdapters::SchemaStatements)
-    ::ActiveRecord::ConnectionAdapters::TableDefinition.send(:include, ActiveSchema::ActiveRecord::ConnectionAdapters::TableDefinition)
+    ::ActiveRecord::ConnectionAdapters::Mysql2IndexDefinition.send(:include, SchemaPlus::ActiveRecord::ConnectionAdapters::IndexDefinition) if defined? ::ActiveRecord::ConnectionAdapters::Mysql2IndexDefinition
+    ::ActiveRecord::ConnectionAdapters::SchemaStatements.send(:include, SchemaPlus::ActiveRecord::ConnectionAdapters::SchemaStatements)
+    ::ActiveRecord::ConnectionAdapters::TableDefinition.send(:include, SchemaPlus::ActiveRecord::ConnectionAdapters::TableDefinition)
   end
 
   def self.insert
     return if @inserted
     @inserted = true
     insert_connection_adapters
-    ::ActiveRecord::Base.send(:include, ActiveSchema::ActiveRecord::Base)
-    ::ActiveRecord::Migration.send(:include, ActiveSchema::ActiveRecord::Migration)
-    ::ActiveRecord::Schema.send(:include, ActiveSchema::ActiveRecord::Schema)
-    ::ActiveRecord::SchemaDumper.send(:include, ActiveSchema::ActiveRecord::SchemaDumper)
+    ::ActiveRecord::Base.send(:include, SchemaPlus::ActiveRecord::Base)
+    ::ActiveRecord::Migration.send(:include, SchemaPlus::ActiveRecord::Migration)
+    ::ActiveRecord::Schema.send(:include, SchemaPlus::ActiveRecord::Schema)
+    ::ActiveRecord::SchemaDumper.send(:include, SchemaPlus::ActiveRecord::SchemaDumper)
   end
 
 end

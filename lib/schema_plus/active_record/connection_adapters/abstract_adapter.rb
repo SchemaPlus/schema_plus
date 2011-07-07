@@ -1,14 +1,14 @@
-module ActiveSchema
+module SchemaPlus
   module ActiveRecord
     module ConnectionAdapters
       module AbstractAdapter
         def self.included(base)
-          base.alias_method_chain :initialize, :active_schema
-          base.alias_method_chain :drop_table, :active_schema
+          base.alias_method_chain :initialize, :schema_plus
+          base.alias_method_chain :drop_table, :schema_plus
         end
 
-        def initialize_with_active_schema(*args)
-          initialize_without_active_schema(*args)
+        def initialize_with_schema_plus(*args) #:nodoc:
+          initialize_without_schema_plus(*args)
           adapter = nil
           case adapter_name
             # name of MySQL adapter depends on mysql gem
@@ -23,7 +23,7 @@ module ActiveSchema
             adapter = 'Sqlite3Adapter'
           end
           if adapter 
-            adapter_module = ActiveSchema::ActiveRecord::ConnectionAdapters.const_get(adapter)
+            adapter_module = SchemaPlus::ActiveRecord::ConnectionAdapters.const_get(adapter)
             self.class.send(:include, adapter_module) unless self.class.include?(adapter_module)
             self.post_initialize if self.respond_to? :post_initialize
           end
@@ -53,11 +53,11 @@ module ActiveSchema
           execute "ALTER TABLE #{quote_table_name(table_name)} DROP CONSTRAINT #{foreign_key_name}"
         end
 
-        def drop_table_with_active_schema(name, options = {})
-          unless ::ActiveRecord::Base.connection.class.include?(ActiveSchema::ActiveRecord::ConnectionAdapters::Sqlite3Adapter)
+        def drop_table_with_schema_plus(name, options = {}) #:nodoc:
+          unless ::ActiveRecord::Base.connection.class.include?(SchemaPlus::ActiveRecord::ConnectionAdapters::Sqlite3Adapter)
             reverse_foreign_keys(name).each { |foreign_key| remove_foreign_key(foreign_key.table_name, foreign_key.name, options) }
           end
-          drop_table_without_active_schema(name, options)
+          drop_table_without_schema_plus(name, options)
         end
 
         def supports_partial_indexes?

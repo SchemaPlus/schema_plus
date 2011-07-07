@@ -1,6 +1,6 @@
 require 'tsort'
 
-module ActiveSchema
+module SchemaPlus
   module ActiveRecord
     module SchemaDumper
       include TSort
@@ -8,19 +8,19 @@ module ActiveSchema
       def self.included(base)
         base.class_eval do
           private
-          alias_method_chain :table, :active_schema
-          alias_method_chain :tables, :active_schema
-          alias_method_chain :indexes, :active_schema
+          alias_method_chain :table, :schema_plus
+          alias_method_chain :tables, :schema_plus
+          alias_method_chain :indexes, :schema_plus
         end
       end
 
       private
 
-      def tables_with_active_schema(stream)
+      def tables_with_schema_plus(stream)
         @table_dumps = {}
         @re_view_referent = %r{(?:(?i)FROM|JOIN) \S*\b(#{(@connection.tables + @connection.views).join('|')})\b}
         begin
-          tables_without_active_schema(nil)
+          tables_without_schema_plus(nil)
 
           @connection.views.each do |view_name|
             definition = @connection.view_definition(view_name)
@@ -49,10 +49,10 @@ module ActiveSchema
         references.sort.uniq.each(&block)
       end
 
-      def table_with_active_schema(table, ignore)
+      def table_with_schema_plus(table, ignore)
 
         stream = StringIO.new
-        table_without_active_schema(table, stream)
+        table_without_schema_plus(table, stream)
         stream.rewind
         table_dump = stream.read
 
@@ -67,7 +67,7 @@ module ActiveSchema
         @table_dumps[table] = table_dump
       end
 
-      def indexes_with_active_schema(table, stream)
+      def indexes_with_schema_plus(table, stream)
         # do nothing.  we've already taken care of indexes as part of
         # dumping the tables
       end

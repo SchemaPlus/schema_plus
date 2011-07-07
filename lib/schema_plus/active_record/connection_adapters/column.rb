@@ -1,4 +1,4 @@
-module ActiveSchema
+module SchemaPlus
   module ActiveRecord
     module ConnectionAdapters
       module Column

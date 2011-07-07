@@ -1,24 +1,24 @@
-module ActiveSchema
+module SchemaPlus
   module ActiveRecord
     module ConnectionAdapters
       module IndexDefinition
         def self.included(base)
-          base.alias_method_chain :initialize, :active_schema
+          base.alias_method_chain :initialize, :schema_plus
         end
         
         attr_accessor :conditions, :expression, :kind
 
-        def initialize_with_active_schema(*args)
+        def initialize_with_schema_plus(*args)
           # same args as add_index(table_name, column_names, options={})
           if args.length == 2 or (args.length == 3 && Hash === args.last)
             table_name, column_names, options = args + [{}]
-            initialize_without_active_schema(table_name, options[:name], options[:unique], column_names, options[:lengths])
+            initialize_without_schema_plus(table_name, options[:name], options[:unique], column_names, options[:lengths])
             self.conditions = options[:conditions]
             self.expression = options[:expression]
             self.kind = options[:kind]
             self.case_sensitive = options[:case_sensitive]
           else # backwards compatibility
-            initialize_without_active_schema(*args)
+            initialize_without_schema_plus(*args)
           end
         end
 

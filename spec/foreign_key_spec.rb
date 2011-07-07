@@ -12,7 +12,7 @@ describe "Foreign Key" do
 
   let(:migration) { ::ActiveRecord::Migration }
 
-  if ActiveSchemaHelpers.sqlite3?
+  if SchemaPlusHelpers.sqlite3?
 
     it "raises an exception when attempting to add" do
       expect { 

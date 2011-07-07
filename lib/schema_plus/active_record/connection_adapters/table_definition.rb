@@ -1,46 +1,46 @@
-module ActiveSchema::ActiveRecord::ConnectionAdapters
+module SchemaPlus::ActiveRecord::ConnectionAdapters
   module TableDefinition
 
-    attr_accessor :active_schema_config
+    attr_accessor :schema_plus_config
 
     def self.included(base)
       base.class_eval do
         attr_accessor :name
         attr_accessor :indexes
-        alias_method_chain :initialize, :active_schema
-        alias_method_chain :column, :active_schema
-        alias_method_chain :primary_key, :active_schema
-        alias_method_chain :to_sql, :active_schema
+        alias_method_chain :initialize, :schema_plus
+        alias_method_chain :column, :schema_plus
+        alias_method_chain :primary_key, :schema_plus
+        alias_method_chain :to_sql, :schema_plus
       end
     end
         
-    def initialize_with_active_schema(*args)
-      initialize_without_active_schema(*args)
+    def initialize_with_schema_plus(*args)
+      initialize_without_schema_plus(*args)
       @foreign_keys = []
       @indexes = []
     end
 
-    def primary_key_with_active_schema(name, options = {})
+    def primary_key_with_schema_plus(name, options = {})
       column(name, :primary_key, options)
     end
 
-    def column_with_active_schema(name, type, options = {})
-      column_without_active_schema(name, type, options)
-      if references = ActiveRecord::Migration.get_references(self.name, name, options, active_schema_config)
+    def column_with_schema_plus(name, type, options = {})
+      column_without_schema_plus(name, type, options)
+      if references = ActiveRecord::Migration.get_references(self.name, name, options, schema_plus_config)
         if index = options.fetch(:index, fk_use_auto_index?)
           self.column_index(name, index)
         end
         foreign_key(name, references.first, references.last,
-                    options.reverse_merge(:on_update => active_schema_config.foreign_keys.on_update,
-                                          :on_delete => active_schema_config.foreign_keys.on_delete))
+                    options.reverse_merge(:on_update => schema_plus_config.foreign_keys.on_update,
+                                          :on_delete => schema_plus_config.foreign_keys.on_delete))
       elsif options[:index]
         self.column_index(name, options[:index])
       end
       self
     end
 
-    def to_sql_with_active_schema
-      sql = to_sql_without_active_schema
+    def to_sql_with_schema_plus
+      sql = to_sql_without_schema_plus
       sql << ', ' << @foreign_keys * ', ' unless @foreign_keys.empty?
       sql
     end
@@ -62,7 +62,7 @@ module ActiveSchema::ActiveRecord::ConnectionAdapters
     end
 
     def fk_use_auto_index?
-      active_schema_config.foreign_keys.auto_index? && !ActiveRecord::Schema.defining?
+      schema_plus_config.foreign_keys.auto_index? && !ActiveRecord::Schema.defining?
     end
 
   end

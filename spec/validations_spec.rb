@@ -5,7 +5,7 @@ describe "Validations" do
   before(:all) do
     define_schema
     # TODO: it should work regardless of auto-associations
-    ActiveSchema.config.associations.auto_create = false
+    SchemaPlus.config.associations.auto_create = false
   end
 
   after(:each) do
@@ -20,7 +20,7 @@ describe "Validations" do
         class Review < ActiveRecord::Base
           belongs_to :article
           belongs_to :news_article, :class_name => 'Article', :foreign_key => :article_id
-          active_schema :validations => { :except => :content }
+          schema_plus :validations => { :except => :content }
         end
       end
     end
@@ -62,7 +62,7 @@ describe "Validations" do
 
     it "should validate state uniqueness in scope of 'active' value" do
       article1 = Article.create(valid_attributes)
-      article2 = Article.new(valid_attributes.merge(:title => 'ActiveSchema 2.0 released'))
+      article2 = Article.new(valid_attributes.merge(:title => 'SchemaPlus 2.0 released'))
       article2.should_not be_valid
       article2.toggle(:active)
       article2.should be_valid
@@ -89,8 +89,8 @@ describe "Validations" do
 
     def valid_attributes
       {
-        :title => 'ActiveSchema released!',
-        :content => "Database matters. Get full use of it but don't write unecessary code. Get ActiveSchema!",
+        :title => 'SchemaPlus released!',
+        :content => "Database matters. Get full use of it but don't write unecessary code. Get SchemaPlus!",
         :state => 3,
         :average_mark => 9.78,
         :active => true
@@ -118,32 +118,32 @@ describe "Validations" do
     end
 
     it "shouldn't validate fields passed to :except option" do
-      Review.active_schema :validations => { :except => :content }
+      Review.schema_plus :validations => { :except => :content }
       @review.should have(:no).errors_on(:content)
       @review.should have(1).error_on(:author)
     end
 
     it "shouldn't validate types passed to :except_type option using full validation" do
-      Review.active_schema :validations => { :except_type => :validates_length_of }
+      Review.schema_plus :validations => { :except_type => :validates_length_of }
       @review.should have(:no).errors_on(:content)
       @review.should have(1).error_on(:author)
     end
 
     it "shouldn't validate types passed to :except_type option using shorthand" do
-      Review.active_schema :validations => { :except_type => :length }
+      Review.schema_plus :validations => { :except_type => :length }
       @review.should have(:no).errors_on(:content)
       @review.should have(1).error_on(:author)
     end
 
     it "should only validate type passed to :only_type option" do
-      Review.active_schema :validations => { :only_type => :length }
+      Review.schema_plus :validations => { :only_type => :length }
       @review.should have(1).error_on(:content)
       @review.should have(:no).errors_on(:author)
     end
 
 
     it "shouldn't create validations if locally disabled" do
-      Review.active_schema :validations => { :auto_create => false }
+      Review.schema_plus :validations => { :auto_create => false }
       @review.should have(:no).errors_on(:content)
       @review.should have(:no).error_on(:author)
     end
@@ -170,7 +170,7 @@ describe "Validations" do
     end
 
     it "should create validation if locally enabled" do
-      Review.active_schema :validations => { :auto_create => true }
+      Review.schema_plus :validations => { :auto_create => true }
       @review.should have(1).error_on(:content)
     end
 
@@ -179,11 +179,11 @@ describe "Validations" do
   context "manually invoked" do
     before(:each) do
       class Article < ActiveRecord::Base ; end
-      Article.active_schema :validations => { :only => [:title, :state] }
+      Article.schema_plus :validations => { :only => [:title, :state] }
 
       class Review < ActiveRecord::Base
         belongs_to :dummy_association
-        active_schema :validations => { :except => :content }
+        schema_plus :validations => { :except => :content }
       end
     end
 
@@ -221,7 +221,7 @@ describe "Validations" do
         belongs_to :article
       end
       @columns = Review.content_columns.dup
-      Review.active_schema :validations => { :only => [:title] }
+      Review.schema_plus :validations => { :only => [:title] }
     end
 
     it "shouldn't validate associations not included in :only option" do
@@ -255,12 +255,12 @@ describe "Validations" do
 
   protected
   def with_auto_validations(value = true)
-    old_value = ActiveSchema.config.validations.auto_create
+    old_value = SchemaPlus.config.validations.auto_create
     begin
-      ActiveSchema.config.validations.auto_create = value
+      SchemaPlus.config.validations.auto_create = value
       yield
     ensure
-      ActiveSchema.config.validations.auto_create = old_value
+      SchemaPlus.config.validations.auto_create = old_value
     end
   end
 
