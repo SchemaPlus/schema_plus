@@ -1,15 +1,45 @@
 module SchemaPlus
   module ActiveRecord
     module ConnectionAdapters
-      module Column
-        attr_accessor :unique_scope
-        attr_accessor :case_sensitive
-        alias case_sensitive? case_sensitive
 
-        def unique?
-          !unique_scope.nil?
+      #
+      # SchemaPlus adds several methods to Column
+      #
+      module Column
+
+        # Returns the list of IndexDefinition instances for each index that
+        # refers to this column.  Returns an empty list if there are no
+        # such indexes.
+        def indexes
+          # list get filled by SchemaPlus::ActiveRecord::Base::columns_with_schema_plus
+          @indexes ||= []
         end
 
+        # If the column is in a unique index, returns a list of names of other columns in
+        # the index.  Returns an empty list if it's a single-column index.
+        # Returns nil if the column is not in a unique index.
+        def unique_scope
+          if index = indexes.select{|i| i.unique}.sort_by{|i| i.columns.size}.first
+            index.columns.reject{|name| name == self.name}
+          end
+        end
+
+        # Returns true if the column is in a unique index.  See also
+        # unique_scope
+        def unique?
+          indexes.any?{|i| i.unique}
+        end
+
+        # Returns true if the column is in one or more indexes that are
+        # case sensitive
+        def case_sensitive?
+          indexes.any?{|i| i.case_sensitive}
+        end
+
+        # Returns the circumstance in which the column must have a value:
+        #   nil     if the column may be null
+        #   :save   if the column has no default value
+        #   :update otherwise
         def required_on
           if null
             nil
