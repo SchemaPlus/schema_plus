@@ -111,7 +111,7 @@ describe "Foreign Key" do
         migration.suppress_messages do
           expect {
             migration.add_foreign_key(:references, :post_id, :posts, :id)
-            foreign_key = migration.foreign_keys(:references).detect{|definition| definition.column_names = %[post_id]}
+            foreign_key = migration.foreign_keys(:references).detect{|definition| definition.column_names == ["post_id"]}
             migration.remove_foreign_key(:references, foreign_key.name)
           }.should_not raise_error
         end
