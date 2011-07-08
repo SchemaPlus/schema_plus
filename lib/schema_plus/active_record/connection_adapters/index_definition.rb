@@ -6,31 +6,31 @@ module SchemaPlus
           base.alias_method_chain :initialize, :schema_plus
         end
         
-        attr_accessor :conditions, :expression, :kind
+        attr_reader :conditions
+        attr_reader :expression
+        attr_reader :kind
 
-        def initialize_with_schema_plus(*args)
+        def case_sensitive?
+          @case_sensitive
+        end
+
+        def initialize_with_schema_plus(*args) #:nodoc:
           # same args as add_index(table_name, column_names, options={})
           if args.length == 2 or (args.length == 3 && Hash === args.last)
             table_name, column_names, options = args + [{}]
             initialize_without_schema_plus(table_name, options[:name], options[:unique], column_names, options[:lengths])
-            self.conditions = options[:conditions]
-            self.expression = options[:expression]
-            self.kind = options[:kind]
-            self.case_sensitive = options[:case_sensitive]
+            @conditions = options[:conditions]
+            @expression = options[:expression]
+            @kind = options[:kind]
+            @case_sensitive = options.include?(:case_sensitive) ? options[:case_sensitive] : true
           else # backwards compatibility
             initialize_without_schema_plus(*args)
+            @case_sensitive = true
           end
         end
 
-        def case_sensitive?
-          @case_sensitive.nil? ? true : @case_sensitive
-        end
-
-        def case_sensitive=(case_sensitive)
-          @case_sensitive = case_sensitive
-        end
-
-        def opts
+        # returns the options as a hash suitable for add_index
+        def opts #:nodoc:
           opts = {}
           opts[:name]           = name unless name.nil?
           opts[:unique]         = unique unless unique.nil?
