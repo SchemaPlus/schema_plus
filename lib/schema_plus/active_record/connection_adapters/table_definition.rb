@@ -41,7 +41,7 @@ module SchemaPlus::ActiveRecord::ConnectionAdapters
 
     def to_sql_with_schema_plus
       sql = to_sql_without_schema_plus
-      sql << ', ' << @foreign_keys * ', ' unless @foreign_keys.empty?
+      sql << ', ' << @foreign_keys.map(&:to_sql) * ', ' unless @foreign_keys.empty?
       sql
     end
 

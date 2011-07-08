@@ -1,17 +1,63 @@
 module SchemaPlus
   module ActiveRecord
     module ConnectionAdapters
-      class ForeignKeyDefinition < Struct.new(:name, :table_name, :column_names, :references_table_name, :references_column_names, :on_update, :on_delete, :deferrable)
+      # Instances of this class are returned by the queries ActiveRecord::Base#foreign_keys and ActiveRecord::Base#reverse_foreign_keys (via AbstractAdapter#foreign_keys and AbstractAdapter#reverse_foreign_keys)
+      #
+      # The on_update and on_delete accessors can take on the following values:
+      #   :cascade
+      #   :restrict
+      #   :set_null
+      #   :set_default
+      #   :no_action
+      class ForeignKeyDefinition
+
+        # The name of the foreign key constraint
+        attr_reader :name
+
+        # The name of the table the constraint is defined on
+        attr_reader :table_name
+
+        # The list of column names that are constrained (as strings).
+        attr_reader :column_names
+
+        # The foreign table that is referenced by the constraint
+        attr_reader :references_table_name
+
+        # The list of column names (as strings) of the foreign table that are referenced
+        # by the constraint
+        attr_reader :references_column_names
+
+        # The ON_UPDATE behavior for the constraint.  See above for the
+        # possible values.
+        attr_reader :on_update
+
+        # The ON_UPDATE behavior for the constraint.  See above for the
+        # possible values.
+        attr_reader :on_delete
+
+        # True if the constraint is deferrable
+        attr_reader :deferrable
+
+        # :enddoc:
+        
         ACTIONS = { :cascade => "CASCADE", :restrict => "RESTRICT", :set_null => "SET NULL", :set_default => "SET DEFAULT", :no_action => "NO ACTION" }.freeze
 
         def initialize(name, table_name, column_names, references_table_name, references_column_names, on_update = nil, on_delete = nil, deferrable = nil)
+          @name = name
+          @table_name = unquote(table_name)
+          @column_names = unquote(column_names)
+          @references_table_name = unquote(references_table_name)
+          @references_column_names = unquote(references_column_names)
+          @on_update = on_update
+          @on_delete = on_delete
+          @deferrable = deferrable
+
           ACTIONS.has_key?(on_update) or raise(ArgumentError, "invalid :on_update action: #{on_update.inspect}") if on_update
           ACTIONS.has_key?(on_delete) or raise(ArgumentError, "invalid :on_delete action: #{on_delete.inspect}") if on_delete
           if ::ActiveRecord::Base.connection.adapter_name =~ /^mysql/i
             raise(NotImplementedError, "MySQL does not support ON UPDATE SET DEFAULT") if on_update == :set_default
             raise(NotImplementedError, "MySQL does not support ON DELETE SET DEFAULT") if on_delete == :set_default
           end
-          super(name, unquote(table_name), unquote(column_names), unquote(references_table_name), unquote(references_column_names), on_update, on_delete, deferrable)
         end
 
         # Dumps a definition of foreign key.
@@ -40,8 +86,6 @@ module SchemaPlus
           sql
         end
 
-        alias :to_s :to_sql
-
         def quoted_column_names
           Array(column_names).collect { |name| ::ActiveRecord::Base.connection.quote_column_name(name) }
         end
@@ -56,13 +100,13 @@ module SchemaPlus
 
         def unquote(names)
           if names.is_a?(Array)
-            names.collect { |name| __unqoute(name) }
+            names.collect { |name| __unquote(name) }
           else
-            __unqoute(names)
+            __unquote(names)
           end
         end
 
-        def __unqoute(value)
+        def __unquote(value)
           value.to_s.sub(/^["`](.*)["`]$/, '\1')
         end
       end
