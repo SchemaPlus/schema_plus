@@ -1,5 +1,5 @@
-module SchemaPlus
-  class Railtie < Rails::Railtie
+module SchemaPlus 
+  class Railtie < Rails::Railtie #:nodoc:
     config.before_initialize do
       SchemaPlus.insert_connection_adapters
     end

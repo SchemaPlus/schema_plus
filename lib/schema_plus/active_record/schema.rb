@@ -1,6 +1,6 @@
 module SchemaPlus
   module ActiveRecord
-    module Schema
+    module Schema #:nodoc: all
       def self.included(base)
         base.extend(ClassMethods)
       end

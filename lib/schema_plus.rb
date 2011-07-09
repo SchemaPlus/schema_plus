@@ -26,80 +26,180 @@ module SchemaPlus
     end
   end
 
-  # Configuration parameters 
+  # This global configuation options for SchmeaPlus.
+  # Set them in +config/initializers/schema_plus.rb+ using:
+  #
+  #    SchemaPlus.setup do |config|
+  #       ...
+  #    end
+  #
+  # The options are grouped into subsets based on area of functionality.
+  # See Config::ForeignKeys, Config::Associations, Config::Validations
+  #
   class Config < Valuable
 
+    # This set of configuration options control SchemaPlus's foreign key
+    # constraint behavior.  Set them in
+    # +config/initializers/schema_plus.rb+ using:
+    #
+    #    SchemaPlus.setup do |config|
+    #       config.foreign_keys.auto_create = ...
+    #    end
+    #
     class ForeignKeys < Valuable
-      # Automatically create FK for columns named _id
+      ##
+      # :attr_accessor: auto_create
+      #
+      # Whether to automatically create foreign key constraints for columns
+      # suffixed with +_id+.  Boolean, default is +true+.
       has_value :auto_create, :klass => :boolean, :default => true
 
-      # Create an index after creating FK
+      ##
+      # :attr_accessor: auto_index
+      #
+      # Whether to automatically create indexes when creating foreign key constraints for columns.
+      # Boolean, default is +true+.
       has_value :auto_index, :klass => :boolean, :default => true
 
-      # Default FK update action 
+      ##
+      # :attr_accessor: on_update
+      #
+      # The default value for +:on_update+ when creating foreign key
+      # constraints for columns.  Valid values are as described in
+      # ForeignKeyDefinition, or +nil+ to let the database connection use
+      # its own default.  Default is +nil+.
       has_value :on_update
 
-      # Default FK delete action 
+      ##
+      # :attr_accessor: on_delete
+      #
+      # The default value for +:on_delete+ when creating foreign key
+      # constraints for columns.  Valid values are as described in
+      # ForeignKeyDefinition, or +nil+ to let the database connection use
+      # its own default.  Default is +nil+.
       has_value :on_delete
     end
     has_value :foreign_keys, :klass => ForeignKeys, :default => ForeignKeys.new
 
+    # This set of configuration options control SchemaPlus's automatic
+    # association behavior.  Set them in
+    # +config/initializers/schema_plus.rb+ using:
+    #
+    #    SchemaPlus.setup do |config|
+    #       config.associations.auto_create = ...
+    #    end
+    #
     class Associations < Valuable
-      # Automatically create associations based on foreign keys
+      
+      ##
+      # :attr_accessor: auto_create
+      #
+      # Whether to automatically create associations based on foreign keys.
+      # Boolean, default is +true+.
       has_value :auto_create, :klass => :boolean, :default => true
 
-      # Use concise naming (strip out common prefixes from class names)
+      ##
+      # :attr_accessor: concise_names
+      #
+      # Whether to use concise naming (strip out common prefixes from class names).
+      # Boolean, default is +true+.
       has_value :concise_names, :klass => :boolean, :default => true
 
-      # list of association names to skip
+      ##
+      # :attr_accessor: except
+      #
+      # List of association names to exclude from automatic creation.
+      # Value is a single name, an array of names, or +nil+.  Default is +nil+.
       has_value :except, :default => nil
 
-      # list of association names to create
+      ##
+      # :attr_accessor: only
+      #
+      # List of association names to include in automatic creation.
+      # Value is a single name, and array of names, or +nil+.  Default is +nil+.
       has_value :only, :default => nil
 
-      # list of association types to skip
+      ##
+      # :attr_accessor: except_type
+      #
+      # List of association types to exclude from automatic creation.
+      # Value is one or an array of +:belongs_to+, +:has_many+, +:has_one+, and/or
+      # +:has_and_belongs_to_many+, or +nil+.  Default is +nil+.
       has_value :except_type, :default => nil
 
-      # list of association types to create
+      ##
+      # :attr_accessor: only_type
+      #
+      # List of association types to include from automatic creation.
+      # Value is one or an array of +:belongs_to+, +:has_many+, +:has_one+, and/or
+      # +:has_and_belongs_to_many+, or +nil+.  Default is +nil+.
       has_value :only_type, :default => nil
 
     end
     has_value :associations, :klass => Associations, :default => Associations.new
 
+    # This set of configuration options control SchemaPlus's automatic
+    # validations behavior.  Set them in
+    # +config/initializers/schema_plus.rb+ using:
+    #
+    #    SchemaPlus.setup do |config|
+    #       config.validations.auto_create = ...
+    #    end
+    #
     class Validations < Valuable
-      # Enable schema validations feature
-      has_value :enable, :klass => :boolean, :default => true
-      # Automatically create validations based on database constraints
+      ##
+      # :attr_accessor: auto_create
+      #
+      # Whether to automatically create validations based on database constraints.
+      # Boolean, default is +true+.
       has_value :auto_create, :klass => :boolean, :default => true
 
-      # Auto-validates given fields only
+      ##
+      # :attr_accessor: only
+      #
+      # List of field names to include in automatic validation.
+      # Value is a single name, and array of names, or +nil+.  Default is +nil+.
       has_value :only, :default => nil
 
-      # Auto-validates all but given fields
+      ##
+      # :attr_accessor: except
+      #
+      # List of field names to exclude from automatic validation.
+      # Value is a single name, an array of names, or +nil+.  Default is <tt>[:created_at, :updated_at, :created_on, :updated_on]</tt>.
       has_value :except, :default => [:created_at, :updated_at, :created_on, :updated_on]
       
-      # list of validation types to skip
+      ##
+      # :attr_accessor: only_type
+      #
+      # List of validation types to exclude from automatic validation.
+      # Value is a single type, and array of types, or +nil+.  Default is +nil+.
+      # A type is specified as, e.g., +:validates_presence_of+ or simply +:presence+.
       has_value :except_type, :default => nil
 
-      # list of validation types to create
+      ##
+      # :attr_accessor: only_type
+      #
+      # List of validation types to include in automatic validation.
+      # Value is a single type, and array of types, or +nil+.  Default is +nil+.
+      # A type is specified as, e.g., +:validates_presence_of+ or simply +:presence+.
       has_value :only_type, :default => nil
 
     end
     has_value :validations, :klass => Validations, :default => Validations.new
 
 
-    def dup 
+    def dup #:nodoc:
       self.class.new(Hash[attributes.collect{ |key, val| [key, Valuable === val ?  val.class.new(val.attributes) : val] }])
     end
 
-    def update_attributes(opts)
+    def update_attributes(opts)#:nodoc:
       opts = opts.dup
       opts.keys.each { |key| self.send(key).update_attributes(opts.delete(key)) if self.class.attributes.include? key and Hash === opts[key] }
       super(opts)
       self
     end
 
-    def merge(opts)
+    def merge(opts)#:nodoc:
       dup.update_attributes(opts)
     end
 

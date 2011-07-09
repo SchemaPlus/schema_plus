@@ -1,5 +1,5 @@
 module SchemaPlus::ActiveRecord::ConnectionAdapters
-  module SchemaStatements
+  module SchemaStatements #:nodoc:
 
     def self.included(base)
       base.class_eval do

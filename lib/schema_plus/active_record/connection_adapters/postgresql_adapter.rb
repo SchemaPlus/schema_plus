@@ -1,7 +1,12 @@
 module SchemaPlus
   module ActiveRecord
     module ConnectionAdapters
+      # SchemaPlus includes a Postgresql implementation of the AbstractAdapater
+      # extensions.  
       module PostgresqlAdapter
+
+        # :enddoc:
+        
         def self.included(base)
           base.class_eval do
             remove_method :indexes

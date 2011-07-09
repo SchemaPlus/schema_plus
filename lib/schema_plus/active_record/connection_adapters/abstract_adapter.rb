@@ -1,6 +1,15 @@
 module SchemaPlus
   module ActiveRecord
+    # SchemaPlus adds several methods to the connection adapter (as returned by ActiveRecordBase#connection).  See AbstractAdapter for details.
     module ConnectionAdapters
+
+      #
+      # SchemaPlus adds several methods to
+      # ActiveRecord::ConnectionAdapters::AbstractAdapter.  In most cases
+      # you don't call these directly, but rather the methods that define
+      # things are called by schema statements, and methods that query
+      # things are called by ActiveRecord::Base.
+      #
       module AbstractAdapter
         def self.included(base) #:nodoc:
           base.alias_method_chain :initialize, :schema_plus
@@ -39,10 +48,10 @@ module SchemaPlus
           execute "DROP VIEW #{quote_table_name(view_name)}"
         end
 
-        # ---
+        #--
         # these are all expected to be defined by subclasses, listing them
         # here only as templates.
-        # +++
+        #++
         # Returns a list of all views (abstract)
         def views(name = nil) [] end
         # Returns the SQL definition of a given view (abstract)
@@ -55,7 +64,9 @@ module SchemaPlus
         # (abstract)
         def reverse_foreign_keys(table_name, name = nil) [] end
 
-        # Define a foreign key constraint
+        # Define a foreign key constraint.  Valid options are :on_update,
+        # :on_delete, and :deferrable, with values as described at
+        # ForeignKeyDefinition
         def add_foreign_key(table_name, column_names, references_table_name, references_column_names, options = {})
           foreign_key = ForeignKeyDefinition.new(options[:name], table_name, column_names, ::ActiveRecord::Migrator.proper_table_name(references_table_name), references_column_names, options[:on_update], options[:on_delete], options[:deferrable])
           execute "ALTER TABLE #{quote_table_name(table_name)} ADD #{foreign_key.to_sql}"

@@ -2,7 +2,7 @@ module SchemaPlus
   module ActiveRecord
       module Validations
 
-        def inherited(klass)
+        def inherited(klass) #:nodoc:
           if self == ::ActiveRecord::Base
             klass.instance_eval do
 
@@ -42,14 +42,14 @@ module SchemaPlus
         #  * :only - auto-validate only given attributes
         #  * :except - auto-validate all but given attributes
         #
-        def schema_plus(*)
+        def schema_plus(*) #:nodoc:
           super
           load_schema_validations
         end
 
         private
 
-        def load_schema_validations
+        def load_schema_validations #:nodoc:
           # Don't bother if: it's already been loaded; the class is abstract; not a base class; or the table doesn't exist
           return unless create_schema_validations?
           
@@ -58,7 +58,7 @@ module SchemaPlus
           @schema_validations_loaded = true
         end
 
-        def load_column_validations
+        def load_column_validations #:nodoc:
           content_columns.each do |column|
             name = column.name.to_sym
 
@@ -85,7 +85,7 @@ module SchemaPlus
           end
         end
 
-        def load_association_validations
+        def load_association_validations #:nodoc:
           reflect_on_all_associations(:belongs_to).each do |association|
             # :primary_key_name was deprecated (noisily) in rails 3.1
             foreign_key_method = (association.respond_to? :foreign_key) ?  :foreign_key : :primary_key_name
@@ -100,18 +100,18 @@ module SchemaPlus
           end
         end
 
-        def add_uniqueness_validation(column)
+        def add_uniqueness_validation(column) #:nodoc:
           scope = column.unique_scope.map(&:to_sym)
           condition = :"#{column.name}_changed?"
           name = column.name.to_sym
           validate_logged :validates_uniqueness_of, name, :scope => scope, :allow_nil => true, :if => condition
         end
 
-        def create_schema_validations?
+        def create_schema_validations? #:nodoc:
           schema_plus_config.validations.auto_create? && !(@schema_validations_loaded || abstract_class? || name.blank? || !table_exists?)
         end
 
-        def validate_logged(method, arg, opts={})
+        def validate_logged(method, arg, opts={}) #:nodoc:
           if _filter_validation(method, arg) 
             msg = "SchemaPlus validations: #{self.name}.#{method} #{arg.inspect}"
             msg += ", #{opts.inspect[1...-1]}" if opts.any?
@@ -120,7 +120,7 @@ module SchemaPlus
           end
         end
 
-        def _filter_validation(macro, name)
+        def _filter_validation(macro, name) #:nodoc:
           config = schema_plus_config.validations
           types = [macro]
           if match = macro.to_s.match(/^validates_(.*)_of$/) 
