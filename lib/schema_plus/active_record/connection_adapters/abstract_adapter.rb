@@ -73,13 +73,13 @@ module SchemaPlus
         end
 
         # Remove a foreign key constraint
-        def remove_foreign_key(table_name, foreign_key_name, options = {})
+        def remove_foreign_key(table_name, foreign_key_name)
           execute "ALTER TABLE #{quote_table_name(table_name)} DROP CONSTRAINT #{foreign_key_name}"
         end
 
         def drop_table_with_schema_plus(name, options = {}) #:nodoc:
           unless ::ActiveRecord::Base.connection.class.include?(SchemaPlus::ActiveRecord::ConnectionAdapters::Sqlite3Adapter)
-            reverse_foreign_keys(name).each { |foreign_key| remove_foreign_key(foreign_key.table_name, foreign_key.name, options) }
+            reverse_foreign_keys(name).each { |foreign_key| remove_foreign_key(foreign_key.table_name, foreign_key.name) }
           end
           drop_table_without_schema_plus(name, options)
         end
