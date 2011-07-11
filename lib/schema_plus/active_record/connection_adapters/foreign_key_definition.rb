@@ -3,7 +3,7 @@ module SchemaPlus
     module ConnectionAdapters
       # Instances of this class are returned by the queries ActiveRecord::Base#foreign_keys and ActiveRecord::Base#reverse_foreign_keys (via AbstractAdapter#foreign_keys and AbstractAdapter#reverse_foreign_keys)
       #
-      # The on_update and on_delete accessors can take on the following values:
+      # The on_update and on_delete attributes can take on the following values:
       #   :cascade
       #   :restrict
       #   :set_null

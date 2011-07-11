@@ -9,6 +9,39 @@ module SchemaPlus::ActiveRecord
     # SchemaPlus extends ActiveRecord::Migration with the following enhancements.
     #
     module ClassMethods
+
+      # Create a new view, given its name and SQL definition
+      #
+      def create_view(view_name, definition)
+        connection.create_view(view_name, definition)
+      end
+
+      # Drop the named view
+      def drop_view(view_name)
+        connection.drop_view(view_name)
+      end
+
+      # Define a foreign key constraint.  Valid options are :on_update,
+      # :on_delete, and :deferrable, with values as described at
+      # ConnectionAdapters::ForeignKeyDefinition
+      #
+      # (NOTE: Sqlite3 does not support altering a table to add foreign-key
+      # constraints; they must be included in the table specification when
+      # it's created.  If you're using Sqlite3, this method will raise an
+      # error.)
+      def add_foreign_key(table_name, column_names, references_table_name, references_column_names, options = {})
+        connection.add_foreign_key(table_name, column_names, references_table_name, references_column_names, options)
+      end
+
+      # Remove a foreign key constraint
+      #
+      # (NOTE: Sqlite3 does not support altering a table to remove
+      # foreign-key constraints.  If you're using Sqlite3, this method will
+      # raise an error.)
+      def remove_foreign_key(table_name, foreign_key_name)
+        connection.remove_foreign_key(table_name, foreign_key_name)
+      end
+      
       # Enhances ActiveRecord::Migration#add_column to support indexes and foreign keys, with automatic creation
       #
       # == Indexes
@@ -54,7 +87,7 @@ module SchemaPlus::ActiveRecord
       # can be specified using <tt>:references => [table_name,column_name]</tt>
       #
       # Additional options +:on_update+ and +:on_delete+ can be spcified,
-      # with values as described at ForeignKeyDefinition.  For example:
+      # with values as described at ConnectionAdapters::ForeignKeyDefinition.  For example:
       #
       #     add_column('comments', 'post', :integer, :references => 'posts', :on_delete => :cascade)
       #

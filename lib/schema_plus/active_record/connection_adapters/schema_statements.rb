@@ -1,12 +1,21 @@
 module SchemaPlus::ActiveRecord::ConnectionAdapters
-  module SchemaStatements #:nodoc:
+  module SchemaStatements
 
-    def self.included(base)
+    def self.included(base) #:nodoc:
       base.class_eval do
         alias_method_chain :create_table, :schema_plus
       end
     end
 
+    ##
+    # :method: create_table
+    #
+    # SchemaPlus extends SchemaStatements::create_table to allow you to specify configuration options per table.  Pass them in as a hash keyed by configuration set (see SchemaPlus::Config),
+    # for example:
+    #
+    #     create_table :widgets, :foreign_keys => {:auto_create => true, :on_delete => :cascade} do |t|
+    #        ...
+    #     end
     def create_table_with_schema_plus(table, options = {})
       options = options.dup
       config_options = {}
