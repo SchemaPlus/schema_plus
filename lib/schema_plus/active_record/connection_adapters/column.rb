@@ -33,7 +33,7 @@ module SchemaPlus
         # Returns true if the column is in one or more indexes that are
         # case sensitive
         def case_sensitive?
-          indexes.any?{|i| i.case_sensitive}
+          indexes.any?{|i| i.case_sensitive?}
         end
 
         # Returns the circumstance in which the column must have a value:

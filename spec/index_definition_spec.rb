@@ -59,6 +59,10 @@ describe "Index definition" do
         @index.should_not be_case_sensitive
       end
 
+      it "its column should not be case sensitive" do
+        User.columns.find{|column| column.name == "login"}.should_not be_case_sensitive
+      end
+
       it "defines expression" do
         @index.expression.should == "lower((login)::text)"
       end
