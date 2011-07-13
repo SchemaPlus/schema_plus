@@ -26,7 +26,7 @@ module SchemaPlus
     end
   end
 
-  # This global configuation options for SchmeaPlus.
+  # This global configuation options for SchemaPlus.
   # Set them in +config/initializers/schema_plus.rb+ using:
   #
   #    SchemaPlus.setup do |config|
