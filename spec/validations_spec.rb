@@ -4,8 +4,6 @@ describe "Validations" do
 
   before(:all) do
     define_schema
-    # TODO: it should work regardless of auto-associations
-    SchemaPlus.config.associations.auto_create = false
   end
 
   after(:each) do

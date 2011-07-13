@@ -11,7 +11,6 @@ require 'schema_plus/active_record/connection_adapters/abstract_adapter'
 require 'schema_plus/active_record/connection_adapters/column'
 require 'schema_plus/active_record/connection_adapters/foreign_key_definition'
 require 'schema_plus/active_record/connection_adapters/index_definition'
-require 'schema_plus/active_record/associations'
 require 'schema_plus/railtie' if defined?(Rails)
 
 module SchemaPlus
@@ -34,7 +33,7 @@ module SchemaPlus
   #    end
   #
   # The options are grouped into subsets based on area of functionality.
-  # See Config::ForeignKeys, Config::Associations, Config::Validations
+  # See Config::ForeignKeys, Config::Validations
   #
   class Config < Valuable
 
@@ -80,63 +79,6 @@ module SchemaPlus
       has_value :on_delete
     end
     has_value :foreign_keys, :klass => ForeignKeys, :default => ForeignKeys.new
-
-    # This set of configuration options control SchemaPlus's automatic
-    # association behavior.  Set them in
-    # +config/initializers/schema_plus.rb+ using:
-    #
-    #    SchemaPlus.setup do |config|
-    #       config.associations.auto_create = ...
-    #    end
-    #
-    class Associations < Valuable
-      
-      ##
-      # :attr_accessor: auto_create
-      #
-      # Whether to automatically create associations based on foreign keys.
-      # Boolean, default is +true+.
-      has_value :auto_create, :klass => :boolean, :default => true
-
-      ##
-      # :attr_accessor: concise_names
-      #
-      # Whether to use concise naming (strip out common prefixes from class names).
-      # Boolean, default is +true+.
-      has_value :concise_names, :klass => :boolean, :default => true
-
-      ##
-      # :attr_accessor: except
-      #
-      # List of association names to exclude from automatic creation.
-      # Value is a single name, an array of names, or +nil+.  Default is +nil+.
-      has_value :except, :default => nil
-
-      ##
-      # :attr_accessor: only
-      #
-      # List of association names to include in automatic creation.
-      # Value is a single name, and array of names, or +nil+.  Default is +nil+.
-      has_value :only, :default => nil
-
-      ##
-      # :attr_accessor: except_type
-      #
-      # List of association types to exclude from automatic creation.
-      # Value is one or an array of +:belongs_to+, +:has_many+, +:has_one+, and/or
-      # +:has_and_belongs_to_many+, or +nil+.  Default is +nil+.
-      has_value :except_type, :default => nil
-
-      ##
-      # :attr_accessor: only_type
-      #
-      # List of association types to include from automatic creation.
-      # Value is one or an array of +:belongs_to+, +:has_many+, +:has_one+, and/or
-      # +:has_and_belongs_to_many+, or +nil+.  Default is +nil+.
-      has_value :only_type, :default => nil
-
-    end
-    has_value :associations, :klass => Associations, :default => Associations.new
 
     # This set of configuration options control SchemaPlus's automatic
     # validations behavior.  Set them in

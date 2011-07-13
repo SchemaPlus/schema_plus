@@ -4,7 +4,11 @@
 
 SchemaPlus is an ActiveRecord extension that provides enhanced capabilities for schema definition and querying, including: enhanced and more DRY index capabilities, support and automation for foreign key constraints, and support for views.
 
-For added rails DRYness see also the gems {+schema_associations+}[http://rubygems.org/gems/schema_associations] and {+schema_validations+}[http://rubygems.org/gems/schema_associations]  <b>IMPORTANT PRERELEASE NOTE: <i>Those are not yet separate gems, they are currently bundled in here.  They're not documented yet though.</i></b>
+For added rails DRYness see also the gems
+{+schema_associations+}[http://rubygems.org/gems/schema_associations] and
+{+schema_validations+}[http://rubygems.org/gems/schema_associations]
+<b>IMPORTANT PRERELEASE NOTE: <i>schema_validations is not yet separate
+gems, it's currently bundled in here.  It's not documented yet though.</i></b>
 
 == Compatibility
 
