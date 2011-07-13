@@ -12,8 +12,6 @@ require 'active_record'
 require 'schema_plus'
 require 'connection'
 
-SchemaPlus.insert
-
 Dir[File.dirname(__FILE__) + "/support/**/*.rb"].each {|f| require f}
 
 RSpec.configure do |config|

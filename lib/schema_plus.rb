@@ -246,3 +246,5 @@ module SchemaPlus
   end
 
 end
+
+SchemaPlus.insert unless defined? Rails::Railtie
