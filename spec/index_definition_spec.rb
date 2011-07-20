@@ -41,7 +41,7 @@ describe "Index definition" do
     end
   end
 
-  if ActiveSchemaHelpers.postgresql?
+  if SchemaPlusHelpers.postgresql?
 
     context "when case insensitive is added" do
 
@@ -57,6 +57,10 @@ describe "Index definition" do
 
       it "is not case_sensitive" do
         @index.should_not be_case_sensitive
+      end
+
+      it "its column should not be case sensitive" do
+        User.columns.find{|column| column.name == "login"}.should_not be_case_sensitive
       end
 
       it "defines expression" do

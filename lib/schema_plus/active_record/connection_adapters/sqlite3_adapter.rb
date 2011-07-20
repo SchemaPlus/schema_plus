@@ -1,7 +1,11 @@
-module ActiveSchema
+module SchemaPlus
   module ActiveRecord
     module ConnectionAdapters
+      # SchemaPlus includes an Sqlite3 implementation of the AbstractAdapater
+      # extensions.  
       module Sqlite3Adapter
+
+        # :enddoc:
 
         def add_foreign_key(table_name, column_names, references_table_name, references_column_names, options = {})
           raise NotImplementedError, "Sqlite3 does not support altering a table to add foreign key constraints (table #{table_name.inspect} column #{column_names.inspect})"

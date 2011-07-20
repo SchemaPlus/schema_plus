@@ -26,7 +26,7 @@ describe 'get_references method' do
   end
 
   it "should return nil if auto_create is disabled" do
-    ActiveSchema.config.foreign_keys.auto_create = false
+    SchemaPlus.config.foreign_keys.auto_create = false
     @target.get_references(@table_name, @column_name).should be_nil
   end
 
@@ -65,12 +65,12 @@ describe 'get_references method' do
   protected
 
   def with_auto_create(value = true)
-    old_value = ActiveSchema.config.foreign_keys.auto_create
-    ActiveSchema.config.foreign_keys.auto_create = value
+    old_value = SchemaPlus.config.foreign_keys.auto_create
+    SchemaPlus.config.foreign_keys.auto_create = value
     begin
       yield
     ensure
-      ActiveSchema.config.foreign_keys.auto_create = old_value
+      SchemaPlus.config.foreign_keys.auto_create = old_value
     end
   end
 

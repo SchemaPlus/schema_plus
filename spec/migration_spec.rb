@@ -10,7 +10,7 @@ describe ActiveRecord::Migration do
 end
 
 describe ActiveRecord::Migration do
-  include ActiveSchemaHelpers
+  include SchemaPlusHelpers
 
   before(:all) do
     load_auto_schema
@@ -96,7 +96,7 @@ describe ActiveRecord::Migration do
 
     actions = [:cascade, :restrict, :set_null, :set_default, :no_action]
 
-    if ActiveSchemaHelpers.mysql?
+    if SchemaPlusHelpers.mysql?
       actions.delete(:set_default)
       it "should raise a not-implemented error for on_update => :set_default" do
         expect { create_table(@model, :user_id => {:on_update => :set_default}) }.should raise_error(NotImplementedError)
@@ -169,7 +169,7 @@ describe ActiveRecord::Migration do
         expect { create_table(@model, :user_id => {:on_delete => :invalid}) }.should raise_error(ArgumentError)
     end
 
-    unless ActiveSchemaHelpers.mysql?
+    unless SchemaPlusHelpers.mysql?
       it "should override foreign key auto_index negatively" do
         with_fk_config(:auto_index => true) do 
           create_table_opts(@model, {:foreign_keys => {:auto_index => false}}, :user_id => {})
@@ -188,7 +188,7 @@ describe ActiveRecord::Migration do
 
   end
 
-  unless ActiveSchemaHelpers.sqlite3?
+  unless SchemaPlusHelpers.sqlite3?
 
     context "when column is added" do
 
@@ -258,56 +258,56 @@ describe ActiveRecord::Migration do
       end
 
       it "should auto-index if specified in global options" do
-        ActiveSchema.config.foreign_keys.auto_index = true
+        SchemaPlus.config.foreign_keys.auto_index = true
         add_column(:post_id, :integer) do
           @model.should have_index.on(:post_id)
         end
-        ActiveSchema.config.foreign_keys.auto_index = false
+        SchemaPlus.config.foreign_keys.auto_index = false
       end
 
       it "should auto-index foreign keys only" do
-        ActiveSchema.config.foreign_keys.auto_index = true
+        SchemaPlus.config.foreign_keys.auto_index = true
         add_column(:state, :integer) do
           @model.should_not have_index.on(:state)
         end
-        ActiveSchema.config.foreign_keys.auto_index = false
+        SchemaPlus.config.foreign_keys.auto_index = false
       end
 
       it "should allow to overwrite auto_index options in column definition" do
-        ActiveSchema.config.foreign_keys.auto_index = true
+        SchemaPlus.config.foreign_keys.auto_index = true
         add_column(:post_id, :integer, :index => false) do
           # MySQL creates an index on foreign by default
           # and we can do nothing with that
-          unless ActiveSchemaHelpers.mysql?
+          unless SchemaPlusHelpers.mysql?
             @model.should_not have_index.on(:post_id)
           end
         end
-        ActiveSchema.config.foreign_keys.auto_index = false
+        SchemaPlus.config.foreign_keys.auto_index = false
       end
 
       it "should use default on_update action" do
-        ActiveSchema.config.foreign_keys.on_update = :cascade
+        SchemaPlus.config.foreign_keys.on_update = :cascade
         add_column(:post_id, :integer) do
           @model.should reference.on(:post_id).on_update(:cascade) 
         end
-        ActiveSchema.config.foreign_keys.on_update = nil
+        SchemaPlus.config.foreign_keys.on_update = nil
       end
 
       it "should use default on_delete action" do
-        ActiveSchema.config.foreign_keys.on_delete = :cascade
+        SchemaPlus.config.foreign_keys.on_delete = :cascade
         add_column(:post_id, :integer) do
           @model.should reference.on(:post_id).on_delete(:cascade) 
         end
-        ActiveSchema.config.foreign_keys.on_delete = nil
+        SchemaPlus.config.foreign_keys.on_delete = nil
       end
 
       it "should allow to overwrite default actions" do
-        ActiveSchema.config.foreign_keys.on_delete = :cascade
-        ActiveSchema.config.foreign_keys.on_update = :restrict
+        SchemaPlus.config.foreign_keys.on_delete = :cascade
+        SchemaPlus.config.foreign_keys.on_update = :restrict
         add_column(:post_id, :integer, :on_update => :set_null, :on_delete => :set_null) do
           @model.should reference.on(:post_id).on_delete(:set_null).on_update(:set_null)
         end
-        ActiveSchema.config.foreign_keys.on_delete = nil
+        SchemaPlus.config.foreign_keys.on_delete = nil
       end
 
       protected
@@ -391,12 +391,12 @@ describe ActiveRecord::Migration do
   end
 
   def with_fk_config(opts, &block)
-    save = Hash[opts.keys.collect{|key| [key, ActiveSchema.config.foreign_keys.send(key)]}]
+    save = Hash[opts.keys.collect{|key| [key, SchemaPlus.config.foreign_keys.send(key)]}]
     begin
-      ActiveSchema.config.foreign_keys.update_attributes(opts)
+      SchemaPlus.config.foreign_keys.update_attributes(opts)
       yield
     ensure
-      ActiveSchema.config.foreign_keys.update_attributes(save)
+      SchemaPlus.config.foreign_keys.update_attributes(save)
     end
   end
 

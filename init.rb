@@ -1,1 +1,1 @@
-require 'active_schema' unless defined?(ActiveSchema)
+require 'schema_plus' unless defined?(SchemaPlus)

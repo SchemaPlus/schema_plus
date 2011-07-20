@@ -25,7 +25,7 @@ Rake::RDocTask.new do |rdoc|
   version = File.exist?('VERSION') ? File.read('VERSION') : ""
 
   rdoc.rdoc_dir = 'rdoc'
-  rdoc.title = "active_schema #{version}"
+  rdoc.title = "schema_plus #{version}"
   rdoc.rdoc_files.include('README*')
   rdoc.rdoc_files.include('lib/**/*.rb')
 end
@@ -33,12 +33,12 @@ end
 namespace :postgresql do
   desc 'Build the PostgreSQL test databases'
   task :build_databases do
-    %x( createdb -E UTF8 active_schema_unittest )
+    %x( createdb -E UTF8 schema_plus_unittest )
   end
 
   desc 'Drop the PostgreSQL test databases'
   task :drop_databases do
-    %x( dropdb active_schema_unittest )
+    %x( dropdb schema_plus_unittest )
   end
 
   desc 'Rebuild the PostgreSQL test databases'
@@ -49,16 +49,16 @@ task :build_postgresql_databases => 'postgresql:build_databases'
 task :drop_postgresql_databases => 'postgresql:drop_databases'
 task :rebuild_postgresql_databases => 'postgresql:rebuild_databases'
 
-MYSQL_DB_USER = 'active_schema'
+MYSQL_DB_USER = 'schema_plus'
 namespace :mysql do
   desc 'Build the MySQL test databases'
   task :build_databases do
-    %x( echo "create DATABASE active_schema_unittest DEFAULT CHARACTER SET utf8 DEFAULT COLLATE utf8_unicode_ci " | mysql --user=#{MYSQL_DB_USER})
+    %x( echo "create DATABASE schema_plus_unittest DEFAULT CHARACTER SET utf8 DEFAULT COLLATE utf8_unicode_ci " | mysql --user=#{MYSQL_DB_USER})
   end
 
   desc 'Drop the MySQL test databases' 
   task :drop_databases do
-    %x( mysqladmin --user=#{MYSQL_DB_USER} -f drop active_schema_unittest )
+    %x( mysqladmin --user=#{MYSQL_DB_USER} -f drop schema_plus_unittest )
   end
 
   desc 'Rebuild the MySQL test databases'

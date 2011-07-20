@@ -1,6 +1,6 @@
-module ActiveSchema
+module SchemaPlus
   module ActiveRecord
-    module Schema
+    module Schema #:nodoc: all
       def self.included(base)
         base.extend(ClassMethods)
       end
@@ -11,13 +11,13 @@ module ActiveSchema
             attr_accessor :defining
             alias :defining? :defining
 
-            alias_method_chain :define, :active_schema
+            alias_method_chain :define, :schema_plus
           end
         end
 
-        def define_with_active_schema(info={}, &block)
+        def define_with_schema_plus(info={}, &block)
           self.defining = true
-          define_without_active_schema(info, &block)
+          define_without_schema_plus(info, &block)
         ensure
           self.defining = false
         end

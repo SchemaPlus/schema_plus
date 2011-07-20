@@ -31,7 +31,7 @@ describe "add_index" do
     index_for(:login).name.should == 'users_login_index'
   end
 
-  if ActiveSchemaHelpers.postgresql?
+  if SchemaPlusHelpers.postgresql?
 
     it "should assign conditions" do
       add_index(:users, :login, :conditions => 'deleted_at IS NULL')

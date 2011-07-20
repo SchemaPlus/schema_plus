@@ -4,10 +4,10 @@ require 'logger'
 ActiveRecord::Base.logger = Logger.new(File.open("mysql.log", "w"))
 
 ActiveRecord::Base.configurations = {
-  'active_schema' => {
+  'schema_plus' => {
     :adapter => 'mysql',
-    :database => 'active_schema_unittest',
-    :username => 'active_schema',
+    :database => 'schema_plus_unittest',
+    :username => 'schema_plus',
     :encoding => 'utf8',
     :socket => '/tmp/mysql.sock',
     :min_messages => 'warning'
@@ -15,4 +15,4 @@ ActiveRecord::Base.configurations = {
 
 }
 
-ActiveRecord::Base.establish_connection 'active_schema'
+ActiveRecord::Base.establish_connection 'schema_plus'

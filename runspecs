@@ -1,0 +1,28 @@
+#!/usr/bin/env ruby
+
+require 'optparse'
+
+RUBY_VERSIONS = %W[1.8.7 1.9.2]
+RAILS_VERSIONS = %W[3.0 3.1]
+
+options = {}
+OptionParser.new do |opts|
+    opts.banner = "Usage: #{$0} [options]"
+
+    opts.on("--install", "Install gem dependencies") do |v|
+        options[:install] = v
+    end
+end.parse!
+
+cmd = if options [:install]
+          'bundle update'
+      else
+          'bundle update --local | grep "(rails)|(mysql2)" \\n rake spec'
+      end
+
+RUBY_VERSIONS.each do |ruby|
+    RAILS_VERSIONS.each do |rails|
+        puts "\n\n*** ruby version #{ruby} - rails version #{rails}\n\n"
+        system "echo 'PS1="" SCHEMA_PLUS_RAILS_VERSION=#{rails} \\n rvm use #{ruby} \\n #{cmd} \\n exit' | bash -i" or abort "aborting #{$0}"
+    end
+end

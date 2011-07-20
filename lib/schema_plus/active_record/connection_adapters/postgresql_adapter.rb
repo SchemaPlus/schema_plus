@@ -1,16 +1,29 @@
-module ActiveSchema
+module SchemaPlus
   module ActiveRecord
     module ConnectionAdapters
+      # The Postgresql adapter implements the SchemaPlus extensions and
+      # enhancements
       module PostgresqlAdapter
-        def self.included(base)
+
+        def self.included(base) #:nodoc:
           base.class_eval do
             remove_method :indexes
           end
         end
 
+        # SchemaPlus provides the following extra options for Postgres
+        # indexes:
+        # * +:conditions+ - SQL conditions for the WHERE clause of the index
+        # * +:expression+ - SQL expression to index.  column_name can be nil or ommitted, in which case :name must be provided
+        # * +:kind+ - index method for Postgresql to use
+        # * +:case_sensitive - if +false+ then the index will be created on LOWER(column_name)
+        #
+        # The <tt>:case_sensitive => false</tt> option ties in with Rails built-in support for case-insensitive searching:
+        #    validates_uniqueness_of :name, :case_sensitive => false
+        #
         def add_index(table_name, column_name, options = {})
           column_name, options = [], column_name if column_name.is_a?(Hash)
-          column_names = Array(column_name)
+          column_names = Array(column_name).compact
           if column_names.empty?
             raise ArgumentError, "No columns and :expression missing from options - cannot create index" if options[:expression].blank?
             raise ArgumentError, "Index name not given. Pass :name option" if options[:name].blank?
@@ -20,7 +33,7 @@ module ActiveSchema
           index_name = options[:name] || index_name(table_name, column_names)
           conditions = options[:conditions]
 
-          if column_names.empty? then
+          if options[:expression] then
             sql = "CREATE #{index_type} INDEX #{quote_column_name(index_name)} ON #{quote_table_name(table_name)} #{options[:expression]}"
           else
             quoted_column_names = column_names.map { |e| options[:case_sensitive] == false && e.to_s !~ /_id$/ ? "LOWER(#{quote_column_name(e)})" : quote_column_name(e) }
@@ -31,11 +44,11 @@ module ActiveSchema
           execute sql
         end
 
-        def supports_partial_indexes?
+        def supports_partial_indexes? #:nodoc:
           true
         end
 
-        def indexes(table_name, name = nil)
+        def indexes(table_name, name = nil) #:nodoc:
           schemas = schema_search_path.split(/,/).map { |p| quote(p) }.join(',')
           result = query(<<-SQL, name)
            SELECT distinct i.relname, d.indisunique, d.indkey, m.amname, t.oid, 
@@ -76,7 +89,7 @@ module ActiveSchema
           end
         end
 
-        def foreign_keys(table_name, name = nil)
+        def foreign_keys(table_name, name = nil) #:nodoc:
           load_foreign_keys(<<-SQL, name)
         SELECT f.conname, pg_get_constraintdef(f.oid), t.relname
           FROM pg_class t, pg_constraint f
@@ -86,7 +99,7 @@ module ActiveSchema
           SQL
         end
 
-        def reverse_foreign_keys(table_name, name = nil)
+        def reverse_foreign_keys(table_name, name = nil) #:nodoc:
           load_foreign_keys(<<-SQL, name)
         SELECT f.conname, pg_get_constraintdef(f.oid), t2.relname
           FROM pg_class t, pg_class t2, pg_constraint f
@@ -97,7 +110,7 @@ module ActiveSchema
           SQL
         end
 
-        def views(name = nil)
+        def views(name = nil) #:nodoc:
           schemas = schema_search_path.split(/,/).map { |p| quote(p) }.join(',')
           query(<<-SQL, name).map { |row| row[0] }
         SELECT viewname
@@ -106,7 +119,7 @@ module ActiveSchema
           SQL
         end
 
-        def view_definition(view_name, name = nil)
+        def view_definition(view_name, name = nil) #:nodoc:
           result = query(<<-SQL, name)
         SELECT pg_get_viewdef(oid)
           FROM pg_class
@@ -119,7 +132,7 @@ module ActiveSchema
 
         private
 
-        def load_foreign_keys(sql, name = nil)
+        def load_foreign_keys(sql, name = nil) #:nodoc:
           foreign_keys = []
 
           query(sql, name).each do |row|
