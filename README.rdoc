@@ -133,17 +133,30 @@ ActiveRecord works with views the same as with ordinary tables.  That is, for th
 
 == Testing
 
-SchemaPlus is tested using rspec.  To run the tests, after you've forked & cloned: Make sure you have Postgresql and MySQL running.  Create database user "schema_plus" with permissions for database "schema_plus_unittest".  Then:
+SchemaPlus is tested using rspec and rvm, with some hackery to test against
+multiple versions of rails and ruby and db adapters.  To run the tests,
+after you've forked & cloned: Make sure you have Postgresql and MySQL
+running.  Create database user "schema_plus" with permissions for database
+"schema_plus_unittest".  Then:
 
   $ cd schema_plus
   $ bundle install
   $ rake postgresql:build_databases
   $ rake mysql:build_databases
+  $ ./runspecs --install  # do this once to install gem dependencies for all versions (slow)
+  $ ./runspecs # as many times as you like
+
+You can also pick a specific version of rails and ruby to use, such as:
+  $ export SCHEMA_ASSOCIATIONS_RAILS_VERSION
+  $ SCHEMA_ASSOCIATIONS_RAILS_VERSION=3.1
+  $ rvm use 1.9.2
+  $ rake spec
+
+And you can run the specs for a specific adapter:
   $ rake postgresql:spec # to run postgresql tests only
   $ rake mysql:spec # to run mysql tests only
   $ rake mysql2:spec # to run mysql2 tests only
   $ rake sqlite3:spec # to run sqlite3 tests only
-  $ rake spec # run all tests
 
 If you're running ruby 1.9.2, code coverage results will be in coverage/index.html -- it should be at 100% coverage.
 
