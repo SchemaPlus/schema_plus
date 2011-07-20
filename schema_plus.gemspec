@@ -23,12 +23,21 @@ Gem::Specification.new do |s|
   s.add_dependency("rails")
   s.add_dependency("valuable")
       
+  case ENV['SCHEMA_PLUS_RAILS_VERSION']
+  when '3.0'
+      s.add_development_dependency("rails", "~> 3.0")
+      s.add_development_dependency("mysql2", "0.2.6")
+  when '3.1'
+      s.add_development_dependency("rails", ">= 3.1.0.rc1")
+      s.add_development_dependency("mysql2")
+  else
+      s.add_development_dependency("mysql2")
+  end
+
   s.add_development_dependency("rake", "~> 0.8.7")
-  s.add_development_dependency("rails", ">= 3.1.0.rc1")
   s.add_development_dependency("rspec")
   s.add_development_dependency("pg")
   s.add_development_dependency("mysql")
-  s.add_development_dependency("mysql2")
   s.add_development_dependency("sqlite3")
   s.add_development_dependency("simplecov")
   s.add_development_dependency("simplecov-gem-adapter")
