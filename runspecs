@@ -23,6 +23,6 @@ cmd = if options [:install]
 RUBY_VERSIONS.each do |ruby|
     RAILS_VERSIONS.each do |rails|
         puts "\n\n*** ruby version #{ruby} - rails version #{rails}\n\n"
-        system "echo 'PS1="" SCHEMA_PLUS_RAILS_VERSION=#{rails} \\n rvm use #{ruby} \\n #{cmd} \\n exit' | bash -i" or abort "aborting #{$0}"
+        system %Q{echo 'rvm use #{ruby} \nPS1="" SCHEMA_PLUS_RAILS_VERSION=#{rails} #{cmd} \n exit' | bash -i} or abort "aborting #{$0}"
     end
 end
