@@ -1,11 +1,10 @@
 module SchemaPlus 
   class Railtie < Rails::Railtie #:nodoc:
-    config.before_initialize do
-      SchemaPlus.insert_connection_adapters
-    end
 
-    initializer 'schema_plus.insert', :after => :load_config_initializers do
-      SchemaPlus.insert
+    initializer 'schema_plus.insert', :after => "active_record.initialize_database" do
+      ActiveSupport.on_load(:active_record) do
+        SchemaPlus.insert
+      end
     end
 
   end
