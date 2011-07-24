@@ -16,8 +16,6 @@ require 'schema_plus/railtie' if defined?(Rails)
 module SchemaPlus
   module ActiveRecord
 
-    autoload :Validations, 'schema_plus/active_record/validations'
-
     module ConnectionAdapters
       autoload :MysqlAdapter, 'schema_plus/active_record/connection_adapters/mysql_adapter'
       autoload :PostgresqlAdapter, 'schema_plus/active_record/connection_adapters/postgresql_adapter'
@@ -33,7 +31,7 @@ module SchemaPlus
   #    end
   #
   # The options are grouped into subsets based on area of functionality.
-  # See Config::ForeignKeys, Config::Validations
+  # See Config::ForeignKeys
   #
   class Config < Valuable
 
@@ -79,56 +77,6 @@ module SchemaPlus
       has_value :on_delete
     end
     has_value :foreign_keys, :klass => ForeignKeys, :default => ForeignKeys.new
-
-    # This set of configuration options control SchemaPlus's automatic
-    # validations behavior.  Set them in
-    # +config/initializers/schema_plus.rb+ using:
-    #
-    #    SchemaPlus.setup do |config|
-    #       config.validations.auto_create = ...
-    #    end
-    #
-    class Validations < Valuable
-      ##
-      # :attr_accessor: auto_create
-      #
-      # Whether to automatically create validations based on database constraints.
-      # Boolean, default is +true+.
-      has_value :auto_create, :klass => :boolean, :default => true
-
-      ##
-      # :attr_accessor: only
-      #
-      # List of field names to include in automatic validation.
-      # Value is a single name, and array of names, or +nil+.  Default is +nil+.
-      has_value :only, :default => nil
-
-      ##
-      # :attr_accessor: except
-      #
-      # List of field names to exclude from automatic validation.
-      # Value is a single name, an array of names, or +nil+.  Default is <tt>[:created_at, :updated_at, :created_on, :updated_on]</tt>.
-      has_value :except, :default => [:created_at, :updated_at, :created_on, :updated_on]
-      
-      ##
-      # :attr_accessor: only_type
-      #
-      # List of validation types to exclude from automatic validation.
-      # Value is a single type, and array of types, or +nil+.  Default is +nil+.
-      # A type is specified as, e.g., +:validates_presence_of+ or simply +:presence+.
-      has_value :except_type, :default => nil
-
-      ##
-      # :attr_accessor: only_type
-      #
-      # List of validation types to include in automatic validation.
-      # Value is a single type, and array of types, or +nil+.  Default is +nil+.
-      # A type is specified as, e.g., +:validates_presence_of+ or simply +:presence+.
-      has_value :only_type, :default => nil
-
-    end
-    has_value :validations, :klass => Validations, :default => Validations.new
-
 
     def dup #:nodoc:
       self.class.new(Hash[attributes.collect{ |key, val| [key, Valuable === val ?  val.class.new(val.attributes) : val] }])

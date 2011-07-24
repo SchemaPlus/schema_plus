@@ -7,7 +7,6 @@ module SchemaPlus
     module Base
       def self.included(base) #:nodoc:
         base.extend(ClassMethods)
-        base.extend(SchemaPlus::ActiveRecord::Validations)
       end
 
       module ClassMethods #:nodoc:

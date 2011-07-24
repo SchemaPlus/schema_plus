@@ -6,9 +6,7 @@ SchemaPlus is an ActiveRecord extension that provides enhanced capabilities for 
 
 For added rails DRYness see also the gems
 {+schema_associations+}[http://rubygems.org/gems/schema_associations] and
-{+schema_validations+}[http://rubygems.org/gems/schema_associations]
-<b>IMPORTANT PRERELEASE NOTE: <i>schema_validations is not yet separate
-gems, it's currently bundled in here.  It's not documented yet though.</i></b>
+{+schema_validations+}[http://rubygems.org/gems/schema_validations]
 
 == Compatibility
 
@@ -127,7 +125,7 @@ ActiveRecord works with views the same as with ordinary tables.  That is, for th
   * Greg Barnett (https://github.com/greg-barnett)
   * Ronen Barzel (https://github.com/ronen)
 
-* SchemaPlus was created in 2011 by Michal Lomnicki and Ronen Barzel
+* SchemaPlus was created in 2011 by Michał Łomnicki and Ronen Barzel
 
 
 
