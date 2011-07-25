@@ -46,6 +46,15 @@ describe ActiveRecord::Migration do
       @model.should have_index.on(:state)
     end
 
+    it "should create a unique index if specified on column" do
+      create_table(@model, :state => { :index => {:unique => true} }) 
+      @model.should have_unique_index.on(:state)
+    end
+    it "should create a unique index if specified on column using shorthand" do
+      create_table(@model, :state => { :index => :unique }) 
+      @model.should have_unique_index.on(:state)
+    end
+
     it "should create an index if specified explicitly" do
       create_table_opts(@model, {}, {:state => {}}, {:state => {}}) 
       @model.should have_index.on(:state)
@@ -246,6 +255,12 @@ describe ActiveRecord::Migration do
 
       it "should create a unique index if specified" do
         add_column(:post_id, :integer, :index => { :unique => true }) do
+          @model.should have_unique_index.on(:post_id)
+        end
+      end
+
+      it "should create a unique index if specified by shorthand" do
+        add_column(:post_id, :integer, :index => :unique) do
           @model.should have_unique_index.on(:post_id)
         end
       end

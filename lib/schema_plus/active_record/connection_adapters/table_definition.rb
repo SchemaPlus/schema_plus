@@ -118,6 +118,7 @@ module SchemaPlus::ActiveRecord::ConnectionAdapters
     protected
     def column_index(name, options) #:nodoc:
       options = {} if options == true
+      options = {:unique => true} if options == :unique
       name = [name] + Array.wrap(options.delete(:with)).compact
       self.index(name, options)
     end
