@@ -25,6 +25,10 @@ or in a Gemfile
 
         gem "schema_plus"
 
+if you're using rails fire a generator
+
+       rails g schema_plus:install
+
 == Features
 
 Here some examples that show off the high points.  For full details see the
