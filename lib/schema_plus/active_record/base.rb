@@ -13,16 +13,11 @@ module SchemaPlus
         def self.extended(base) #:nodoc:
           class << base
             alias_method_chain :columns, :schema_plus
-            alias_method_chain :abstract_class?, :schema_plus
             alias_method_chain :reset_column_information, :schema_plus
           end
         end
 
         public
-
-        def abstract_class_with_schema_plus? #:nodoc:
-          abstract_class_without_schema_plus? || !(name =~ /^Abstract/).nil?
-        end
 
         def columns_with_schema_plus #:nodoc:
           unless @schema_plus_extended_columns
