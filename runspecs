@@ -28,7 +28,7 @@ RUBY_VERSIONS.each do |ruby|
         n += 1
         allcmds = []
         allcmds << "rvm use #{ruby}"
-        allcmds << "export SCHEMA_VALIDATIONS_RAILS_VERSION=#{rails}"
+        allcmds << "export SCHEMA_PLUS_RAILS_VERSION=#{rails}"
         allcmds += cmds
         allcmds << 'exit'
         system %Q{echo '#{allcmds.join(' \n ')}' | bash -i} or abort "aborting #{$0}"
