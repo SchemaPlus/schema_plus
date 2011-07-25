@@ -145,9 +145,9 @@ running.  Create database user "schema_plus" with permissions for database
   $ ./runspecs # as many times as you like
 
 You can also pick a specific version of rails and ruby to use, such as:
-  $ export SCHEMA_ASSOCIATIONS_RAILS_VERSION
-  $ SCHEMA_ASSOCIATIONS_RAILS_VERSION=3.1
   $ rvm use 1.9.2
+  $ export SCHEMA_ASSOCIATIONS_RAILS_VERSION=3.1
+  $ bundle update --local rails mysql2  # different versions of rails require different mysql2's
   $ rake spec
 
 And you can run the specs for a specific adapter:
@@ -160,4 +160,4 @@ If you're running ruby 1.9.2, code coverage results will be in coverage/index.ht
 
 == License
 
-This plugin is released under the MIT license.
+This gem is released under the MIT license.
