@@ -14,15 +14,23 @@ OptionParser.new do |opts|
     end
 end.parse!
 
-cmd = if options [:install]
-          'bundle update'
-      else
-          'bundle update --local | grep "(rails)|(mysql2)" \\n rake spec'
-      end
+cmds = if options [:install]
+           ['bundle update']
+       else
+           ['bundle update --local rails mysql2 | egrep "rails|mysql2"', 'rake spec']
+       end
 
+n = 1
+total = RUBY_VERSIONS.size * RAILS_VERSIONS.size
 RUBY_VERSIONS.each do |ruby|
     RAILS_VERSIONS.each do |rails|
-        puts "\n\n*** ruby version #{ruby} - rails version #{rails}\n\n"
-        system %Q{echo 'rvm use #{ruby} \nPS1="" SCHEMA_PLUS_RAILS_VERSION=#{rails} #{cmd} \n exit' | bash -i} or abort "aborting #{$0}"
+        puts "\n\n*** ruby version #{ruby} - rails version #{rails}  [#{n} of #{total}]\n\n"
+        n += 1
+        allcmds = []
+        allcmds << "rvm use #{ruby}"
+        allcmds << "export SCHEMA_VALIDATIONS_RAILS_VERSION=#{rails}"
+        allcmds += cmds
+        allcmds << 'exit'
+        system %Q{echo '#{allcmds.join(' \n ')}' | bash -i} or abort "aborting #{$0}"
     end
 end
