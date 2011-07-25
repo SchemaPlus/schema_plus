@@ -20,14 +20,6 @@ module SchemaPlus
 
         public
 
-        # Per-model override of Config options.  Use via, e.g.
-        #     class MyModel < ActiveRecord::Base
-        #         schema_plus :associations => { :auto_create => false }
-        #     end
-        def schema_plus(opts)
-          @schema_plus_config = SchemaPlus.config.merge(opts)
-        end
-
         def abstract_class_with_schema_plus? #:nodoc:
           abstract_class_without_schema_plus? || !(name =~ /^Abstract/).nil?
         end
@@ -68,11 +60,6 @@ module SchemaPlus
           connection.reverse_foreign_keys(table_name, "#{name} Reverse Foreign Keys")
         end
 
-        private
-
-        def schema_plus_config # :nodoc:
-          @schema_plus_config ||= SchemaPlus.config.dup
-        end
       end
     end
   end
