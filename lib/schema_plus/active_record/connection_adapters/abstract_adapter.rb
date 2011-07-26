@@ -95,6 +95,16 @@ module SchemaPlus
           false
         end
 
+        # This is define in rails 3.x, but not in rails2.x
+        unless defined? ::ActiveRecord::ConnectionAdapters::SchemaStatements::index_name_exists?
+          # File activerecord/lib/active_record/connection_adapters/abstract/schema_statements.rb, line 403
+          def index_name_exists?(table_name, index_name, default)
+            return default unless respond_to?(:indexes)
+            index_name = index_name.to_s
+            indexes(table_name).detect { |i| i.name == index_name }
+          end
+        end
+
       end
     end
   end

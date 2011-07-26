@@ -3,7 +3,7 @@
 require 'optparse'
 
 RUBY_VERSIONS = %W[1.8.7 1.9.2]
-RAILS_VERSIONS = %W[3.0 3.1]
+RAILS_VERSIONS = %W[2.3 3.0 3.1]
 
 options = {}
 OptionParser.new do |opts|

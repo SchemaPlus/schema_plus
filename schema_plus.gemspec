@@ -24,6 +24,9 @@ Gem::Specification.new do |s|
   s.add_dependency("valuable")
       
   case ENV['SCHEMA_PLUS_RAILS_VERSION']
+  when '2.3'
+      s.add_development_dependency("rails", "~> 2.3")
+      s.add_development_dependency("mysql2", "~> 0.2.6")
   when '3.0'
       s.add_development_dependency("rails", "~> 3.0")
       s.add_development_dependency("mysql2", "~> 0.2.6")

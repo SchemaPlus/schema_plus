@@ -19,8 +19,8 @@ module SchemaPlus
         end
 
         def initialize_with_schema_plus(*args) #:nodoc:
-          # same args as add_index(table_name, column_names, options={})
-          if args.length == 2 or (args.length == 3 && Hash === args.last)
+          # same args as add_index(table_name, column_names, options)
+          if args.length == 3 and Hash === args.last
             table_name, column_names, options = args + [{}]
             initialize_without_schema_plus(table_name, options[:name], options[:unique], column_names, options[:lengths])
             @conditions = options[:conditions]
