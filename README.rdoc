@@ -146,7 +146,7 @@ running.  Create database user "schema_plus" with permissions for database
   $ ./runspecs --install  # do this once to install gem dependencies for all versions (slow)
   $ ./runspecs # as many times as you like
 
-You can also pick a specific version of rails and ruby to use, such as:
+See <tt>./runspecs --help</tt> for more options.  You can also manually pick a specific version of rails and ruby to use, such as:
   $ rvm use 1.9.2
   $ export SCHEMA_ASSOCIATIONS_RAILS_VERSION=3.1
   $ bundle update --local rails mysql2  # different versions of rails require different mysql2's

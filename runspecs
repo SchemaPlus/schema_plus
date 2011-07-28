@@ -1,34 +1,54 @@
 #!/usr/bin/env ruby
 
 require 'optparse'
+require 'ostruct'
 
 RUBY_VERSIONS = %W[1.8.7 1.9.2]
 RAILS_VERSIONS = %W[2.3 3.0 3.1]
+RAILS_VERSION_VAR = "SCHEMA_PLUS_RAILS_VERSION"
 
-options = {}
+o = OpenStruct.new
+o.ruby_versions = RUBY_VERSIONS
+o.rails_versions = RAILS_VERSIONS
+o.rake_target = "spec"
+
 OptionParser.new do |opts|
     opts.banner = "Usage: #{$0} [options]"
 
     opts.on("--install", "Install gem dependencies") do |v|
-        options[:install] = v
+        o.install = v
     end
+
+    opts.on("--db adapter", String, "Choose which db adapter to run: postgresql, mysql, mysql2, or sqlite3.  Default is all of them" ) do |adapter|
+        p adapter
+        o.rake_target = "rake #{adapter}:spec"
+    end
+
+    opts.on("--ruby version", String, "Choose which version(s) of ruby to run.  Default is: #{o.ruby_versions.join(' ')}") do |ruby|
+        o.ruby_versions = ruby.split(' ')
+    end
+
+    opts.on("--rails version", String, "Choose which version(s) of rails to run.  Default is: #{o.rails_versions.join(' ')}") do |rails|
+        o.rails_versions = rails.split(' ')
+    end
+
 end.parse!
 
-cmds = if options [:install]
+cmds = if o.install
            ['bundle update']
        else
-           ['bundle update --local rails mysql2 | egrep "rails|mysql2"', 'rake spec']
+           ['bundle update --local rails mysql2 | egrep "rails|mysql2"', o.rake_target]
        end
 
 n = 1
-total = RUBY_VERSIONS.size * RAILS_VERSIONS.size
-RUBY_VERSIONS.each do |ruby|
-    RAILS_VERSIONS.each do |rails|
+total = o.ruby_versions.size * o.rails_versions.size
+o.ruby_versions.each do |ruby|
+    o.rails_versions.each do |rails|
         puts "\n\n*** ruby version #{ruby} - rails version #{rails}  [#{n} of #{total}]\n\n"
         n += 1
         allcmds = []
         allcmds << "rvm use #{ruby}"
-        allcmds << "export SCHEMA_PLUS_RAILS_VERSION=#{rails}"
+        allcmds << "export #{RAILS_VERSION_VAR}=#{rails}"
         allcmds += cmds
         allcmds << 'exit'
         system %Q{echo '#{allcmds.join(' \n ')}' | bash -i} or abort "aborting #{$0}"
