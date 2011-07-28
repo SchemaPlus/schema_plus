@@ -32,6 +32,12 @@ OptionParser.new do |opts|
         o.rails_versions = rails.split(' ')
     end
 
+    opts.on("--quick", "quick run on Postgres, ruby #{RUBY_VERSIONS.last} and rails #{RAILS_VERSIONS.last}") do
+      o.ruby_versions  = [RUBY_VERSIONS.last]
+      o.rails_versions = [RAILS_VERSIONS.last]
+      o.rake_target = "rake postgresql:spec"
+    end
+
 end.parse!
 
 cmds = if o.install
