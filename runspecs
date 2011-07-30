@@ -3,14 +3,15 @@
 require 'optparse'
 require 'ostruct'
 
+PROJECT = File.basename(File.dirname(File.realpath(__FILE__)))
+
 RUBY_VERSIONS = %W[1.8.7 1.9.2]
 RAILS_VERSIONS = %W[2.3 3.0 3.1]
-RAILS_VERSION_VAR = "SCHEMA_PLUS_RAILS_VERSION"
 
 o = OpenStruct.new
 o.ruby_versions = RUBY_VERSIONS
 o.rails_versions = RAILS_VERSIONS
-o.rake_target = "spec"
+o.run_cmd = "rake spec"
 
 OptionParser.new do |opts|
     opts.banner = "Usage: #{$0} [options]"
@@ -21,7 +22,7 @@ OptionParser.new do |opts|
 
     opts.on("--db adapter", String, "Choose which db adapter to run: postgresql, mysql, mysql2, or sqlite3.  Default is all of them" ) do |adapter|
         p adapter
-        o.rake_target = "rake #{adapter}:spec"
+        o.run_cmd = "rake #{adapter}:spec"
     end
 
     opts.on("--ruby version", String, "Choose which version(s) of ruby to run.  Default is: #{o.ruby_versions.join(' ')}") do |ruby|
@@ -35,7 +36,7 @@ OptionParser.new do |opts|
     opts.on("--quick", "quick run on Postgres, ruby #{RUBY_VERSIONS.last} and rails #{RAILS_VERSIONS.last}") do
       o.ruby_versions  = [RUBY_VERSIONS.last]
       o.rails_versions = [RAILS_VERSIONS.last]
-      o.rake_target = "rake postgresql:spec"
+      o.run_cmd = "rake postgresql:spec"
     end
 
 end.parse!
@@ -43,7 +44,7 @@ end.parse!
 cmds = if o.install
            ['bundle update']
        else
-           ['bundle update --local rails mysql2 | egrep "rails|mysql2"', o.rake_target]
+           ['bundle update --local rails mysql2 | egrep "rails|mysql2"', o.run_cmd]
        end
 
 n = 1
@@ -54,7 +55,7 @@ o.ruby_versions.each do |ruby|
         n += 1
         allcmds = []
         allcmds << "rvm use #{ruby}"
-        allcmds << "export #{RAILS_VERSION_VAR}=#{rails}"
+        allcmds << "export #{PROJECT.upcase}_RAILS_VERSION=#{rails}"
         allcmds += cmds
         allcmds << 'exit'
         system %Q{echo '#{allcmds.join(' \n ')}' | bash -i} or abort "aborting #{$0}"
