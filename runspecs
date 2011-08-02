@@ -3,7 +3,7 @@
 require 'optparse'
 require 'ostruct'
 
-PROJECT = File.basename(File.dirname(File.realpath(__FILE__)))
+PROJECT = File.basename(File.expand_path('..', __FILE__))
 
 RUBY_VERSIONS = %W[1.8.7 1.9.2]
 RAILS_VERSIONS = %W[2.3 3.0 3.1]
