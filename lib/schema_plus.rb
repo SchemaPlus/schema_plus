@@ -11,7 +11,7 @@ require 'schema_plus/active_record/connection_adapters/abstract_adapter'
 require 'schema_plus/active_record/connection_adapters/column'
 require 'schema_plus/active_record/connection_adapters/foreign_key_definition'
 require 'schema_plus/active_record/connection_adapters/index_definition'
-require 'schema_plus/railtie' if defined?(Rails)
+require 'schema_plus/railtie' if defined?(Rails::Railtie)
 
 module SchemaPlus
   module ActiveRecord
