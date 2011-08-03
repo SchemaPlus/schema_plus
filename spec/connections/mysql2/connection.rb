@@ -9,7 +9,6 @@ ActiveRecord::Base.configurations = {
     :database => 'schema_plus_unittest',
     :username => ENV.fetch('MYSQL_DB_USER', 'schema_plus'),
     :encoding => 'utf8',
-    :socket => '/tmp/mysql.sock',
     :min_messages => 'warning'
   }
 
