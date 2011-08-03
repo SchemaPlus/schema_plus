@@ -55,7 +55,7 @@ o.ruby_versions.each do |ruby|
         puts "\n\n*** ruby version #{ruby} - rails version #{rails}  [#{n} of #{total}]\n\n"
         gemfile = File.join(GEMFILES_DIR, "Gemfile.rails-#{rails}")
         n += 1
-        allcmds = %Q{rvm use #{ruby} BUNDLE_GEMFILE="#{gemfile}" #{cmds}}
-        system(cmds)
+        command = %Q{BUNDLE_GEMFILE="#{gemfile}" rvm #{ruby} exec #{cmds}}
+        system(command)
     end
 end
