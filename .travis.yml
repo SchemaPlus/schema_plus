@@ -17,4 +17,4 @@ notifications:
     - michal.lomnicki@gmail.com
 branches:
   only:
-    - travis
+    - master

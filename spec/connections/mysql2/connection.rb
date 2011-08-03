@@ -7,9 +7,8 @@ ActiveRecord::Base.configurations = {
   'schema_plus' => {
     :adapter => 'mysql2',
     :database => 'schema_plus_unittest',
-    :username => 'schema_plus',
+    :username => ENV.fetch('MYSQL_DB_USER', 'schema_plus'),
     :encoding => 'utf8',
-    :socket => '/tmp/mysql.sock',
     :min_messages => 'warning'
   }
 
