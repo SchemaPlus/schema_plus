@@ -7,10 +7,10 @@ gemfile:
   - gemfiles/Gemfile.rails-3.1
 before_script:
   - "mysql -e 'create database schema_plus_unittest;' > /dev/null"
-  - "psql -e 'create database schema_plus_unittest;' -U postgres > /dev/null"
+  - "psql -c 'create database schema_plus_unittest;' -U postgres > /dev/null"
 after_script:
   - "mysql -e 'drop database schema_plus_unittest;' > /dev/null"
-  - "psql -e 'drop database schema_plus_unittest;' -U postgres > /dev/null"
+  - "psql -c 'drop database schema_plus_unittest;' -U postgres > /dev/null"
 env: 'POSTGRES_DB_USER=postgres MYSQL_DB_USER=""'
 notifications:
   recipients:
