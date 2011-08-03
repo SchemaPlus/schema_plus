@@ -42,22 +42,20 @@ OptionParser.new do |opts|
 end.parse!
 
 cmds = if o.install
-           ['bundle update']
+           "bundle install"
        else
-           ['bundle update --local rails mysql2 | egrep "rails|mysql2"', o.run_cmd]
+           "bundle exec #{o.run_cmd}"
        end
 
 n = 1
+GEMFILES_DIR = File.expand_path('../gemfiles', __FILE__)
 total = o.ruby_versions.size * o.rails_versions.size
 o.ruby_versions.each do |ruby|
     o.rails_versions.each do |rails|
         puts "\n\n*** ruby version #{ruby} - rails version #{rails}  [#{n} of #{total}]\n\n"
+        gemfile = File.join(GEMFILES_DIR, "Gemfile.rails-#{rails}")
         n += 1
-        allcmds = []
-        allcmds << "rvm use #{ruby}"
-        allcmds << "export #{PROJECT.upcase}_RAILS_VERSION=#{rails}"
-        allcmds += cmds
-        allcmds << 'exit'
-        system %Q{echo '#{allcmds.join(' \n ')}' | bash -i} or abort "aborting #{$0}"
+        allcmds = %Q{rvm use #{ruby} BUNDLE_GEMFILE="#{gemfile}" #{cmds}}
+        system(cmds)
     end
 end

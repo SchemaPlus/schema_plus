@@ -30,10 +30,11 @@ Rake::RDocTask.new do |rdoc|
   rdoc.rdoc_files.include('lib/**/*.rb')
 end
 
+POSTGRES_DB_USER = ENV.fetch('POSTGRES_DB_USER', 'postgres')
 namespace :postgresql do
   desc 'Build the PostgreSQL test databases'
   task :build_databases do
-    %x( createdb -E UTF8 schema_plus_unittest )
+    %x( createdb -U #{POSTGRES_DB_USER} -E UTF8 schema_plus_unittest )
   end
 
   desc 'Drop the PostgreSQL test databases'
@@ -49,7 +50,7 @@ task :build_postgresql_databases => 'postgresql:build_databases'
 task :drop_postgresql_databases => 'postgresql:drop_databases'
 task :rebuild_postgresql_databases => 'postgresql:rebuild_databases'
 
-MYSQL_DB_USER = 'schema_plus'
+MYSQL_DB_USER = ENV.fetch('MYSQL_DB_USER', 'schema_plus')
 namespace :mysql do
   desc 'Build the MySQL test databases'
   task :build_databases do
