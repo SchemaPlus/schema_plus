@@ -3,26 +3,28 @@
 require 'optparse'
 require 'ostruct'
 
-PROJECT = File.basename(File.expand_path('..', __FILE__))
-
 RUBY_VERSIONS = %W[1.8.7 1.9.2]
 RAILS_VERSIONS = %W[2.3 3.0 3.1]
+DB_ADAPTERS = %W[postgresql mysql mysql2 sqlite3]
 
 o = OpenStruct.new
-o.ruby_versions = RUBY_VERSIONS
+o.ruby_versions = ["1.9.2"]
 o.rails_versions = RAILS_VERSIONS
-o.run_cmd = "rake spec"
+o.db_adapters = DB_ADAPTERS - ["mysql"]
 
 OptionParser.new do |opts|
     opts.banner = "Usage: #{$0} [options]"
+
+    opts.on("-n", "--dry-run", "Do a dry run without executing actions") do |v|
+        o.dry_run = true
+    end
 
     opts.on("--install", "Install gem dependencies") do |v|
         o.install = v
     end
 
-    opts.on("--db adapter", String, "Choose which db adapter to run: postgresql, mysql, mysql2, or sqlite3.  Default is all of them" ) do |adapter|
-        p adapter
-        o.run_cmd = "rake #{adapter}:spec"
+    opts.on("--db adapter", String, "Choose which db adapter(s) to run. Default is: #{o.db_adapters.join(' ')}" ) do |adapter|
+        o.db_adapters = adapter.split
     end
 
     opts.on("--ruby version", String, "Choose which version(s) of ruby to run.  Default is: #{o.ruby_versions.join(' ')}") do |ruby|
@@ -33,29 +35,39 @@ OptionParser.new do |opts|
         o.rails_versions = rails.split(' ')
     end
 
+    opts.on("--full", "run complete matrix of ruby, rails, and db") do
+      o.ruby_versions  = RUBY_VERSIONS
+      o.rails_versions = RAILS_VERSIONS
+      o.db_adapters = DB_ADAPTERS
+    end
+
     opts.on("--quick", "quick run on Postgres, ruby #{RUBY_VERSIONS.last} and rails #{RAILS_VERSIONS.last}") do
       o.ruby_versions  = [RUBY_VERSIONS.last]
       o.rails_versions = [RAILS_VERSIONS.last]
-      o.run_cmd = "rake postgresql:spec"
+      o.db_adapters = ["postgresql"]
     end
 
 end.parse!
 
-cmds = if o.install
-           "bundle install"
-       else
-           "bundle exec #{o.run_cmd}"
-       end
+cmd = if o.install
+          "bundle install"
+      else
+          "bundle exec rake #{o.db_adapters.join(":spec ")}:spec"
+      end
 
 n = 1
 GEMFILES_DIR = File.expand_path('../gemfiles', __FILE__)
 total = o.ruby_versions.size * o.rails_versions.size
+errs = []
 o.ruby_versions.each do |ruby|
     o.rails_versions.each do |rails|
-        puts "\n\n*** ruby version #{ruby} - rails version #{rails}  [#{n} of #{total}]\n\n"
+        puts "\n\n*** ruby version #{ruby} - rails version #{rails} - db adapters: #{o.db_adapters.join(' ')}  [#{n} of #{total}]\n\n"
         gemfile = File.join(GEMFILES_DIR, "Gemfile.rails-#{rails}")
         n += 1
-        command = %Q{BUNDLE_GEMFILE="#{gemfile}" rvm #{ruby} exec #{cmds}}
-        system(command)
+        command = %Q{BUNDLE_GEMFILE="#{gemfile}" rvm #{ruby} exec #{cmd}}
+        puts command
+        next if o.dry_run
+        system(command) or errs << "ruby #{ruby}, rails #{rails}"
     end
 end
+puts errs.any? ?  "\n*** #{errs.size} failures:\n\t#{errs.join("\n\t")}" : "\n*** #{total > 1 ? 'all versions' : 'spec'} succeeded ***" unless o.dry_run
