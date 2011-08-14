@@ -92,10 +92,14 @@ Here are some examples:
     t.integer :author_id, :references => [:people, :ssn] # override table name and key
     t.integer :author_id, :referencs => nil              # don't create a constraint
 
-
 You can also modify the behavior using +:on_delete+, +:on_update+, and +:deferrable+
 
     t.integer :author_id, :on_delete => :cascade
+
+SchemaPlus also creates foreign keys when used rails' <tt>t.references</tt>
+or <tt>t.belongs_to</tt>< which take the singular of the referenced table
+name and implicitly create the column suffixed with +_id+, and it accepts
+the same arguments.
 
 The foreign key behavior can be configured globally (see Config) or per-table (see create_table).
 
