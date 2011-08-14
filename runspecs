@@ -19,6 +19,10 @@ OptionParser.new do |opts|
         o.dry_run = true
     end
 
+    opts.on("--update", "Update gem dependencies") do |v|
+        o.update = v
+    end
+
     opts.on("--install", "Install gem dependencies") do |v|
         o.install = v
     end
@@ -49,7 +53,10 @@ OptionParser.new do |opts|
 
 end.parse!
 
-cmd = if o.install
+cmd = case
+      when o.update
+          "bundle update"
+      when o.install
           "bundle install"
       else
           "bundle exec rake #{o.db_adapters.join(":spec ")}:spec"
