@@ -152,7 +152,7 @@ running.  Create database user "schema_plus" with permissions for database
 
 See <tt>./runspecs --help</tt> for more options.  You can also manually pick a specific version of rails and ruby to use, such as:
   $ rvm use 1.9.2
-  $ export BUNDLE_GEMFILE==gemfiles/Gemfile.rails-3.1
+  $ export BUNDLE_GEMFILE=gemfiles/Gemfile.rails-3.1
   $ bundle exec rake spec
 
 And you can run the specs for a specific adapter:
