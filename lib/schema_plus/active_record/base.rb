@@ -20,16 +20,9 @@ module SchemaPlus
         public
 
         def columns_with_schema_plus #:nodoc:
-          unless @schema_plus_extended_columns
-            @schema_plus_extended_columns = true
-            cols = columns_hash
-            indexes.each do |index|
-              index.columns.each do |name|
-                cols[name].indexes << index
-              end
-            end
-          end
-          columns_without_schema_plus
+          columns = columns_without_schema_plus
+          columns.each do |column| column.connection = self end unless @schema_plus_extended_columns
+          columns
         end
 
         def reset_column_information_with_schema_plus #:nodoc:
