@@ -86,11 +86,11 @@ Here are some examples:
     t.integer :author_id                                 # automatically references table 'authors', key id
     t.integer :parent_id                                 # special name parent_id automatically references its own table (for tree nodes)
     t.integer :author, :references => :authors           # non-conventional column name needs :references for a constraint
-    t.integer :author_id, :refences => :authors          # same as automatic behavior
-    t.integer :author_id, :refences => [:authors, :id]   # same as automatic behavior
+    t.integer :author_id, :references => :authors          # same as automatic behavior
+    t.integer :author_id, :references => [:authors, :id]   # same as automatic behavior
     t.integer :author_id, :references => :people         # override table name
     t.integer :author_id, :references => [:people, :ssn] # override table name and key
-    t.integer :author_id, :referencs => nil              # don't create a constraint
+    t.integer :author_id, :references => nil              # don't create a constraint
 
 You can also modify the behavior using +:on_delete+, +:on_update+, and +:deferrable+
 
