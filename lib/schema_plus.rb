@@ -2,7 +2,7 @@ require 'valuable'
 
 require 'schema_plus/version'
 require 'schema_plus/active_record/base'
-require 'schema_plus/active_record/migration'
+require 'schema_plus/active_record/foreign_keys'
 require 'schema_plus/active_record/connection_adapters/table_definition'
 require 'schema_plus/active_record/connection_adapters/schema_statements'
 require 'schema_plus/active_record/schema'
@@ -128,7 +128,6 @@ module SchemaPlus
     @inserted = true
     insert_connection_adapters
     ::ActiveRecord::Base.send(:include, SchemaPlus::ActiveRecord::Base)
-    ::ActiveRecord::Migration.send(:include, SchemaPlus::ActiveRecord::Migration)
     ::ActiveRecord::Schema.send(:include, SchemaPlus::ActiveRecord::Schema)
     ::ActiveRecord::SchemaDumper.send(:include, SchemaPlus::ActiveRecord::SchemaDumper)
   end

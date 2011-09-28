@@ -86,7 +86,7 @@ module SchemaPlus::ActiveRecord::ConnectionAdapters
 
     def column_with_schema_plus(name, type, options = {}) #:nodoc:
       column_without_schema_plus(name, type, options)
-      if references = ActiveRecord::Migration.get_references(self.name, name, options, schema_plus_config)
+      if references = ActiveRecord::Migration.connection.get_references(self.name, name, options, schema_plus_config)
         if index = options.fetch(:index, fk_use_auto_index?)
           self.column_index(name, index)
         end

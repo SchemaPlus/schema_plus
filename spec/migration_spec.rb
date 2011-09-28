@@ -2,14 +2,6 @@
 require File.expand_path(File.dirname(__FILE__) + '/spec_helper')
 
 describe ActiveRecord::Migration do
-
-  it "should respond to get_references" do
-    ActiveRecord::Migration.should respond_to :get_references
-  end
-
-end
-
-describe ActiveRecord::Migration do
   include SchemaPlusHelpers
 
   before(:all) do

@@ -4,7 +4,7 @@ require File.expand_path(File.dirname(__FILE__) + '/spec_helper')
 describe 'get_references method' do
 
   before(:all) do
-    @target = ActiveRecord::Migration
+    @target = ActiveRecord::Migration.connection
     @table_name = 'comments'
     @column_name = 'post_id'
     @destination_table = 'posts'
