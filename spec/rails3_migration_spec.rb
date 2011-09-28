@@ -8,6 +8,10 @@ describe ActiveRecord::Migration do
     load_auto_schema
   end
 
+  around(:each) do |example|
+    with_fk_config(:auto_create => true, :auto_index => true) { example.run }
+  end
+
   context "when table is created" do
 
     before(:each) do
@@ -118,6 +122,16 @@ describe ActiveRecord::Migration do
         end
       end
       @model.reset_column_information
+    end
+  end
+
+  def with_fk_config(opts, &block)
+    save = Hash[opts.keys.collect{|key| [key, SchemaPlus.config.foreign_keys.send(key)]}]
+    begin
+      SchemaPlus.config.foreign_keys.update_attributes(opts)
+      yield
+    ensure
+      SchemaPlus.config.foreign_keys.update_attributes(save)
     end
   end
 
