@@ -7,12 +7,13 @@ module SchemaPlus
       #
       module Column
 
+        attr_writer :connection # connection gets set by SchemaPlus::ActiveRecord::Base::columns_with_schema_plus
+
         # Returns the list of IndexDefinition instances for each index that
         # refers to this column.  Returns an empty list if there are no
         # such indexes.
         def indexes
-          # list get filled by SchemaPlus::ActiveRecord::Base::columns_with_schema_plus
-          @indexes ||= []
+          @indexes ||= @connection.indexes.select{|index| index.columns.include? self.name}
         end
 
         # If the column is in a unique index, returns a list of names of other columns in
