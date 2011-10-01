@@ -38,6 +38,11 @@ describe ActiveRecord::Migration do
       @model.should_not reference(:users, :id).on(:user_id)
     end
 
+    it "should not create foreign key using t.references with :polymorphic => true" do
+      create_table(@model,  :user => {:METHOD => :references, :polymorphic => true})
+      @model.should_not reference(:users, :id).on(:user_id)
+    end
+
     it "should create foreign key to the same table on parent_id" do
       create_table(@model,  :parent_id => {})
       @model.should reference(@model.table_name, :id).on(:parent_id)
