@@ -2,6 +2,7 @@ require 'valuable'
 
 require 'schema_plus/version'
 require 'schema_plus/active_record/base'
+require 'schema_plus/active_record/column_options_handler'
 require 'schema_plus/active_record/foreign_keys'
 require 'schema_plus/active_record/connection_adapters/table_definition'
 require 'schema_plus/active_record/connection_adapters/schema_statements'
