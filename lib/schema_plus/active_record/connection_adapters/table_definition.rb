@@ -52,6 +52,10 @@ module SchemaPlus::ActiveRecord::ConnectionAdapters
   # <tt>_id</tt>.  So the above examples are redundant, unless automatic
   # creation was disabled at initialization in the global Config.
   #
+  # SchemaPlus likewise by default automatically creates foreign key constraints for
+  # columns defined via <tt>t.references</tt>, unless the
+  # <tt>:polymorphic</tt> option is true
+  #
   # Finally, the configuration for foreign keys can be overriden on a per-table
   # basis by passing Config options to Migration::ClassMethods#create_table, such as
   #
@@ -69,6 +73,7 @@ module SchemaPlus::ActiveRecord::ConnectionAdapters
         attr_accessor :indexes
         alias_method_chain :initialize, :schema_plus
         alias_method_chain :column, :schema_plus
+        alias_method_chain :references, :schema_plus
         alias_method_chain :primary_key, :schema_plus
         alias_method_chain :to_sql, :schema_plus
       end
@@ -82,6 +87,13 @@ module SchemaPlus::ActiveRecord::ConnectionAdapters
 
     def primary_key_with_schema_plus(name, options = {}) #:nodoc:
       column(name, :primary_key, options)
+    end
+
+    def references_with_schema_plus(*args)
+      options = args.extract_options!
+      options[:references] = nil if options[:polymorphic]
+      args << options
+      references_without_schema_plus(*args)
     end
 
     def column_with_schema_plus(name, type, options = {}) #:nodoc:
