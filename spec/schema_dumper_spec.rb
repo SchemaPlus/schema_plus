@@ -100,14 +100,6 @@ describe "Schema dump" do
 
   end
 
-  unless SchemaPlusHelpers.sqlite3?
-    it "shouldn't include :index option for index" do
-      add_column(Post, :author_id, :integer, :references => :users, :index => true) do
-        dump.should_not match(/index => true/)
-      end
-    end
-  end
-
   protected
   def to_regexp(string)
     Regexp.new(Regexp.escape(string))
@@ -161,16 +153,6 @@ describe "Schema dump" do
   def determine_foreign_key_name(model, columns, options)
     name = options[:name] 
     name ||= model.foreign_keys.detect { |fk| fk.table_name == model.table_name.to_s && fk.column_names == Array(columns).collect(&:to_s) }.name
-  end
-
-  def add_column(model, column_name, *args)
-    table = model.table_name
-    ActiveRecord::Migration.suppress_messages do
-      ActiveRecord::Migration.add_column(table, column_name, *args)
-      Post.reset_column_information
-      yield if block_given?
-      ActiveRecord::Migration.remove_column(table, column_name)
-    end
   end
 
 end
