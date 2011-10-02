@@ -31,24 +31,60 @@ module SchemaPlus
 
       private
 
+      def break_fk_cycles #:nodoc:
+        strongly_connected_components.select{|component| component.size > 1}.each do |tables|
+          table = tables.sort.first
+          backref_fks = @inline_fks[table].select{|fk| tables.include?(fk.references_table_name)}
+          @inline_fks[table] -= backref_fks
+          @dump_dependencies[table] -= backref_fks.collect(&:references_table_name)
+          backref_fks.each do |fk|
+            @backref_fks[fk.references_table_name] << fk
+          end
+        end
+      end
+
       def tables_with_schema_plus(stream) #:nodoc:
         @table_dumps = {}
-        @re_view_referent = %r{(?:(?i)FROM|JOIN) \S*\b(#{(@connection.tables + @connection.views).join('|')})\b}
-        begin
-          tables_without_schema_plus(nil)
+        @inline_fks = Hash.new{ |h, k| h[k] = [] }
+        @backref_fks = Hash.new{ |h, k| h[k] = [] }
+        @dump_dependencies = {}
 
-          @connection.views.each do |view_name|
-            definition = @connection.view_definition(view_name)
-            @table_dumps[view_name] = "  create_view #{view_name.inspect}, #{definition.inspect}\n"
-          end
+        tables_without_schema_plus(nil)
 
-          tsort().each do |table|
-            stream.print @table_dumps[table]
-          end
-
-        ensure
-          @table_dumps = nil
+        @connection.views.each do |view_name|
+          definition = @connection.view_definition(view_name)
+          @table_dumps[view_name] = "  create_view #{view_name.inspect}, #{definition.inspect}\n"
         end
+
+        re_view_referent = %r{(?:(?i)FROM|JOIN) \S*\b(#{(@table_dumps.keys).join('|')})\b}
+        @table_dumps.keys.each do |table|
+          if @connection.views.include?(table)
+            dependencies = @connection.view_definition(table).scan(re_view_referent).flatten
+          else
+            @inline_fks[table] = @connection.foreign_keys(table)
+            dependencies = @inline_fks[table].collect(&:references_table_name)
+          end
+          @dump_dependencies[table] = dependencies.sort.uniq - ::ActiveRecord::SchemaDumper.ignore_tables
+        end
+
+        # Normally we dump foreign key constraints inline in the table
+        # definitions, both for visual cleanliness and because sqlite3
+        # doesn't allow foreign key constraints to be added afterwards.
+        # But in case there's a cycle in the constraint references, some
+        # constraints will need to be broken out then added later.  (Adding
+        # constraints later won't work with sqlite3, but that means sqlite3
+        # won't let you create cycles in the first place.)
+        break_fk_cycles while strongly_connected_components.any?{|component| component.size > 1}
+
+        tsort().each do |table|
+          table_dump = @table_dumps[table]
+          if i = (table_dump =~ /^\s*[e]nd\s*$/)
+            table_dump.insert i, dump_indexes(table) + dump_foreign_keys(@inline_fks[table], :inline => true)
+          end
+          stream.print table_dump
+          stream.puts dump_foreign_keys(@backref_fks[table], :inline => false)+"\n" if @backref_fks[table].any?
+        end
+
       end
 
       def tsort_each_node(&block) #:nodoc:
@@ -56,30 +92,13 @@ module SchemaPlus
       end
 
       def tsort_each_child(table, &block) #:nodoc:
-        references = if @connection.views.include?(table)
-                       @connection.view_definition(table).scan(@re_view_referent).flatten
-                     else
-                       @connection.foreign_keys(table).collect(&:references_table_name)
-                     end
-        references.sort.uniq.each(&block)
+        @dump_dependencies[table].each(&block)
       end
 
       def table_with_schema_plus(table, ignore) #:nodoc:
-
         stream = StringIO.new
         table_without_schema_plus(table, stream)
-        stream.rewind
-        table_dump = stream.read
-
-        if i = (table_dump =~ /^\s*[e]nd\s*$/)
-          stream = StringIO.new
-          dump_indexes(table, stream)
-          dump_foreign_keys(table, stream)
-          stream.rewind
-          table_dump.insert i, stream.read
-        end
-
-        @table_dumps[table] = table_dump
+        @table_dumps[table] = stream.string
       end
 
       def indexes_with_schema_plus(table, stream) #:nodoc:
@@ -87,36 +106,29 @@ module SchemaPlus
         # dumping the tables
       end
 
-      def dump_indexes(table, stream) #:nodoc:
-        indexes = @connection.indexes(table)
-        indexes.each do |index|
-          stream.print "    t.index"
+      def dump_indexes(table) #:nodoc:
+        @connection.indexes(table).collect{ |index|
+          dump = "    t.index"
           unless index.columns.blank? 
-            stream.print " #{index.columns.inspect}, :name => #{index.name.inspect}"
-            stream.print ", :unique => true" if index.unique
-            stream.print ", :kind => \"#{index.kind}\"" unless index.kind.blank?
-            stream.print ", :case_sensitive => false" unless index.case_sensitive?
-            stream.print ", :conditions => #{index.conditions.inspect}" unless index.conditions.blank?
+            dump << " #{index.columns.inspect}, :name => #{index.name.inspect}"
+            dump << ", :unique => true" if index.unique
+            dump << ", :kind => \"#{index.kind}\"" unless index.kind.blank?
+            dump << ", :case_sensitive => false" unless index.case_sensitive?
+            dump << ", :conditions => #{index.conditions.inspect}" unless index.conditions.blank?
             index_lengths = index.lengths.compact if index.lengths.is_a?(Array)
-            stream.print ", :length => #{Hash[*index.columns.zip(index.lengths).flatten].inspect}" if index_lengths.present?
+            dump << ", :length => #{Hash[*index.columns.zip(index.lengths).flatten].inspect}" if index_lengths.present?
           else
-            stream.print " :name => #{index.name.inspect}"
-            stream.print ", :kind => \"#{index.kind}\"" unless index.kind.blank?
-            stream.print ", :expression => #{index.expression.inspect}"
+            dump << " :name => #{index.name.inspect}"
+            dump << ", :kind => \"#{index.kind}\"" unless index.kind.blank?
+            dump << ", :expression => #{index.expression.inspect}"
           end
-
-          stream.puts
-        end
+          dump << "\n"
+        }.join
       end
 
-      def dump_foreign_keys(table, stream) #:nodoc:
-        foreign_keys = @connection.foreign_keys(table)
-        foreign_keys.each do |foreign_key|
-          stream.print "  "
-          stream.puts foreign_key.to_dump
-        end
+      def dump_foreign_keys(foreign_keys, opts={}) #:nodoc:
+        foreign_keys.collect{ |foreign_key| "  " + foreign_key.to_dump(:inline => opts[:inline]) }.join
       end
-
     end
   end
 end
