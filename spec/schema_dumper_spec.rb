@@ -3,10 +3,36 @@ require 'stringio'
 
 require 'models/post'
 
-describe "Schema dump (core)" do
+describe "Schema dump" do
 
   before(:all) do
-    load_core_schema
+    SchemaPlus.setup do |config|
+      config.foreign_keys.auto_create = false
+    end
+    ActiveRecord::Migration.suppress_messages do
+      ActiveRecord::Schema.define do
+        connection.tables.each do |table| drop_table table end
+
+        create_table :users, :force => true do |t|
+          t.string :login
+          t.datetime :deleted_at
+        end
+
+        create_table :posts, :force => true do |t|
+          t.text :body
+          t.integer :user_id
+        end
+
+        create_table :comments, :force => true do |t|
+          t.text :body
+          t.integer :post_id
+          t.foreign_key :post_id, :posts, :id
+        end
+      end
+    end
+    class ::User < ActiveRecord::Base ; end
+    class ::Post < ActiveRecord::Base ; end
+    class ::Comment < ActiveRecord::Base ; end
   end
 
   let(:dump) do
@@ -74,6 +100,14 @@ describe "Schema dump (core)" do
 
   end
 
+  unless SchemaPlusHelpers.sqlite3?
+    it "shouldn't include :index option for index" do
+      add_column(Post, :author_id, :integer, :references => :users, :index => true) do
+        dump.should_not match(/index => true/)
+      end
+    end
+  end
+
   protected
   def to_regexp(string)
     Regexp.new(Regexp.escape(string))
@@ -129,32 +163,8 @@ describe "Schema dump (core)" do
     name ||= model.foreign_keys.detect { |fk| fk.table_name == model.table_name.to_s && fk.column_names == Array(columns).collect(&:to_s) }.name
   end
 
-end
-
-describe "Schema dump (auto)" do
-  
-  before(:all) do
-    load_auto_schema
-  end
-
-  let(:dump) do
-    stream = StringIO.new
-    ActiveRecord::SchemaDumper.ignore_tables = []
-    ActiveRecord::SchemaDumper.dump(ActiveRecord::Base.connection, stream)
-    stream.string
-  end
-
-  unless SchemaPlusHelpers.sqlite3?
-    it "shouldn't include :index option for index" do
-      add_column(:author_id, :integer, :references => :users, :index => true) do
-        dump.should_not match(/index => true/)
-      end
-    end
-  end
-    
-  protected
-  def add_column(column_name, *args)
-    table = Post.table_name
+  def add_column(model, column_name, *args)
+    table = model.table_name
     ActiveRecord::Migration.suppress_messages do
       ActiveRecord::Migration.add_column(table, column_name, *args)
       Post.reset_column_information
@@ -164,4 +174,3 @@ describe "Schema dump (auto)" do
   end
 
 end
-
