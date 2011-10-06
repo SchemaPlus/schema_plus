@@ -4,13 +4,13 @@ module SchemaPlus::ActiveRecord
       config = opts[:config] || SchemaPlus.config
       if references = get_references(table_name, column_name, column_options, config)
         if index = column_options.fetch(:index, config.foreign_keys.auto_index? && !ActiveRecord::Schema.defining?)
-          opts[:add_index].call(column_name, index)
+          column_index(table_name, column_name, index)
         end
-        opts[:add_foreign_key].call(column_name, references.first, references.last,
+        add_foreign_key(table_name, column_name, references.first, references.last,
                                     column_options.reverse_merge(:on_update => config.foreign_keys.on_update,
                                                                  :on_delete => config.foreign_keys.on_delete))
       elsif column_options[:index]
-        opts[:add_index].call(column_name, column_options[:index])
+        column_index(table_name, column_name, column_options[:index])
       end
     end
 
@@ -43,5 +43,13 @@ module SchemaPlus::ActiveRecord
         end
       end
     end
+
+    def column_index(table_name, column_name, options) #:nodoc:
+      options = {} if options == true
+      options = { :unique => true } if options == :unique
+      column_name = [column_name] + Array.wrap(options.delete(:with)).compact
+      add_index(table_name, column_name, options)
+    end
+
   end
 end

@@ -99,10 +99,7 @@ module SchemaPlus::ActiveRecord::ConnectionAdapters
 
     def column_with_schema_plus(name, type, options = {}) #:nodoc:
       column_without_schema_plus(name, type, options)
-      schema_plus_handle_column_options(self.name, name, options,
-                                        :config => schema_plus_config,
-                                        :add_index => lambda { |name, index| self.column_index(name, index) },
-                                        :add_foreign_key => lambda { |column_name, references_table, reference_column, fk_options| self.foreign_key(column_name, references_table, reference_column, fk_options) })
+      schema_plus_handle_column_options(self.name, name, options, :config => schema_plus_config)
       self
     end
 
@@ -123,11 +120,16 @@ module SchemaPlus::ActiveRecord::ConnectionAdapters
     end
 
     protected
-    def column_index(name, options) #:nodoc:
-      options = {} if options == true
-      options = {:unique => true} if options == :unique
-      name = [name] + Array.wrap(options.delete(:with)).compact
-      self.index(name, options)
+    # The only purpose of that method is to provide a consistent intefrace
+    # for ColumnOptionsHandler. First argument (table name) is ignored.
+    def add_index(_, *args) #:nodoc:
+      index(*args)
+    end
+
+    # The only purpose of that method is to provide a consistent intefrace
+    # for ColumnOptionsHandler. First argument (table name) is ignored.
+    def add_foreign_key(_, *args) #:nodoc:
+      foreign_key(*args)
     end
 
   end

@@ -106,32 +106,17 @@ module SchemaPlus::ActiveRecord
     #
     def add_column(table_name, column_name, type, options = {})
       super
-      handle_column_options(table_name, column_name, options)
+      schema_plus_handle_column_options(table_name, column_name, options)
     end
 
     # Enhances ActiveRecord::Migration#change_column to support indexes and foreign keys same as add_column.
     def change_column(table_name, column_name, type, options = {})
       super
       remove_foreign_key_if_exists(table_name, column_name)
-      handle_column_options(table_name, column_name, options)
+      schema_plus_handle_column_options(table_name, column_name, options)
     end
 
     protected
-
-    def handle_column_options(table_name, column_name, options) #:nodoc:
-      schema_plus_handle_column_options(table_name, column_name, options,
-                                        :add_index => lambda { |column_name, index| column_index(table_name, column_name, index) },
-                                        :add_foreign_key => lambda { |column_name, references_table, reference_column, fk_options| add_foreign_key(table_name, column_name, references_table, reference_column, fk_options) })
-    end
-
-
-    def column_index(table_name, column_name, options) #:nodoc:
-      options = {} if options == true
-      options = { :unique => true } if options == :unique
-      column_name = [column_name] + Array.wrap(options.delete(:with)).compact
-      add_index(table_name, column_name, options)
-    end
-
     def remove_foreign_key_if_exists(table_name, column_name) #:nodoc:
       foreign_keys = ActiveRecord::Base.connection.foreign_keys(table_name.to_s)
       fk = foreign_keys.detect { |fk| fk.table_name == table_name.to_s && fk.column_names == Array(column_name).collect(&:to_s) }
