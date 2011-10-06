@@ -64,6 +64,7 @@ module SchemaPlus::ActiveRecord::ConnectionAdapters
   #      end
   #
   module TableDefinition
+    include SchemaPlus::ActiveRecord::ColumnOptionsHandler
 
     attr_accessor :schema_plus_config #:nodoc:
 
@@ -98,16 +99,10 @@ module SchemaPlus::ActiveRecord::ConnectionAdapters
 
     def column_with_schema_plus(name, type, options = {}) #:nodoc:
       column_without_schema_plus(name, type, options)
-      if references = ActiveRecord::Migration.connection.get_references(self.name, name, options, schema_plus_config)
-        if index = options.fetch(:index, fk_use_auto_index?)
-          self.column_index(name, index)
-        end
-        foreign_key(name, references.first, references.last,
-                    options.reverse_merge(:on_update => schema_plus_config.foreign_keys.on_update,
-                                          :on_delete => schema_plus_config.foreign_keys.on_delete))
-      elsif options[:index]
-        self.column_index(name, options[:index])
-      end
+      schema_plus_handle_column_options(self.name, name, options,
+                                        :config => schema_plus_config,
+                                        :add_index => lambda { |name, index| self.column_index(name, index) },
+                                        :add_foreign_key => lambda { |column_name, references_table, reference_column, fk_options| self.foreign_key(column_name, references_table, reference_column, fk_options) })
       self
     end
 
@@ -133,10 +128,6 @@ module SchemaPlus::ActiveRecord::ConnectionAdapters
       options = {:unique => true} if options == :unique
       name = [name] + Array.wrap(options.delete(:with)).compact
       self.index(name, options)
-    end
-
-    def fk_use_auto_index? #:nodoc:
-      schema_plus_config.foreign_keys.auto_index? && !ActiveRecord::Schema.defining?
     end
 
   end
