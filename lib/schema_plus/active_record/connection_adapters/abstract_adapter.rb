@@ -39,7 +39,10 @@ module SchemaPlus
             # compatible with the monkey patches; but the definition only
             # appears once the adapter is loaded.  so wait til now to check
             # if that constant exists, then include the patches
-            ::ActiveRecord::ConnectionAdapters::Mysql2IndexDefinition.send(:include, SchemaPlus::ActiveRecord::ConnectionAdapters::IndexDefinition) if defined? ::ActiveRecord::ConnectionAdapters::Mysql2IndexDefinition
+            if mysql2index = ::ActiveRecord::ConnectionAdapters::Mysql2IndexDefinition rescue nil # rescues NameError
+              monkeypatch = SchemaPlus::ActiveRecord::ConnectionAdapters::IndexDefinition
+              mysql2index.send(:include, monkeypatch) unless mysql2index.include? monkeypatch
+            end
           end
           extend(SchemaPlus::ActiveRecord::ForeignKeys)
         end
