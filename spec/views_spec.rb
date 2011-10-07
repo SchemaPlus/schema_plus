@@ -98,6 +98,8 @@ describe ActiveRecord do
 
   def define_schema_and_data
     migration.suppress_messages do
+      connection.views.each do |view| connection.drop_view view end
+      connection.tables.each do |table| connection.drop_table table end
 
       schema.define do
 
