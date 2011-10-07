@@ -28,7 +28,7 @@ module SchemaPlus::ActiveRecord
     # Also the referenced id column may be specified:
     #   get_references('addresses', 'member_id', :references => ['users', 'uuid']) => ['users', 'uuid']
     #
-    def get_references(table_name, column_name, column_options = {}, config) #:nodoc:
+    def get_references(table_name, column_name, column_options = {}, config = {}) #:nodoc:
       if column_options.has_key?(:references)
         references = column_options[:references]
         references = [references, :id] unless references.nil? || references.is_a?(Array)
