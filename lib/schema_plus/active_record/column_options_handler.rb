@@ -3,7 +3,7 @@ module SchemaPlus::ActiveRecord
     def schema_plus_handle_column_options(table_name, column_name, column_options, opts = {}) #:nodoc:
       config = opts[:config] || SchemaPlus.config
       if references = get_references(table_name, column_name, column_options, config)
-        if index = column_options.fetch(:index, config.foreign_keys.auto_index? && !ActiveRecord::Schema.defining?)
+        if index = column_options.fetch(:index, config.foreign_keys.auto_index?)
           column_index(table_name, column_name, index)
         end
         add_foreign_key(table_name, column_name, references.first, references.last,
@@ -33,7 +33,7 @@ module SchemaPlus::ActiveRecord
         references = column_options[:references]
         references = [references, :id] unless references.nil? || references.is_a?(Array)
         references
-      elsif config.foreign_keys.auto_create? && !ActiveRecord::Schema.defining?
+      elsif config.foreign_keys.auto_create?
         case column_name.to_s
         when 'parent_id'
           [table_name, :id]

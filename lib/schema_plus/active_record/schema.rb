@@ -8,18 +8,19 @@ module SchemaPlus
       module ClassMethods
         def self.extended(base)
           class << base
-            attr_accessor :defining
-            alias :defining? :defining
-
             alias_method_chain :define, :schema_plus
           end
         end
 
         def define_with_schema_plus(info={}, &block)
-          self.defining = true
-          define_without_schema_plus(info, &block)
-        ensure
-          self.defining = false
+          fk_override = { :auto_create => false, :auto_index => false }
+          save = Hash[fk_override.keys.collect{|key| [key, SchemaPlus.config.foreign_keys.send(key)]}]
+          begin
+            SchemaPlus.config.foreign_keys.update_attributes(fk_override)
+            define_without_schema_plus(info, &block)
+          ensure
+            SchemaPlus.config.foreign_keys.update_attributes(save)
+          end
         end
       end
     end
