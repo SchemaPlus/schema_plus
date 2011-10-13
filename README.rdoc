@@ -45,7 +45,7 @@ With standard rails migrations, you specify indexes separately from the table de
     add_index :parts, :name     # index repeats table and column names and is defined separately
     add_index :parts, :product_code, :unique => true
 
-But with SchemaPlus rather than specify your outside your table definition you can specify your indexes when you define each column:
+But with SchemaPlus you can specify your indexes when you define each column:
 
     # More DRY way...
     create_table :parts do |t|
@@ -103,9 +103,9 @@ the same arguments.
 
 The foreign key behavior can be configured globally (see Config) or per-table (see create_table).
 
-To examine your foreign key constraints, connection.foreign_keys returns a
+To examine your foreign key constraints, <tt>connection.foreign_keys</tt> returns a
 list of foreign key constraints defined for a given table, and
-connection.reverse_foreign_keys returns a list of foreign key constraints
+<tt>connection.reverse_foreign_keys</tt> returns a list of foreign key constraints
 that reference a given table.  See SchemaPlus::ActiveRecord::ConnectionAdapters::ForeignKeyDefinition.
 
 === Views
