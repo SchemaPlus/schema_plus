@@ -120,6 +120,31 @@ ActiveRecord works with views the same as with ordinary tables.  That is, for th
   class UncommentedPosts < ActiveRecord::Base
   end
 
+=== Schema Dump and Load (schema.rb)
+
+When dumping <tt>schema.rb</tt>, SchemaPlus orders the views and tables in
+the schema dump alphabetically, but subject to the requirement that each
+table or view be defined before those that depend on it.  This allows all
+foreign key constraints to be defined within the scope of the table
+definition. (Unless there are cyclical dependencies, in which case some
+foreign keys constraints must be defined later.)
+
+Also, when dumping <tt>schema.rb</tt>, SchemaPlus dumps explicit foreign key
+definition statements rather than relying on the auto-creation behavior,
+for maximum clarity and for independence from global config.  And
+correspondingly, when loading a schema, i.e. with the context of
+<tt>ActiveRecord::Schema.define</tt>, SchemaPlus ensures that auto creation of
+foreign keys is turned off regardless of the global setting.  But if for
+some reason you are creating your schema.rb file by hand, and would like to
+take advantage of auto-creation of foreign keys, you can re-enable it:
+
+    ActiveRecord::Schema.define do
+        SchemaPlus.config.foreign_keys.auto_create = true
+        SchemaPlus.config.foreign_keys.auto_index = true
+
+        create_table ...etc...
+    end
+
 
 == History
 
