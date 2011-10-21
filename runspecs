@@ -71,7 +71,7 @@ o.ruby_versions.each do |ruby|
         puts "\n\n*** ruby version #{ruby} - rails version #{rails} - db adapters: #{o.db_adapters.join(' ')}  [#{n} of #{total}]\n\n"
         gemfile = File.join(GEMFILES_DIR, "Gemfile.rails-#{rails}")
         n += 1
-        command = %Q{BUNDLE_GEMFILE="#{gemfile}" rvm #{ruby} exec #{cmd}}
+        command = %Q{BUNDLE_GEMFILE="#{gemfile}" rvm #{ruby} do #{cmd}}
         puts command
         next if o.dry_run
         system(command) or errs << "ruby #{ruby}, rails #{rails}"
