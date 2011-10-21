@@ -6,7 +6,7 @@ Gem::Specification.new do |s|
   s.name        = "schema_plus"
   s.version     = SchemaPlus::VERSION
   s.platform    = Gem::Platform::RUBY
-  s.authors     = ["Ronen Barzel", "Michał Łomnicki"]
+  s.authors     = ["Ronen Barzel", "Michal Lomnicki"]
   s.email       = ["ronen@barzel.org", "michal.lomnicki@gmail.com"]
   s.homepage    = "https://github.com/lomba/schema_plus"
   s.summary     = "Enhances ActiveRecord schema mechanism, including more DRY index creation and support for foreign key constraints and views."
