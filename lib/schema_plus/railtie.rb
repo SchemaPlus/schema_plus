@@ -14,5 +14,7 @@ module SchemaPlus
       end
     end
 
+    config.app_generators.indexes false
+
   end
 end
