@@ -45,6 +45,19 @@ module SchemaPlus
           opts[:case_sensitive] = case_sensitive? unless @case_sensitive.nil?
           opts
         end
+
+        # tests if the corresponding indexes would be the same
+        def ==(other)
+          return false unless self.name == other.name
+          return false unless Array.wrap(self.columns).collect(&:to_s).sort == Array.wrap(other.columns).collect(&:to_s).sort
+          return false unless !!self.unique == !!other.unique
+          return false unless Array.wrap(self.lengths).compact.sort == Array.wrap(other.lengths).compact.sort
+          return false unless self.conditions == other.conditions
+          return false unless self.expression == other.expression
+          return false unless self.kind == other.kind
+          return false unless !!self.case_sensitive? == !!other.case_sensitive?
+          true
+        end
       end
     end
   end

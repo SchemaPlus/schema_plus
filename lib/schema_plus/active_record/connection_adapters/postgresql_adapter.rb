@@ -42,6 +42,8 @@ module SchemaPlus
             sql += " WHERE (#{ ::ActiveRecord::Base.send(:sanitize_sql, conditions, quote_table_name(table_name)) })" if conditions
           end
           execute sql
+        rescue => e
+          SchemaStatements.add_index_exception_handler(self, table_name, column_names, options, e)
         end
 
         def supports_partial_indexes? #:nodoc:

@@ -31,6 +31,23 @@ describe "add_index" do
     index_for(:login).name.should == 'users_login_index'
   end
 
+  context "for duplicate index" do
+    it "should not complain if the index is the same" do
+      add_index(:users, :login)
+      index_for(:login).should_not be_nil
+      expect { add_index(:users, :login) }.should_not raise_error
+      index_for(:login).should_not be_nil
+    end
+    if defined? Rails and Rails.version >= "3.0"
+      it "should complain if the index is different" do
+        add_index(:users, :login, :unique => true)
+        index_for(:login).should_not be_nil
+        expect { add_index(:users, :login) }.should raise_error
+        index_for(:login).should_not be_nil
+      end
+    end
+  end
+
   if SchemaPlusHelpers.postgresql?
 
     it "should assign conditions" do

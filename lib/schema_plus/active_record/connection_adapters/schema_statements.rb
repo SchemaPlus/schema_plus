@@ -4,6 +4,7 @@ module SchemaPlus::ActiveRecord::ConnectionAdapters
     def self.included(base) #:nodoc:
       base.class_eval do
         alias_method_chain :create_table, :schema_plus
+        alias_method_chain :add_index, :schema_plus
       end
     end
 
@@ -31,8 +32,30 @@ module SchemaPlus::ActiveRecord::ConnectionAdapters
       indexes.each do |index|
         add_index(table, index.columns, index.opts)
       end
+    end
 
+    ##
+    # :method: add_index
+    #
+    # SchemaPlus modifies SchemaStatements::add_index so that it silently
+    # ignores requests to add an index that already exists -- i.e. that has
+    # the same index name, same columns, and same options.
+    #
+    # (This avoids collisions between SchemaPlus's auto index behavior and
+    # legacy explicit add_index statements.)
+    #
+    def add_index_with_schema_plus(table, columns, options={})
+      add_index_without_schema_plus(table, columns, options)
+    rescue => e
+      SchemaStatements.add_index_exception_handler(self, table, columns, options, e)
+    end
 
+    def self.add_index_exception_handler(connection, table, columns, options, e) #:nodoc:
+      raise unless e.message.match(/["']([^"']+)["'].*already exists/)
+      name = $1
+      existing = connection.indexes(table).find{|i| i.name == name}
+      attempted = ::ActiveRecord::ConnectionAdapters::IndexDefinition.new(table, columns, options.merge(:name => name)) 
+      raise if attempted != existing
     end
 
   end
