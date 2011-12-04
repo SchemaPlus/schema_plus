@@ -35,6 +35,7 @@ describe "add_index" do
     it "should not complain if the index is the same" do
       add_index(:users, :login)
       index_for(:login).should_not be_nil
+      ActiveRecord::Base.logger.should_receive(:warn).with(/login.*Skipping/)
       expect { add_index(:users, :login) }.should_not raise_error
       index_for(:login).should_not be_nil
     end

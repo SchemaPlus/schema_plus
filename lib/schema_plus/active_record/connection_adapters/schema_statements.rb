@@ -37,12 +37,16 @@ module SchemaPlus::ActiveRecord::ConnectionAdapters
     ##
     # :method: add_index
     #
-    # SchemaPlus modifies SchemaStatements::add_index so that it silently
-    # ignores requests to add an index that already exists -- i.e. that has
-    # the same index name, same columns, and same options.
+    # SchemaPlus modifies SchemaStatements::add_index so that it ignores
+    # errors raised about add an index that already exists -- i.e. that has
+    # the same index name, same columns, and same options -- and writes a
+    # warning to the log. Some combinations of rails & DB adapter versions
+    # would log such a warning, others would raise an error; with
+    # SchemaPlus all versions log the warning and do not raise the error.
     #
     # (This avoids collisions between SchemaPlus's auto index behavior and
-    # legacy explicit add_index statements.)
+    # legacy explicit add_index statements, for platofrms that would raise
+    # an error.)
     #
     def add_index_with_schema_plus(table, columns, options={})
       add_index_without_schema_plus(table, columns, options)
@@ -56,6 +60,7 @@ module SchemaPlus::ActiveRecord::ConnectionAdapters
       existing = connection.indexes(table).find{|i| i.name == name}
       attempted = ::ActiveRecord::ConnectionAdapters::IndexDefinition.new(table, columns, options.merge(:name => name)) 
       raise if attempted != existing
+      ::ActiveRecord::Base.logger.warn "[schema_plus] Index name #{name.inspect}' on table #{table.inspect} already exists. Skipping."
     end
 
   end
