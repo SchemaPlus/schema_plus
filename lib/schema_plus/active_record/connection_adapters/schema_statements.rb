@@ -45,7 +45,7 @@ module SchemaPlus::ActiveRecord::ConnectionAdapters
     # SchemaPlus all versions log the warning and do not raise the error.
     #
     # (This avoids collisions between SchemaPlus's auto index behavior and
-    # legacy explicit add_index statements, for platofrms that would raise
+    # legacy explicit add_index statements, for platforms that would raise
     # an error.)
     #
     def add_index_with_schema_plus(table, columns, options={})
