@@ -148,6 +148,9 @@ take advantage of auto-creation of foreign keys, you can re-enable it:
 
 == History
 
+* Recent Release notes:
+    * 0.2.1 - suppress duplicate add_indexes.  compatibility with rails 3.2.0.rc2
+
 * SchemaPlus is derived from several "Red Hill On Rails" plugins
   originally created by harukizaemon (https://github.com/harukizaemon)
   with later contributions from 
