@@ -4,7 +4,7 @@ require 'optparse'
 require 'ostruct'
 
 RUBY_VERSIONS = %W[1.8.7 1.9.2]
-RAILS_VERSIONS = %W[2.3 3.0 3.1]
+RAILS_VERSIONS = %W[2.3 3.0 3.1 3.2]
 DB_ADAPTERS = %W[postgresql mysql mysql2 sqlite3]
 
 o = OpenStruct.new
@@ -53,28 +53,43 @@ OptionParser.new do |opts|
 
 end.parse!
 
-cmd = case
-      when o.update
-          "bundle update"
-      when o.install
-          "bundle install"
-      else
-          "bundle exec rake #{o.db_adapters.join(":spec ")}:spec"
-      end
 
-n = 1
-GEMFILES_DIR = File.expand_path('../gemfiles', __FILE__)
-total = o.ruby_versions.size * o.rails_versions.size
-errs = []
-o.ruby_versions.each do |ruby|
-    o.rails_versions.each do |rails|
-        puts "\n\n*** ruby version #{ruby} - rails version #{rails} - db adapters: #{o.db_adapters.join(' ')}  [#{n} of #{total}]\n\n"
-        gemfile = File.join(GEMFILES_DIR, "Gemfile.rails-#{rails}")
-        n += 1
-        command = %Q{BUNDLE_GEMFILE="#{gemfile}" rvm #{ruby} do #{cmd}}
-        puts command
-        next if o.dry_run
-        system(command) or errs << "ruby #{ruby}, rails #{rails}"
-    end
+Combo = Struct.new(:ruby, :rails, :db_adapter)
+
+
+if o.update or o.install
+    o.db_adapters = [nil]
 end
-puts errs.any? ?  "\n*** #{errs.size} failures:\n\t#{errs.join("\n\t")}" : "\n*** #{total > 1 ? 'all versions' : 'spec'} succeeded ***" unless o.dry_run
+
+combos = o.ruby_versions.product(o.rails_versions, o.db_adapters).map{|product| Combo.new(*product)}.select {|combo|
+    case
+    when combo.rails >= "3.2" && combo.ruby <= "1.8.7" then false
+    else true
+    end
+}
+
+
+GEMFILES_DIR = File.expand_path('../gemfiles', __FILE__)
+errs = []
+combos.each_with_index do |combo, n|
+    ruby = combo.ruby
+    rails = combo.rails
+    db_adapter = combo.db_adapter
+
+    cmd = case
+          when o.update
+              "bundle update"
+          when o.install
+              "bundle install"
+          else
+              "bundle exec rake #{db_adapter}:spec"
+          end
+
+    command = %Q{BUNDLE_GEMFILE="#{File.join(GEMFILES_DIR, "Gemfile.rails-#{rails}")}" rvm #{ruby} do #{cmd}}
+
+    puts "\n\n*** ruby version #{ruby} - rails version #{rails} - db adapter: #{db_adapter}  [#{n+1} of #{combos.size}]\n\n#{command}"
+
+    next if o.dry_run
+    system(command) or errs << "ruby #{ruby}, rails #{rails}#{db_adapter && ", db_adapter #{db_adapter}"}"
+end
+puts errs.any? ?  "\n*** #{errs.size} failures:\n\t#{errs.join("\n\t")}" : "\n*** #{combos.size > 1 ? 'all versions' : 'spec'} succeeded ***" unless o.dry_run
