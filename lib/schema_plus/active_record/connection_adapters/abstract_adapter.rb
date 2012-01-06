@@ -96,10 +96,15 @@ module SchemaPlus
         end
 
         def drop_table_with_schema_plus(name, options = {}) #:nodoc:
+          # (NOTE: rails 3.2 accepts only one arg, no options.  pre rails
+          # 3.2, drop_table took an options={} arg that had no effect: but
+          # create_table(:force=>true) would call drop_table with two args.
+          # so for backwards compatibility, schema_plus drop_table accepts
+          # two args.  but for forward compatibility with rails 3.2, the
+          # second arg is not passed along to rails.)
           unless ::ActiveRecord::Base.connection.class.include?(SchemaPlus::ActiveRecord::ConnectionAdapters::Sqlite3Adapter)
             reverse_foreign_keys(name).each { |foreign_key| remove_foreign_key(foreign_key.table_name, foreign_key.name) }
           end
-          # drop options because #drop_table doesn't use it actually
           drop_table_without_schema_plus(name)
         end
 
