@@ -99,7 +99,8 @@ module SchemaPlus
           unless ::ActiveRecord::Base.connection.class.include?(SchemaPlus::ActiveRecord::ConnectionAdapters::Sqlite3Adapter)
             reverse_foreign_keys(name).each { |foreign_key| remove_foreign_key(foreign_key.table_name, foreign_key.name) }
           end
-          drop_table_without_schema_plus(name, options)
+          # drop options because #drop_table doesn't use it actually
+          drop_table_without_schema_plus(name)
         end
 
         # Returns true if the database supports parital indexes (abstract; only
