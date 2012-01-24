@@ -63,6 +63,12 @@ describe ActiveRecord::Migration do
         change_column :user, :string, :references => nil
       end
 
+      it "should remove a foreign key" do
+        @model.should reference(:users, :id).on(:user_id)
+        change_column :user_id, :integer, :references => nil
+        @model.should_not reference(:users, :id).on(:user_id)
+      end
+
     end
 
     context "when column is removed" do
