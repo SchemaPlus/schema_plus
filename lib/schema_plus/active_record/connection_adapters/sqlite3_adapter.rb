@@ -1,6 +1,15 @@
 module SchemaPlus
   module ActiveRecord
     module ConnectionAdapters
+      module SQLiteColumn
+        def initialize(name, default, sql_type = nil, null = true)
+          if default =~ /DATETIME/
+            @default_expr = "(#{default})"
+          end
+          super(name, default, sql_type, null)
+        end
+      end
+
       # SchemaPlus includes an Sqlite3 implementation of the AbstractAdapater
       # extensions.  
       module Sqlite3Adapter
@@ -71,6 +80,16 @@ module SchemaPlus
           foreign_keys
         end
 
+        def default_expr_valid?(expr)
+          true # arbitrary sql is okay
+        end
+
+        def sql_for_function(function)
+          case function
+            when :now
+              "(DATETIME('now'))"
+          end
+        end
       end
 
     end

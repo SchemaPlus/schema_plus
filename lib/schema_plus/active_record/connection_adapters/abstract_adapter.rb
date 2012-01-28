@@ -28,7 +28,7 @@ module SchemaPlus
             adapter = 'MysqlAdapter'
           when 'PostgreSQL' 
             adapter = 'PostgresqlAdapter'
-          when 'SQLite' 
+          when 'SQLite'
             adapter = 'Sqlite3Adapter'
           end
           if adapter 
@@ -42,6 +42,13 @@ module SchemaPlus
             if mysql2index = ::ActiveRecord::ConnectionAdapters::Mysql2IndexDefinition rescue nil # rescues NameError
               monkeypatch = SchemaPlus::ActiveRecord::ConnectionAdapters::IndexDefinition
               mysql2index.send(:include, monkeypatch) unless mysql2index.include? monkeypatch
+            end
+
+            if adapter == 'PostgresqlAdapter'
+              ::ActiveRecord::ConnectionAdapters::PostgreSQLColumn.send(:include, SchemaPlus::ActiveRecord::ConnectionAdapters::PostgreSQLColumn) unless ::ActiveRecord::ConnectionAdapters::PostgreSQLColumn.include?(SchemaPlus::ActiveRecord::ConnectionAdapters::PostgreSQLColumn)
+            end
+            if adapter == 'Sqlite3Adapter'
+              ::ActiveRecord::ConnectionAdapters::SQLiteColumn.send(:include, SchemaPlus::ActiveRecord::ConnectionAdapters::SQLiteColumn) unless ::ActiveRecord::ConnectionAdapters::SQLiteColumn.include?(SchemaPlus::ActiveRecord::ConnectionAdapters::SQLiteColumn)
             end
           end
           extend(SchemaPlus::ActiveRecord::ForeignKeys)
@@ -106,6 +113,39 @@ module SchemaPlus
         # Postgresql returns true)
         def supports_partial_indexes?
           false
+        end
+
+        def add_column_options!(sql, options)
+          if options_include_default?(options)
+            default = options[:default]
+            # figure out if this is an expression and if not treat as standard default value
+            expr = sql_for_function( (default.is_a? Hash) ? default[:expr] : default )
+            if !expr && default.is_a?(Hash) && default[:expr]
+              if default_expr_valid? default[:expr]
+                expr = default[:expr]
+              else
+                raise(ArgumentError)
+              end
+            end
+            if expr
+              sql << " DEFAULT #{expr}"
+            else
+              value = (default.is_a? Hash) ? default[:value] : default
+              sql << " DEFAULT #{quote(value.to_s, options[:column])}" if value
+            end
+          end
+          # must explicitly check for :null to allow change_column to work on migrations
+          if options[:null] == false
+            sql << " NOT NULL"
+          end
+        end
+
+        def default_expr_valid?(expr)
+          # override in database specific adaptor
+        end
+
+        def sql_for_function(function_name)
+          # override in database specific adaptor
         end
 
         # This is define in rails 3.x, but not in rails2.x

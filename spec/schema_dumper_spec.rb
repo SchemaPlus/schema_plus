@@ -68,6 +68,50 @@ describe "Schema dump" do
     end
   end
 
+  context "with date default" do
+    if SchemaPlusHelpers.postgresql?
+      it "should dump the default hash expr as now()" do
+        with_additional_column Post, :posted_at, :datetime, :default => :now do
+          dump_posts.should match(to_regexp(%q{t.datetime "posted_at", :default => \{ :expr => "now()" \}}))
+        end
+      end
+
+      it "should dump the default hash expr as CURRENT_TIMESTAMP" do
+        with_additional_column Post, :posted_at, :datetime, :default => {:expr => 'date \'2001-09-28\''} do
+          dump_posts.should match(to_regexp(%q{t.datetime "posted_at",        :default => '2001-09-28 00:00:00'}))
+        end
+      end
+    end
+
+    if SchemaPlusHelpers.sqlite3?
+      it "should dump the default hash expr as now" do
+        with_additional_column Post, :posted_at, :datetime, :default => :now do
+          dump_posts.should match(to_regexp(%q{t.datetime "posted_at", :default => \{ :expr => "(DATETIME('now'))" \}}))
+        end
+      end
+
+      it "should dump the default hash expr string as now" do
+        with_additional_column Post, :posted_at, :datetime, :default => { :expr => "(DATETIME('now'))" } do
+          dump_posts.should match(to_regexp(%q{t.datetime "posted_at", :default => \{ :expr => "(DATETIME('now'))" \}}))
+        end
+      end
+
+      it "should dump the default value normally" do
+        with_additional_column Post, :posted_at, :string, :default => "now" do
+          dump_posts.should match(to_regexp(%q{t.string  "posted_at",        :default => "now"}))
+        end
+      end
+    end
+
+    if SchemaPlusHelpers.postgresql?
+      it "should dump the default hash expr as CURRENT_TIMESTAMP" do
+        with_additional_column Post, :posted_at, :datetime, :default => {:expr => 'date \'2001-09-28\''} do
+          dump_posts.should match(to_regexp(%q{t.datetime "posted_at",        :default => '2001-09-28 00:00:00'}))
+        end
+      end
+    end
+  end
+
   it "should include foreign_key options" do
     with_foreign_key Post, :user_id, :users, :id, :on_update => :cascade, :on_delete => :set_null do
       dump_posts.should match(to_regexp(%q{t.foreign_key ["user_id"], "users", ["id"], :on_update => :cascade, :on_delete => :set_null}))
@@ -149,6 +193,19 @@ describe "Schema dump" do
     Regexp.new(Regexp.escape(string))
   end
 
+  def with_additional_column(model, column_name, column_type, options)
+    table_columns = model.columns.reject{|column| column.name == 'id'}
+    ActiveRecord::Migration.suppress_messages do
+      ActiveRecord::Migration.create_table model.table_name, :force => true do |t|
+        table_columns.each do |column|
+          t.column column.name, column.type, :default => column.default
+        end
+        t.column column_name, column_type, options
+      end
+    end
+    yield
+  end
+
   def with_foreign_key(model, columns, referenced_table_name, referenced_columns, options = {})
     table_columns = model.columns.reject{|column| column.name == 'id'}
     ActiveRecord::Migration.suppress_messages do
@@ -172,7 +229,7 @@ describe "Schema dump" do
       end
     end
   end
-  
+
   def with_index(model, columns, options = {})
     ActiveRecord::Migration.suppress_messages do
       ActiveRecord::Migration.add_index(model.table_name, columns, options)
