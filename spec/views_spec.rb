@@ -1,5 +1,11 @@
 require File.expand_path(File.dirname(__FILE__) + '/spec_helper')
 
+class AOnes < ActiveRecord::Base
+end
+
+class ABOnes < ActiveRecord::Base
+end
+
 describe ActiveRecord do
 
   let(:schema) { ActiveRecord::Schema }
@@ -24,8 +30,8 @@ describe ActiveRecord do
     end
 
     it "should query correctly" do
-      @a_ones.all.collect(&:s).should == %W[one_one one_two]
-      @ab_ones.all.collect(&:s).should == %W[one_one]
+      AOnes.all.collect(&:s).should == %W[one_one one_two]
+      ABOnes.all.collect(&:s).should == %W[one_one]
     end
 
     it "should instrospect" do
@@ -118,8 +124,6 @@ describe ActiveRecord do
     connection.execute "insert into items (a, b, s) values (2, 1, 'two_one')"
     connection.execute "insert into items (a, b, s) values (2, 2, 'two_two')"
 
-    @a_ones = Class.new(ActiveRecord::Base) do set_table_name "a_ones" end
-    @ab_ones = Class.new(ActiveRecord::Base) do set_table_name "ab_ones" end
   end
 
   def drop_definitions
