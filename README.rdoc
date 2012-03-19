@@ -120,6 +120,33 @@ ActiveRecord works with views the same as with ordinary tables.  That is, for th
   class UncommentedPosts < ActiveRecord::Base
   end
 
+=== Column Defaults
+
+SchemaPlus allows expressions to be used as column defaults.  For example:
+
+  t.datetime :seen_at, :default => :now
+
+resolves to
+
+  DEFAULT NOW() # PostgreSQL
+  (DATETIME('now')) # SQLite3
+  invalid # MySQL
+
+Arbitrary SQL expressions can also be specified by passing a hash with an :expr parameter:
+
+  t.datetime :seen_at, :default => { :expr => 'NOW()' }
+
+In MySQL only the TIMESTAMP column accepts SQL column defaults and Rails uses DATETIME,
+so this is not possible at this time.
+
+Standard default values can be specified verbosely:
+
+  t.datetime :seen_at, :default => { :value => "2011-12-11 00:00:00" }
+
+But the standard syntax will still work as usual:
+
+  t.datetime :seen_at, :default => "2011-12-11 00:00:00"
+
 === Schema Dump and Load (schema.rb)
 
 When dumping <tt>schema.rb</tt>, SchemaPlus orders the views and tables in

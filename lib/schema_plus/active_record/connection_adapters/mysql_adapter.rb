@@ -105,6 +105,12 @@ module SchemaPlus
           sql
         end
 
+        def default_expr_valid?(expr)
+          false # only the TIMESTAMP column accepts SQL column defaults and rails uses DATETIME
+        end
+
+        def sql_for_function(function)
+        end
       end
     end
   end
