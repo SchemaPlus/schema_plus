@@ -39,7 +39,7 @@ describe "add_index" do
       expect { add_index(:users, :login) }.should_not raise_error
       index_for(:login).should_not be_nil
     end
-    if defined? Rails and Rails.version >= "3.0"
+    if ActiveRecord::VERSION::STRING >= "3.0"
       it "should complain if the index is different" do
         add_index(:users, :login, :unique => true)
         index_for(:login).should_not be_nil
