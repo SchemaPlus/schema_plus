@@ -176,6 +176,7 @@ take advantage of auto-creation of foreign keys, you can re-enable it:
 == History
 
 * Recent Release notes:
+    * 0.3.0 - add :default => expressions (Thanks to Luke Saunders).  support rails 3.2 and ruby 1.9.3
     * 0.2.1 - suppress duplicate add_indexes.  compatibility with rails 3.2.0.rc2
 
 * SchemaPlus is derived from several "Red Hill On Rails" plugins
@@ -185,6 +186,7 @@ take advantage of auto-creation of foreign keys, you can re-enable it:
   * François Beausoleil (https://github.com/francois)
   * Greg Barnett (https://github.com/greg-barnett)
   * Ronen Barzel (https://github.com/ronen)
+  * Luke Suanders (https://github.com/lukesaunders)
 
 * SchemaPlus was created in 2011 by Michał Łomnicki and Ronen Barzel
 
