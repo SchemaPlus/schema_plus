@@ -22,12 +22,13 @@ describe ActiveRecord::Schema do
 
     it "should create only explicity added indexes" do
       define_schema
-      connection.tables.collect { |table| connection.indexes(table) }.flatten.should have(1).item
+      expected = SchemaPlusHelpers.mysql? ? 2 : 1
+      connection.tables.collect { |table| connection.indexes(table) }.flatten.should have(expected).items
     end
 
     it "should create only explicity added foriegn keys" do
       define_schema
-      connection.tables.collect { |table| connection.foreign_keys(table) }.flatten.should have(1).item
+      connection.tables.collect { |table| connection.foreign_keys(table) }.flatten.should have(2).items
     end
 
   end
@@ -41,8 +42,16 @@ describe ActiveRecord::Schema do
         create_table :users, :force => true do
         end
 
+        create_table :colors, :force => true do
+        end
+
+        create_table :shoes, :force => true do
+        end
+
         create_table :posts, :force => true do |t|
           t.integer :user_id, :references => :users, :index => true
+          t.integer :shoe_id, :references => :shoes   # should not have an index (except mysql)
+          t.integer :color_id   # should not have a foreign key nor index
         end
       end
     end
