@@ -307,6 +307,10 @@ describe ActiveRecord::Migration do
         SchemaPlus.config.foreign_keys.auto_index = false
       end
 
+      it "should not auto-index if column already has an index"
+
+      it "should remove auto-created index when removing foreign key"
+
       it "should use default on_update action" do
         SchemaPlus.config.foreign_keys.on_update = :cascade
         add_column(:post_id, :integer) do
