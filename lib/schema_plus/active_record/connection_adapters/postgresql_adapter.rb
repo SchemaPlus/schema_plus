@@ -1,6 +1,39 @@
 module SchemaPlus
   module ActiveRecord
     module ConnectionAdapters
+      # PostgreSQL-specific extensions to column definitions in a table.
+      module PostgreSQLColumn
+        # Extracts the value from a PostgreSQL column default definition.
+        def self.included(base) #:nodoc:
+          base.extend ClassMethods
+          base.class_eval do
+            class << self
+              alias_method_chain :extract_value_from_default, :schema_plus
+            end
+          end
+        end
+
+        def initialize(name, default, sql_type = nil, null = true)
+          if default.is_a? Hash
+            if default[:expr]
+              @default_expr = default[:expr]
+            end
+            default = nil
+          end
+          super(name, default, sql_type, null)
+        end
+
+        module ClassMethods
+          def extract_value_from_default_with_schema_plus(default)
+            value = extract_value_from_default_without_schema_plus(default)
+            if value.nil? && !default.nil?
+              value = { :expr => default }
+            end
+            value
+          end
+        end
+      end
+
       # The Postgresql adapter implements the SchemaPlus extensions and
       # enhancements
       module PostgresqlAdapter
@@ -158,6 +191,17 @@ module SchemaPlus
           end
 
           foreign_keys
+        end
+
+        def default_expr_valid?(expr)
+          true # arbitrary sql is okay in PostgreSQL
+        end
+
+        def sql_for_function(function)
+          case function
+            when :now
+              "NOW()"
+          end
         end
       end
     end

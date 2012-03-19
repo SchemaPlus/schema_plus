@@ -98,7 +98,13 @@ module SchemaPlus
       def table_with_schema_plus(table, ignore) #:nodoc:
         stream = StringIO.new
         table_without_schema_plus(table, stream)
-        @table_dumps[table] = stream.string
+        stream_string = stream.string
+        @connection.columns(table).each do |column|
+          if !column.default_expr.nil?
+            stream_string.gsub!("\"#{column.name}\"", "\"#{column.name}\", :default => { :expr => \"#{column.default_expr}\" }")
+          end
+        end
+        @table_dumps[table] = stream_string
       end
 
       def indexes_with_schema_plus(table, stream) #:nodoc:
