@@ -99,7 +99,7 @@ describe "Schema dump" do
 
       it "should dump the default value normally" do
         with_additional_column Post, :posted_at, :string, :default => "now" do
-          dump_posts.should match(to_regexp(%q{t.string  "posted_at",        :default => "now"}))
+          dump_posts.should match(%r{t.string  "posted_at",\s*:default => "now"})
         end
       end
     end
