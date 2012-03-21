@@ -21,6 +21,7 @@ describe "Schema dump" do
           t.text :body
           t.integer :user_id
           t.integer :first_comment_id
+          t.string :string_no_default
         end
 
         create_table :comments, :force => true do |t|
@@ -78,7 +79,7 @@ describe "Schema dump" do
 
       it "should dump the default hash expr as CURRENT_TIMESTAMP" do
         with_additional_column Post, :posted_at, :datetime, :default => {:expr => 'date \'2001-09-28\''} do
-          dump_posts.should match(to_regexp(%q{t.datetime "posted_at",        :default => '2001-09-28 00:00:00'}))
+          dump_posts.should match(%r{t.datetime "posted_at",\s*:default => '2001-09-28 00:00:00'})
         end
       end
     end
@@ -103,13 +104,13 @@ describe "Schema dump" do
       end
     end
 
-    if SchemaPlusHelpers.postgresql?
-      it "should dump the default hash expr as CURRENT_TIMESTAMP" do
-        with_additional_column Post, :posted_at, :datetime, :default => {:expr => 'date \'2001-09-28\''} do
-          dump_posts.should match(to_regexp(%q{t.datetime "posted_at",        :default => '2001-09-28 00:00:00'}))
-        end
-      end
+  end
+
+  it "should leave out :default when default was changed to null" do
+    ActiveRecord::Migration.suppress_messages do
+      ActiveRecord::Migration.change_column_default :posts, :string_no_default, nil
     end
+    dump_posts.should match(%r{t.string\s+"string_no_default"\s*$})
   end
 
   it "should include foreign_key options" do

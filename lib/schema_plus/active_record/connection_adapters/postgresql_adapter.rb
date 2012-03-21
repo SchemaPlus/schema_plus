@@ -25,7 +25,16 @@ module SchemaPlus
 
         module ClassMethods
           def extract_value_from_default_with_schema_plus(default)
+            
+
             value = extract_value_from_default_without_schema_plus(default)
+            
+            # in some cases (e.g. if change_column_default(table, column,
+            # nil) is used), postgresql will return NULL::xxxxx (rather
+            # than nil) for a null default -- make sure we treat it as nil,
+            # not as a function.
+            default = nil if value.nil? && default =~ /\ANULL::(?:character varying|bpchar|text)\z/m
+
             if value.nil? && !default.nil?
               value = { :expr => default }
             end
