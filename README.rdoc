@@ -176,7 +176,7 @@ take advantage of auto-creation of foreign keys, you can re-enable it:
 == History
 
 * Recent Release notes:
-    * 0.3.1 - bug fix for PostgreSQL schema dump after * change_column_default(... nil)
+    * 0.3.1 - bug fix for PostgreSQL schema dump after change_column_default(... nil)
     * 0.3.0 - add :default => expressions (Thanks to Luke Saunders).  support rails 3.2 and ruby 1.9.3
     * 0.2.1 - suppress duplicate add_indexes.  compatibility with rails 3.2.0.rc2
 
