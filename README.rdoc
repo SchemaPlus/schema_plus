@@ -186,7 +186,7 @@ take advantage of auto-creation of foreign keys, you can re-enable it:
   * François Beausoleil (https://github.com/francois)
   * Greg Barnett (https://github.com/greg-barnett)
   * Ronen Barzel (https://github.com/ronen)
-  * Luke Suanders (https://github.com/lukesaunders)
+  * Luke Saunders (https://github.com/lukesaunders)
 
 * SchemaPlus was created in 2011 by Michał Łomnicki and Ronen Barzel
 
@@ -218,7 +218,7 @@ And you can run the specs for a specific adapter:
   $ rake mysql2:spec # to run mysql2 tests only
   $ rake sqlite3:spec # to run sqlite3 tests only
 
-If you're running ruby 1.9.2, code coverage results will be in coverage/index.html -- it should be at 100% coverage.
+If you're running ruby 1.9, code coverage results will be in coverage/index.html -- it should be at 100% coverage.
 
 == License
 
