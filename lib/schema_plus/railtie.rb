@@ -9,8 +9,10 @@ module SchemaPlus
 
     rake_tasks do
       load 'rails/tasks/database.rake'
-      if task = Rake.application.tasks.find { |task| task.name == 'db:schema:dump' }
-        task.enhance(["schema_plus:load"])
+      ['db:schema:dump', 'db:schema:load'].each do |name|
+        if task = Rake.application.tasks.find { |task| task.name == name }
+          task.enhance(["schema_plus:load"])
+        end
       end
     end
 
