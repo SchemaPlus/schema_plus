@@ -110,6 +110,9 @@ module SchemaPlus
         end
 
         def sql_for_function(function)
+          case function
+          when :now then 'CURRENT_TIMESTAMP'
+          end
         end
       end
     end

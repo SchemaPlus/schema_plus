@@ -124,20 +124,18 @@ module SchemaPlus
         def add_column_options!(sql, options)
           if options_include_default?(options)
             default = options[:default]
-            # figure out if this is an expression and if not treat as standard default value
-            expr = sql_for_function( (default.is_a? Hash) ? default[:expr] : default )
-            if !expr && default.is_a?(Hash) && default[:expr]
-              if default_expr_valid? default[:expr]
-                expr = default[:expr]
-              else
-                raise(ArgumentError)
-              end
+            if default.is_a? Hash
+              value = default[:value]
+              expr = sql_for_function(default[:expr]) || default[:expr] if default[:expr]
+            else
+              value = default
+              expr = sql_for_function(default)
             end
             if expr
+              raise ArgumentError, "Invalid default expression" unless default_expr_valid?(expr)
               sql << " DEFAULT #{expr}"
             else
-              value = (default.is_a? Hash) ? default[:value] : default
-              sql << " DEFAULT #{quote(value.to_s, options[:column])}" if value
+              sql << " DEFAULT #{quote(value, options[:column])}" if value
             end
           end
           # must explicitly check for :null to allow change_column to work on migrations

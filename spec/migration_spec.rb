@@ -14,6 +14,11 @@ describe ActiveRecord::Migration do
       @model = Post
     end
 
+    it "should properly handle default values for booleans" do
+      expect { create_table(@model,  :bool => { :METHOD => :boolean, :default => true }) }.should_not raise_error
+      @model.create.reload.bool.should be_true
+    end
+
     it "should create foreign keys" do
       create_table(@model,  :user_id => {}, 
                           :author_id => { :references => :users },

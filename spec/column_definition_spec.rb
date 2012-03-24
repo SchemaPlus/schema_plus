@@ -22,6 +22,7 @@ describe "Column definition" do
     it "should use the normal default" do
       should == "time_taken text DEFAULT '2011-12-11 00:00:00'"
     end
+
   end
 
   context "just default passed in hash" do
@@ -38,7 +39,11 @@ describe "Column definition" do
 
   context "default function passed as now" do
     before(:each) do
-      connection.add_column_options!(@sql, { :default => :now })
+      begin
+        connection.add_column_options!(@sql, { :default => :now })
+      rescue ArgumentError => e
+        @raised_argument_error = e
+      end
     end
 
     subject { @sql }
@@ -56,8 +61,8 @@ describe "Column definition" do
     end
 
     if SchemaPlusHelpers.mysql?
-      it "should use CURRENT_TIMESTAMP as the default" do
-        should == "time_taken text DEFAULT 'now'"
+      it "should raise an error" do
+        @raised_argument_error.should be_a ArgumentError
       end
     end
   end
