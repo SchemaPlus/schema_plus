@@ -135,7 +135,7 @@ module SchemaPlus
               raise ArgumentError, "Invalid default expression" unless default_expr_valid?(expr)
               sql << " DEFAULT #{expr}"
             else
-              sql << " DEFAULT #{quote(value, options[:column])}" if value
+              sql << " DEFAULT #{quote(value, options[:column])}" unless value.nil?
             end
           end
           # must explicitly check for :null to allow change_column to work on migrations
