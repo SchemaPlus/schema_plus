@@ -1,7 +1,7 @@
 PATH
   remote: /Users/ronen/github/schema_plus
   specs:
-    schema_plus (0.3.3)
+    schema_plus (0.3.4)
       rails
       valuable
 
