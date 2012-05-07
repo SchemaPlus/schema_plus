@@ -1,7 +1,7 @@
 module SchemaPlus
   module ActiveRecord
     module ConnectionAdapters
-      # SchemaPlus includes a MySQL implementation of the AbstractAdapater
+      # SchemaPlus includes a MySQL implementation of the AbstractAdapter
       # extensions.  (This works with both the <tt>mysql</t> and
       # <tt>mysql2</tt> gems.)
       module MysqlAdapter
