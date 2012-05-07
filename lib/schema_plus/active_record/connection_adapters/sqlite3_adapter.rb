@@ -10,7 +10,7 @@ module SchemaPlus
         end
       end
 
-      # SchemaPlus includes an Sqlite3 implementation of the AbstractAdapater
+      # SchemaPlus includes an Sqlite3 implementation of the AbstractAdapter
       # extensions.  
       module Sqlite3Adapter
 
