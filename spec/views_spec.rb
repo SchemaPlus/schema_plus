@@ -47,8 +47,8 @@ describe ActiveRecord do
 
 
     it "should be included in schema dump" do
-      dump.should match(%r{create_view "a_ones", "SELECT .*b.*,.*s.* FROM .*items.* WHERE .*a.* = 1}i)
-      dump.should match(%r{create_view "ab_ones", "SELECT .*s.* FROM .*a_ones.* WHERE .*b.* = 1}i)
+      dump.should match(%r{create_view "a_ones", "SELECT .*b.*,.*s.* FROM .*items.* WHERE .*a.* = 1.*, :force => true}i)
+      dump.should match(%r{create_view "ab_ones", "SELECT .*s.* FROM .*a_ones.* WHERE .*b.* = 1.*, :force => true}i)
     end
 
     it "should be included in schema dump in dependency order" do
@@ -67,6 +67,28 @@ describe ActiveRecord do
       dump.should_not match(%r{#{connection.quote_table_name(db)}[.]})
     end
 
+    context "duplicate view creation" do
+      around(:each) do |example|
+        migration.suppress_messages do
+          begin
+            migration.create_view('dupe_me', 'SELECT * FROM items WHERE (a=1)')
+            example.run
+          ensure
+            migration.drop_view('dupe_me')
+          end
+        end
+      end
+
+
+      it "should raise an error by default" do
+        expect {migration.create_view('dupe_me', 'SELECT * FROM items WHERE (a=2)')}.should raise_error ActiveRecord::StatementInvalid
+      end
+
+      it "should override existing definition if :force true" do
+        migration.create_view('dupe_me', 'SELECT * FROM items WHERE (a=2)', :force => true)
+        connection.view_definition('dupe_me').should =~ %r{WHERE .*a.*=.*2}i
+      end
+    end
 
     if SchemaPlusHelpers.mysql?
       context "in mysql" do

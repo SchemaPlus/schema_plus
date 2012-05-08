@@ -53,7 +53,7 @@ module SchemaPlus
 
         @connection.views.each do |view_name|
           definition = @connection.view_definition(view_name)
-          @table_dumps[view_name] = "  create_view #{view_name.inspect}, #{definition.inspect}\n"
+          @table_dumps[view_name] = "  create_view #{view_name.inspect}, #{definition.inspect}, :force => true\n"
         end
 
         re_view_referent = %r{(?:(?i)FROM|JOIN) \S*\b(#{(@table_dumps.keys).join('|')})\b}

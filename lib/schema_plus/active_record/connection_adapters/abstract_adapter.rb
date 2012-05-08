@@ -54,8 +54,10 @@ module SchemaPlus
           extend(SchemaPlus::ActiveRecord::ForeignKeys)
         end
 
-        # Create a view given the SQL definition
-        def create_view(view_name, definition)
+        # Create a view given the SQL definition.  Specify :force => true
+        # to first drop the view if it already exists.
+        def create_view(view_name, definition, options={})
+          execute "DROP VIEW IF EXISTS #{quote_table_name(view_name)}" if options[:force]
           execute "CREATE VIEW #{quote_table_name(view_name)} AS #{definition}"
         end
 
