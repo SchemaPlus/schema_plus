@@ -176,7 +176,7 @@ take advantage of auto-creation of foreign keys, you can re-enable it:
 == History
 
 * Recent Release notes:
-    * master: add :force for create_view (suggested by greglazarev[https://github.com/greglazarev]).  cleanups by betelgeuse[https://github.com/betelgeuse]
+    * 0.4.0 - add :force for create_view (suggested by greglazarev[https://github.com/greglazarev]).  cleanups by betelgeuse[https://github.com/betelgeuse]
     * 0.3.4 - bug fix: regression causing :default => false to be ignored
     * 0.3.3 - bug fix: properly handle boolean defaults in mysql
     * 0.3.2 - bug fix: make sure rake db:schema:load initializes schema_plus 
