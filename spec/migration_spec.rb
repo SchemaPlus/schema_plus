@@ -33,6 +33,11 @@ describe ActiveRecord::Migration do
       @model.should reference(:users, :id).on(:user_id)
     end
 
+    it "should not create foreign key using t.belongs_to with :polymorphic => true" do
+      create_table(@model,  :user => {:METHOD => :belongs_to, :polymorphic => true})
+      @model.should_not reference(:users, :id).on(:user_id)
+    end
+
     it "should create foreign key using t.references" do
       create_table(@model,  :user => {:METHOD => :references})
       @model.should reference(:users, :id).on(:user_id)

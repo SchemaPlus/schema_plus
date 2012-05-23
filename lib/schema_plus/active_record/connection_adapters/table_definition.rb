@@ -53,8 +53,8 @@ module SchemaPlus::ActiveRecord::ConnectionAdapters
   # creation was disabled at initialization in the global Config.
   #
   # SchemaPlus likewise by default automatically creates foreign key constraints for
-  # columns defined via <tt>t.references</tt>, unless the
-  # <tt>:polymorphic</tt> option is true
+  # columns defined via <tt>t.references</tt>.   However, SchemaPlus does not create
+  # foreign key constraints if the <tt>:polymorphic</tt> option is true
   #
   # Finally, the configuration for foreign keys can be overriden on a per-table
   # basis by passing Config options to Migration::ClassMethods#create_table, such as
@@ -75,6 +75,7 @@ module SchemaPlus::ActiveRecord::ConnectionAdapters
         alias_method_chain :initialize, :schema_plus
         alias_method_chain :column, :schema_plus
         alias_method_chain :references, :schema_plus
+        alias_method_chain :belongs_to, :schema_plus
         alias_method_chain :primary_key, :schema_plus
         alias_method_chain :to_sql, :schema_plus
       end
@@ -90,11 +91,22 @@ module SchemaPlus::ActiveRecord::ConnectionAdapters
       column(name, :primary_key, options)
     end
 
-    def references_with_schema_plus(*args)
+    # need detect :polymorphic at this level, because rails strips it out
+    # before calling #column (twice, once for _id and once for _type)
+    def references_with_schema_plus(*args) #:nodoc:
       options = args.extract_options!
       options[:references] = nil if options[:polymorphic]
       args << options
       references_without_schema_plus(*args)
+    end
+
+    # need detect :polymorphic at this level, because rails strips it out
+    # before calling #column (twice, once for _id and once for _type)
+    def belongs_to_with_schema_plus(*args) #:nodoc:
+      options = args.extract_options!
+      options[:references] = nil if options[:polymorphic]
+      args << options
+      belongs_to_without_schema_plus(*args)
     end
 
     def column_with_schema_plus(name, type, options = {}) #:nodoc:
