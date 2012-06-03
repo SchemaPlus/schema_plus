@@ -1,12 +1,13 @@
 = SchemaPlus
 
-== Overview
 
 SchemaPlus is an ActiveRecord extension that provides enhanced capabilities for schema definition and querying, including: enhanced and more DRY index capabilities, support and automation for foreign key constraints, and support for views.
 
 For added rails DRYness see also the gems
 {+schema_associations+}[http://rubygems.org/gems/schema_associations] and
 {+schema_validations+}[http://rubygems.org/gems/schema_validations]
+
+{<img src="https://secure.travis-ci.org/lomba/schema_plus.png"/>}[http://travis-ci.org/lomba/schema_plus]
 
 == Compatibility
 
@@ -97,7 +98,7 @@ You can also modify the behavior using +:on_delete+, +:on_update+, and +:deferra
     t.integer :author_id, :on_delete => :cascade
 
 SchemaPlus also creates foreign keys when used rails' <tt>t.references</tt>
-or <tt>t.belongs_to</tt>< which take the singular of the referenced table
+or <tt>t.belongs_to</tt>, which take the singular of the referenced table
 name and implicitly create the column suffixed with +_id+, and it accepts
 the same arguments.
 
