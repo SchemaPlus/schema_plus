@@ -31,7 +31,7 @@ module SchemaPlus
         # possible values.
         attr_reader :on_update
 
-        # The ON_UPDATE behavior for the constraint.  See above for the
+        # The ON_DELETE behavior for the constraint.  See above for the
         # possible values.
         attr_reader :on_delete
 
@@ -39,7 +39,7 @@ module SchemaPlus
         attr_reader :deferrable
 
         # :enddoc:
-        
+
         ACTIONS = { :cascade => "CASCADE", :restrict => "RESTRICT", :set_null => "SET NULL", :set_default => "SET DEFAULT", :no_action => "NO ACTION" }.freeze
 
         def initialize(name, table_name, column_names, references_table_name, references_column_names, on_update = nil, on_delete = nil, deferrable = nil)
