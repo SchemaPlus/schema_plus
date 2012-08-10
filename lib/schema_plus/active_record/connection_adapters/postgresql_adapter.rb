@@ -93,7 +93,6 @@ module SchemaPlus
         end
 
         def indexes(table_name, name = nil) #:nodoc:
-          schemas = schema_search_path.split(/,/).map { |p| quote(p) }.join(',')
           result = query(<<-SQL, name)
            SELECT distinct i.relname, d.indisunique, d.indkey, m.amname, t.oid, 
                     pg_get_expr(d.indpred, t.oid), pg_get_expr(d.indexprs, t.oid)
@@ -133,29 +132,36 @@ module SchemaPlus
           end
         end
 
+        def schemas
+          schema_search_path.split(/,/).map { |p| quote(p) }.join(',')
+        end
+
         def foreign_keys(table_name, name = nil) #:nodoc:
           load_foreign_keys(<<-SQL, name)
         SELECT f.conname, pg_get_constraintdef(f.oid), t.relname
-          FROM pg_class t, pg_constraint f
+          FROM pg_class t, pg_constraint f, pg_namespace n
          WHERE f.conrelid = t.oid
            AND f.contype = 'f'
            AND t.relname = '#{table_name}'
+           AND t.relnamespace = n.oid
+           AND n.nspname IN (#{schemas})
           SQL
         end
 
         def reverse_foreign_keys(table_name, name = nil) #:nodoc:
           load_foreign_keys(<<-SQL, name)
         SELECT f.conname, pg_get_constraintdef(f.oid), t2.relname
-          FROM pg_class t, pg_class t2, pg_constraint f
+          FROM pg_class t, pg_class t2, pg_constraint f, pg_namespace n
          WHERE f.confrelid = t.oid
            AND f.conrelid = t2.oid
            AND f.contype = 'f'
            AND t.relname = '#{table_name}'
+           AND t.relnamespace = n.oid
+           AND n.nspname IN (#{schemas})
           SQL
         end
 
         def views(name = nil) #:nodoc:
-          schemas = schema_search_path.split(/,/).map { |p| quote(p) }.join(',')
           query(<<-SQL, name).map { |row| row[0] }
         SELECT viewname
           FROM pg_views
@@ -165,10 +171,12 @@ module SchemaPlus
 
         def view_definition(view_name, name = nil) #:nodoc:
           result = query(<<-SQL, name)
-        SELECT pg_get_viewdef(oid)
-          FROM pg_class
+        SELECT pg_get_viewdef(t.oid)
+          FROM pg_class t, pg_namespace n
          WHERE relkind = 'v'
            AND relname = '#{view_name}'
+           AND t.relnamespace = n.oid
+           AND n.nspname IN (#{schemas})
           SQL
           row = result.first
           row.first.chomp(';') unless row.nil?
