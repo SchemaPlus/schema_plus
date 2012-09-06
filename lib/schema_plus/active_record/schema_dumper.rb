@@ -61,9 +61,9 @@ module SchemaPlus
           if @connection.views.include?(table)
             dependencies = @connection.view_definition(table).scan(re_view_referent).flatten
           else
-            @inline_fks[table] = @connection.foreign_keys(table).reject do |fk|
+            @inline_fks[table] = @connection.foreign_keys(table).reject { |fk|
               ignore_table?(fk.references_table_name)
-            end
+            }.sort_by(&:name)
             dependencies = @inline_fks[table].collect(&:references_table_name)
           end
           @dump_dependencies[table] = dependencies.sort.uniq
