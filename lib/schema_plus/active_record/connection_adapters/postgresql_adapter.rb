@@ -93,7 +93,7 @@ module SchemaPlus
         end
 
         def indexes(table_name, name = nil) #:nodoc:
-          schemas = schema_search_path.split(/,/).map { |p| quote(p) }.join(',')
+          schemas = schema_search_path.split(/,/).map { |p| quote(unquote(p)) }.join(',')
           result = query(<<-SQL, name)
            SELECT distinct i.relname, d.indisunique, d.indkey, m.amname, t.oid, 
                     pg_get_expr(d.indpred, t.oid), pg_get_expr(d.indexprs, t.oid)
@@ -155,7 +155,7 @@ module SchemaPlus
         end
 
         def views(name = nil) #:nodoc:
-          schemas = schema_search_path.split(/,/).map { |p| quote(p) }.join(',')
+          schemas = schema_search_path.split(/,/).map { |p| quote(unquote(p)) }.join(',')
           query(<<-SQL, name).map { |row| row[0] }
         SELECT viewname
           FROM pg_views
@@ -211,6 +211,10 @@ module SchemaPlus
             when :now
               "NOW()"
           end
+        end
+
+        def unquote(expr)
+          expr.gsub(/"|'/, '')
         end
       end
     end
