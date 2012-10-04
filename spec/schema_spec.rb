@@ -17,7 +17,7 @@ describe ActiveRecord::Schema do
     end
 
     it "should pass" do
-      expect { define_schema }.should_not raise_error
+      expect { define_schema }.to_not raise_error
     end
 
     it "should create only explicity added indexes" do

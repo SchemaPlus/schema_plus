@@ -81,7 +81,7 @@ describe ActiveRecord do
 
 
       it "should raise an error by default" do
-        expect {migration.create_view('dupe_me', 'SELECT * FROM items WHERE (a=2)')}.should raise_error ActiveRecord::StatementInvalid
+        expect {migration.create_view('dupe_me', 'SELECT * FROM items WHERE (a=2)')}.to raise_error ActiveRecord::StatementInvalid
       end
 
       it "should override existing definition if :force true" do

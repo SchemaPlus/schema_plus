@@ -15,7 +15,7 @@ describe ActiveRecord::Migration do
     end
 
     it "should properly handle default values for booleans" do
-      expect { create_table(@model,  :bool => { :METHOD => :boolean, :default => true }) }.should_not raise_error
+      expect { create_table(@model,  :bool => { :METHOD => :boolean, :default => true }) }.to_not raise_error
       @model.create.reload.bool.should be_true
     end
 
@@ -125,11 +125,11 @@ describe ActiveRecord::Migration do
     if SchemaPlusHelpers.mysql?
       actions.delete(:set_default)
       it "should raise a not-implemented error for on_update => :set_default" do
-        expect { create_table(@model, :user_id => {:on_update => :set_default}) }.should raise_error(NotImplementedError)
+        expect { create_table(@model, :user_id => {:on_update => :set_default}) }.to raise_error(NotImplementedError)
       end
 
       it "should raise a not-implemented error for on_delete => :set_default" do
-        expect { create_table(@model, :user_id => {:on_delete => :set_default}) }.should raise_error(NotImplementedError)
+        expect { create_table(@model, :user_id => {:on_delete => :set_default}) }.to raise_error(NotImplementedError)
       end
     end
 
@@ -188,11 +188,11 @@ describe ActiveRecord::Migration do
     end
 
     it "should raise an error for an invalid on_update action" do
-        expect { create_table(@model, :user_id => {:on_update => :invalid}) }.should raise_error(ArgumentError)
+        expect { create_table(@model, :user_id => {:on_update => :invalid}) }.to raise_error(ArgumentError)
     end
 
     it "should raise an error for an invalid on_delete action" do
-        expect { create_table(@model, :user_id => {:on_delete => :invalid}) }.should raise_error(ArgumentError)
+        expect { create_table(@model, :user_id => {:on_delete => :invalid}) }.to raise_error(ArgumentError)
     end
 
     unless SchemaPlusHelpers.mysql?

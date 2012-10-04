@@ -176,7 +176,7 @@ describe "Schema dump" do
       end
 
       it "should not raise an error" do
-        expect { dump_all }.should_not raise_error
+        expect { dump_all }.to_not raise_error
       end
 
       it "should dump constraints after the tables they reference" do

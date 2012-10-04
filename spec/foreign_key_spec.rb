@@ -34,13 +34,13 @@ describe "Foreign Key" do
       it "raises an exception when attempting to add" do
         expect { 
           add_foreign_key(:posts, :author_id, :users, :id, :on_update => :cascade, :on_delete => :restrict)
-        }.should raise_error(NotImplementedError)
+        }.to raise_error(NotImplementedError)
       end
 
       it "raises an exception when attempting to remove" do
         expect { 
           remove_foreign_key(:posts, "dummy")
-        }.should raise_error(NotImplementedError)
+        }.to raise_error(NotImplementedError)
       end
 
     else
@@ -132,7 +132,7 @@ describe "Foreign Key" do
               migration.add_foreign_key(:references, :post_id, :posts, :id)
               foreign_key = migration.foreign_keys(:references).detect{|definition| definition.column_names == ["post_id"]}
               migration.remove_foreign_key(:references, foreign_key.name)
-            }.should_not raise_error
+            }.to_not raise_error
           end
         end
       end

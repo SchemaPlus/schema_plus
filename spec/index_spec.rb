@@ -36,14 +36,14 @@ describe "add_index" do
       add_index(:users, :login)
       index_for(:login).should_not be_nil
       ActiveRecord::Base.logger.should_receive(:warn).with(/login.*Skipping/)
-      expect { add_index(:users, :login) }.should_not raise_error
+      expect { add_index(:users, :login) }.to_not raise_error
       index_for(:login).should_not be_nil
     end
     if ActiveRecord::VERSION::STRING >= "3.0"
       it "should complain if the index is different" do
         add_index(:users, :login, :unique => true)
         index_for(:login).should_not be_nil
-        expect { add_index(:users, :login) }.should raise_error
+        expect { add_index(:users, :login) }.to raise_error
         index_for(:login).should_not be_nil
       end
     end
@@ -64,11 +64,11 @@ describe "add_index" do
     end
 
     it "should raise if no column given and expression is missing" do
-      expect { add_index(:users, :name => 'users_login_index') }.should raise_error(ArgumentError)
+      expect { add_index(:users, :name => 'users_login_index') }.to raise_error(ArgumentError)
     end
 
     it "should raise if expression without name is given" do
-      expect { add_index(:users, :expression => "USING btree (login)") }.should raise_error(ArgumentError)
+      expect { add_index(:users, :expression => "USING btree (login)") }.to raise_error(ArgumentError)
     end
 
   end # of postgresql specific examples
