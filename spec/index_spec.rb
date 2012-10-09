@@ -74,8 +74,13 @@ describe "add_index" do
 
     it "should allow to specify kind" do
       add_index(:users, :login, :kind => "hash")
-      @index = User.indexes.detect { |i| i.expression.present? }
       index_for(:login).kind.should == 'hash'
+    end
+
+    it "should allow to specify actual expression only" do
+      add_index(:users, :expression => "upper(login)", :name => 'users_login_index')
+      @index = User.indexes.detect { |i| i.expression.present? }
+      @index.expression.should == "upper((login)::text)"
     end
 
     it "should raise if no column given and expression is missing" do

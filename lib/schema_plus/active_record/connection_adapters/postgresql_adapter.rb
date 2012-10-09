@@ -77,8 +77,11 @@ module SchemaPlus
           kind       = options[:kind]
 
           if expression = options[:expression] then
-            expression = "USING #{kind} (#{expression})" if kind
+            # Wrap expression in parentheses if necessary
+            expression = "(#{expression})" if expression !~ /(using|with|tablespace|where)/i
+            expression = "USING #{kind} #{expression}" if kind
             expression = "#{expression} WHERE #{conditions}" if conditions
+
             sql = "CREATE #{index_type} INDEX #{quote_column_name(index_name)} ON #{quote_table_name(table_name)} #{expression}"
           else
             quoted_column_names = column_names.map { |e| options[:case_sensitive] == false && e.to_s !~ /_id$/ ? "LOWER(#{quote_column_name(e)})" : quote_column_name(e) }
