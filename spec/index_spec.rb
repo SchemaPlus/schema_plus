@@ -3,7 +3,7 @@ require File.expand_path(File.dirname(__FILE__) + '/spec_helper')
 require 'models/user'
 
 describe "add_index" do
-  
+
   before(:all) do
     load_core_schema
   end
@@ -56,11 +56,31 @@ describe "add_index" do
       index_for(:login).conditions.should == '(deleted_at IS NULL)'
     end
 
-    it "should assign expression" do
+    it "should assign expression, conditions and kind" do
       add_index(:users, :expression => "USING hash (upper(login)) WHERE deleted_at IS NULL", :name => 'users_login_index')
       @index = User.indexes.detect { |i| i.expression.present? }
       @index.expression.should == "upper((login)::text)"
       @index.conditions.should == "(deleted_at IS NULL)"
+      @index.kind.should       == "hash"
+    end
+
+    it "should allow to specify expression, conditions and kind separately" do
+      add_index(:users, :kind => "hash", :expression => "upper(login)", :conditions => "deleted_at IS NULL", :name => 'users_login_index')
+      @index = User.indexes.detect { |i| i.expression.present? }
+      @index.expression.should == "upper((login)::text)"
+      @index.conditions.should == "(deleted_at IS NULL)"
+      @index.kind.should       == "hash"
+    end
+
+    it "should allow to specify kind" do
+      add_index(:users, :login, :kind => "hash")
+      index_for(:login).kind.should == 'hash'
+    end
+
+    it "should allow to specify actual expression only" do
+      add_index(:users, :expression => "upper(login)", :name => 'users_login_index')
+      @index = User.indexes.detect { |i| i.expression.present? }
+      @index.expression.should == "upper((login)::text)"
     end
 
     it "should raise if no column given and expression is missing" do

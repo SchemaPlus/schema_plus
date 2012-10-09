@@ -25,10 +25,10 @@ module SchemaPlus
 
         module ClassMethods
           def extract_value_from_default_with_schema_plus(default)
-            
+
 
             value = extract_value_from_default_without_schema_plus(default)
-            
+
             # in some cases (e.g. if change_column_default(table, column,
             # nil) is used), postgresql will return NULL::xxxxx (rather
             # than nil) for a null default -- make sure we treat it as nil,
@@ -74,13 +74,21 @@ module SchemaPlus
           index_type = options[:unique] ? "UNIQUE" : ""
           index_name = options[:name] || index_name(table_name, column_names)
           conditions = options[:conditions]
+          kind       = options[:kind]
 
-          if options[:expression] then
-            sql = "CREATE #{index_type} INDEX #{quote_column_name(index_name)} ON #{quote_table_name(table_name)} #{options[:expression]}"
+          if expression = options[:expression] then
+            # Wrap expression in parentheses if necessary
+            expression = "(#{expression})" if expression !~ /(using|with|tablespace|where)/i
+            expression = "USING #{kind} #{expression}" if kind
+            expression = "#{expression} WHERE #{conditions}" if conditions
+
+            sql = "CREATE #{index_type} INDEX #{quote_column_name(index_name)} ON #{quote_table_name(table_name)} #{expression}"
           else
             quoted_column_names = column_names.map { |e| options[:case_sensitive] == false && e.to_s !~ /_id$/ ? "LOWER(#{quote_column_name(e)})" : quote_column_name(e) }
+            expression = "(#{quoted_column_names.join(', ')})"
+            expression = "USING #{kind} #{expression}" if kind
 
-            sql = "CREATE #{index_type} INDEX #{quote_column_name(index_name)} ON #{quote_table_name(table_name)} (#{quoted_column_names.join(", ")})"
+            sql = "CREATE #{index_type} INDEX #{quote_column_name(index_name)} ON #{quote_table_name(table_name)} #{expression}"
             sql += " WHERE (#{ ::ActiveRecord::Base.send(:sanitize_sql, conditions, quote_table_name(table_name)) })" if conditions
           end
           execute sql
@@ -95,7 +103,7 @@ module SchemaPlus
         def indexes(table_name, name = nil) #:nodoc:
           schemas = schema_search_path.split(/,/).map { |p| quote(p) }.join(',')
           result = query(<<-SQL, name)
-           SELECT distinct i.relname, d.indisunique, d.indkey, m.amname, t.oid, 
+           SELECT distinct i.relname, d.indisunique, d.indkey, m.amname, t.oid,
                     pg_get_expr(d.indpred, t.oid), pg_get_expr(d.indexprs, t.oid)
              FROM pg_class t, pg_class i, pg_index d, pg_am m
            WHERE i.relkind = 'i'
