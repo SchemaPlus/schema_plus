@@ -1,5 +1,5 @@
 PATH
-  remote: /Users/ronen/github/schema_plus
+  remote: /Users/jacob/development/rails/plugins/schema_plus
   specs:
     schema_plus (0.4.1)
       rails
@@ -15,6 +15,8 @@ GEM
       rack (~> 1.1.0)
     activerecord (2.3.14)
       activesupport (= 2.3.14)
+    activerecord-sqlserver-adapter (2.3.24)
+      activerecord (~> 2.2)
     activeresource (2.3.14)
       activesupport (= 2.3.14)
     activesupport (2.3.14)
@@ -47,12 +49,14 @@ GEM
       simplecov
     simplecov-html (0.5.3)
     sqlite3 (1.3.6)
-    valuable (0.9.5)
+    tiny_tds (0.5.1)
+    valuable (0.9.6)
 
 PLATFORMS
   ruby
 
 DEPENDENCIES
+  activerecord-sqlserver-adapter (~> 2.3.0)
   mysql
   mysql2 (~> 0.2.7)
   pg
@@ -63,3 +67,4 @@ DEPENDENCIES
   simplecov
   simplecov-gem-adapter
   sqlite3
+  tiny_tds
