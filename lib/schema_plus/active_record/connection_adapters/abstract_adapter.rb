@@ -66,21 +66,6 @@ module SchemaPlus
           execute "DROP VIEW #{quote_table_name(view_name)}"
         end
 
-        #--
-        # these are all expected to be defined by subclasses, listing them
-        # here only as templates.
-        #++
-        # Returns a list of all views (abstract)
-        def views(name = nil) [] end
-        # Returns the SQL definition of a given view (abstract)
-        def view_definition(view_name, name = nil) end
-        # Return the ForeignKeyDefinition objects for foreign key
-        # constraints defined on this table (abstract)
-        def foreign_keys(table_name, name = nil) [] end
-        # Return the ForeignKeyDefinition objects for foreign key
-        # constraints defined on other tables that reference this table
-        # (abstract)
-        def reverse_foreign_keys(table_name, name = nil) [] end
 
         # Define a foreign key constraint.  Valid options are :on_update,
         # :on_delete, and :deferrable, with values as described at
@@ -146,14 +131,6 @@ module SchemaPlus
           end
         end
 
-        def default_expr_valid?(expr)
-          # override in database specific adaptor
-        end
-
-        def sql_for_function(function_name)
-          # override in database specific adaptor
-        end
-
         # This is define in rails 3.x, but not in rails2.x
         unless defined? ::ActiveRecord::ConnectionAdapters::SchemaStatements::index_name_exists?
           # File activerecord/lib/active_record/connection_adapters/abstract/schema_statements.rb, line 403
@@ -163,6 +140,40 @@ module SchemaPlus
             indexes(table_name).detect { |i| i.name == index_name }
           end
         end
+        
+        #####################################################################
+        #
+        # The functions below here are abstract; each subclass should
+        # define them all. Defining them here only for reference.
+        #
+        
+        # (abstract) Returns the names of all views, as an array of strings
+        def views(name = nil) raise "Internal Error: Connection adapter didn't override abstract function"; [] end
+
+        # (abstract) Returns the SQL definition of a given view.  This is
+        # the literal SQL would come after 'CREATVE VIEW viewname AS ' in
+        # the SQL statement to create a view.
+        def view_definition(view_name, name = nil) raise "Internal Error: Connection adapter didn't override abstract function"; end
+
+        # (abstract) Return the ForeignKeyDefinition objects for foreign key
+        # constraints defined on this table
+        def foreign_keys(table_name, name = nil) raise "Internal Error: Connection adapter didn't override abstract function"; [] end
+
+        # (abstract) Return the ForeignKeyDefinition objects for foreign key
+        # constraints defined on other tables that reference this table
+        def reverse_foreign_keys(table_name, name = nil) raise "Internal Error: Connection adapter didn't override abstract function"; [] end
+
+        # (abstract) Return true if the passed expression can be used as a column
+        # default value.  (For most databases the specific expression
+        # doesn't matter, and the adapter's function would return a
+        # constant true if default expressions are supported or false if
+        # they're not.)
+        def default_expr_valid?(expr) raise "Internal Error: Connection adapter didn't override abstract function"; end
+
+        # (abstract) Return SQL definition for a given canonical function_name symbol.
+        # Currently, the only function to support is :now, which should
+        # return a DATETIME object for the current time.
+        def sql_for_function(function_name) raise "Internal Error: Connection adapter didn't override abstract function"; end
 
       end
     end
