@@ -30,6 +30,8 @@ module SchemaPlus
             adapter = 'PostgresqlAdapter'
           when 'SQLite'
             adapter = 'Sqlite3Adapter'
+          when 'SQLServer'
+            adapter = 'SqlserverAdapter'
           end
           if adapter 
             adapter_module = SchemaPlus::ActiveRecord::ConnectionAdapters.const_get(adapter)
