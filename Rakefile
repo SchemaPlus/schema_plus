@@ -2,7 +2,7 @@ require 'bundler'
 Bundler::GemHelper.install_tasks
 
 require 'rspec/core/rake_task'
-%w[postgresql mysql mysql2 sqlite3].each do |adapter|
+%w[postgresql mysql mysql2 sqlite3 sqlserver].each do |adapter|
   namespace adapter do
     RSpec::Core::RakeTask.new(:spec) do |spec|
       spec.rspec_opts = "-Ispec/connections/#{adapter}"
@@ -68,3 +68,26 @@ end
 task :build_mysql_databases => 'mysql:build_databases'
 task :drop_mysql_databases => 'mysql:drop_databases'
 task :rebuild_mysql_databases => 'mysql:rebuild_databases'
+
+
+
+SQLSERVER_DB_HOST = ENV.fetch('SQLSERVER_DB_HOST', '127.0.0.1')
+SQLSERVER_DB_USER = ENV.fetch('SQLSERVER_DB_USER', 'schema_plus')
+SQLSERVER_DB_PASSWD = ENV.fetch('SQLSERVER_DB_PASSWD', 'schema_plus')
+
+namespace :sqlserver do
+  tsql = "tsql -p 1433 -H #{SQLSERVER_DB_HOST} -U #{SQLSERVER_DB_USER} -P #{SQLSERVER_DB_PASSWD}"
+
+  desc 'Build the SQL Server test databases'
+  task :build_databases do
+    %x( echo "CREATE DATABASE schema_plus_unittest\ngo" | #{tsql} )
+  end
+
+  desc 'Drop the SQL Server test databases'
+  task :drop_databases do
+    %x( echo "DROP DATABASE schema_plus_unittest\ngo" | #{tsql} )
+  end
+
+  desc 'Rebuild the SQL Server test databases'
+  task :rebuild_databases => [:drop_databases, :build_databases]
+end
