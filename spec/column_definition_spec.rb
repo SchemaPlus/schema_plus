@@ -20,8 +20,14 @@ describe "Column definition" do
 
       subject { @sql}
 
-      it "should use the normal default" do
-        should == "time_taken text DEFAULT '2011-12-11 00:00:00'"
+      if SchemaPlusHelpers.sqlserver?
+        it "should use the normal default" do
+          should == "time_taken text DEFAULT N'2011-12-11 00:00:00'"
+        end
+      else
+        it "should use the normal default" do
+          should == "time_taken text DEFAULT '2011-12-11 00:00:00'"
+        end
       end
     end
 
@@ -32,8 +38,14 @@ describe "Column definition" do
 
       subject { @sql}
 
-      it "should use the normal default" do
-        should == "time_taken text DEFAULT '2011-12-11 00:00:00'"
+      if SchemaPlusHelpers.sqlserver?
+        it "should use the normal default" do
+          should == "time_taken text DEFAULT N'2011-12-11 00:00:00'"
+        end
+      else
+        it "should use the normal default" do
+          should == "time_taken text DEFAULT '2011-12-11 00:00:00'"
+        end
       end
     end
 
