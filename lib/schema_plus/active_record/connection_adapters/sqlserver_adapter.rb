@@ -14,14 +14,10 @@ module SchemaPlus
         # # the SQL statement to create a view.
         # def view_definition (view_name, name = nil) raise "Internal Error: Connection adapter didn't override abstract function"; end
 
-        # (abstract) Return the ForeignKeyDefinition objects for foreign key
-        # constraints defined on this table
         def foreign_keys (table_name, name = nil)
           load_foreign_keys(table_name, false, name)
         end
 
-        # (abstract) Return the ForeignKeyDefinition objects for foreign key
-        # constraints defined on other tables that reference this table
         def reverse_foreign_keys (table_name, name = nil)
           load_foreign_keys(table_name, true, name)
         end
