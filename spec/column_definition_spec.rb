@@ -102,7 +102,7 @@ describe "Column definition" do
     end
 
     context "invalid expr passed as default" do
-      if SchemaPlusHelpers.mysql?
+      if SchemaPlusHelpers.mysql? || SchemaPlusHelpers.sqlserver?
         it "should raise an error" do
           lambda {connection.add_column_options!(@sql, { :default => { :expr => "ARBITRARY_EXPR" } })}.should raise_error ArgumentError
         end
