@@ -2,8 +2,9 @@ module SchemaPlus
   module ActiveRecord
     module ConnectionAdapters
       module SqlserverAdapter
-        ON_UPDATE = "on_update"
-        ON_DELETE = "on_delete"
+        def foreign_key_definition_class
+          ForeignKeyDefinition
+        end
 
         # # (abstract) Returns the names of all views, as an array of strings
         # def views (name = nil) raise "Internal Error: Connection adapter didn't override abstract function"; [] end
@@ -37,21 +38,40 @@ module SchemaPlus
         # # return a DATETIME object for the current time.
         # def sql_for_function (function_name) raise "Internal Error: Connection adapter didn't override abstract function"; end
 
+        class ForeignKeyDefinition < SchemaPlus::ActiveRecord::ConnectionAdapters::ForeignKeyDefinition
+          def initialize(name, table_name, column_names, references_table_name, references_column_names, on_update = nil, on_delete = nil, deferrable = nil)
+            on_update = sqlserver_action(on_update)
+            on_delete = sqlserver_action(on_delete)
+            super
+          end
+
+        private
+
+          def sqlserver_action (action)
+            action == :restrict ? :no_action : action
+          end
+        end
+
       private
+        COLUMN_NAMES = "column_names"
+        REFERENCES_COLUMN_NAMES = "references_column_names"
 
         def load_foreign_keys (table_name, reverse, name = nil)
           table = reverse ? "KCU_REF" : "KCU_FK"
 
-          query= <<-SQL
+          query = <<-SQL
             SELECT  
               KCU_FK.CONSTRAINT_NAME AS name,
               KCU_FK.TABLE_NAME AS table_name,
-              KCU_FK.COLUMN_NAME AS column_names,
+              KCU_FK.COLUMN_NAME AS #{COLUMN_NAMES},
               KCU_REF.TABLE_NAME AS references_table_name,
-              KCU_REF.COLUMN_NAME AS references_column_names,
-              RC.UPDATE_RULE as #{ON_UPDATE},
-              RC.DELETE_RULE as #{ON_DELETE},
-              TC.IS_DEFERRABLE as deferrable
+              KCU_REF.COLUMN_NAME AS #{REFERENCES_COLUMN_NAMES},
+              RC.UPDATE_RULE as on_update,
+              RC.DELETE_RULE as on_delete,
+              CASE
+                WHEN TC.IS_DEFERRABLE = 'YES' THEN 1
+                ELSE NULL
+              END as deferrable
             FROM INFORMATION_SCHEMA.REFERENTIAL_CONSTRAINTS AS RC 
 
             LEFT JOIN INFORMATION_SCHEMA.KEY_COLUMN_USAGE AS KCU_FK 
@@ -70,18 +90,83 @@ module SchemaPlus
               AND TC.CONSTRAINT_SCHEMA = RC.UNIQUE_CONSTRAINT_SCHEMA 
               AND TC.CONSTRAINT_NAME = RC.UNIQUE_CONSTRAINT_NAME
 
-            where #{table}.TABLE_NAME = '#{table_name}'
+            WHERE #{table}.TABLE_NAME = '#{table_name}'
+            ORDER BY name, table_name, references_table_name
           SQL
 
-          exec_query(query, name).to_hash.map do |row|
-            replace_row_value(row, ON_UPDATE)
-            replace_row_value(row, ON_DELETE)
-            ForeignKeyDefinition.new(*row.values)
+          foreign_keys = []
+          result = exec_query(query, name)
+
+          result.each do |row|
+            last_foreign_key = foreign_keys.last
+            raw = RawForeignKey.new(*row.values)
+
+            if raw == last_foreign_key
+              last_foreign_key.column_names << row[COLUMN_NAMES]
+              last_foreign_key.references_table_name << row[REFERENCES_COLUMN_NAMES]
+            else
+              foreign_keys << raw.to_foreign_key
+            end
           end
+
+          foreign_keys
         end
 
-        def replace_row_value (row, key)
-          row[key] = ForeignKeyDefinition::ACTIONS_REVERSED[row[key]]
+        def foreign_keys_equal? (a, b)
+          a.name == b.name &&
+            a.table_name == b.table_name &&
+            a.references_table_name == b.references_table_name
+        end
+
+        RawForeignKey = Struct.new(
+          :name, :table_name, :column_names, :references_table_name,
+          :references_column_names, :on_update, :on_delete, :deferrable) do
+
+          def initialize (*args)
+            members.each_with_index do |member, i|
+              send(:"#{member}=", args[i])
+            end
+          end
+
+          def on_update= (value)
+            self[:on_update] = action(value)
+          end
+
+          def on_delete= (value)
+            self[:on_delete] = action(value)
+          end
+
+          def column_names= (value)
+            value = value.is_a?(Array) ? value : [value]
+            self[:column_names] = value
+          end
+
+          def references_column_names= (value)
+            value = value.is_a?(Array) ? value : [value]
+            self[:references_column_names] = value
+          end
+
+          def == (rhs)
+            return false if rhs.nil?
+
+            name == rhs.name &&
+              table_name == rhs.table_name &&
+              references_table_name == rhs.references_table_name
+          end
+
+          def to_foreign_key
+            ForeignKeyDefinition.new(*values)
+          end
+
+          def coerce (other)
+            return self, other
+          end
+
+        private
+
+          def action (value)
+            ForeignKeyDefinition::ACTIONS_REVERSED[value]
+          end
         end
       end
     end
