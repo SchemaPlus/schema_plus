@@ -133,6 +133,10 @@ describe ActiveRecord::Migration do
       end
     end
 
+    # :restrict isn't supported on SQL Server. Remove it from the list until
+    # figuring out what to do with it.
+    actions.delete(:restrict) if SchemaPlusHelpers.sqlserver?
+
     actions.each do |action|
       it "should create and detect on_update #{action.inspect}" do
         create_table(@model, :user_id => {:on_update => action})
@@ -159,17 +163,19 @@ describe ActiveRecord::Migration do
       end
     end
 
-    it "should override on_update action per table" do
-      with_fk_config(:on_update => :cascade) do
-        create_table_opts(@model, {:foreign_keys => {:on_update => :restrict}}, :user_id => {})
-        @model.should reference.on(:user_id).on_update(:restrict)
+    unless SchemaPlusHelpers.sqlserver?
+      it "should override on_update action per table" do
+        with_fk_config(:on_update => :cascade) do
+          create_table_opts(@model, {:foreign_keys => {:on_update => :restrict}}, :user_id => {})
+          @model.should reference.on(:user_id).on_update(:restrict)
+        end
       end
-    end
 
-    it "should override on_delete action per table" do
-      with_fk_config(:on_delete => :cascade) do
-        create_table_opts(@model, {:foreign_keys => {:on_delete => :restrict}}, :user_id => {})
-        @model.should reference.on(:user_id).on_delete(:restrict)
+      it "should override on_delete action per table" do
+        with_fk_config(:on_delete => :cascade) do
+          create_table_opts(@model, {:foreign_keys => {:on_delete => :restrict}}, :user_id => {})
+          @model.should reference.on(:user_id).on_delete(:restrict)
+        end
       end
     end
 
