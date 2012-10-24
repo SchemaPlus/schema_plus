@@ -32,11 +32,13 @@ module SchemaPlus
         # # constant true if default expressions are supported or false if
         # # they're not.)
         # def default_expr_valid? (expr) raise "Internal Error: Connection adapter didn't override abstract function"; end
-        # 
-        # # (abstract) Return SQL definition for a given canonical function_name symbol.
-        # # Currently, the only function to support is :now, which should
-        # # return a DATETIME object for the current time.
-        # def sql_for_function (function_name) raise "Internal Error: Connection adapter didn't override abstract function"; end
+
+        # (abstract) Return SQL definition for a given canonical function_name symbol.
+        # Currently, the only function to support is :now, which should
+        # return a DATETIME object for the current time.
+        def sql_for_function (function_name)
+          "GETDATE()" if function_name == :now
+        end
 
         class ForeignKeyDefinition < SchemaPlus::ActiveRecord::ConnectionAdapters::ForeignKeyDefinition
           def initialize(name, table_name, column_names, references_table_name, references_column_names, on_update = nil, on_delete = nil, deferrable = nil)
