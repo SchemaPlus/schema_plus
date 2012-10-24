@@ -6,6 +6,12 @@ module SchemaPlus
           ForeignKeyDefinition
         end
 
+        def indexes(table_name, name = nil) #:nodoc:
+          super.each do |index|
+            index.unique = true if index.unique
+          end
+        end
+
         # # (abstract) Returns the names of all views, as an array of strings
         # def views (name = nil) raise "Internal Error: Connection adapter didn't override abstract function"; [] end
         # 
