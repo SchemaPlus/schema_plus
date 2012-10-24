@@ -26,16 +26,10 @@ module SchemaPlus
           load_foreign_keys(table_name, true, name)
         end
 
-        # # (abstract) Return true if the passed expression can be used as a column
-        # # default value.  (For most databases the specific expression
-        # # doesn't matter, and the adapter's function would return a
-        # # constant true if default expressions are supported or false if
-        # # they're not.)
-        # def default_expr_valid? (expr) raise "Internal Error: Connection adapter didn't override abstract function"; end
+        def default_expr_valid? (expr)
+          false # only constant expressions are allowed
+        end
 
-        # (abstract) Return SQL definition for a given canonical function_name symbol.
-        # Currently, the only function to support is :now, which should
-        # return a DATETIME object for the current time.
         def sql_for_function (function_name)
           "GETDATE()" if function_name == :now
         end
