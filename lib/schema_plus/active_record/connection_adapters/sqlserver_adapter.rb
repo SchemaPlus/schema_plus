@@ -38,15 +38,16 @@ module SchemaPlus
 
         class ForeignKeyDefinition < SchemaPlus::ActiveRecord::ConnectionAdapters::ForeignKeyDefinition
           def initialize(name, table_name, column_names, references_table_name, references_column_names, on_update = nil, on_delete = nil, deferrable = nil)
-            on_update = sqlserver_action(on_update)
-            on_delete = sqlserver_action(on_delete)
+            error :on_update if on_update == :restrict
+            error :on_delete if on_delete == :restrict
             super
           end
 
         private
 
-          def sqlserver_action (action)
-            action == :restrict ? :no_action : action
+          def error (action)
+            action = action.to_s.gsub(/_/, " ").upcase
+            raise NotImplementedError, "SQL Server does not support #{action} RESTRICT"
           end
         end
 
