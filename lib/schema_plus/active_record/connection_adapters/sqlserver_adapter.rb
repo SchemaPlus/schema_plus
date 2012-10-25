@@ -6,14 +6,24 @@ module SchemaPlus
           ForeignKeyDefinition
         end
 
-        def indexes(table_name, name = nil) #:nodoc:
+        def indexes (table_name, name = nil) #:nodoc:
           super.each do |index|
             index.unique = true if index.unique
           end
         end
 
-        # # (abstract) Returns the names of all views, as an array of strings
-        # def views (name = nil) raise "Internal Error: Connection adapter didn't override abstract function"; [] end
+        def create_view (view_name, definition, options={}) #:nodoc:
+          quoted_name = quote_table_name(view_name)
+
+          execute "IF EXISTS (SELECT TABLE_NAME FROM INFORMATION_SCHEMA.VIEWS
+            WHERE TABLE_NAME = '#{view_name}') DROP VIEW #{quoted_name}" if options[:force]
+
+          execute "CREATE VIEW #{quoted_name} AS #{definition}"
+        end
+
+        def views (name = nil)
+          super()
+        end
 
         def view_definition (view_name, name = nil)
           if view_info = view_information(view_name)
