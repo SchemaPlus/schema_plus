@@ -30,6 +30,8 @@ module SchemaPlus
             adapter = 'PostgresqlAdapter'
           when 'SQLite'
             adapter = 'Sqlite3Adapter'
+          when 'SQLServer'
+            adapter = 'SqlserverAdapter'
           end
           if adapter 
             adapter_module = SchemaPlus::ActiveRecord::ConnectionAdapters.const_get(adapter)
@@ -76,7 +78,7 @@ module SchemaPlus
         # it's created.  If you're using Sqlite3, this method will raise an
         # error.)
         def add_foreign_key(table_name, column_names, references_table_name, references_column_names, options = {})
-          foreign_key = ForeignKeyDefinition.new(options[:name], table_name, column_names, ::ActiveRecord::Migrator.proper_table_name(references_table_name), references_column_names, options[:on_update], options[:on_delete], options[:deferrable])
+          foreign_key = foreign_key_definition_class.new(options[:name], table_name, column_names, ::ActiveRecord::Migrator.proper_table_name(references_table_name), references_column_names, options[:on_update], options[:on_delete], options[:deferrable])
           execute "ALTER TABLE #{quote_table_name(table_name)} ADD #{foreign_key.to_sql}"
         end
 
@@ -140,7 +142,17 @@ module SchemaPlus
             indexes(table_name).detect { |i| i.name == index_name }
           end
         end
-        
+
+        # Returns a ForeignKeyDefinition implementation for the connection
+        # adapter. This method can be overridden in a given connection adapter
+        # to adapt the behavior of the ForeignKeyDefinition implementation for
+        # a particular database. This should return a class that has the same
+        # interface as the <tt>SchemaPlus::ActiveRecord::ConnectionAdapters::ForeignKeyDefinition</tt>
+        # class. By default this will return <tt>SchemaPlus::ActiveRecord::ConnectionAdapters::ForeignKeyDefinition</tt>.
+        def foreign_key_definition_class
+          ForeignKeyDefinition
+        end
+
         #####################################################################
         #
         # The functions below here are abstract; each subclass should
@@ -148,32 +160,32 @@ module SchemaPlus
         #
         
         # (abstract) Returns the names of all views, as an array of strings
-        def views(name = nil) raise "Internal Error: Connection adapter didn't override abstract function"; [] end
+        def views(name = nil) raise "Internal Error: Connection adapter didn't override abstract function: '#{__method__}'"; [] end
 
         # (abstract) Returns the SQL definition of a given view.  This is
         # the literal SQL would come after 'CREATVE VIEW viewname AS ' in
         # the SQL statement to create a view.
-        def view_definition(view_name, name = nil) raise "Internal Error: Connection adapter didn't override abstract function"; end
+        def view_definition(view_name, name = nil) raise "Internal Error: Connection adapter didn't override abstract function: '#{__method__}'"; end
 
         # (abstract) Return the ForeignKeyDefinition objects for foreign key
         # constraints defined on this table
-        def foreign_keys(table_name, name = nil) raise "Internal Error: Connection adapter didn't override abstract function"; [] end
+        def foreign_keys(table_name, name = nil) raise "Internal Error: Connection adapter didn't override abstract function: '#{__method__}'"; [] end
 
         # (abstract) Return the ForeignKeyDefinition objects for foreign key
         # constraints defined on other tables that reference this table
-        def reverse_foreign_keys(table_name, name = nil) raise "Internal Error: Connection adapter didn't override abstract function"; [] end
+        def reverse_foreign_keys(table_name, name = nil) raise "Internal Error: Connection adapter didn't override abstract function: '#{__method__}'"; [] end
 
         # (abstract) Return true if the passed expression can be used as a column
         # default value.  (For most databases the specific expression
         # doesn't matter, and the adapter's function would return a
         # constant true if default expressions are supported or false if
         # they're not.)
-        def default_expr_valid?(expr) raise "Internal Error: Connection adapter didn't override abstract function"; end
+        def default_expr_valid?(expr) raise "Internal Error: Connection adapter didn't override abstract function: '#{__method__}'"; end
 
         # (abstract) Return SQL definition for a given canonical function_name symbol.
         # Currently, the only function to support is :now, which should
         # return a DATETIME object for the current time.
-        def sql_for_function(function_name) raise "Internal Error: Connection adapter didn't override abstract function"; end
+        def sql_for_function(function_name) raise "Internal Error: Connection adapter didn't override abstract function: '#{__method__}'"; end
 
       end
     end

@@ -4,6 +4,8 @@ if RUBY_VERSION > "1.9"
   SimpleCov.start "gem"
 end
 
+require 'pry'
+
 $LOAD_PATH.unshift(File.dirname(__FILE__))
 $LOAD_PATH.unshift(File.join(File.dirname(__FILE__), '..', 'lib'))
 

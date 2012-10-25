@@ -133,6 +133,17 @@ describe ActiveRecord::Migration do
       end
     end
 
+    if SchemaPlusHelpers.sqlserver?
+      actions.delete(:restrict)
+      it "should raise a not-implemented error for on_update => :restrict" do
+        expect { create_table(@model, :user_id => {:on_update => :restrict}) }.to raise_error(NotImplementedError)
+      end
+
+      it "should raise a not-implemented error for on_delete => :restrict" do
+        expect { create_table(@model, :user_id => {:on_delete => :restrict}) }.to raise_error(NotImplementedError)
+      end
+    end
+
     actions.each do |action|
       it "should create and detect on_update #{action.inspect}" do
         create_table(@model, :user_id => {:on_update => action})
@@ -159,17 +170,19 @@ describe ActiveRecord::Migration do
       end
     end
 
-    it "should override on_update action per table" do
-      with_fk_config(:on_update => :cascade) do
-        create_table_opts(@model, {:foreign_keys => {:on_update => :restrict}}, :user_id => {})
-        @model.should reference.on(:user_id).on_update(:restrict)
+    unless SchemaPlusHelpers.sqlserver?
+      it "should override on_update action per table" do
+        with_fk_config(:on_update => :cascade) do
+          create_table_opts(@model, {:foreign_keys => {:on_update => :no_action}}, :user_id => {})
+          @model.should reference.on(:user_id).on_update(:restrict)
+        end
       end
-    end
 
-    it "should override on_delete action per table" do
-      with_fk_config(:on_delete => :cascade) do
-        create_table_opts(@model, {:foreign_keys => {:on_delete => :restrict}}, :user_id => {})
-        @model.should reference.on(:user_id).on_delete(:restrict)
+      it "should override on_delete action per table" do
+        with_fk_config(:on_delete => :cascade) do
+          create_table_opts(@model, {:foreign_keys => {:on_delete => :no_action}}, :user_id => {})
+          @model.should reference.on(:user_id).on_delete(:no_action)
+        end
       end
     end
 
@@ -182,7 +195,7 @@ describe ActiveRecord::Migration do
 
     it "should override on_delete action per column" do
       with_fk_config(:on_delete => :cascade) do
-        create_table_opts(@model, {:foreign_keys => {:on_delete => :restrict}}, :user_id => {:on_delete => :set_null})
+        create_table_opts(@model, {:foreign_keys => {:on_delete => :no_action}}, :user_id => {:on_delete => :set_null})
         @model.should reference.on(:user_id).on_delete(:set_null)
       end
     end
@@ -339,7 +352,7 @@ describe ActiveRecord::Migration do
 
       it "should allow to overwrite default actions" do
         SchemaPlus.config.foreign_keys.on_delete = :cascade
-        SchemaPlus.config.foreign_keys.on_update = :restrict
+        SchemaPlus.config.foreign_keys.on_update = :no_action
         add_column(:post_id, :integer, :on_update => :set_null, :on_delete => :set_null) do
           @model.should reference.on(:post_id).on_delete(:set_null).on_update(:set_null)
         end

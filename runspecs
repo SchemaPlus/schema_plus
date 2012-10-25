@@ -6,7 +6,7 @@ require 'tempfile'
 
 RUBY_VERSIONS = %W[1.8.7 1.9.2 1.9.3]
 RAILS_VERSIONS = %W[2.3 3.0 3.1 3.2]
-DB_ADAPTERS = %W[postgresql mysql mysql2 sqlite3]
+DB_ADAPTERS = %W[postgresql mysql mysql2 sqlite3 sqlserver]
 
 o = OpenStruct.new
 o.ruby_versions = RUBY_VERSIONS

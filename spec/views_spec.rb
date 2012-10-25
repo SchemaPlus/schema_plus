@@ -64,7 +64,11 @@ describe ActiveRecord do
       # initialize the test database when testing.  this meant that the
       # test database had views into the development database.
       db = connection.respond_to?(:current_database)? connection.current_database : ActiveRecord::Base.configurations['schema_plus'][:database]
-      dump.should_not match(%r{#{connection.quote_table_name(db)}[.]})
+
+      # Regular expression escape the database name, SQL Server quotes names
+      # with brackets, i.e. [schema_plus_unittest].
+      db = Regexp.escape(connection.quote_table_name(db))
+      dump.should_not match(%r{#{db}[.]})
     end
 
     context "duplicate view creation" do

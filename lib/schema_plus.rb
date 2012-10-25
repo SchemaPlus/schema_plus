@@ -22,6 +22,7 @@ module SchemaPlus
       autoload :PostgresqlAdapter, 'schema_plus/active_record/connection_adapters/postgresql_adapter'
       autoload :PostgreSQLColumn, 'schema_plus/active_record/connection_adapters/postgresql_adapter'
       autoload :Sqlite3Adapter, 'schema_plus/active_record/connection_adapters/sqlite3_adapter'
+      autoload :SqlserverAdapter, 'schema_plus/active_record/connection_adapters/sqlserver_adapter'
     end
   end
 

@@ -13,6 +13,10 @@ module SchemaPlusHelpers
     ActiveRecord::Base.connection.adapter_name =~ /^sqlite/i
   end
 
+  def sqlserver?
+    ActiveRecord::Base.connection.adapter_name =~ /^sqlserver/i
+  end
+
   def suppress_messages
     ActiveRecord::Migration.suppress_messages { yield }
   end
