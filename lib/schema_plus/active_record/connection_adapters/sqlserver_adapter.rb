@@ -138,7 +138,7 @@ module SchemaPlus
           SQL
 
           foreign_keys = []
-          result = exec_query(query, name)
+          result = raw_select(query, name)
 
           result.each do |row|
             last_foreign_key = foreign_keys.last
