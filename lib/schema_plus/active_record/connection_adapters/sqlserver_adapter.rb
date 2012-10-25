@@ -40,7 +40,7 @@ module SchemaPlus
         end
 
         def default_expr_valid? (expr)
-          false # only constant expressions are allowed
+          true # constant expressions are allowed
         end
 
         def sql_for_function (function_name)
