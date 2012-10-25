@@ -48,7 +48,7 @@ describe "Foreign Key" do
       context "when is added", "posts(author_id)" do
 
         before(:each) do 
-          add_foreign_key(:posts, :author_id, :users, :id, :on_update => :cascade, :on_delete => :restrict)
+          add_foreign_key(:posts, :author_id, :users, :id, :on_update => :cascade, :on_delete => :no_action)
         end
 
         after(:each) do
@@ -64,8 +64,8 @@ describe "Foreign Key" do
           Post.should reference(:users).on_update(:cascade)
         end
 
-        it "restricts on delete" do
-          Post.should reference(:users).on_delete(:restrict)
+        it "takes no action on delete" do
+          Post.should reference(:users).on_delete(:no_action)
         end
 
         it "is available in Post.foreign_keys" do
@@ -117,7 +117,7 @@ describe "Foreign Key" do
 
       end
 
-      context "when table name is a rerved word" do
+      context "when table name is a reserved word" do
         before(:each) do
           migration.suppress_messages do
             migration.create_table :references, :force => true do |t|
