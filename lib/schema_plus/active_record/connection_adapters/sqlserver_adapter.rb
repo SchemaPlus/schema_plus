@@ -58,7 +58,7 @@ module SchemaPlus
           table = reverse ? "KCU_REF" : "KCU_FK"
 
           query = <<-SQL
-            SELECT  
+            SELECT
               KCU_FK.CONSTRAINT_NAME AS name,
               KCU_FK.TABLE_NAME AS table_name,
               KCU_FK.COLUMN_NAME AS #{COLUMN_NAMES},
@@ -66,27 +66,60 @@ module SchemaPlus
               KCU_REF.COLUMN_NAME AS #{REFERENCES_COLUMN_NAMES},
               RC.UPDATE_RULE as on_update,
               RC.DELETE_RULE as on_delete,
-              CASE
-                WHEN TC.IS_DEFERRABLE = 'YES' THEN 1
-                ELSE NULL
-              END as deferrable
-            FROM INFORMATION_SCHEMA.REFERENTIAL_CONSTRAINTS AS RC 
+              null as deferrable
+            FROM INFORMATION_SCHEMA.REFERENTIAL_CONSTRAINTS AS RC
 
-            LEFT JOIN INFORMATION_SCHEMA.KEY_COLUMN_USAGE AS KCU_FK 
-              ON KCU_FK.CONSTRAINT_CATALOG = RC.CONSTRAINT_CATALOG  
-              AND KCU_FK.CONSTRAINT_SCHEMA = RC.CONSTRAINT_SCHEMA 
-              AND KCU_FK.CONSTRAINT_NAME = RC.CONSTRAINT_NAME 
+            LEFT JOIN INFORMATION_SCHEMA.KEY_COLUMN_USAGE AS KCU_FK
+              ON KCU_FK.CONSTRAINT_CATALOG = RC.CONSTRAINT_CATALOG
+              AND KCU_FK.CONSTRAINT_SCHEMA = RC.CONSTRAINT_SCHEMA
+              AND KCU_FK.CONSTRAINT_NAME = RC.CONSTRAINT_NAME
 
-            LEFT JOIN INFORMATION_SCHEMA.KEY_COLUMN_USAGE AS KCU_REF 
-              ON KCU_REF.CONSTRAINT_CATALOG = RC.UNIQUE_CONSTRAINT_CATALOG  
-              AND KCU_REF.CONSTRAINT_SCHEMA = RC.UNIQUE_CONSTRAINT_SCHEMA 
-              AND KCU_REF.CONSTRAINT_NAME = RC.UNIQUE_CONSTRAINT_NAME 
+            LEFT JOIN (
+              SELECT
+                CONSTRAINT_CATALOG,
+                CONSTRAINT_SCHEMA,
+                CONSTRAINT_NAME,
+                TABLE_CATALOG,
+                TABLE_SCHEMA,
+                TABLE_NAME,
+                COLUMN_NAME,
+                ORDINAL_POSITION
+              FROM INFORMATION_SCHEMA.KEY_COLUMN_USAGE
+              UNION
+              SELECT
+                DB_NAME() AS CONSTRAINT_CATALOG,
+                SCHEMA_NAME(FK.schema_id) as CONSTRAINT_SCHEMA,
+                IX.name AS CONSTRAINT_NAME,
+                DB_NAME() AS TABLE_CATALOG,
+                SCHEMA_NAME(T.schema_id) AS TABLE_SCHEMA,
+                T.name AS TABLE_NAME,
+                C.name AS COLUMN_NAME,
+                IXC.key_ordinal AS ORDINAL_POSITION
+              FROM sys.indexes IX
+
+              JOIN sys.tables T
+              ON T.object_id = IX.object_id
+
+              JOIN sys.index_columns IXC
+              ON IXC.index_id = IX.index_id
+              AND IXC.object_id = IX.object_id
+
+              JOIN sys.foreign_keys FK
+              ON FK.referenced_object_id = IX.object_id
+              AND FK.key_index_id = IXC.column_id
+
+              JOIN sys.columns C
+              ON C.column_id = IXC.column_id
+              AND C.object_id = IX.object_id
+
+              WHERE IX.is_unique = 1
+              AND IX.is_unique_constraint = 0 AND
+              IX.ignore_dup_key = 0
+            ) AS KCU_REF
+              ON KCU_REF.CONSTRAINT_CATALOG = RC.UNIQUE_CONSTRAINT_CATALOG
+              AND KCU_REF.CONSTRAINT_SCHEMA = RC.UNIQUE_CONSTRAINT_SCHEMA
+              AND KCU_REF.CONSTRAINT_NAME = RC.UNIQUE_CONSTRAINT_NAME
               AND KCU_REF.ORDINAL_POSITION = KCU_FK.ORDINAL_POSITION
-
-            LEFT JOIN INFORMATION_SCHEMA.TABLE_CONSTRAINTS AS TC
-              ON TC.CONSTRAINT_CATALOG = RC.UNIQUE_CONSTRAINT_CATALOG  
-              AND TC.CONSTRAINT_SCHEMA = RC.UNIQUE_CONSTRAINT_SCHEMA 
-              AND TC.CONSTRAINT_NAME = RC.UNIQUE_CONSTRAINT_NAME
 
             WHERE #{table}.TABLE_NAME = '#{table_name}'
             ORDER BY name, table_name, references_table_name
