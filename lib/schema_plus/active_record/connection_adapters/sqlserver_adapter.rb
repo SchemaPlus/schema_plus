@@ -2,12 +2,16 @@ module SchemaPlus
   module ActiveRecord
     module ConnectionAdapters
       module SqlserverAdapter
+        def self.included(base) #:nodoc:
+          base.alias_method_chain :indexes, :schema_plus
+        end
+
         def foreign_key_definition_class
           ForeignKeyDefinition
         end
 
-        def indexes (table_name, name = nil) #:nodoc:
-          super.each do |index|
+        def indexes_with_schema_plus (table_name, name = nil) #:nodoc:
+          indexes_without_schema_plus(table_name, name).each do |index|
             index.unique = true if index.unique
           end
         end
@@ -142,7 +146,7 @@ module SchemaPlus
 
           result.each do |row|
             last_foreign_key = foreign_keys.last
-            raw = RawForeignKey.new(*row.values)
+            raw = raw_foreign_key(row)
 
             if raw == last_foreign_key
               last_foreign_key.column_names << row[COLUMN_NAMES]
@@ -155,10 +159,10 @@ module SchemaPlus
           foreign_keys
         end
 
-        def foreign_keys_equal? (a, b)
-          a.name == b.name &&
-            a.table_name == b.table_name &&
-            a.references_table_name == b.references_table_name
+        def raw_foreign_key (row)
+          RawForeignKey.new.tap do |raw|
+            raw.members.each { |m| raw.send :"#{m}=", row[m] }
+          end
         end
 
         RawForeignKey = Struct.new(
