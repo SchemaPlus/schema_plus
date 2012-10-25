@@ -161,7 +161,7 @@ module SchemaPlus
 
         def raw_foreign_key (row)
           RawForeignKey.new.tap do |raw|
-            raw.members.each { |m| raw.send :"#{m}=", row[m] }
+            raw.members.each { |m| raw.send :"#{m}=", row[m.to_s] }
           end
         end
 
