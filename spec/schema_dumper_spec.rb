@@ -56,6 +56,12 @@ describe "Schema dump" do
     end
   end
 
+  it "should sort foreign_key definitions" do
+    with_foreign_keys Comment, [ [ :post_id, :posts, :id ], [ :commenter_id, :users, :id ]] do
+      dump_all.should match(/foreign_key.+commenter_id.+foreign_key.+post_id/m)
+    end
+  end
+
   context "with constraint dependencies" do
     it "should sort in Posts => Comments direction" do
       with_foreign_key Comment, :post_id, :posts, :id do
@@ -207,14 +213,20 @@ describe "Schema dump" do
     yield
   end
 
-  def with_foreign_key(model, columns, referenced_table_name, referenced_columns, options = {})
+  def with_foreign_key(model, columns, referenced_table_name, referenced_columns, options = {}, &block)
+    with_foreign_keys(model, [[columns, referenced_table_name, referenced_columns, options]], &block)
+  end
+
+  def with_foreign_keys(model, columnsets)
     table_columns = model.columns.reject{|column| column.name == 'id'}
     ActiveRecord::Migration.suppress_messages do
       ActiveRecord::Migration.create_table model.table_name, :force => true do |t|
         table_columns.each do |column|
           t.column column.name, column.type
         end
-        t.foreign_key columns, referenced_table_name, referenced_columns, options
+        columnsets.each do |columns, referenced_table_name, referenced_columns, options|
+          t.foreign_key columns, referenced_table_name, referenced_columns, options || {}
+        end
       end
     end
     model.reset_column_information
