@@ -133,7 +133,7 @@ module SchemaPlus
       end
 
       def dump_foreign_keys(foreign_keys, opts={}) #:nodoc:
-        foreign_keys.collect{ |foreign_key| "  " + foreign_key.to_dump(:inline => opts[:inline]) }.join
+        foreign_keys.collect{ |foreign_key| "  " + foreign_key.to_dump(:inline => opts[:inline]) }.sort.join
       end
     end
   end
