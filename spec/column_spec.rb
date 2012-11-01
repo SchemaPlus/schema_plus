@@ -1,8 +1,11 @@
 require File.expand_path(File.dirname(__FILE__) + '/spec_helper')
 
-require 'models/user'
-
 describe "Column" do
+
+  before(:all) do
+      class User < ::ActiveRecord::Base ; end
+  end
+    
   let(:migration) { ::ActiveRecord::Migration }
 
   context "regarding indexes" do

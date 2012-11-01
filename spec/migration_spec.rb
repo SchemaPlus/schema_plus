@@ -5,7 +5,32 @@ describe ActiveRecord::Migration do
   include SchemaPlusHelpers
 
   before(:all) do
-    load_auto_schema
+    create_schema do
+
+      create_table :users, :force => true do |t|
+        t.string :login, :index => { :unique => true }
+      end
+
+      create_table :members, :force => true do |t|
+        t.string :login
+      end
+
+      create_table :comments, :force => true do |t|
+        t.string :content
+        t.integer :user
+        t.integer :user_id
+        t.foreign_key :user_id, :users, :id
+      end
+
+      create_table :posts, :force => true do |t|
+        t.string :content
+      end
+    end
+    with_fk_auto_create(true) do
+      class User < ::ActiveRecord::Base ; end
+      class Post < ::ActiveRecord::Base ; end
+      class Comment < ::ActiveRecord::Base ; end
+    end
   end
 
   context "when table is created" do

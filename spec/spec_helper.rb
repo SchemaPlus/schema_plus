@@ -19,30 +19,26 @@ RSpec.configure do |config|
   config.include(SchemaPlusHelpers)
 end
 
-def load_schema(name)
-  ActiveRecord::Migration.suppress_messages do
-    eval(File.read(File.join(File.dirname(__FILE__), 'schema', name)))
+def with_fk_auto_create(value = true)
+  old_value = SchemaPlus.config.foreign_keys.auto_create
+  SchemaPlus.config.foreign_keys.auto_create = value
+  begin
+    yield
+  ensure
+    SchemaPlus.config.foreign_keys.auto_create = old_value
   end
 end
 
-def load_core_schema
-  SchemaPlus.setup do |config|
-    config.foreign_keys.auto_create = false;
-  end
-  load_schema('core_schema.rb')
-  load 'models/user.rb'
-  load 'models/post.rb'
-  load 'models/comment.rb'
-end
 
-def load_auto_schema
-  SchemaPlus.setup do |config|
-    config.foreign_keys.auto_create = true;
-  end
-  load_schema('auto_schema.rb')
-  load 'models/user.rb'
-  load 'models/post.rb'
-  load 'models/comment.rb'
+def create_schema(&block)
+   ActiveRecord::Migration.suppress_messages do
+      ActiveRecord::Schema.define do
+        connection.tables.each do |table|
+          drop_table table
+        end
+        instance_eval &block
+      end
+   end
 end
 
 def remove_all_models

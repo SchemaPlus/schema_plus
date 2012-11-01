@@ -1,16 +1,22 @@
 require File.expand_path(File.dirname(__FILE__) + '/spec_helper')
 
-require 'models/user'
-require 'models/post'
-require 'models/comment'
-
 describe "Foreign Key" do
-  
+
   let(:migration) { ::ActiveRecord::Migration }
 
   context "created with table" do
     before(:all) do
-      load_auto_schema
+      create_schema do
+        create_table :users, :force => true do |t|
+          t.string :login
+        end
+        create_table :comments, :force => true do |t|
+          t.integer :user_id
+          t.foreign_key :user_id, :users, :id
+        end
+      end
+      class User < ::ActiveRecord::Base ; end
+      class Comment < ::ActiveRecord::Base ; end
     end
 
     it "should report foreign key constraints" do
@@ -26,7 +32,29 @@ describe "Foreign Key" do
   context "modification" do
 
     before(:all) do
-      load_core_schema
+      create_schema do
+        create_table :users, :force => true do |t|
+          t.string :login
+          t.datetime :deleted_at
+        end
+
+        create_table :posts, :force => true do |t|
+          t.text :body
+          t.integer :user_id
+          t.integer :author_id
+        end
+
+        create_table :comments, :force => true do |t|
+          t.text :body
+          t.integer :post_id
+          t.foreign_key :post_id, :posts, :id
+        end
+      end
+      with_fk_auto_create(false) do
+        class User < ::ActiveRecord::Base ; end
+        class Post < ::ActiveRecord::Base ; end
+        class Comment < ::ActiveRecord::Base ; end
+      end
     end
 
     if SchemaPlusHelpers.sqlite3?
@@ -117,7 +145,7 @@ describe "Foreign Key" do
 
       end
 
-      context "when table name is a rerved word" do
+      context "when table name is a reserved word" do
         before(:each) do
           migration.suppress_messages do
             migration.create_table :references, :force => true do |t|
