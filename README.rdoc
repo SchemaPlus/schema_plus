@@ -175,10 +175,14 @@ take advantage of auto-creation of foreign keys, you can re-enable it:
     end
 
 
-== History
+== Release notes:
 
-* Recent Release notes:
-    * upcoming - bug fix for postgres :kind index attribute (https://github.com/eugenebolshakov).  sort fks in dump (https://github.com/zephyr-dev).
+=== master (to be released)
+    * bug fix for postgres :kind index attribute (thanks to https://github.com/eugenebolshakov)
+    * sort fks in dump for stability (thanks to https://github.com/zephyr-dev).
+    * bug fix: change_column should maintain foreign keys even when config.foreign_keys.auto_create is false
+
+=== Earlier releases
     * 0.4.1 - bug fix: don't attempt foreign key creation for t.belongs_to ... :polymorphic => true
     * 0.4.0 - add :force for create_view (suggested by greglazarev[https://github.com/greglazarev]).  cleanups by betelgeuse[https://github.com/betelgeuse]
     * 0.3.4 - bug fix: regression causing :default => false to be ignored
@@ -187,6 +191,8 @@ take advantage of auto-creation of foreign keys, you can re-enable it:
     * 0.3.1 - bug fix for PostgreSQL schema dump after change_column_default(... nil)
     * 0.3.0 - add :default => expressions (Thanks to Luke Saunders).  support rails 3.2 and ruby 1.9.3
     * 0.2.1 - suppress duplicate add_indexes.  compatibility with rails 3.2.0.rc2
+
+== History
 
 * SchemaPlus is derived from several "Red Hill On Rails" plugins
   originally created by harukizaemon (https://github.com/harukizaemon)
