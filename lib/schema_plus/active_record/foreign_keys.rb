@@ -112,15 +112,7 @@ module SchemaPlus::ActiveRecord
     # Enhances ActiveRecord::Migration#change_column to support indexes and foreign keys same as add_column.
     def change_column(table_name, column_name, type, options = {})
       super
-      remove_foreign_key_if_exists(table_name, column_name)
       schema_plus_handle_column_options(table_name, column_name, options)
-    end
-
-    protected
-    def remove_foreign_key_if_exists(table_name, column_name) #:nodoc:
-      foreign_keys = ActiveRecord::Base.connection.foreign_keys(table_name.to_s)
-      fk = foreign_keys.detect { |fk| fk.table_name == table_name.to_s && fk.column_names == Array(column_name).collect(&:to_s) }
-      remove_foreign_key(table_name, fk.name) if fk
     end
 
   end

@@ -3,12 +3,19 @@ module SchemaPlus::ActiveRecord
     def schema_plus_handle_column_options(table_name, column_name, column_options, opts = {}) #:nodoc:
       config = opts[:config] || SchemaPlus.config
       if references = get_references(table_name, column_name, column_options, config)
-        if index = column_options.fetch(:index, config.foreign_keys.auto_index?)
-          column_index(table_name, column_name, index)
+
+        # in case of change to existing column
+        remove_foreign_key_if_exists(table_name, column_name)
+
+        unless references == :none
+          if index = column_options.fetch(:index, config.foreign_keys.auto_index?)
+            column_index(table_name, column_name, index)
+          end
+
+          add_foreign_key(table_name, column_name, references.first, references.last,
+                                      column_options.reverse_merge(:on_update => config.foreign_keys.on_update,
+                                                                  :on_delete => config.foreign_keys.on_delete))
         end
-        add_foreign_key(table_name, column_name, references.first, references.last,
-                                    column_options.reverse_merge(:on_update => config.foreign_keys.on_update,
-                                                                 :on_delete => config.foreign_keys.on_delete))
       elsif column_options[:index]
         column_index(table_name, column_name, column_options[:index])
       end
@@ -31,7 +38,11 @@ module SchemaPlus::ActiveRecord
     def get_references(table_name, column_name, column_options = {}, config = {}) #:nodoc:
       if column_options.has_key?(:references)
         references = column_options[:references]
-        references = [references, :id] unless references.nil? || references.is_a?(Array)
+        if references.nil?
+          references = :none
+        else
+          references = [references, :id] unless references.is_a?(Array)
+        end
         references
       elsif config.foreign_keys.auto_create?
         case column_name.to_s
@@ -43,6 +54,13 @@ module SchemaPlus::ActiveRecord
         end
       end
     end
+
+    def remove_foreign_key_if_exists(table_name, column_name) #:nodoc:
+      foreign_keys = ActiveRecord::Base.connection.foreign_keys(table_name.to_s)
+      fk = foreign_keys.detect { |fk| fk.table_name == table_name.to_s && fk.column_names == Array(column_name).collect(&:to_s) }
+      ActiveRecord::Base.connection.remove_foreign_key(table_name, fk.name) if fk
+    end
+
 
     def column_index(table_name, column_name, options) #:nodoc:
       options = {} if options == true
