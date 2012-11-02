@@ -26,11 +26,13 @@ describe ActiveRecord::Migration do
         t.string :content
       end
     end
-    with_fk_auto_create(true) do
-      class User < ::ActiveRecord::Base ; end
-      class Post < ::ActiveRecord::Base ; end
-      class Comment < ::ActiveRecord::Base ; end
-    end
+    class User < ::ActiveRecord::Base ; end
+    class Post < ::ActiveRecord::Base ; end
+    class Comment < ::ActiveRecord::Base ; end
+  end
+
+  around(:each) do |example|
+    with_fk_config(:auto_create => true, :auto_index => true) { example.run }
   end
 
   context "when table is created" do
@@ -40,107 +42,146 @@ describe ActiveRecord::Migration do
     end
 
     it "should properly handle default values for booleans" do
-      expect { create_table(@model,  :bool => { :METHOD => :boolean, :default => true }) }.to_not raise_error
+      expect {
+        recreate_table(@model) do |t|
+         t.boolean :bool, :default => true
+        end
+      }.to_not raise_error
       @model.create.reload.bool.should be_true
     end
 
     it "should create foreign keys" do
-      create_table(@model,  :user_id => {}, 
-                          :author_id => { :references => :users },
-                          :member_id => { :references => nil } )
+      recreate_table(@model) do |t|
+        t.integer :user_id
+        t.integer :author_id, :references => :users
+        t.integer :member_id, :references => nil
+      end
       @model.should reference(:users, :id).on(:user_id)
       @model.should reference(:users, :id).on(:author_id)
       @model.should_not reference.on(:member_id)
     end
 
     it "should create foreign key using t.belongs_to" do
-      create_table(@model,  :user => {:METHOD => :belongs_to})
+      recreate_table(@model) do |t|
+        t.belongs_to :user
+      end
       @model.should reference(:users, :id).on(:user_id)
     end
 
     it "should not create foreign key using t.belongs_to with :polymorphic => true" do
-      create_table(@model,  :user => {:METHOD => :belongs_to, :polymorphic => true})
+      recreate_table(@model) do |t|
+        t.belongs_to :user, :polymorphic => true
+      end
       @model.should_not reference(:users, :id).on(:user_id)
     end
 
     it "should create foreign key using t.references" do
-      create_table(@model,  :user => {:METHOD => :references})
+      recreate_table(@model) do |t|
+        t.references :user
+      end
       @model.should reference(:users, :id).on(:user_id)
     end
 
     it "should not create foreign key using t.references with :references => nil" do
-      create_table(@model,  :user => {:METHOD => :references, :references => nil})
+      recreate_table(@model) do |t|
+        t.references :user, :references => nil
+      end
       @model.should_not reference(:users, :id).on(:user_id)
     end
 
     it "should not create foreign key using t.references with :polymorphic => true" do
-      create_table(@model,  :user => {:METHOD => :references, :polymorphic => true})
+      recreate_table(@model) do |t|
+        t.references :user, :polymorphic => true
+      end
       @model.should_not reference(:users, :id).on(:user_id)
     end
 
     it "should create foreign key to the same table on parent_id" do
-      create_table(@model,  :parent_id => {})
+      recreate_table(@model) do |t|
+        t.integer :parent_id
+      end
       @model.should reference(@model.table_name, :id).on(:parent_id)
     end
 
     it "should create an index if specified on column" do
-      create_table(@model, :state => { :index => true }) 
+      recreate_table(@model) do |t|
+        t.integer :state, :index => true 
+      end
       @model.should have_index.on(:state)
     end
 
     it "should create a unique index if specified on column" do
-      create_table(@model, :state => { :index => {:unique => true} }) 
+      recreate_table(@model) do |t|
+        t.integer :state, :index => { :unique => true }
+      end
       @model.should have_unique_index.on(:state)
     end
+
     it "should create a unique index if specified on column using shorthand" do
-      create_table(@model, :state => { :index => :unique }) 
+      recreate_table(@model) do |t|
+        t.integer :state, :index => :unique
+      end
       @model.should have_unique_index.on(:state)
     end
 
     it "should create an index if specified explicitly" do
-      create_table_opts(@model, {}, {:state => {}}, {:state => {}}) 
+      recreate_table(@model) do |t|
+        t.integer :state
+        t.index :state
+      end
       @model.should have_index.on(:state)
     end
 
     it "should create a unique index if specified explicitly" do
-      create_table_opts(@model, {}, {:state => {}}, {:state => {:unique => true}}) 
+      recreate_table(@model) do |t|
+        t.integer :state
+        t.index :state, :unique => true
+      end
       @model.should have_unique_index.on(:state)
     end
 
     it "should create a multiple-column index if specified" do
-      create_table(@model, :city => {},
-                   :state => { :index => {:with => :city} } ) 
+      recreate_table(@model) do |t|
+        t.integer :city
+        t.integer :state,       :index => { :with => :city }
+      end
       @model.should have_index.on([:state, :city])
     end
     
     it "should auto-index foreign keys only" do
-      with_fk_config(:auto_index => true) do
-        create_table(@model,  :user_id => {},
-                     :application_id => { :references => nil },
-                     :state => {})
-        @model.should have_index.on(:user_id)
-        @model.should_not have_index.on(:application_id)
-        @model.should_not have_index.on(:state)
+      recreate_table(@model) do |t|
+        t.integer :user_id
+        t.integer :application_id, :references => nil
+        t.integer :state
       end
+      @model.should have_index.on(:user_id)
+      @model.should_not have_index.on(:application_id)
+      @model.should_not have_index.on(:state)
     end
 
     it "should override foreign key auto_create positively" do
       with_fk_config(:auto_create => false) do
-        create_table_opts(@model, {:foreign_keys => {:auto_create => true}}, :user_id => {})
+        recreate_table @model, :foreign_keys => {:auto_create => true} do |t|
+          t.integer :user_id
+        end
         @model.should reference(:users, :id).on(:user_id)
       end
     end
 
     it "should override foreign key auto_create negatively" do
       with_fk_config(:auto_create => true) do
-        create_table_opts(@model, {:foreign_keys => {:auto_create => false}}, :user_id => {})
+        recreate_table @model, :foreign_keys => {:auto_create => false} do |t|
+          t.integer :user_id
+        end
         @model.should_not reference.on(:user_id)
       end
     end
 
     it "should override foreign key auto_index positively" do
       with_fk_config(:auto_index => false) do 
-        create_table_opts(@model, {:foreign_keys => {:auto_index => true}}, :user_id => {})
+        recreate_table @model, :foreign_keys => {:auto_index => true} do |t|
+          t.integer :user_id
+        end
         @model.should have_index.on(:user_id)
       end
     end
@@ -150,87 +191,123 @@ describe ActiveRecord::Migration do
     if SchemaPlusHelpers.mysql?
       actions.delete(:set_default)
       it "should raise a not-implemented error for on_update => :set_default" do
-        expect { create_table(@model, :user_id => {:on_update => :set_default}) }.to raise_error(NotImplementedError)
+        expect {
+          recreate_table @model do |t|
+            t.integer :user_id, :on_update => :set_default
+          end
+        }.to raise_error(NotImplementedError)
       end
 
       it "should raise a not-implemented error for on_delete => :set_default" do
-        expect { create_table(@model, :user_id => {:on_delete => :set_default}) }.to raise_error(NotImplementedError)
+        expect {
+          recreate_table @model do |t|
+            t.integer :user_id, :on_delete => :set_default
+          end
+        }.to raise_error(NotImplementedError)
       end
     end
 
     actions.each do |action|
       it "should create and detect on_update #{action.inspect}" do
-        create_table(@model, :user_id => {:on_update => action})
+        recreate_table @model do |t|
+          t.integer :user_id,   :on_update => action
+        end
         @model.should reference.on(:user_id).on_update(action)
       end
 
       it "should create and detect on_delete #{action.inspect}" do
-        create_table(@model, :user_id => {:on_delete => action})
+        recreate_table @model do |t|
+          t.integer :user_id,   :on_delete => action
+        end
         @model.should reference.on(:user_id).on_delete(action)
       end
     end
 
     it "should use default on_update action" do
       with_fk_config(:on_update => :cascade) do
-        create_table_opts(@model, {:foreign_keys => {}}, :user_id => {})
+        recreate_table @model do |t|
+          t.integer :user_id
+        end
         @model.should reference.on(:user_id).on_update(:cascade)
       end
     end
 
     it "should use default on_delete action" do
       with_fk_config(:on_delete => :cascade) do
-        create_table_opts(@model, {:foreign_keys => {}}, :user_id => {})
+        recreate_table @model do |t|
+          t.integer :user_id
+        end
         @model.should reference.on(:user_id).on_delete(:cascade)
       end
     end
 
     it "should override on_update action per table" do
       with_fk_config(:on_update => :cascade) do
-        create_table_opts(@model, {:foreign_keys => {:on_update => :restrict}}, :user_id => {})
+        recreate_table @model, :foreign_keys => {:on_update => :restrict} do |t|
+          t.integer :user_id
+        end
         @model.should reference.on(:user_id).on_update(:restrict)
       end
     end
 
     it "should override on_delete action per table" do
       with_fk_config(:on_delete => :cascade) do
-        create_table_opts(@model, {:foreign_keys => {:on_delete => :restrict}}, :user_id => {})
+        recreate_table @model, :foreign_keys => {:on_delete => :restrict} do |t|
+          t.integer :user_id
+        end
         @model.should reference.on(:user_id).on_delete(:restrict)
       end
     end
 
     it "should override on_update action per column" do
       with_fk_config(:on_update => :cascade) do
-        create_table_opts(@model, {:foreign_keys => {:on_update => :restruct}}, :user_id => {:on_update => :set_null})
+        recreate_table @model, :foreign_keys => {:on_update => :restrict} do |t|
+          t.integer :user_id, :on_update => :set_null
+        end
         @model.should reference.on(:user_id).on_update(:set_null)
       end
     end
 
     it "should override on_delete action per column" do
       with_fk_config(:on_delete => :cascade) do
-        create_table_opts(@model, {:foreign_keys => {:on_delete => :restrict}}, :user_id => {:on_delete => :set_null})
+        recreate_table @model, :foreign_keys => {:on_delete => :restrict} do |t|
+          t.integer :user_id, :on_delete => :set_null
+        end
         @model.should reference.on(:user_id).on_delete(:set_null)
       end
     end
 
     it "should raise an error for an invalid on_update action" do
-        expect { create_table(@model, :user_id => {:on_update => :invalid}) }.to raise_error(ArgumentError)
+      expect {
+        recreate_table @model do |t|
+          t.integer :user_id, :on_update => :invalid
+        end
+      }.to raise_error(ArgumentError)
     end
 
     it "should raise an error for an invalid on_delete action" do
-        expect { create_table(@model, :user_id => {:on_delete => :invalid}) }.to raise_error(ArgumentError)
+      expect {
+        recreate_table @model do |t|
+        t.integer :user_id, :on_delete => :invalid
+        end
+      }.to raise_error(ArgumentError)
     end
 
     unless SchemaPlusHelpers.mysql?
       it "should override foreign key auto_index negatively" do
         with_fk_config(:auto_index => true) do 
-          create_table_opts(@model, {:foreign_keys => {:auto_index => false}}, :user_id => {})
+          recreate_table @model, :foreign_keys => {:auto_index => false} do |t|
+            t.integer :user_id
+          end
           @model.should_not have_index.on(:user_id)
         end
       end
 
       it "should disable auto-index for a column" do
         with_fk_config(:auto_index => true) do
-          create_table(@model,  :user_id => { :index => false })
+          recreate_table @model do |t|
+            t.integer :user_id, :index => false
+          end
           @model.should_not have_index.on(:user_id)
         end
       end
@@ -442,6 +519,18 @@ describe ActiveRecord::Migration do
       end
 
     end
+
+    context "when column is removed" do
+      protected
+      def remove_column(column_name)
+        table = @model.table_name
+        ActiveRecord::Migration.suppress_messages do
+          ActiveRecord::Migration.remove_column(table, column_name)
+          @model.reset_column_information
+        end
+      end
+    end
+
   end
     
   def foreign_key(model, column)
@@ -449,23 +538,11 @@ describe ActiveRecord::Migration do
     model.foreign_keys.detect { |fk| fk.table_name == model.table_name && fk.column_names == columns } 
   end
 
-  def create_table_opts(model, table_options, columns_with_options, indexes={})
+  def recreate_table(model, opts={}, &block)
     ActiveRecord::Migration.suppress_messages do
-      ActiveRecord::Migration.create_table model.table_name, table_options.merge(:force => true) do |t|
-        columns_with_options.each_pair do |column, options|
-          method = options.delete(:METHOD) || :integer
-          t.send method, column, options
-        end
-        indexes.each_pair do |column, options|
-          t.index column, options
-        end
-      end
-      model.reset_column_information
+      ActiveRecord::Migration.create_table model.table_name, opts.merge(:force => true), &block
     end
-  end
-
-  def create_table(model, columns_with_options)
-    create_table_opts(model, {}, columns_with_options)
+    model.reset_column_information
   end
 
   def with_fk_config(opts, &block)
