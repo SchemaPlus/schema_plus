@@ -15,8 +15,10 @@ describe "Foreign Key" do
           t.foreign_key :user_id, :users, :id
         end
       end
-      class User < ::ActiveRecord::Base ; end
-      class Comment < ::ActiveRecord::Base ; end
+      with_fk_auto_create(true) do
+        class User < ::ActiveRecord::Base ; end
+        class Comment < ::ActiveRecord::Base ; end
+      end
     end
 
     it "should report foreign key constraints" do
