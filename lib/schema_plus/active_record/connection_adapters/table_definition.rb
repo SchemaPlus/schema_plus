@@ -144,5 +144,17 @@ module SchemaPlus::ActiveRecord::ConnectionAdapters
       foreign_key(*args)
     end
 
+    # This is a deliberately empty stub.  The reason for it is that
+    # handle_column_options gets called for changes as well as for table
+    # definitions, and in the case of changes, previously existing foreign
+    # keys sometimes need to be removed.  but in the case here, that of
+    # table definitions, the only reason a foreign key would exist is
+    # because we're redefining a table that already exists (via :force =>
+    # true).  in which case the foreign key will get dropped when the
+    # drop_table gets emitted, so no need to do it immediately.  (and for
+    # sqlite3, doing it immediately would raise an error).
+    def remove_foreign_key(_, *args) #:nodoc:
+    end
+
   end
 end

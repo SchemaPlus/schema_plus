@@ -58,7 +58,7 @@ module SchemaPlus::ActiveRecord
     def remove_foreign_key_if_exists(table_name, column_name) #:nodoc:
       foreign_keys = ActiveRecord::Base.connection.foreign_keys(table_name.to_s)
       fk = foreign_keys.detect { |fk| fk.table_name == table_name.to_s && fk.column_names == Array(column_name).collect(&:to_s) }
-      ActiveRecord::Base.connection.remove_foreign_key(table_name, fk.name) if fk
+      remove_foreign_key(table_name, fk.name) if fk
     end
 
 
