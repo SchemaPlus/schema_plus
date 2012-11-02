@@ -259,13 +259,13 @@ describe ActiveRecord::Migration do
         end
       end
 
-      it "should create foreign key to explicity given table" do
+      it "should create foreign key to explicitly given table" do
         add_column(:author_id, :integer, :references => :users) do
           @model.should reference(:users, :id).on(:author_id)
         end
       end
 
-      it "should create foreign key to explicity given table and column name" do
+      it "should create foreign key to explicitly given table and column name" do
         add_column(:author_login, :string, :references => [:users, :login]) do 
           @model.should reference(:users, :login).on(:author_login) 
         end
@@ -283,7 +283,7 @@ describe ActiveRecord::Migration do
         end
       end
 
-      it "shouldnt't create foreign key if specified explicity" do
+      it "shouldnt't create foreign key if specified explicitly" do
         add_column(:post_id, :integer, :references => nil) do
           @model.should_not reference.on(:post_id)
         end
@@ -406,6 +406,11 @@ describe ActiveRecord::Migration do
           change_column :user_id, :integer, :references => :members
           @model.should_not reference(:users)
           change_column :user_id, :integer, :references => :users
+        end
+
+        it "should drop foreign key if requested to do so" do
+          change_column :user_id, :integer, :references => nil
+          @model.should_not reference(:users)
         end
 
         it "should reference pointed table afterwards if new one is created" do
