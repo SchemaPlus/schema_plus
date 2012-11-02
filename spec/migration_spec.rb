@@ -402,15 +402,27 @@ describe ActiveRecord::Migration do
           @model.should reference(:users)
         end
 
-        it "should drop foreign key afterwards" do
+        it "should drop foreign key if it is no longer valid" do
           change_column :user_id, :integer, :references => :members
           @model.should_not reference(:users)
           change_column :user_id, :integer, :references => :users
         end
 
-        it "should reference pointed table afterwards" do
+        it "should reference pointed table afterwards if new one is created" do
           change_column :user_id, :integer, :references => :members
           @model.should reference(:members)
+        end
+
+        it "should maintain foreign key if it's unaffected by change" do
+          change_column :user_id, :integer, :default => 0
+          @model.should reference(:users)
+        end
+
+        it "should maintain foreign key if it's unaffected by change, even if auto_index is off" do
+          with_fk_config(:auto_create => false) do
+            change_column :user_id, :integer, :default => 0
+            @model.should reference(:users)
+          end
         end
 
       end
