@@ -6,7 +6,7 @@ describe "Index definition" do
   let(:migration) { ::ActiveRecord::Migration }
   
   before(:all) do
-    create_schema do
+    define_schema(:auto_create => false) do
       create_table :users, :force => true do |t|
         t.string :login
         t.datetime :deleted_at
@@ -24,11 +24,9 @@ describe "Index definition" do
         t.foreign_key :post_id, :posts, :id
       end
     end
-    with_fk_auto_create(false) do
-      class User < ::ActiveRecord::Base ; end
-      class Post < ::ActiveRecord::Base ; end
-      class Comment < ::ActiveRecord::Base ; end
-    end
+    class User < ::ActiveRecord::Base ; end
+    class Post < ::ActiveRecord::Base ; end
+    class Comment < ::ActiveRecord::Base ; end
   end
 
   around(:each) do |example|

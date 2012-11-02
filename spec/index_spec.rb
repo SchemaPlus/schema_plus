@@ -3,7 +3,7 @@ require File.expand_path(File.dirname(__FILE__) + '/spec_helper')
 describe "add_index" do
 
   before(:all) do
-    create_schema do
+    define_schema(:auto_create => false) do
       create_table :users, :force => true do |t|
         t.string :login
         t.datetime :deleted_at
@@ -21,11 +21,9 @@ describe "add_index" do
         t.foreign_key :post_id, :posts, :id
       end
     end
-    with_fk_auto_create(false) do
-      class User < ::ActiveRecord::Base ; end
-      class Post < ::ActiveRecord::Base ; end
-      class Comment < ::ActiveRecord::Base ; end
-    end
+    class User < ::ActiveRecord::Base ; end
+    class Post < ::ActiveRecord::Base ; end
+    class Comment < ::ActiveRecord::Base ; end
   end
 
   let(:migration) { ::ActiveRecord::Migration }

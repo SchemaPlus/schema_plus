@@ -5,7 +5,7 @@ describe ActiveRecord::Migration do
   include SchemaPlusHelpers
 
   before(:all) do
-    create_schema do
+    define_schema(:auto_create => true) do
 
       create_table :users, :force => true do |t|
         t.string :login, :index => { :unique => true }
@@ -26,11 +26,9 @@ describe ActiveRecord::Migration do
         t.string :content
       end
     end
-    with_fk_auto_create(true) do
-      class User < ::ActiveRecord::Base ; end
-      class Post < ::ActiveRecord::Base ; end
-      class Comment < ::ActiveRecord::Base ; end
-    end
+    class User < ::ActiveRecord::Base ; end
+    class Post < ::ActiveRecord::Base ; end
+    class Comment < ::ActiveRecord::Base ; end
   end
 
   around(:each) do |example|
@@ -153,16 +151,6 @@ describe ActiveRecord::Migration do
         end
       end
       @model.reset_column_information
-    end
-  end
-
-  def with_fk_config(opts, &block)
-    save = Hash[opts.keys.collect{|key| [key, SchemaPlus.config.foreign_keys.send(key)]}]
-    begin
-      SchemaPlus.config.foreign_keys.update_attributes(opts)
-      yield
-    ensure
-      SchemaPlus.config.foreign_keys.update_attributes(save)
     end
   end
 

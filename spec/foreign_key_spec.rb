@@ -6,7 +6,7 @@ describe "Foreign Key" do
 
   context "created with table" do
     before(:all) do
-      create_schema do
+      define_schema(:auto_create => true) do
         create_table :users, :force => true do |t|
           t.string :login
         end
@@ -15,10 +15,8 @@ describe "Foreign Key" do
           t.foreign_key :user_id, :users, :id
         end
       end
-      with_fk_auto_create(true) do
-        class User < ::ActiveRecord::Base ; end
-        class Comment < ::ActiveRecord::Base ; end
-      end
+      class User < ::ActiveRecord::Base ; end
+      class Comment < ::ActiveRecord::Base ; end
     end
 
     it "should report foreign key constraints" do
@@ -34,7 +32,7 @@ describe "Foreign Key" do
   context "modification" do
 
     before(:all) do
-      create_schema do
+      define_schema(:auto_create => false) do
         create_table :users, :force => true do |t|
           t.string :login
           t.datetime :deleted_at
@@ -52,11 +50,9 @@ describe "Foreign Key" do
           t.foreign_key :post_id, :posts, :id
         end
       end
-      with_fk_auto_create(false) do
-        class User < ::ActiveRecord::Base ; end
-        class Post < ::ActiveRecord::Base ; end
-        class Comment < ::ActiveRecord::Base ; end
-      end
+      class User < ::ActiveRecord::Base ; end
+      class Post < ::ActiveRecord::Base ; end
+      class Comment < ::ActiveRecord::Base ; end
     end
 
     if SchemaPlusHelpers.sqlite3?

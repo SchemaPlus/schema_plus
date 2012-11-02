@@ -17,42 +17,40 @@ describe ActiveRecord::Schema do
     end
 
     it "should pass" do
-      expect { define_schema }.to_not raise_error
+      expect { do_schema }.to_not raise_error
     end
 
     it "should create only explicity added indexes" do
-      define_schema
+      do_schema
       expected = SchemaPlusHelpers.mysql? ? 2 : 1
       connection.tables.collect { |table| connection.indexes(table) }.flatten.should have(expected).items
     end
 
     it "should create only explicity added foriegn keys" do
-      define_schema
+      do_schema
       connection.tables.collect { |table| connection.foreign_keys(table) }.flatten.should have(2).items
     end
 
   end
 
   protected
-  def define_schema
-    ActiveRecord::Migration.suppress_messages do
-      schema.define do
-        connection.tables.each do |table| drop_table table end
+  def do_schema
+    define_schema do
+      connection.tables.each do |table| drop_table table end
 
-        create_table :users, :force => true do
-        end
+      create_table :users, :force => true do
+      end
 
-        create_table :colors, :force => true do
-        end
+      create_table :colors, :force => true do
+      end
 
-        create_table :shoes, :force => true do
-        end
+      create_table :shoes, :force => true do
+      end
 
-        create_table :posts, :force => true do |t|
-          t.integer :user_id, :references => :users, :index => true
-          t.integer :shoe_id, :references => :shoes   # should not have an index (except mysql)
-          t.integer :color_id   # should not have a foreign key nor index
-        end
+      create_table :posts, :force => true do |t|
+        t.integer :user_id, :references => :users, :index => true
+        t.integer :shoe_id, :references => :shoes   # should not have an index (except mysql)
+        t.integer :color_id   # should not have a foreign key nor index
       end
     end
   end

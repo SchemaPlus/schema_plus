@@ -19,26 +19,31 @@ RSpec.configure do |config|
   config.include(SchemaPlusHelpers)
 end
 
-def with_fk_auto_create(value = true)
-  old_value = SchemaPlus.config.foreign_keys.auto_create
-  SchemaPlus.config.foreign_keys.auto_create = value
+def with_fk_config(opts, &block)
+  save = Hash[opts.keys.collect{|key| [key, SchemaPlus.config.foreign_keys.send(key)]}]
   begin
+    SchemaPlus.config.foreign_keys.update_attributes(opts)
     yield
   ensure
-    SchemaPlus.config.foreign_keys.auto_create = old_value
+    SchemaPlus.config.foreign_keys.update_attributes(save)
   end
 end
 
+def with_fk_auto_create(value = true, &block)
+  with_fk_config(:auto_create => value, &block)
+end
 
-def create_schema(&block)
-   ActiveRecord::Migration.suppress_messages do
+def define_schema(config={}, &block)
+  with_fk_config(config) do
+    ActiveRecord::Migration.suppress_messages do
       ActiveRecord::Schema.define do
         connection.tables.each do |table|
           drop_table table
         end
         instance_eval &block
       end
-   end
+    end
+  end
 end
 
 def remove_all_models

@@ -3,7 +3,7 @@ require File.expand_path(File.dirname(__FILE__) + '/spec_helper')
 
 describe "Column definition" do
   before(:all) do
-    create_schema do
+    define_schema(:auto_create => false) do
       create_table :users, :force => true do |t|
         t.string :login
         t.datetime :deleted_at
