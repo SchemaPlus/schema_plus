@@ -521,6 +521,25 @@ describe ActiveRecord::Migration do
     end
 
     context "when column is removed" do
+      before(:each) do
+        @model = Comment
+        recreate_table @model do |t|
+          t.integer :post_id
+        end
+      end
+
+      it "should remove a foreign key" do
+        @model.should reference(:posts)
+        remove_column(:post_id)
+        @model.should_not reference(:posts)
+      end
+
+      it "should remove an index" do
+        @model.should have_index.on(:post_id)
+        remove_column(:post_id)
+        @model.should_not have_index.on(:post_id)
+      end
+      
       protected
       def remove_column(column_name)
         table = @model.table_name
@@ -533,11 +552,6 @@ describe ActiveRecord::Migration do
 
   end
     
-  def foreign_key(model, column)
-    columns = Array(column).collect(&:to_s)
-    model.foreign_keys.detect { |fk| fk.table_name == model.table_name && fk.column_names == columns } 
-  end
-
   def recreate_table(model, opts={}, &block)
     ActiveRecord::Migration.suppress_messages do
       ActiveRecord::Migration.create_table model.table_name, opts.merge(:force => true), &block
