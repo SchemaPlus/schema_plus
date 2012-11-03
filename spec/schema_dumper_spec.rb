@@ -56,6 +56,12 @@ describe "Schema dump" do
     end
   end
 
+  it "should include foreign_key name" do
+    with_foreign_key Post, :user_id, :users, :id, :name => "yippee" do
+      dump_posts.should match /foreign_key.*user_id.*users.*id.*:name => "yippee"/
+    end
+  end
+
   it "should sort foreign_key definitions" do
     with_foreign_keys Comment, [ [ :post_id, :posts, :id ], [ :commenter_id, :users, :id ]] do
       dump_all.should match(/foreign_key.+commenter_id.+foreign_key.+post_id/m)
