@@ -50,14 +50,52 @@ describe ActiveRecord::Migration do
       @model.create.reload.bool.should be_true
     end
 
-    it "should create foreign keys" do
+    it "should create auto foreign keys" do
       recreate_table(@model) do |t|
         t.integer :user_id
-        t.integer :author_id, :references => :users
-        t.integer :member_id, :references => nil
       end
       @model.should reference(:users, :id).on(:user_id)
+    end
+
+    it "should create explicit foreign key with default reference" do
+      recreate_table(@model) do |t|
+        t.integer :user, :foreign_key => true
+      end
+      @model.should reference(:users, :id).on(:user)
+    end
+
+    it "should create foreign key with different reference" do
+      recreate_table(@model) do |t|
+        t.integer :author_id, :foreign_key => { :references => :users }
+      end
       @model.should reference(:users, :id).on(:author_id)
+    end
+
+    it "should create foreign key with different reference using shortcut" do
+      recreate_table(@model) do |t|
+        t.integer :author_id, :references => :users
+      end
+      @model.should reference(:users, :id).on(:author_id)
+    end
+
+    it "should create foreign key with specified name" do
+      recreate_table @model do |t|
+        t.integer :user_id, :foreign_key => { :name => "wugga" }
+      end
+      @model.should reference(:users, :id).with_name("wugga")
+    end
+
+    it "should suppress foreign key" do
+      recreate_table(@model) do |t|
+        t.integer :member_id, :foreign_key => false
+      end
+      @model.should_not reference.on(:member_id)
+    end
+
+    it "should suppress foreign key using shortcut" do
+      recreate_table(@model) do |t|
+        t.integer :member_id, :references => nil
+      end
       @model.should_not reference.on(:member_id)
     end
 
@@ -82,9 +120,9 @@ describe ActiveRecord::Migration do
       @model.should reference(:users, :id).on(:user_id)
     end
 
-    it "should not create foreign key using t.references with :references => nil" do
+    it "should not create foreign key using t.references with :foreign_key => false" do
       recreate_table(@model) do |t|
-        t.references :user, :references => nil
+        t.references :user, :foreign_key => false
       end
       @model.should_not reference(:users, :id).on(:user_id)
     end
@@ -193,7 +231,7 @@ describe ActiveRecord::Migration do
       it "should raise a not-implemented error for on_update => :set_default" do
         expect {
           recreate_table @model do |t|
-            t.integer :user_id, :on_update => :set_default
+            t.integer :user_id, :foreign_key => { :on_update => :set_default }
           end
         }.to raise_error(NotImplementedError)
       end
@@ -201,7 +239,7 @@ describe ActiveRecord::Migration do
       it "should raise a not-implemented error for on_delete => :set_default" do
         expect {
           recreate_table @model do |t|
-            t.integer :user_id, :on_delete => :set_default
+            t.integer :user_id, :foreign_key => { :on_delete => :set_default }
           end
         }.to raise_error(NotImplementedError)
       end
@@ -210,12 +248,26 @@ describe ActiveRecord::Migration do
     actions.each do |action|
       it "should create and detect on_update #{action.inspect}" do
         recreate_table @model do |t|
+          t.integer :user_id,   :foreign_key => { :on_update => action }
+        end
+        @model.should reference.on(:user_id).on_update(action)
+      end
+
+      it "should create and detect on_update #{action.inspect} using shortcut" do
+        recreate_table @model do |t|
           t.integer :user_id,   :on_update => action
         end
         @model.should reference.on(:user_id).on_update(action)
       end
 
       it "should create and detect on_delete #{action.inspect}" do
+        recreate_table @model do |t|
+          t.integer :user_id,   :foreign_key => { :on_delete => action }
+        end
+        @model.should reference.on(:user_id).on_delete(action)
+      end
+
+      it "should create and detect on_delete #{action.inspect} using shortcut" do
         recreate_table @model do |t|
           t.integer :user_id,   :on_delete => action
         end
@@ -262,7 +314,7 @@ describe ActiveRecord::Migration do
     it "should override on_update action per column" do
       with_fk_config(:on_update => :cascade) do
         recreate_table @model, :foreign_keys => {:on_update => :restrict} do |t|
-          t.integer :user_id, :on_update => :set_null
+          t.integer :user_id, :foreign_key => { :on_update => :set_null }
         end
         @model.should reference.on(:user_id).on_update(:set_null)
       end
@@ -271,7 +323,7 @@ describe ActiveRecord::Migration do
     it "should override on_delete action per column" do
       with_fk_config(:on_delete => :cascade) do
         recreate_table @model, :foreign_keys => {:on_delete => :restrict} do |t|
-          t.integer :user_id, :on_delete => :set_null
+          t.integer :user_id, :foreign_key => { :on_delete => :set_null }
         end
         @model.should reference.on(:user_id).on_delete(:set_null)
       end
@@ -280,7 +332,7 @@ describe ActiveRecord::Migration do
     it "should raise an error for an invalid on_update action" do
       expect {
         recreate_table @model do |t|
-          t.integer :user_id, :on_update => :invalid
+          t.integer :user_id, :foreign_key => { :on_update => :invalid }
         end
       }.to raise_error(ArgumentError)
     end
@@ -288,7 +340,7 @@ describe ActiveRecord::Migration do
     it "should raise an error for an invalid on_delete action" do
       expect {
         recreate_table @model do |t|
-        t.integer :user_id, :on_delete => :invalid
+        t.integer :user_id, :foreign_key => { :on_delete => :invalid }
         end
       }.to raise_error(ArgumentError)
     end
@@ -337,13 +389,19 @@ describe ActiveRecord::Migration do
       end
 
       it "should create foreign key to explicitly given table" do
+        add_column(:author_id, :integer, :foreign_key => { :references => :users }) do
+          @model.should reference(:users, :id).on(:author_id)
+        end
+      end
+
+      it "should create foreign key to explicitly given table using shortcut" do
         add_column(:author_id, :integer, :references => :users) do
           @model.should reference(:users, :id).on(:author_id)
         end
       end
 
       it "should create foreign key to explicitly given table and column name" do
-        add_column(:author_login, :string, :references => [:users, :login]) do 
+        add_column(:author_login, :string, :foreign_key => { :references => [:users, :login]}) do 
           @model.should reference(:users, :login).on(:author_login) 
         end
       end
@@ -360,7 +418,13 @@ describe ActiveRecord::Migration do
         end
       end
 
-      it "shouldnt't create foreign key if specified explicitly" do
+      it "shouldn't create foreign key if specified explicitly" do
+        add_column(:post_id, :integer, :foreign_key => false) do
+          @model.should_not reference.on(:post_id)
+        end
+      end
+
+      it "shouldn't create foreign key if specified explicitly by shorthand" do
         add_column(:post_id, :integer, :references => nil) do
           @model.should_not reference.on(:post_id)
         end
@@ -442,7 +506,7 @@ describe ActiveRecord::Migration do
       it "should allow to overwrite default actions" do
         SchemaPlus.config.foreign_keys.on_delete = :cascade
         SchemaPlus.config.foreign_keys.on_update = :restrict
-        add_column(:post_id, :integer, :on_update => :set_null, :on_delete => :set_null) do
+        add_column(:post_id, :integer, :foreign_key => { :on_update => :set_null, :on_delete => :set_null}) do
           @model.should reference.on(:post_id).on_delete(:set_null).on_update(:set_null)
         end
         SchemaPlus.config.foreign_keys.on_delete = nil
@@ -468,30 +532,34 @@ describe ActiveRecord::Migration do
       end
 
       it "should create foreign key" do
-        change_column :user, :string, :references => [:users, :login]
+        change_column :user, :string, :foreign_key => { :references => [:users, :login] }
         @model.should reference(:users, :login).on(:user)
-        change_column :user, :string, :references => nil
       end
 
       context "and initially references to users table" do
+
+        before(:each) do
+          recreate_table @model do |t|
+            t.integer :user_id
+          end
+        end
 
         it "should have foreign key" do
           @model.should reference(:users)
         end
 
         it "should drop foreign key if it is no longer valid" do
-          change_column :user_id, :integer, :references => :members
+          change_column :user_id, :integer, :foreign_key => { :references => :members }
           @model.should_not reference(:users)
-          change_column :user_id, :integer, :references => :users
         end
 
         it "should drop foreign key if requested to do so" do
-          change_column :user_id, :integer, :references => nil
+          change_column :user_id, :integer, :foreign_key => { :references => nil }
           @model.should_not reference(:users)
         end
 
         it "should reference pointed table afterwards if new one is created" do
-          change_column :user_id, :integer, :references => :members
+          change_column :user_id, :integer, :foreign_key => { :references => :members }
           @model.should reference(:members)
         end
 

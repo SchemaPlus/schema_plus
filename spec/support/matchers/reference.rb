@@ -23,7 +23,8 @@ module SchemaPlusMatchers
         @result.any? do |fk| 
           fk.column_names == @column_names &&
             (@on_update ? fk.on_update == @on_update : true) &&
-            (@on_delete ? fk.on_delete == @on_delete : true)
+            (@on_delete ? fk.on_delete == @on_delete : true) &&
+            (@name ? fk.name == @name : true)
         end
       else
         !@result.empty?
@@ -53,6 +54,11 @@ module SchemaPlusMatchers
 
     def on_delete(action)
       @on_delete = action
+      self
+    end
+
+    def with_name(action)
+      @name = action
       self
     end
 
