@@ -44,7 +44,7 @@ module SchemaPlus::ActiveRecord::ConnectionAdapters
   #    end
   #
   #    create_table :posts do |t|  # Dryest
-  #       t.integer :author_id, :references => :authors
+  #       t.integer :author_id, :foreign_key => true
   #    end
   #
   # <b>NOTE:</b> In the standard configuration, SchemaPlus automatically

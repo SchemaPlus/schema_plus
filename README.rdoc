@@ -47,15 +47,15 @@ With standard rails migrations, you specify indexes separately from the table de
     add_index :parts, :name     # index repeats table and column names and is defined separately
     add_index :parts, :product_code, :unique => true
 
-But with SchemaPlus you can specify your indexes when you define each column:
+But with SchemaPlus you can specify your indexes when you define each column, with options as desired
 
     # More DRY way...
     create_table :parts do |t|
       t.string :name,           :index => true
-      t.string :product_code,   :index => :unique
+      t.string :product_code,   :index => { :unique => true }
     end
 
-Options can be provided index using a hash, for example:
+The options hash can include an index name:
 
     t.string :product_code,     :index => { :unique => true, :name => "my_index_name" }
 
@@ -68,6 +68,14 @@ You can also create multi-column indexes, for example:
     t.string :area_code
     t.string :local_number      :index => { :with => [:country_code, :area_code], :unique => true }
 
+As a convenient shorthand, the :unique option can be specified as
+
+    t.string :product_code,   :index => :unique 
+
+which is equivalent to
+
+    t.string :product_code,   :index => { :unique => true }
+
 If you're using Postgresql, SchemaPlus provides support for conditions, expressions, index methods, and case-insensitive indexes; see doc at SchemaPlus::ActiveRecord::ConnectionAdapters::PostgresqlAdapter and SchemaPlus::ActiveRecord::ConnectionAdapters::IndexDefinition
 
 And when you query column information using ActiveRecord::Base#columns, SchemaPlus analogously provides index information relevant to each column: which indexes reference the column, whether the column must be unique, etc.  See doc at SchemaPlus::ActiveRecord::ConnectionAdapters::Column
@@ -79,29 +87,41 @@ common convention that you name a column with suffix +_id+ to indicate that
 it's a foreign key, SchemaPlus automatically defines the appropriate
 constraint.
 
-You can explicitly specify foreign key constraints, or override the
-automatic ones, using the +:references+ option to specify the table
-name (and optionally that table's key column name, if it's not +id+).
+SchemaPlus also creates foreign keys for rails' <tt>t.references</tt>
+or <tt>t.belongs_to</tt>, which take the singular of the referenced table
+name and implicitly create the column suffixed with +_id+.
+
+You can explicitly specify whether or not to generate a foreign key
+constraint, and specify or override automatic options, using the
+:foreign_key+ keyword
 
 Here are some examples:
 
     t.integer :author_id                                 # automatically references table 'authors', key id
     t.integer :parent_id                                 # special name parent_id automatically references its own table (for tree nodes)
-    t.integer :author, :references => :authors           # non-conventional column name needs :references for a constraint
-    t.integer :author_id, :references => :authors          # same as automatic behavior
-    t.integer :author_id, :references => [:authors, :id]   # same as automatic behavior
-    t.integer :author_id, :references => :people         # override table name
-    t.integer :author_id, :references => [:people, :ssn] # override table name and key
-    t.integer :author_id, :references => nil              # don't create a constraint
+    t.integer :author_id, :foreign_key => true           # same as default automatic behavior
+    t.integer :author,    :foreign_key => true           # non-conventional column name needs to force creation, table name is assumed to be 'authors'
+    t.integer :author_id, :foreign_key => false          # don't create a constraint
 
-You can also modify the behavior using +:on_delete+, +:on_update+, and +:deferrable+
+    t.integer :author_id, :foreign_key => { :references => :authors }        # same as automatic behavior
+    t.integer :author,    :foreign_key => { :reference => :authors}          # same default name
+    t.integer :author_id, :foreign_key => { :references => [:authors, :id] } # same as automatic behavior
+    t.integer :author_id, :foreign_key => { :references => :people }         # override table name
+    t.integer :author_id, :foreign_key => { :references => [:people, :ssn] } # override table name and key
+    t.integer :author_id, :foreign_key => { :references => nil }             # don't create a constraint
+    t.integer :author_id, :foreign_key => { :name => "my_fk" }               # override default generated constraint name
+    t.integer :author_id, :foreign_key => { :on_delete => :cascade }
+    t.integer :author_id, :foreign_key => { :on_update: => :set_null }
+    t.integer :author_id, :foreign_key => { :deferrable => true }
+
+Of course the options can be combined, e.g.
+
+    t.integer :author_id, :foreign_key => { :name => "my_fk", :on_delete => :no_action }
+
+As a shorthand, all options except +:name+ can be specified without placing them in a hash, e.g.
 
     t.integer :author_id, :on_delete => :cascade
-
-SchemaPlus also creates foreign keys when used rails' <tt>t.references</tt>
-or <tt>t.belongs_to</tt>, which take the singular of the referenced table
-name and implicitly create the column suffixed with +_id+, and it accepts
-the same arguments.
+    t.integer :author_id, :references => nil
 
 The foreign key behavior can be configured globally (see Config) or per-table (see create_table).
 

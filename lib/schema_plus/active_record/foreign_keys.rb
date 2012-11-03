@@ -33,20 +33,35 @@ module SchemaPlus::ActiveRecord
     #
     # == Foreign Key Constraints
     #
-    # The +:references+ option takes the name of a table to reference in
-    # a foreign key constraint.  For example:
+    # The +:foreign_key+ option controls creation of foreign key
+    # constraints.  Specifying +true+ or an empty hash defines a foreign
+    # key with default values.  In particular, the foreign table name
+    # defaults to the column name, with trailing +_id+ removed, pluralized;
+    # And the foreign column name defaults to +:id+
     #
-    #    add_column('widgets', 'color', :integer, :references => 'colors')
+    #    add_column('widgets', 'color', :integer, :foreign_key => true)
     #
     # is equivalent to
     #
-    #    add_column('widgets', 'color', :integer)
-    #    add_foreign_key('widgets', 'color', 'colors', 'id')
+    #    add_column('widgets', 'color_id', :integer)
+    #    add_foreign_key('widgets', 'color_id', 'colors', 'id')
     #
-    # The foreign column name defaults to +id+, but a different column
-    # can be specified using <tt>:references => [table_name,column_name]</tt>
+    # As a special case, if the column is named 'parent_id', SchemaPlus
+    # assumes it's a self reference, for a record that acts as a node of
+    # a tree.  Thus, these are equivalent:
     #
-    # Additional options +:on_update+ and +:on_delete+ can be spcified,
+    #     add_column('sections', 'parent_id', :integer, :foreign_key => true)
+    #
+    # is equivalent to
+    #
+    #    add_column('sections', 'parent_id', :integer)
+    #    add_foreign_key('sections', 'parent_id', 'sections', 'id')
+    #
+    # A different foreign table name can be specified using
+    # <tt>:foreign_key => { :references => table_name }</tt>, and
+    # a different column name can also be specified using <tt>:foreign_key => { :references => [table_name,column_name] }</tt>
+    #
+    # Additional options +:on_update+ and +:on_delete+ can be specified,
     # with values as described at ConnectionAdapters::ForeignKeyDefinition.  For example:
     #
     #     add_column('comments', 'post', :integer, :references => 'posts', :on_delete => :cascade)
@@ -54,33 +69,34 @@ module SchemaPlus::ActiveRecord
     # Global default values for +:on_update+ and +:on_delete+ can be
     # specified in SchemaPlus.steup via, e.g., <tt>config.foreign_keys.on_update = :cascade</tt>
     #
+    # The constraint will have an automatic default name, but you can
+    # specify a constraint name using <tt>:foreign_key => { :name => "my_name" }</tt>
+    #
     # == Automatic Foreign Key Constraints
     #
     # SchemaPlus supports the convention of naming foreign key columns
     # with a suffix of +_id+.   That is, if you define a column suffixed
-    # with +_id+, SchemaPlus assumes an implied :references to a table
-    # whose name is the column name prefix, pluralized.  For example,
-    # these are equivalent:
+    # with +_id+, SchemaPlus assumes that you want a foreign key constraint
+    # with default paramters.  Thus, these two are equivalent:
     #
     #     add_column('posts', 'author_id', :integer)
-    #     add_column('posts', 'author_id', :integer, :references => 'authors')
-    #
-    # As a special case, if the column is named 'parent_id', SchemaPlus
-    # assumes it's a self reference, for a record that acts as a node of
-    # a tree.  Thus, these are equivalent:
-    #
-    #     add_column('sections', 'parent_id', :integer)
-    #     add_column('sections', 'parent_id', :integer, :references => 'sections')
-    #      
-    # If the implicit +:references+ value isn't what you want (e.g., the
-    # table name isn't pluralized), you can explicitly specify
-    # +:references+ and it will override the implicit value.
+    #     add_column('posts', 'author_id', :integer, :foreign_key => true)
     #
     # If you don't want a foreign key constraint to be created, specify
-    # <tt>:references => nil</tt>.
+    # <tt>:foreign_key => false</tt>.
     # To disable automatic foreign key constraint creation globally, set
     # <tt>config.foreign_keys.auto_create = false</tt> in
     # SchemaPlus.steup.
+    #
+    # == Shortcut options
+    #
+    # As a shortcut (and for backwards compatibility), the options
+    # +:references+, +:on_update+, and +:on_delete+ can provided to
+    # +add_column+ directly instead of within a +:foreign_key+ hash.
+    #
+    # The presence of option +:references+ implies the foreign
+    # key should be created, while <tt>:references => nil</tt> is a
+    # shortcut for <tt>:foreign_key => false</tt>
     #
     # == Automatic Foreign Key Indexes
     #
