@@ -47,7 +47,7 @@ describe "Index definition" do
     end
 
     it "is included in User.indexes" do
-      User.indexes.select { |index| index.columns == %w[login deleted_at] }.should have(1).item
+      @index.should_not be_nil
     end
 
   end
@@ -60,6 +60,32 @@ describe "Index definition" do
       query.should raise_error
     end
   end
+
+
+  unless SchemaPlusHelpers.mysql?
+    context "when index is ordered" do
+
+      quotes = [
+        ["unquoted", ''],
+        ["double-quoted", '"'],
+      ]
+      quotes += [
+        ["single-quoted", "'"],
+        ["back-quoted", '`']
+      ] if SchemaPlusHelpers.sqlite3?
+
+      quotes.each do |quotename, quote|
+        it "index definition includes orders for #{quotename} columns" do
+          migration.execute "CREATE INDEX users_login_index ON users (#{quote}login#{quote} DESC, #{quote}deleted_at#{quote} ASC)"
+          User.reset_column_information
+          index = index_definition(%w[login deleted_at])
+          index.orders.should == {"login" => :desc, "deleted_at" => :asc}
+        end
+
+      end
+    end
+  end
+
 
   if SchemaPlusHelpers.postgresql?
 

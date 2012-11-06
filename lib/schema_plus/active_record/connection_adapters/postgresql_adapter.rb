@@ -103,20 +103,21 @@ module SchemaPlus
         def indexes(table_name, name = nil) #:nodoc:
           schemas = schema_search_path.split(/,/).map { |p| quote(p) }.join(',')
           result = query(<<-SQL, name)
-           SELECT distinct i.relname, d.indisunique, d.indkey, m.amname, t.oid,
-                    pg_get_expr(d.indpred, t.oid), pg_get_expr(d.indexprs, t.oid)
-             FROM pg_class t, pg_class i, pg_index d, pg_am m
+
+           SELECT distinct i.relname, d.indisunique, d.indkey, pg_get_indexdef(d.indexrelid), t.oid,
+                  m.amname, pg_get_expr(d.indpred, t.oid), pg_get_expr(d.indexprs, t.oid)
+           FROM pg_class t
+           INNER JOIN pg_index d ON t.oid = d.indrelid
+           INNER JOIN pg_class i ON d.indexrelid = i.oid
+           INNER JOIN pg_am m ON i.relam = m.oid
            WHERE i.relkind = 'i'
-             AND i.relam = m.oid
-             AND d.indexrelid = i.oid
              AND d.indisprimary = 'f'
-             AND t.oid = d.indrelid
              AND t.relname = '#{table_name}'
-             AND i.relnamespace IN (SELECT oid FROM pg_namespace WHERE nspname IN (#{schemas}) )
+             AND i.relnamespace IN (SELECT oid FROM pg_namespace WHERE nspname = ANY (current_schemas(false)) )
           ORDER BY i.relname
           SQL
 
-          result.map do |(index_name, is_unique, indkey, kind, oid, conditions, expression)|
+          result.map do |(index_name, is_unique, indkey, inddef, oid, kind, conditions, expression)|
             unique = (is_unique == 't')
             index_keys = indkey.split(" ")
 
@@ -131,9 +132,15 @@ module SchemaPlus
             if md = expression.try(:match, /^lower\(\(?([^)]+)\)?(::text)?\)$/i)
               column_names << md[1]
             end
+            
+            # add info on sort order for columns (only desc order is explicitly specified, asc is the default)
+            desc_order_columns = inddef.scan(/(\w+) DESC/).flatten
+            orders = desc_order_columns.any? ? Hash[column_names.map {|column| [column, desc_order_columns.include?(column) ? :desc : :asc]}] : {}
+
             ::ActiveRecord::ConnectionAdapters::IndexDefinition.new(table_name, column_names,
                                                                     :name => index_name,
                                                                     :unique => unique,
+                                                                    :orders => orders,
                                                                     :conditions => conditions,
                                                                     :case_sensitive => !(expression =~ /lower/i),
                                                                     :kind => kind.downcase == "btree" ? nil : kind,

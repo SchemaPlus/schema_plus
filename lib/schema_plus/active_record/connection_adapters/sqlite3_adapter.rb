@@ -16,6 +16,23 @@ module SchemaPlus
 
         # :enddoc:
 
+        def self.included(base)
+          base.class_eval do
+            alias_method_chain :indexes, :schema_plus
+          end
+        end
+
+        def indexes_with_schema_plus(table_name, name = nil)
+          indexes = indexes_without_schema_plus(table_name, name)
+          exec_query("SELECT name, sql FROM sqlite_master WHERE type = 'index'").map do |row|
+            if (desc_columns = row['sql'].scan(/['"`]?(\w+)['"`]? DESC\b/).flatten).any?
+              index = indexes.detect{ |i| i.name == row['name'] }
+              index.orders = Hash[index.columns.map {|column| [column, desc_columns.include?(column) ? :desc : :asc]}]
+            end
+          end
+          indexes
+        end
+
         def add_foreign_key(table_name, column_names, references_table_name, references_column_names, options = {})
           raise NotImplementedError, "Sqlite3 does not support altering a table to add foreign key constraints (table #{table_name.inspect} column #{column_names.inspect})"
         end

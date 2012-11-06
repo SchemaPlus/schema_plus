@@ -30,7 +30,6 @@ module SchemaPlus
           execute "ALTER TABLE #{quote_table_name(table_name)} DROP FOREIGN KEY #{foreign_key_name}"
         end
 
-
         def foreign_keys(table_name, name = nil)
           results = execute("SHOW CREATE TABLE #{quote_table_name(table_name)}", name)
 
