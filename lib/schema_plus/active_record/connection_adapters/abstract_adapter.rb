@@ -35,14 +35,6 @@ module SchemaPlus
             adapter_module = SchemaPlus::ActiveRecord::ConnectionAdapters.const_get(adapter)
             self.class.send(:include, adapter_module) unless self.class.include?(adapter_module)
             self.post_initialize if self.respond_to? :post_initialize
-            # rails 3.1 defines a separate Mysql2IndexDefinition which is
-            # compatible with the monkey patches; but the definition only
-            # appears once the adapter is loaded.  so wait til now to check
-            # if that constant exists, then include the patches
-            if mysql2index = ::ActiveRecord::ConnectionAdapters::Mysql2IndexDefinition rescue nil # rescues NameError
-              monkeypatch = SchemaPlus::ActiveRecord::ConnectionAdapters::IndexDefinition
-              mysql2index.send(:include, monkeypatch) unless mysql2index.include? monkeypatch
-            end
 
             if adapter == 'PostgresqlAdapter'
               ::ActiveRecord::ConnectionAdapters::PostgreSQLColumn.send(:include, SchemaPlus::ActiveRecord::ConnectionAdapters::PostgreSQLColumn) unless ::ActiveRecord::ConnectionAdapters::PostgreSQLColumn.include?(SchemaPlus::ActiveRecord::ConnectionAdapters::PostgreSQLColumn)
