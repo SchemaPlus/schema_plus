@@ -20,13 +20,14 @@ Gem::Specification.new do |s|
   s.executables   = `git ls-files -- bin/*`.split("\n").map{ |f| File.basename(f) }
   s.require_paths = ["lib"]
 
-  s.add_dependency("rails")
+  s.add_dependency("rails", ">= 3.2")
   s.add_dependency("valuable")
 
   s.add_development_dependency("rake")
   s.add_development_dependency("rspec")
   s.add_development_dependency("pg")
   s.add_development_dependency("mysql")
+  s.add_development_dependency("ruby-debug19")
   s.add_development_dependency("sqlite3")
   s.add_development_dependency("simplecov")
   s.add_development_dependency("simplecov-gem-adapter")

@@ -1,11 +1,7 @@
 rvm:
-  - 1.8.7
   - 1.9.2
   - 1.9.3
 gemfile:
-  - gemfiles/Gemfile.rails-2.3
-  - gemfiles/Gemfile.rails-3.0
-  - gemfiles/Gemfile.rails-3.1
   - gemfiles/Gemfile.rails-3.2
 before_script:
   - "mysql -e 'create database schema_plus_unittest;' > /dev/null"

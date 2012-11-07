@@ -13,11 +13,12 @@ For added rails DRYness see also the gems
 == Compatibility
 
 SchemaPlus supports all combinations of:
-* rails 2.3, 3.0, or 3.1, or 3.2
-* MRI ruby 1.8.7, 1.9.2 or 1.9.3
+* rails 3.2
 * PostgreSQL, MySQL (using mysql or mysql2 gem), or SQLite3 (using sqlite3 3.7.7 which has foreign key support)
+* MRI ruby 1.9.2 or 1.9.3
 
-Support for rails 2.3 will likely be dropped eventually.
+Note that rails 2.3, 3.0 and 3.1 and ruby 1.8.7 are no longer supported.  The last version
+to support them was 0.4.0.
 
 == Installation
 
@@ -198,23 +199,26 @@ take advantage of auto-creation of foreign keys, you can re-enable it:
 == Release notes:
 
 === master (to be released)
-* new feature: specify foreign keys using :foreign_key => { ... }, motivated in particular to support :name (suggested by https://github.com/daniele-m)
 
-* bug fix for postgres :kind index attribute (thanks to https://github.com/eugenebolshakov)
+* No longer support rails < 3.2 and ruby < 1.9
 
-* sort fks in dump for stability (thanks to https://github.com/zephyr-dev).
+* New feature: specify foreign keys using :foreign_key => { ... }, motivated in particular to support :name (suggested by https://github.com/daniele-m)
 
-* bug fix: change_column should maintain foreign keys even when config.foreign_keys.auto_create is false
+* Bug fix for postgres :kind index attribute (thanks to https://github.com/eugenebolshakov)
+
+* Sort fks in dump for stability (thanks to https://github.com/zephyr-dev).
+
+* Bug fix: change_column should maintain foreign keys even when config.foreign_keys.auto_create is false
 
 === Earlier releases
-* 0.4.1 - bug fix: don't attempt foreign key creation for t.belongs_to ... :polymorphic => true
-* 0.4.0 - add :force for create_view (suggested by greglazarev[https://github.com/greglazarev]).  cleanups by betelgeuse[https://github.com/betelgeuse]
-* 0.3.4 - bug fix: regression causing :default => false to be ignored
-* 0.3.3 - bug fix: properly handle boolean defaults in mysql
-* 0.3.2 - bug fix: make sure rake db:schema:load initializes schema_plus 
-* 0.3.1 - bug fix for PostgreSQL schema dump after change_column_default(... nil)
-* 0.3.0 - add :default => expressions (Thanks to Luke Saunders).  support rails 3.2 and ruby 1.9.3
-* 0.2.1 - suppress duplicate add_indexes.  compatibility with rails 3.2.0.rc2
+* 0.4.1 - Bug fix: don't attempt foreign key creation for t.belongs_to ... :polymorphic => true
+* 0.4.0 - Add :force for create_view (suggested by greglazarev[https://github.com/greglazarev]).  cleanups by betelgeuse[https://github.com/betelgeuse]
+* 0.3.4 - Bug fix: regression causing :default => false to be ignored
+* 0.3.3 - Bug fix: properly handle boolean defaults in mysql
+* 0.3.2 - Bug fix: make sure rake db:schema:load initializes schema_plus 
+* 0.3.1 - Bug fix for PostgreSQL schema dump after change_column_default(... nil)
+* 0.3.0 - Add :default => expressions (Thanks to Luke Saunders).  support rails 3.2 and ruby 1.9.3
+* 0.2.1 - Suppress duplicate add_indexes.  compatibility with rails 3.2.0.rc2
 
 == History
 
@@ -222,9 +226,9 @@ take advantage of auto-creation of foreign keys, you can re-enable it:
   originally created by harukizaemon (https://github.com/harukizaemon)
   with later contributions from 
   * Michał Łomnicki (https://github.com/mlomnicki)
+  * Ronen Barzel (https://github.com/ronen)
   * François Beausoleil (https://github.com/francois)
   * Greg Barnett (https://github.com/greg-barnett)
-  * Ronen Barzel (https://github.com/ronen)
   * Luke Saunders (https://github.com/lukesaunders)
 
 
