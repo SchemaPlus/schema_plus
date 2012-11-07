@@ -57,13 +57,11 @@ describe "add_index" do
       expect { add_index(:users, :login) }.to_not raise_error
       index_for(:login).should_not be_nil
     end
-    if ActiveRecord::VERSION::STRING >= "3.0"
-      it "should complain if the index is different" do
-        add_index(:users, :login, :unique => true)
-        index_for(:login).should_not be_nil
-        expect { add_index(:users, :login) }.to raise_error
-        index_for(:login).should_not be_nil
-      end
+    it "should complain if the index is different" do
+      add_index(:users, :login, :unique => true)
+      index_for(:login).should_not be_nil
+      expect { add_index(:users, :login) }.to raise_error
+      index_for(:login).should_not be_nil
     end
   end
 
