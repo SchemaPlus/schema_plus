@@ -84,7 +84,10 @@ module SchemaPlus
 
             sql = "CREATE #{index_type} INDEX #{quote_column_name(index_name)} ON #{quote_table_name(table_name)} #{expression}"
           else
-            quoted_column_names = column_names.map { |e| options[:case_sensitive] == false && e.to_s !~ /_id$/ ? "LOWER(#{quote_column_name(e)})" : quote_column_name(e) }
+            option_strings = Hash[column_names.map {|name| [name, '']}]
+            option_strings = add_index_sort_order(option_strings, column_names, options)
+
+            quoted_column_names = column_names.map { |e| (options[:case_sensitive] == false && e.to_s !~ /_id$/ ? "LOWER(#{quote_column_name(e)})" : quote_column_name(e)) + option_strings[e] }
             expression = "(#{quoted_column_names.join(', ')})"
             expression = "USING #{kind} #{expression}" if kind
 

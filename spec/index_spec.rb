@@ -49,6 +49,14 @@ describe "add_index" do
     index_for(:login).name.should == 'users_login_index'
   end
 
+  unless SchemaPlusHelpers.mysql?
+    it "should assign order" do
+      add_index(:users, [:login, :deleted_at], :order => {:login => :desc, :deleted_at => :asc})
+      index_for([:login, :deleted_at]).orders.should == {"login" => :desc, "deleted_at" => :asc}
+    end
+  end
+
+
   context "for duplicate index" do
     it "should not complain if the index is the same" do
       add_index(:users, :login)
