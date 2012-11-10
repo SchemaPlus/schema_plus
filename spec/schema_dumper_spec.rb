@@ -138,8 +138,8 @@ describe "Schema dump" do
   end
 
   it "should include index name" do
-    with_index Post, :user_id, :name => "posts_user_id_index" do
-      dump_posts.should match(to_regexp(%q{t.index ["user_id"], :name => "posts_user_id_index"}))
+    with_index Post, :user_id, :name => "custom_name" do
+      dump_posts.should match(to_regexp(%q{t.index ["user_id"], :name => "custom_name"}))
     end
   end
   
@@ -147,6 +147,16 @@ describe "Schema dump" do
     with_index Post, :user_id, :name => "posts_user_id_index", :unique => true do
       dump_posts.should match(to_regexp(%q{t.index ["user_id"], :name => "posts_user_id_index", :unique => true}))
     end
+  end
+
+  unless SchemaPlusHelpers.mysql?
+
+    it "should include index order" do
+      with_index Post, [:user_id, :first_comment_id], :order => { :user_id => :asc, :first_comment_id => :desc } do
+        dump_posts.should match(%r{t.index \["user_id", "first_comment_id"\],.*:order => {"user_id" => :asc, "first_comment_id" => :desc}})
+      end
+    end
+
   end
 
   if SchemaPlusHelpers.postgresql?
