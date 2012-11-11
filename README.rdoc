@@ -17,8 +17,8 @@ SchemaPlus supports all combinations of:
 * PostgreSQL, MySQL (using mysql or mysql2 gem), or SQLite3 (using sqlite3 3.7.7 which has foreign key support)
 * MRI ruby 1.9.2 or 1.9.3
 
-Note that rails 2.3, 3.0 and 3.1 and ruby 1.8.7 are no longer supported.  The last version
-to support them was 0.4.0.
+Note: rails 2.3, 3.0 and 3.1 and ruby 1.8.7 are no longer supported.  The last version
+to support them was 0.4.1.
 
 == Installation
 
@@ -69,6 +69,11 @@ You can also create multi-column indexes, for example:
     t.string :area_code
     t.string :local_number      :index => { :with => [:country_code, :area_code], :unique => true }
 
+And you can specify index orders:
+
+    t.string :first_name
+    t.string :last_name,        :index => { :with => :first_name, :order => {:first_name => :desc, :last_name => :asc}}
+
 As a convenient shorthand, the :unique option can be specified as
 
     t.string :product_code,   :index => :unique 
@@ -77,9 +82,21 @@ which is equivalent to
 
     t.string :product_code,   :index => { :unique => true }
 
-If you're using Postgresql, SchemaPlus provides support for conditions, expressions, index methods, and case-insensitive indexes; see doc at SchemaPlus::ActiveRecord::ConnectionAdapters::PostgresqlAdapter and SchemaPlus::ActiveRecord::ConnectionAdapters::IndexDefinition
+If you're using Postgresql, SchemaPlus provides support for conditions, expressions, index methods, and case-insensitive indexes:
 
-And when you query column information using ActiveRecord::Base#columns, SchemaPlus analogously provides index information relevant to each column: which indexes reference the column, whether the column must be unique, etc.  See doc at SchemaPlus::ActiveRecord::ConnectionAdapters::Column
+    t.string :last_name,  :index => { :conditions => 'deleted_at IS NULL' }
+    t.string :last_name,  :index => { :expression => 'upper(last_name)' }
+    t.string :last_name,  :index => { :kind => 'hash' }
+    t.string :last_name,  :index => { :case_sensitive => false }        # shorthand for :expression => 'lower(last_name)'
+
+These features are available also in ActiveRecord::Migration.add_index.  See
+doc at SchemaPlus::ActiveRecord::ConnectionAdapters::PostgresqlAdapter and
+SchemaPlus::ActiveRecord::ConnectionAdapters::IndexDefinition
+
+When you query column information using ActiveRecord::Base#columns, SchemaPlus
+analogously provides index information relevant to each column: which indexes
+reference the column, whether the column must be unique, etc.  See doc at
+SchemaPlus::ActiveRecord::ConnectionAdapters::Column
 
 === Foreign Key Constraints
 
@@ -88,13 +105,13 @@ common convention that you name a column with suffix +_id+ to indicate that
 it's a foreign key, SchemaPlus automatically defines the appropriate
 constraint.
 
-SchemaPlus also creates foreign keys for rails' <tt>t.references</tt>
+SchemaPlus also creates foreign key constraints for rails' <tt>t.references</tt>
 or <tt>t.belongs_to</tt>, which take the singular of the referenced table
 name and implicitly create the column suffixed with +_id+.
 
 You can explicitly specify whether or not to generate a foreign key
 constraint, and specify or override automatic options, using the
-:foreign_key+ keyword
++:foreign_key+ keyword
 
 Here are some examples:
 
@@ -143,32 +160,32 @@ ActiveRecord works with views the same as with ordinary tables.  That is, for th
   class UncommentedPosts < ActiveRecord::Base
   end
 
+  class UncommentedPost < ActiveRecord::Base
+  end
+
 === Column Defaults
 
-SchemaPlus allows expressions to be used as column defaults.  For example:
+SchemaPlus allows defaults to be set using expressions or constant values:
+
+  t.datetime :seen_at, :default => { :expr => 'NOW()' }
+  t.datetime :seen_at, :default => { :value => "2011-12-11 00:00:00" }
+
+Note that in MySQL only the TIMESTAMP column data type accepts SQL column
+defaults and Rails uses DATETIME, so expressions can't be used with MySQL.
+
+The standard syntax will still work as usual:
+
+  t.datetime :seen_at, :default => "2011-12-11 00:00:00"
+
+Also, as a convenience
 
   t.datetime :seen_at, :default => :now
 
-resolves to
+resolves to:
 
-  DEFAULT NOW() # PostgreSQL
-  (DATETIME('now')) # SQLite3
-  invalid # MySQL
-
-Arbitrary SQL expressions can also be specified by passing a hash with an :expr parameter:
-
-  t.datetime :seen_at, :default => { :expr => 'NOW()' }
-
-In MySQL only the TIMESTAMP column accepts SQL column defaults and Rails uses DATETIME,
-so this is not possible at this time.
-
-Standard default values can be specified verbosely:
-
-  t.datetime :seen_at, :default => { :value => "2011-12-11 00:00:00" }
-
-But the standard syntax will still work as usual:
-
-  t.datetime :seen_at, :default => "2011-12-11 00:00:00"
+  NOW()                 # PostgreSQL
+  (DATETIME('now'))     # SQLite3
+  invalid               # MySQL
 
 === Schema Dump and Load (schema.rb)
 
@@ -184,9 +201,9 @@ definition statements rather than relying on the auto-creation behavior,
 for maximum clarity and for independence from global config.  And
 correspondingly, when loading a schema, i.e. with the context of
 <tt>ActiveRecord::Schema.define</tt>, SchemaPlus ensures that auto creation of
-foreign keys is turned off regardless of the global setting.  But if for
+foreign key constraints is turned off regardless of the global setting.  But if for
 some reason you are creating your schema.rb file by hand, and would like to
-take advantage of auto-creation of foreign keys, you can re-enable it:
+take advantage of auto-creation of foreign key constraints, you can re-enable it:
 
     ActiveRecord::Schema.define do
         SchemaPlus.config.foreign_keys.auto_create = true
@@ -202,13 +219,13 @@ take advantage of auto-creation of foreign keys, you can re-enable it:
 
 * No longer support rails < 3.2 and ruby < 1.9
 
-* New feature: specify foreign keys using :foreign_key => { ... }, motivated in particular to support :name (suggested by https://github.com/daniele-m)
+* New feature: specify foreign key constraints using :foreign_key => { ... }, motivated in particular to support :name (suggested by https://github.com/daniele-m)
 
 * Bug fix for postgres :kind index attribute (thanks to https://github.com/eugenebolshakov)
 
 * Sort fks in dump for stability (thanks to https://github.com/zephyr-dev).
 
-* Bug fix: change_column should maintain foreign keys even when config.foreign_keys.auto_create is false
+* Bug fix: change_column should maintain foreign key constraints even when config.foreign_keys.auto_create is false
 
 === Earlier releases
 * 0.4.1 - Bug fix: don't attempt foreign key creation for t.belongs_to ... :polymorphic => true
