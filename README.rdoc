@@ -150,14 +150,20 @@ that reference a given table.  See SchemaPlus::ActiveRecord::ConnectionAdapters:
 
 === Views
 
-SchemaPlus provides support for creating and dropping views.  For example:
+SchemaPlus provides support for creating and dropping views.  In a migration, a view can be created using a rails relation or literal sql:
 
-  create_view :uncommented_posts, "SELECT * FROM posts LEFT OUTER JOIN comments ON comments.post_id = posts.id WHERE comments.id IS NULL"
+  create_view :posts_commented_by_staff,  Post.joins(:comment => :user).where(:users => {:role => 'staff'}).uniq
+  create_view :uncommented_posts,        "SELECT * FROM posts LEFT OUTER JOIN comments ON comments.post_id = posts.id WHERE comments.id IS NULL"
+
+And can be dropped:
+
+  drop_view :posts_commented_by_staff
   drop_view :uncommented_posts
 
-ActiveRecord works with views the same as with ordinary tables.  That is, for the above view you can define
+ActiveRecord works with views the same as with ordinary tables.  That is, for the above views you can define
 
-  class UncommentedPosts < ActiveRecord::Base
+  class PostCommentedByStaff < ActiveRecord::Base
+    table_name = "posts_commented_by_staff"
   end
 
   class UncommentedPost < ActiveRecord::Base
@@ -220,6 +226,8 @@ take advantage of auto-creation of foreign key constraints, you can re-enable it
 * No longer support rails < 3.2 and ruby < 1.9
 
 * New feature: specify foreign key constraints using :foreign_key => { ... }, motivated in particular to support :name (suggested by https://github.com/daniele-m)
+
+* New feature: create view using ActiveRecord relation
 
 * Bug fix for postgres :kind index attribute (thanks to https://github.com/eugenebolshakov)
 

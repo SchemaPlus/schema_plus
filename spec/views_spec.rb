@@ -1,5 +1,8 @@
 require File.expand_path(File.dirname(__FILE__) + '/spec_helper')
 
+class Item < ActiveRecord::Base
+end
+
 class AOnes < ActiveRecord::Base
 end
 
@@ -137,7 +140,7 @@ describe ActiveRecord do
           t.string  :s
         end
 
-        create_view :a_ones, "select b, s from items where a = 1"
+        create_view :a_ones, Item.select('b, s').where(:a => 1)
         create_view :ab_ones, "select s from a_ones where b = 1"
       end
     end
