@@ -27,7 +27,7 @@ Gem::Specification.new do |s|
   s.add_development_dependency("rspec")
   s.add_development_dependency("pg")
   s.add_development_dependency("mysql")
-  s.add_development_dependency("ruby-debug19")
+  s.add_development_dependency("debugger")
   s.add_development_dependency("sqlite3")
   s.add_development_dependency("simplecov")
   s.add_development_dependency("simplecov-gem-adapter")
