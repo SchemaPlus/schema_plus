@@ -231,9 +231,11 @@ take advantage of auto-creation of foreign key constraints, you can re-enable it
 
 * Bug fix for postgres :kind index attribute (thanks to https://github.com/eugenebolshakov)
 
-* Sort fks in dump for stability (thanks to https://github.com/zephyr-dev).
+* Sort fks in dump for stability (thanks to https://github.com/zephyr-dev)
 
 * Bug fix: change_column should maintain foreign key constraints even when config.foreign_keys.auto_create is false
+
+* Bug fix: quote default expressions in schema dump (thanks to https://github.com/jonleighton)
 
 === Earlier releases
 * 0.4.1 - Bug fix: don't attempt foreign key creation for t.belongs_to ... :polymorphic => true
