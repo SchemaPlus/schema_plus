@@ -94,6 +94,12 @@ describe "Schema dump" do
           dump_posts.should match(%r{t.datetime "posted_at",\s*:default => '2001-09-28 00:00:00'})
         end
       end
+
+      it "can dump a complex default expression" do
+        with_additional_column Post, :name, :string, :default => {:expr => 'substring(random()::text from 3 for 6)'} do
+          dump_posts.should match(%r{t.string\s+"name", :default => { :expr => "\\"substring\\"\(\(random\(\)\)::text, 3, 6\)" }})
+        end
+      end
     end
 
     if SchemaPlusHelpers.sqlite3?
