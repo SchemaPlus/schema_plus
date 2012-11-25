@@ -2,21 +2,26 @@ module SchemaPlus::ActiveRecord
   module ColumnOptionsHandler
     def schema_plus_handle_column_options(table_name, column_name, column_options, opts = {}) #:nodoc:
       config = opts[:config] || SchemaPlus.config
-      if fk_args = get_fk_args(table_name, column_name, column_options, config)
+      fk_args = get_fk_args(table_name, column_name, column_options, config)
 
-        # in case of change to existing column
+      # remove existing fk and auto-generated index in case of change to existing column
+      if fk_args # includes :none for explicitly off
         remove_foreign_key_if_exists(table_name, column_name)
+        remove_auto_index_if_exists(table_name, column_name)
+      end
 
-        unless fk_args == :none
-          if index = column_options.fetch(:index, config.foreign_keys.auto_index?)
-            column_index(table_name, column_name, index)
-          end
+      fk_args = nil if fk_args == :none
 
-          references = fk_args.delete(:references)
-          add_foreign_key(table_name, column_name, references.first, references.last, fk_args)
-        end
-      elsif column_options[:index]
-        column_index(table_name, column_name, column_options[:index])
+      # create index if requested explicity or implicitly due to auto_index
+      index = column_options[:index]
+      if index.nil? and fk_args && config.foreign_keys.auto_index?
+        index = { :name => auto_index_name(table_name, column_name) }
+      end
+      column_index(table_name, column_name, index) if index
+
+      if fk_args
+        references = fk_args.delete(:references)
+        add_foreign_key(table_name, column_name, references.first, references.last, fk_args)
       end
     end
 
@@ -76,6 +81,15 @@ module SchemaPlus::ActiveRecord
       options = { :unique => true } if options == :unique
       column_name = [column_name] + Array.wrap(options.delete(:with)).compact
       add_index(table_name, column_name, options)
+    end
+
+    def remove_auto_index_if_exists(table_name, column_name)
+      name = auto_index_name(table_name, column_name)
+      remove_index(table_name, :name => name) if index_exists?(table_name, column_name, :name => name)
+    end
+
+    def auto_index_name(table_name, column_name)
+      "fk__#{table_name}_#{column_name}"
     end
 
   end

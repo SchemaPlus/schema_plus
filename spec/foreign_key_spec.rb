@@ -128,8 +128,6 @@ describe "Foreign Key" do
           Post.reverse_foreign_keys.collect(&:column_names).should_not include(%w[post_id])
         end
 
-        it "removes auto-generated index"
-
       end
 
       context "when referencing column and column is removed" do

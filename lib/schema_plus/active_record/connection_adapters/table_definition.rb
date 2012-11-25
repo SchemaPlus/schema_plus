@@ -145,16 +145,27 @@ module SchemaPlus::ActiveRecord::ConnectionAdapters
     end
 
     # This is a deliberately empty stub.  The reason for it is that
-    # handle_column_options gets called for changes as well as for table
+    # ColumnOptionsHandler is used for changes as well as for table
     # definitions, and in the case of changes, previously existing foreign
     # keys sometimes need to be removed.  but in the case here, that of
     # table definitions, the only reason a foreign key would exist is
     # because we're redefining a table that already exists (via :force =>
     # true).  in which case the foreign key will get dropped when the
     # drop_table gets emitted, so no need to do it immediately.  (and for
-    # sqlite3, doing it immediately would raise an error).
+    # sqlite3, attempting to do it immediately would raise an error).
     def remove_foreign_key(_, *args) #:nodoc:
     end
+
+    # Determines if an indexes is queued to be created.  Called from
+    # ColumnOptionsHandler as part of checking whether to auto-create an index
+    def index_exists?(_, column_name, options={})
+      @indexes.find{|index| index.table == self.name && index.columns == Array.wrap(column_name) && options.all?{|k, v| index.send(k) == v}}
+    end
+
+    def remove_index(_, options)
+      @indexes.delete_if{ |index| index.table == self.name && options.all?{|k, v| index.send(k) == v}}
+    end
+
 
   end
 end

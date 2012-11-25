@@ -483,10 +483,6 @@ describe ActiveRecord::Migration do
         SchemaPlus.config.foreign_keys.auto_index = false
       end
 
-      it "should not auto-index if column already has an index"
-
-      it "should remove auto-created index when removing foreign key"
-
       it "should use default on_update action" do
         SchemaPlus.config.foreign_keys.on_update = :cascade
         add_column(:post_id, :integer) do
@@ -558,6 +554,12 @@ describe ActiveRecord::Migration do
           @model.should_not reference(:users)
         end
 
+        it "should remove auto-created index if foreign key is removed" do
+          @model.should have_index.on(:user_id)  # sanity check that index was auto-created
+          change_column :user_id, :integer, :foreign_key => { :references => nil }
+          @model.should_not have_index.on(:user_id)
+        end
+
         it "should reference pointed table afterwards if new one is created" do
           change_column :user_id, :integer, :foreign_key => { :references => :members }
           @model.should reference(:members)
@@ -575,6 +577,22 @@ describe ActiveRecord::Migration do
           end
         end
 
+      end
+
+      context "if column defined without foreign key but with index" do
+        before(:each) do
+          recreate_table @model do |t|
+            t.integer :user_id, :foreign_key => false, :index => true
+          end
+        end
+
+        it "should create the index" do
+          @model.should have_index.on(:user_id)
+        end
+
+        it "adding foreign key should not fail due to attempt to auto-create existing index" do
+          expect { change_column :user_id, :integer, :foreign_key => true }.to_not raise_error
+        end
       end
 
       protected
