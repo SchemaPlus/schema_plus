@@ -98,6 +98,17 @@ analogously provides index information relevant to each column: which indexes
 reference the column, whether the column must be unique, etc.  See doc at
 SchemaPlus::ActiveRecord::ConnectionAdapters::Column
 
+SchemaPlus also tidies some index-related behavior:
+
+* Rails' various db adapters have inconsistent behavior regarding an
+  attempt to create a duplicate index: some quietly ignore the attempt,
+  some raise an error.   SchemaPlus regularizes the behavor to ignore the
+  attempt for all db adapters.
+
+* If you rename a table, indexes named using rails' automatic naming
+  convention will be renamed correspondingly.
+
+
 === Foreign Key Constraints
 
 SchemaPlus adds support for foreign key constraints. In fact, for the
@@ -229,6 +240,8 @@ take advantage of auto-creation of foreign key constraints, you can re-enable it
 
 * New feature: create view using ActiveRecord relation
 
+* New feature: renaming a table renames its indexes and constraints correspondingly.
+
 * Bug fix for postgres :kind index attribute (thanks to https://github.com/eugenebolshakov)
 
 * Sort fks in dump for stability (thanks to https://github.com/zephyr-dev)
@@ -236,6 +249,8 @@ take advantage of auto-creation of foreign key constraints, you can re-enable it
 * Bug fix: change_column should maintain foreign key constraints even when config.foreign_keys.auto_create is false
 
 * Bug fix: quote default expressions in schema dump (thanks to https://github.com/jonleighton)
+
+* Bug fix: when removing a foreign key constraint, remove its auto-generated index.
 
 === Earlier releases
 * 0.4.1 - Bug fix: don't attempt foreign key creation for t.belongs_to ... :polymorphic => true
