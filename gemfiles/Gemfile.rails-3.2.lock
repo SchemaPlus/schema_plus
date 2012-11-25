@@ -1,8 +1,8 @@
 PATH
   remote: /Users/ronen/github/schema_plus
   specs:
-    schema_plus (0.4.1)
-      rails
+    schema_plus (1.0.0.pre)
+      rails (>= 3.2)
       valuable
 
 GEM
@@ -37,6 +37,14 @@ GEM
       multi_json (~> 1.0)
     arel (3.0.2)
     builder (3.0.0)
+    columnize (0.3.6)
+    debugger (1.2.2)
+      columnize (>= 0.3.1)
+      debugger-linecache (~> 1.1.1)
+      debugger-ruby_core_source (~> 1.1.5)
+    debugger-linecache (1.1.2)
+      debugger-ruby_core_source (>= 1.1.1)
+    debugger-ruby_core_source (1.1.5)
     diff-lcs (1.1.3)
     erubis (2.7.0)
     hike (1.2.1)
@@ -103,12 +111,13 @@ GEM
       polyglot
       polyglot (>= 0.3.1)
     tzinfo (0.3.33)
-    valuable (0.9.5)
+    valuable (0.9.6)
 
 PLATFORMS
   ruby
 
 DEPENDENCIES
+  debugger
   mysql
   mysql2
   pg
