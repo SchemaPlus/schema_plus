@@ -101,7 +101,7 @@ module SchemaPlus
         stream_string = stream.string
         @connection.columns(table).each do |column|
           if !column.default_expr.nil?
-            stream_string.gsub!("\"#{column.name}\"", "\"#{column.name}\", :default => { :expr => \"#{column.default_expr}\" }")
+            stream_string.gsub!("\"#{column.name}\"", "\"#{column.name}\", :default => { :expr => #{column.default_expr.inspect} }")
           end
         end
         @table_dumps[table] = stream_string
