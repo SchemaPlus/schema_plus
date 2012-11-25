@@ -105,6 +105,11 @@ module SchemaPlus
         def __unquote(value)
           value.to_s.sub(/^["`](.*)["`]$/, '\1')
         end
+
+        def self.auto_index_name(table_name, column_name)
+          "fk__#{table_name}_#{Array.wrap(column_name).join('_and_')}"
+        end
+
       end
     end
   end

@@ -89,7 +89,7 @@ module SchemaPlus::ActiveRecord
     end
 
     def auto_index_name(table_name, column_name)
-      "fk__#{table_name}_#{column_name}"
+      ConnectionAdapters::ForeignKeyDefinition.auto_index_name(table_name, column_name)
     end
 
   end

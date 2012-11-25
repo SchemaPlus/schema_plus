@@ -666,6 +666,11 @@ describe ActiveRecord::Migration do
       index.name.should =~ /^index_newname_on/
     end
 
+    it "should rename fk indexes" do
+      index = ActiveRecord::Base.connection.indexes(:newname).find{|index| index.columns == ['user_id']}
+      index.name.should =~ /^fk__newname_/
+    end
+
   end
     
   def recreate_table(model, opts={}, &block)
