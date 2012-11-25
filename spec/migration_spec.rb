@@ -637,6 +637,36 @@ describe ActiveRecord::Migration do
     end
 
   end
+
+  context "when table is renamed" do
+
+    before(:each) do
+      @model = Comment
+      recreate_table @model do |t|
+        t.integer :user_id
+        t.integer :xyz, :index => true
+      end
+      ActiveRecord::Migration.suppress_messages do
+        ActiveRecord::Migration.rename_table @model.table_name, :newname
+      end
+    end
+
+    around(:each) do |example|
+      begin
+        example.run
+      ensure
+        ActiveRecord::Migration.suppress_messages do
+          ActiveRecord::Migration.rename_table :newname, :comments
+        end
+      end
+    end
+
+    it "should rename rails-named indexes" do
+      index = ActiveRecord::Base.connection.indexes(:newname).find{|index| index.columns == ['xyz']}
+      index.name.should =~ /^index_newname_on/
+    end
+
+  end
     
   def recreate_table(model, opts={}, &block)
     ActiveRecord::Migration.suppress_messages do

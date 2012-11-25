@@ -12,6 +12,7 @@ module SchemaPlus
           base.class_eval do
             alias_method_chain :tables, :schema_plus
             alias_method_chain :remove_column, :schema_plus
+            alias_method_chain :rename_table, :schema_plus
           end
         end
 
@@ -24,6 +25,11 @@ module SchemaPlus
             remove_foreign_key(table_name, foreign_key.name)
           end
           remove_column_without_schema_plus(table_name, column_name)
+        end
+
+        def rename_table_with_schema_plus(oldname, newname)
+          rename_table_without_schema_plus(oldname, newname)
+          rename_indexes_and_foreign_keys(oldname, newname)
         end
 
         def remove_foreign_key(table_name, foreign_key_name, options = {})

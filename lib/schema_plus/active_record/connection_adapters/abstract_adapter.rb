@@ -95,6 +95,12 @@ module SchemaPlus
           drop_table_without_schema_plus(name)
         end
 
+        def rename_indexes_and_foreign_keys(oldname, newname)
+          indexes(newname).select {|index| index.name == index_name(oldname, index.columns)}.each do |index|
+            rename_index(newname, index.name, index_name(newname, index.columns))
+          end
+        end
+
         # Returns true if the database supports parital indexes (abstract; only
         # Postgresql returns true)
         def supports_partial_indexes?

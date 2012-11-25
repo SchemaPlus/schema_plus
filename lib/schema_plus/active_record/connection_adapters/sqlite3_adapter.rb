@@ -19,6 +19,7 @@ module SchemaPlus
         def self.included(base)
           base.class_eval do
             alias_method_chain :indexes, :schema_plus
+            alias_method_chain :rename_table, :schema_plus
           end
         end
 
@@ -32,6 +33,12 @@ module SchemaPlus
           end
           indexes
         end
+
+        def rename_table_with_schema_plus(oldname, newname) #:nodoc:
+          rename_table_without_schema_plus(oldname, newname)
+          rename_indexes_and_foreign_keys(oldname, newname)
+        end
+
 
         def add_foreign_key(table_name, column_names, references_table_name, references_column_names, options = {})
           raise NotImplementedError, "Sqlite3 does not support altering a table to add foreign key constraints (table #{table_name.inspect} column #{column_names.inspect})"

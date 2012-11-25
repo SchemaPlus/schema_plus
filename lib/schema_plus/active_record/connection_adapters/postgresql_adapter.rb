@@ -50,6 +50,7 @@ module SchemaPlus
         def self.included(base) #:nodoc:
           base.class_eval do
             remove_method :indexes
+            alias_method_chain :rename_table, :schema_plus
           end
         end
 
@@ -149,6 +150,11 @@ module SchemaPlus
                                                                     :kind => kind.downcase == "btree" ? nil : kind,
                                                                     :expression => expression)
           end
+        end
+
+        def rename_table_with_schema_plus(oldname, newname) #:nodoc:
+          rename_table_without_schema_plus(oldname, newname)
+          rename_indexes_and_foreign_keys(oldname, newname)
         end
 
         def foreign_keys(table_name, name = nil) #:nodoc:
