@@ -671,6 +671,12 @@ describe ActiveRecord::Migration do
       index.name.should =~ /^fk__newname_/
     end
 
+    unless SchemaPlusHelpers.sqlite3?
+      it "should rename foreign key definitions" do
+        ActiveRecord::Base.connection.foreign_keys(:newname).first.name.should =~ /newname/
+      end
+    end
+
   end
     
   def recreate_table(model, opts={}, &block)
