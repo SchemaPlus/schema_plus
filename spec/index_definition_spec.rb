@@ -61,6 +61,12 @@ describe "Index definition" do
     end
   end
 
+  it "should not crash on equality test with nil" do
+    index = ActiveRecord::ConnectionAdapters::IndexDefinition.new(:table, :column)
+    expect{index == nil}.to_not raise_error
+    (index == nil).should be_false
+  end
+
 
   unless SchemaPlusHelpers.mysql?
     context "when index is ordered" do

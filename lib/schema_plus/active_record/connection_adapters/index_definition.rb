@@ -48,6 +48,7 @@ module SchemaPlus
 
         # tests if the corresponding indexes would be the same
         def ==(other)
+          return false if other.nil?
           return false unless self.name == other.name
           return false unless Array.wrap(self.columns).collect(&:to_s).sort == Array.wrap(other.columns).collect(&:to_s).sort
           return false unless !!self.unique == !!other.unique
