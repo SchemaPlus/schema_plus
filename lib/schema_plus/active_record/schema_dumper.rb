@@ -64,7 +64,10 @@ module SchemaPlus
             @inline_fks[table] = @connection.foreign_keys(table)
             dependencies = @inline_fks[table].collect(&:references_table_name)
           end
-          @dump_dependencies[table] = dependencies.sort.uniq - ::ActiveRecord::SchemaDumper.ignore_tables
+          # select against @table_dumps keys to respect filtering based on
+          # SchemaDumper.ignore_tables (which was taken into account
+          # increate @table_dumps)
+          @dump_dependencies[table] = dependencies.sort.uniq.select {|name| @table_dumps.has_key? name}
         end
 
         # Normally we dump foreign key constraints inline in the table

@@ -36,20 +36,6 @@ describe "Schema dump" do
     class ::Comment < ActiveRecord::Base ; end
   end
 
-  let(:dump_posts) do
-    stream = StringIO.new
-    ActiveRecord::SchemaDumper.ignore_tables = %w[users comments]
-    ActiveRecord::SchemaDumper.dump(ActiveRecord::Base.connection, stream)
-    stream.string
-  end
-
-  let(:dump_all) do
-    stream = StringIO.new
-    ActiveRecord::SchemaDumper.ignore_tables = []
-    ActiveRecord::SchemaDumper.dump(ActiveRecord::Base.connection, stream)
-    stream.string
-  end
-
   it "should include foreign_key definition" do
     with_foreign_key Post, :user_id, :users, :id do
       dump_posts.should match(to_regexp(%q{t.foreign_key ["user_id"], "users", ["id"]}))
@@ -64,21 +50,30 @@ describe "Schema dump" do
 
   it "should sort foreign_key definitions" do
     with_foreign_keys Comment, [ [ :post_id, :posts, :id ], [ :commenter_id, :users, :id ]] do
-      dump_all.should match(/foreign_key.+commenter_id.+foreign_key.+post_id/m)
+      dump_schema.should match(/foreign_key.+commenter_id.+foreign_key.+post_id/m)
     end
   end
 
   context "with constraint dependencies" do
     it "should sort in Posts => Comments direction" do
       with_foreign_key Comment, :post_id, :posts, :id do
-        dump_all.should match(%r{create_table "posts".*create_table "comments"}m)
+        dump_schema.should match(%r{create_table "posts".*create_table "comments"}m)
       end
     end
     it "should sort in Comments => Posts direction" do
       with_foreign_key Post, :first_comment_id, :comments, :id do
-        dump_all.should match(%r{create_table "comments".*create_table "posts"}m)
+        dump_schema.should match(%r{create_table "comments".*create_table "posts"}m)
       end
     end
+
+    it "should handle regexp in ignore_tables" do
+      with_foreign_key Comment, :post_id, :posts, :id do
+        dump = dump_schema(:ignore => /post/)
+        dump.should match /create_table "comments"/
+        dump.should_not match /create_table "posts"/
+      end
+    end
+
   end
 
   context "with date default" do
@@ -204,15 +199,15 @@ describe "Schema dump" do
       end
 
       it "should not raise an error" do
-        expect { dump_all }.to_not raise_error
+        expect { dump_schema }.to_not raise_error
       end
 
       it "should dump constraints after the tables they reference" do
-        dump_all.should match(%r{create_table "comments".*foreign_key.*\["first_comment_id"\], "comments", \["id"\]}m)
-        dump_all.should match(%r{create_table "posts".*foreign_key.*\["first_post_id"\], "posts", \["id"\]}m)
-        dump_all.should match(%r{create_table "posts".*foreign_key.*\["post_id"\], "posts", \["id"\]}m)
-        dump_all.should match(%r{create_table "users".*foreign_key.*\["commenter_id"\], "users", \["id"\]}m)
-        dump_all.should match(%r{create_table "users".*foreign_key.*\["user_id"\], "users", \["id"\]}m)
+        dump_schema.should match(%r{create_table "comments".*foreign_key.*\["first_comment_id"\], "comments", \["id"\]}m)
+        dump_schema.should match(%r{create_table "posts".*foreign_key.*\["first_post_id"\], "posts", \["id"\]}m)
+        dump_schema.should match(%r{create_table "posts".*foreign_key.*\["post_id"\], "posts", \["id"\]}m)
+        dump_schema.should match(%r{create_table "users".*foreign_key.*\["commenter_id"\], "users", \["id"\]}m)
+        dump_schema.should match(%r{create_table "users".*foreign_key.*\["user_id"\], "users", \["id"\]}m)
       end
     end
   end
@@ -289,6 +284,17 @@ describe "Schema dump" do
   def determine_foreign_key_name(model, columns, options)
     name = options[:name] 
     name ||= model.foreign_keys.detect { |fk| fk.table_name == model.table_name.to_s && fk.column_names == Array(columns).collect(&:to_s) }.name
+  end
+
+  def dump_schema(opts={})
+    stream = StringIO.new
+    ActiveRecord::SchemaDumper.ignore_tables = Array.wrap(opts[:ignore]) || []
+    ActiveRecord::SchemaDumper.dump(ActiveRecord::Base.connection, stream)
+    stream.string
+  end
+
+  def dump_posts
+    dump_schema(:ignore => %w[users comments])
   end
 
 end
