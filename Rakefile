@@ -6,26 +6,33 @@ require 'rspec/core/rake_task'
   namespace adapter do
     RSpec::Core::RakeTask.new(:spec) do |spec|
       spec.rspec_opts = "-Ispec/connections/#{adapter}"
-      spec.fail_on_error = false
+      spec.fail_on_error = true
     end
   end
 end
 
 desc 'Run postgresql, mysql2 and sqlite3 tests'
 task :spec do 
+  errs = []
   %w[postgresql mysql mysql2 sqlite3].each do |adapter|
-    Rake::Task["#{adapter}:spec"].invoke
+      begin
+          Rake::Task["#{adapter}:spec"].invoke
+      rescue => e
+          warn "\n#{e}\n"
+          errs << adapter
+      end
   end
+  fail "Failure in: #{errs.join(', ')}" if errs.any?
 end
 
 task :default => :spec
 
-require 'rake/rdoctask'
+require 'rdoc/task'
 Rake::RDocTask.new do |rdoc|
-  version = File.exist?('VERSION') ? File.read('VERSION') : ""
+  require File.dirname(__FILE__) + '/lib/schema_plus/version'
 
   rdoc.rdoc_dir = 'rdoc'
-  rdoc.title = "schema_plus #{version}"
+  rdoc.title = "schema_plus #{SchemaPlus::VERSION}"
   rdoc.rdoc_files.include('README*')
   rdoc.rdoc_files.include('lib/**/*.rb')
 end
