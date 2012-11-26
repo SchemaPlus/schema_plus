@@ -61,6 +61,7 @@ describe "with multiple schemas" do
     end
 
     before(:each) do
+      connection.views.each { |view| connection.drop_view view }
       connection.execute 'CREATE VIEW schema_plus_test2.myview AS SELECT * FROM users'
     end
 
