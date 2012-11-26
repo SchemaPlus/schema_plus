@@ -105,7 +105,6 @@ module SchemaPlus
         end
 
         def indexes(table_name, name = nil) #:nodoc:
-          schemas = schema_search_path.split(/,/).map { |p| quote(p) }.join(',')
           result = query(<<-SQL, name)
 
            SELECT distinct i.relname, d.indisunique, d.indkey, pg_get_indexdef(d.indexrelid), t.oid,
@@ -179,11 +178,10 @@ module SchemaPlus
         end
 
         def views(name = nil) #:nodoc:
-          schemas = schema_search_path.split(/,/).map { |p| quote(p) }.join(',')
           query(<<-SQL, name).map { |row| row[0] }
         SELECT viewname
           FROM pg_views
-         WHERE schemaname IN (#{schemas})
+         WHERE schemaname = ANY (current_schemas(false))
           SQL
         end
 
