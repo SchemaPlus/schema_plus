@@ -82,17 +82,6 @@ module SchemaPlus
           execute "ALTER TABLE #{quote_table_name(table_name)} DROP CONSTRAINT #{foreign_key_name}"
         end
 
-        # Rename a foreign key constraint
-        #
-        # (NOTE: Sqlite3 does not support altering a table to rename
-        # foreign-key constraints.  If you're using Sqlite3, this method will
-        # raise an error.)
-        def rename_foreign_key(table_name, oldname, newname)
-          fk = foreign_keys(table_name).find{|fk| fk.name == oldname}
-          remove_foreign_key(table_name, oldname)
-          add_foreign_key(table_name, fk.column_names, fk.references_table_name, fk.references_column_names, :name => newname, :on_update => fk.on_update, :on_delete => fk.on_delete, :deferrable => fk.deferrable)
-        end
-
         def drop_table_with_schema_plus(name, options = {}) #:nodoc:
           # (NOTE: rails 3.2 accepts only one arg, no options.  pre rails
           # 3.2, drop_table took an options={} arg that had no effect: but
@@ -106,21 +95,28 @@ module SchemaPlus
           drop_table_without_schema_plus(name)
         end
 
-        def rename_indexes_and_foreign_keys(oldname, newname)
-          indexes(newname).each do |index|
-            case index.name
-            when index_name(oldname, index.columns)                           then rename_index(newname, index.name, index_name(newname, index.columns))
-            when ForeignKeyDefinition.auto_index_name(oldname, index.columns) then rename_index(newname, index.name, ForeignKeyDefinition.auto_index_name(newname, index.columns))
-            end
+        # called from individual adpaters, after renaming table from old
+        # name to
+        def rename_indexes_and_foreign_keys(oldname, newname) #:nodoc:
+          indexes(newname).select{|index| index.name == index_name(oldname, index.columns)}.each do |index|
+            rename_index(newname, index.name, index_name(newname, index.columns))
           end
-          begin
-            foreign_keys(newname).each do |fk|
-              if fk.name =~ /#{oldname}/ then
-                rename_foreign_key(newname, fk.name, fk.name.sub(/#{oldname}/, newname))
-              end
+          foreign_keys(newname).each do |fk|
+            index = indexes(newname).find{|index| index.name == ForeignKeyDefinition.auto_index_name(oldname, index.columns)}
+            begin
+              remove_foreign_key(newname, fk.name)
+            rescue NotImplementedError
+              # sqlite3 can't remove foreign keys, so just skip it
             end
-          rescue NotImplementedError
-            # sqlite3 doesn't support renaming foreign key constraints
+            # rename the index only when the fk constraint doesn't exist.
+            # mysql doesn't allow the rename (which is a delete & add)
+            # if the index is on a foreign key constraint
+            rename_index(newname, index.name, ForeignKeyDefinition.auto_index_name(newname, index.columns)) if index
+            begin
+              add_foreign_key(newname, fk.column_names, fk.references_table_name, fk.references_column_names, :name => newname, :on_update => fk.on_update, :on_delete => fk.on_delete, :deferrable => fk.deferrable)
+            rescue NotImplementedError
+              # sqlite3 can't add foreign keys, so just skip it
+            end
           end
         end
 
