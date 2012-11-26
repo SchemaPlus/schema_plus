@@ -156,15 +156,18 @@ module SchemaPlus::ActiveRecord::ConnectionAdapters
     def remove_foreign_key(_, *args) #:nodoc:
     end
 
+    # This is a deliberately empty stub.  In fact, verifying that it won't
+    # ever be called.  The reason for it is that ColumnOptionsHandler will
+    # remove a previous index when changing a column.  But we don't do
+    # column changes within table definitions.
+    def remove_index(_, options) raise "InternalError: remove_index called in a table definition" ; end
+
     # Determines if an indexes is queued to be created.  Called from
     # ColumnOptionsHandler as part of checking whether to auto-create an index
     def index_exists?(_, column_name, options={})
       @indexes.find{|index| index.table == self.name && index.columns == Array.wrap(column_name) && options.all?{|k, v| index.send(k) == v}}
     end
 
-    def remove_index(_, options)
-      @indexes.delete_if{ |index| index.table == self.name && options.all?{|k, v| index.send(k) == v}}
-    end
 
 
   end
