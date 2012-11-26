@@ -61,10 +61,12 @@ module SchemaPlus
           if @connection.views.include?(table)
             dependencies = @connection.view_definition(table).scan(re_view_referent).flatten
           else
-            @inline_fks[table] = @connection.foreign_keys(table)
+            @inline_fks[table] = @connection.foreign_keys(table).reject { |fk|
+              ignore_table?(fk.references_table_name)
+            }.sort_by(&:name)
             dependencies = @inline_fks[table].collect(&:references_table_name)
           end
-          @dump_dependencies[table] = dependencies.sort.uniq - ::ActiveRecord::SchemaDumper.ignore_tables
+          @dump_dependencies[table] = dependencies.sort.uniq
         end
 
         # Normally we dump foreign key constraints inline in the table
@@ -136,6 +138,18 @@ module SchemaPlus
       def dump_foreign_keys(foreign_keys, opts={}) #:nodoc:
         foreign_keys.collect{ |foreign_key| "  " + foreign_key.to_dump(:inline => opts[:inline]) }.sort.join
       end
+
+      def ignore_table?(table)
+        ['schema_migrations', ignore_tables].flatten.any? do |ignored|
+          case ignored
+            when String; table == ignored
+            when Regexp; table =~ ignored
+          else
+            raise StandardError, 'ActiveRecord::SchemaDumper.ignore_tables accepts an array of String and / or Regexp values.'
+          end
+        end
+      end
+
     end
   end
 end
