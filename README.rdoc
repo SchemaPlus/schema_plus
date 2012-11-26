@@ -17,7 +17,7 @@ SchemaPlus supports all combinations of:
 * PostgreSQL, MySQL (using mysql or mysql2 gem), or SQLite3 (using sqlite3 3.7.7 which has foreign key support)
 * MRI ruby 1.9.2 or 1.9.3
 
-Note: rails 2.3, 3.0 and 3.1 and ruby 1.8.7 are no longer supported.  The last version
+Note: As of version 1.0.0, SchemaPlus no longer supports rails 2.3, 3.0 and 3.1 and ruby 1.8.7.  The last version
 to support them was 0.4.1.
 
 == Installation
@@ -251,6 +251,10 @@ take advantage of auto-creation of foreign key constraints, you can re-enable it
 * Bug fix: quote default expressions in schema dump (thanks to https://github.com/jonleighton)
 
 * Bug fix: when removing a foreign key constraint, remove its auto-generated index.
+
+* Bug fix: SchemaDumper.ignore_tables needs to support regexps (suggeste by https://github.com/mtalcott)
+
+* Bug fix: More robust handling of Postgresql schema_search path (suggested by https://github.com/mtalcott)
 
 === Earlier releases
 * 0.4.1 - Bug fix: don't attempt foreign key creation for t.belongs_to ... :polymorphic => true
