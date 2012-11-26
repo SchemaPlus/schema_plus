@@ -11,19 +11,6 @@ require 'rspec/core/rake_task'
   end
 end
 
-desc 'Run postgresql, mysql2 and sqlite3 tests'
-task :spec do 
-  errs = []
-  %w[postgresql mysql mysql2 sqlite3].each do |adapter|
-      begin
-          Rake::Task["#{adapter}:spec"].invoke
-      rescue => e
-          warn "\n#{e}\n"
-          errs << adapter
-      end
-  end
-  fail "Failure in: #{errs.join(', ')}" if errs.any?
-end
 
 task :default => :spec
 
@@ -37,41 +24,50 @@ Rake::RDocTask.new do |rdoc|
   rdoc.rdoc_files.include('lib/**/*.rb')
 end
 
-namespace :postgresql do
-  desc 'Build the PostgreSQL test databases'
-  task :build_databases do
-    %x( createdb -E UTF8 schema_plus_unittest )
+DATABASES = %w[schema_plus_test]
+[ 
+  { namespace: :postgresql, uservar: 'POSTGRES_DB_USER', defaultuser: 'postgres', create: "createdb -U '%{user}' %{dbname}", drop: "dropdb -U '%{user}' %{dbname}" },
+  { namespace: :mysql, uservar: 'MYSQL_DB_USER', defaultuser: 'schema_plus', create: "mysqladmin -u '%{user}' create %{dbname}", drop: "mysqladmin -u '%{user}' -f drop %{dbname}" }
+].each do |db|
+  namespace db[:namespace] do
+    user = ENV.fetch db[:uservar], db[:defaultuser]
+    task :create_databases do
+      DATABASES.each do |dbname|
+        system(db[:create] % {user: user, dbname: dbname})
+      end
+    end
+    task :drop_databases do
+      DATABASES.each do |dbname|
+        system(db[:drop] % {user: user, dbname: dbname})
+      end
+    end
   end
-
-  desc 'Drop the PostgreSQL test databases'
-  task :drop_databases do
-    %x( dropdb schema_plus_unittest )
-  end
-
-  desc 'Rebuild the PostgreSQL test databases'
-  task :rebuild_databases => [:drop_databases, :build_databases]
 end
 
-task :build_postgresql_databases => 'postgresql:build_databases'
-task :drop_postgresql_databases => 'postgresql:drop_databases'
-task :rebuild_postgresql_databases => 'postgresql:rebuild_databases'
-
-MYSQL_DB_USER = ENV.fetch('MYSQL_DB_USER', 'schema_plus')
-namespace :mysql do
-  desc 'Build the MySQL test databases'
-  task :build_databases do
-    %x( echo "create DATABASE schema_plus_unittest DEFAULT CHARACTER SET utf8 DEFAULT COLLATE utf8_unicode_ci " | mysql --user=#{MYSQL_DB_USER})
-  end
-
-  desc 'Drop the MySQL test databases' 
-  task :drop_databases do
-    %x( mysqladmin --user=#{MYSQL_DB_USER} -f drop schema_plus_unittest )
-  end
-
-  desc 'Rebuild the MySQL test databases'
-  task :rebuild_databases => [:drop_databases, :build_databases]
+desc 'Run postgresql, mysql2 and sqlite3 tests'
+task :spec do 
+  invoke_multiple(%w[postgresql mysql mysql2 sqlite3], "spec")
 end
 
-task :build_mysql_databases => 'mysql:build_databases'
-task :drop_mysql_databases => 'mysql:drop_databases'
-task :rebuild_mysql_databases => 'mysql:rebuild_databases'
+desc 'Create test databases'
+task :create_databases do
+  invoke_multiple(%w[postgresql mysql], "create_databases")
+end
+
+desc 'Drop test databases'
+task :drop_databases do
+  invoke_multiple(%w[postgresql mysql], "drop_databases")
+end
+
+def invoke_multiple(namespaces, task)
+  failed = namespaces.reject { |adapter|
+    begin
+      Rake::Task["#{adapter}:#{task}"].invoke
+      true
+    rescue => e
+      warn "\n#{e}\n"
+      false
+    end
+  }
+  fail "Failure in: #{failed.join(', ')}" if failed.any?
+end
