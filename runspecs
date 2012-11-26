@@ -99,3 +99,4 @@ combos.each_with_index do |combo, n|
     end
 end
 puts errs.any? ?  "\n*** #{errs.size} failures:\n\t#{errs.join("\n\t")}" : "\n*** #{combos.size > 1 ? 'all versions' : 'spec'} succeeded ***" unless o.dry_run
+exit !errs.any?
