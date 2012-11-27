@@ -180,7 +180,7 @@ ActiveRecord works with views the same as with ordinary tables.  That is, for th
   class UncommentedPost < ActiveRecord::Base
   end
 
-=== Column Defaults
+=== Column Defaults: Expressions
 
 SchemaPlus allows defaults to be set using expressions or constant values:
 
@@ -203,6 +203,20 @@ resolves to:
   NOW()                 # PostgreSQL
   (DATETIME('now'))     # SQLite3
   invalid               # MySQL
+
+=== Column Defaults: Using
+
+SchemaPlus introduces a constant <tt>ActiveRecord::DB_DEFAULT</tt> that you can use to explicitly instruct the database to use the column default value (or expression).  For example:
+
+  Post.create(:category => ActiveRecord::DB_DEFAULT)
+  post.update_attributes(:category => ActiveRecord::DB_DEFAULT)
+
+(Without <tt>ActiveRecord::DB_DEFAULT</tt>, you can update a value to <tt>NULL</tt> but not to its default value.) 
+
+Note that after updating, you would need to reload a record to replace <tt>ActiveRecord::DB_DEFAULT</tt> with the value assigned by the database.
+
+Note also that Sqlite3 does not support <tt>ActiveRecord::DB_DEFAULT</tt>; attempting to use it will raise <tt>ActiveRecord::StatementInvalid</tt>
+
 
 === Schema Dump and Load (schema.rb)
 
@@ -239,6 +253,8 @@ take advantage of auto-creation of foreign key constraints, you can re-enable it
 * New feature: specify foreign key constraints using :foreign_key => { ... }, motivated in particular to support :name (suggested by https://github.com/daniele-m)
 
 * New feature: create view using ActiveRecord relation
+
+* New feature: <tt>ActiveRecord::DB_DEFAULT</tt> (suggested by https://github.com/zaadjis)
 
 * New feature: renaming a table renames its indexes and constraints correspondingly.
 

@@ -51,6 +51,7 @@ module SchemaPlus
           base.class_eval do
             remove_method :indexes
             alias_method_chain :rename_table, :schema_plus
+            alias_method_chain :exec_cache, :schema_plus
           end
         end
 
@@ -154,6 +155,22 @@ module SchemaPlus
         def rename_table_with_schema_plus(oldname, newname) #:nodoc:
           rename_table_without_schema_plus(oldname, newname)
           rename_indexes_and_foreign_keys(oldname, newname)
+        end
+
+        def exec_cache_with_schema_plus(sql, binds)
+          if binds.any?{ |col, val| val.equal? ::ActiveRecord::DB_DEFAULT}
+            j = 0
+            binds.each_with_index do |(col, val), i|
+            if val.equal? ::ActiveRecord::DB_DEFAULT
+              sql = sql.sub(/\$#{i+1}/, 'DEFAULT')
+            else
+              sql = sql.sub(/\$#{i+1}/, "$#{j+1}") if i != j
+              j += 1
+            end
+            end
+            binds = binds.reject{|col, val| val.equal? ::ActiveRecord::DB_DEFAULT}
+          end
+          exec_cache_without_schema_plus(sql, binds)
         end
 
         def foreign_keys(table_name, name = nil) #:nodoc:

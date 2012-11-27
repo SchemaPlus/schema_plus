@@ -3,6 +3,7 @@ require 'valuable'
 require 'schema_plus/version'
 require 'schema_plus/active_record/base'
 require 'schema_plus/active_record/column_options_handler'
+require 'schema_plus/active_record/db_default'
 require 'schema_plus/active_record/foreign_keys'
 require 'schema_plus/active_record/connection_adapters/table_definition'
 require 'schema_plus/active_record/connection_adapters/schema_statements'
@@ -132,6 +133,7 @@ module SchemaPlus
     ::ActiveRecord::Base.send(:include, SchemaPlus::ActiveRecord::Base)
     ::ActiveRecord::Schema.send(:include, SchemaPlus::ActiveRecord::Schema)
     ::ActiveRecord::SchemaDumper.send(:include, SchemaPlus::ActiveRecord::SchemaDumper)
+    ::ActiveRecord.const_set(:DB_DEFAULT, SchemaPlus::ActiveRecord::DB_DEFAULT)
   end
 
 end
