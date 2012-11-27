@@ -13,6 +13,7 @@ module SchemaPlus
             alias_method_chain :tables, :schema_plus
             alias_method_chain :remove_column, :schema_plus
             alias_method_chain :rename_table, :schema_plus
+            alias_method_chain :exec_stmt, :schema_plus rescue nil # only defined for mysql not mysql2
           end
         end
 
@@ -30,6 +31,20 @@ module SchemaPlus
         def rename_table_with_schema_plus(oldname, newname)
           rename_table_without_schema_plus(oldname, newname)
           rename_indexes_and_foreign_keys(oldname, newname)
+        end
+
+        def exec_stmt_with_schema_plus(sql, name, binds)
+          if binds.any?{ |col, val| val.equal? ::ActiveRecord::DB_DEFAULT}
+            puts "#{sql}, #{binds.inspect}"
+            binds.each_with_index do |(col, val), i|
+              if val.equal? ::ActiveRecord::DB_DEFAULT
+                sql = sql.sub(/(([^?]*?){#{i}}[^?]*)\?/, "\\1DEFAULT")
+              end
+            end
+            binds = binds.reject{|col, val| val.equal? ::ActiveRecord::DB_DEFAULT}
+            puts " ----> #{sql}, #{binds.inspect}"
+          end
+          exec_stmt_without_schema_plus(sql, name, binds)
         end
 
         def remove_foreign_key(table_name, foreign_key_name, options = {})
