@@ -33,7 +33,7 @@ module SchemaPlus
           rename_indexes_and_foreign_keys(oldname, newname)
         end
 
-        def exec_stmt_with_schema_plus(sql, name, binds)
+        def exec_stmt_with_schema_plus(sql, name, binds, &block)
           if binds.any?{ |col, val| val.equal? ::ActiveRecord::DB_DEFAULT}
             binds.each_with_index do |(col, val), i|
               if val.equal? ::ActiveRecord::DB_DEFAULT
@@ -42,7 +42,7 @@ module SchemaPlus
             end
             binds = binds.reject{|col, val| val.equal? ::ActiveRecord::DB_DEFAULT}
           end
-          exec_stmt_without_schema_plus(sql, name, binds)
+          exec_stmt_without_schema_plus(sql, name, binds, &block)
         end
 
         def remove_foreign_key(table_name, foreign_key_name, options = {})
