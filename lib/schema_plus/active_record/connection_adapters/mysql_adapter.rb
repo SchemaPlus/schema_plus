@@ -35,14 +35,12 @@ module SchemaPlus
 
         def exec_stmt_with_schema_plus(sql, name, binds)
           if binds.any?{ |col, val| val.equal? ::ActiveRecord::DB_DEFAULT}
-            puts "#{sql}, #{binds.inspect}"
             binds.each_with_index do |(col, val), i|
               if val.equal? ::ActiveRecord::DB_DEFAULT
                 sql = sql.sub(/(([^?]*?){#{i}}[^?]*)\?/, "\\1DEFAULT")
               end
             end
             binds = binds.reject{|col, val| val.equal? ::ActiveRecord::DB_DEFAULT}
-            puts " ----> #{sql}, #{binds.inspect}"
           end
           exec_stmt_without_schema_plus(sql, name, binds)
         end
