@@ -105,6 +105,11 @@ module SchemaPlus
           true
         end
 
+        # This method entirely duplicated from AR's postgresql_adapter.c,
+        # but includes the extra bit to determine the column name for a
+        # case-insensitive index.  (Haven't come up with any clever way to
+        # only code up the case-insensitive column name bit here and
+        # otherwise use the existing method.)
         def indexes(table_name, name = nil) #:nodoc:
           result = query(<<-SQL, name)
 
@@ -133,6 +138,8 @@ module SchemaPlus
             SQL
 
             column_names = columns.values_at(*index_keys).compact
+            # extract column name from the expression, for a
+            # case-insensitive 
             if md = expression.try(:match, /^lower\(\(?([^)]+)\)?(::text)?\)$/i)
               column_names << md[1]
             end
@@ -157,6 +164,9 @@ module SchemaPlus
           rename_indexes_and_foreign_keys(oldname, newname)
         end
 
+        # Prepass to replace each ActiveRecord::DB_DEFAULT with a literal
+        # DEFAULT in the sql string.  (The underlying pg gem provides no
+        # way to bind a value that will replace $n with DEFAULT)
         def exec_cache_with_schema_plus(sql, binds)
           if binds.any?{ |col, val| val.equal? ::ActiveRecord::DB_DEFAULT}
             j = 0
