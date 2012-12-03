@@ -272,6 +272,8 @@ take advantage of auto-creation of foreign key constraints, you can re-enable it
 
 * Bug fix: More robust handling of Postgresql schema_search path (suggested by https://github.com/mtalcott)
 
+* Bug fix: Only get index, view, and foreign key information from current schema (thanks to https://github.com/bhavinkamani)
+
 === Earlier releases
 * 0.4.1 - Bug fix: don't attempt foreign key creation for t.belongs_to ... :polymorphic => true
 * 0.4.0 - Add :force for create_view (suggested by greglazarev[https://github.com/greglazarev]).  cleanups by betelgeuse[https://github.com/betelgeuse]
