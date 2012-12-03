@@ -190,6 +190,7 @@ module SchemaPlus
          WHERE f.conrelid = t.oid
            AND f.contype = 'f'
            AND t.relname = '#{table_name}'
+           AND t.relnamespace IN (SELECT oid FROM pg_namespace WHERE nspname = ANY (current_schemas(false)) )
           SQL
         end
 
@@ -201,6 +202,7 @@ module SchemaPlus
            AND f.conrelid = t2.oid
            AND f.contype = 'f'
            AND t.relname = '#{table_name}'
+           AND t.relnamespace IN (SELECT oid FROM pg_namespace WHERE nspname = ANY (current_schemas(false)) )
           SQL
         end
 
