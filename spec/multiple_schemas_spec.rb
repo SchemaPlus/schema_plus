@@ -73,33 +73,50 @@ describe "with multiple schemas" do
       connection.views.should be_empty
     end
 
-    it "should not find views in this schema" do
+    it "should find views in this schema" do
       connection.execute 'CREATE VIEW myview AS SELECT * FROM users'
       connection.views.should == ['myview']
     end
   end
 
   context "with foreign key in each schema" do
-    it "should not find views in other schema" do
+    before(:each) do
       class Comment < ::ActiveRecord::Base ; end
-      connection.create_table :comments, :force => true do |t|
-        t.integer :user_id, :foreign_key => true
-      end
-
       connection.execute 'DROP TABLE IF EXISTS schema_plus_test2.comments'
       connection.execute 'CREATE TABLE schema_plus_test2.comments (user_id integer,' + case connection.adapter_name
             when /^mysql/i then      "foreign key (user_id) references schema_plus_test2.users (id))"
             when /^postgresql/i then "foreign key (user_id) references schema_plus_test2.users (id))"
             when /^sqlite/i then     "foreign key (user_id) references users (id))"
             end
+    end
 
-      Comment.foreign_keys.length.should == 1
+    around(:each) do |example|
+      begin
+        example.run
+      ensure
+        connection.execute 'DROP TABLE IF EXISTS comments'
+        connection.execute 'DROP TABLE IF EXISTS schema_plus_test2.comments'
+      end
+    end
+
+    it "should not find foreign keys in other schema" do
+      connection.create_table :comments, :force => true do |t|
+        t.integer :user_id, :foreign_key => false
+      end
+      Comment.reset_column_information
+      Comment.foreign_keys.length.should == 0
+      User.reset_column_information
+      User.reverse_foreign_keys.length.should == 0
+    end
+
+    it "should find foreign keys in this schema" do
+      connection.create_table :comments, :force => true do |t|
+        t.integer :user_id, :foreign_key => true
+      end
+      Comment.reset_column_information
       Comment.foreign_keys.map(&:column_names).flatten.should == ["user_id"]
-      User.reverse_foreign_keys.length.should == 1
+      User.reset_column_information
       User.reverse_foreign_keys.map(&:column_names).flatten.should == ["user_id"]
-
-      connection.execute 'DROP TABLE IF EXISTS comments'
-      connection.execute 'DROP TABLE IF EXISTS schema_plus_test2.comments'
     end
 
   end
