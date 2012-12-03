@@ -26,7 +26,11 @@ describe "with multiple schemas" do
     end
 
     connection.execute 'DROP TABLE IF EXISTS schema_plus_test2.users'
-    connection.execute 'CREATE TABLE schema_plus_test2.users (login integer)'
+    connection.execute 'CREATE TABLE schema_plus_test2.users (id ' + case connection.adapter_name
+          when /^mysql/i then      "integer primary key auto_increment"
+          when /^postgresql/i then "serial primary key"
+          when /^sqlite/i then     "integer primary key autoincrement"
+          end + ", login varchar(255))"
   end
 
   context "with indexes in each schema" do
@@ -74,6 +78,32 @@ describe "with multiple schemas" do
       connection.views.should == ['myview']
     end
   end
+
+  context "with foreign key in each schema" do
+    it "should not find views in other schema" do
+      class Comment < ::ActiveRecord::Base ; end
+      connection.create_table :comments, :force => true do |t|
+        t.integer :user_id, :foreign_key => true
+      end
+
+      connection.execute 'DROP TABLE IF EXISTS schema_plus_test2.comments'
+      connection.execute 'CREATE TABLE schema_plus_test2.comments (user_id integer,' + case connection.adapter_name
+            when /^mysql/i then      "foreign key (user_id) references schema_plus_test2.users (id))"
+            when /^postgresql/i then "foreign key (user_id) references schema_plus_test2.users (id))"
+            when /^sqlite/i then     "foreign key (user_id) references users (id))"
+            end
+
+      Comment.foreign_keys.length.should == 1
+      Comment.foreign_keys.map(&:column_names).flatten.should == ["user_id"]
+      User.reverse_foreign_keys.length.should == 1
+      User.reverse_foreign_keys.map(&:column_names).flatten.should == ["user_id"]
+
+      connection.execute 'DROP TABLE IF EXISTS comments'
+      connection.execute 'DROP TABLE IF EXISTS schema_plus_test2.comments'
+    end
+
+  end
+
 end
 
 
