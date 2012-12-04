@@ -1,2 +1,4 @@
+source :rubygems
+
 gemspec :path => File.expand_path('../../..', __FILE__)
 gem "rails", "~> 3.2.0"

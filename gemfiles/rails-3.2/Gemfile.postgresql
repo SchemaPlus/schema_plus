@@ -1,4 +1,4 @@
-gem "pg"
-
 require "pathname"
 eval(Pathname.new(__FILE__).dirname.join("Gemfile.base").read, binding)
+
+gem "pg"
