@@ -2,7 +2,10 @@ rvm:
   - 1.9.2
   - 1.9.3
 gemfile:
-  - gemfiles/Gemfile.rails-3.2
+  - gemfiles/rails-3.2/Gemfile.postgresql
+  - gemfiles/rails-3.2/Gemfile.sqlite3
+  - gemfiles/rails-3.2/Gemfile.mysql
+  - gemfiles/rails-3.2/Gemfile.mysql2
 before_script:
   - rake create_databases
 after_script:

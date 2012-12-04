@@ -317,12 +317,12 @@ Then:
   $ ./runspecs --install  # do this once, it runs 'bundle install' for all versions
   $ ./runspecs # as many times as you like
 
-See <tt>./runspecs --help</tt> for more options.  You can also manually pick a specific version of rails and ruby to use, such as:
+See <tt>./runspecs --help</tt> for more options.  You can also manually pick a specific version of rails, ruby, and db to use, such as:
   $ rvm use 1.9.2
-  $ export BUNDLE_GEMFILE=gemfiles/Gemfile.rails-3.1
+  $ export BUNDLE_GEMFILE=gemfiles/rails-3.2/Gemfile.sqlite3
   $ bundle exec rake spec
 
-Code coverage results will be in coverage/index.html -- it should be at 100% coverage.
+Code coverage results will be in coverage/index.html -- it should be at 100% coverage if you're running against all databases
 
 == License
 

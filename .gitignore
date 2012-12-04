@@ -21,6 +21,7 @@ pkg
 ## PROJECT::SPECIFIC
 .rvmrc
 *.log
-*.sqlite3
+spec/*/*/*.sqlite3
 Gemfile.lock
 gemfiles/*.lock
+gemfiles/**/*.lock
