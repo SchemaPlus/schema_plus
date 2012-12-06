@@ -209,7 +209,7 @@ resolves to:
 SchemaPlus introduces a constant <tt>ActiveRecord::DB_DEFAULT</tt> that you can use to explicitly instruct the database to use the column default value (or expression).  For example:
 
   Post.create(category: ActiveRecord::DB_DEFAULT)
-  Post.update_attributes(category: ActiveRecord::DB_DEFAULT)
+  post.update_attributes(category: ActiveRecord::DB_DEFAULT)
 
 (Without <tt>ActiveRecord::DB_DEFAULT</tt>, you can update a value to <tt>NULL</tt> but not to its default value.) 
 
