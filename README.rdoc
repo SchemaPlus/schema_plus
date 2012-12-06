@@ -46,48 +46,48 @@ With standard rails migrations, you specify indexes separately from the table de
     end
 
     add_index :parts, :name     # index repeats table and column names and is defined separately
-    add_index :parts, :product_code, :unique => true
+    add_index :parts, :product_code, unique: true
 
 But with SchemaPlus you can specify your indexes when you define each column, with options as desired
 
     # More DRY way...
     create_table :parts do |t|
-      t.string :name,           :index => true
-      t.string :product_code,   :index => { :unique => true }
+      t.string :name,           index: true
+      t.string :product_code,   index: { unique: true }
     end
 
 The options hash can include an index name:
 
-    t.string :product_code,     :index => { :unique => true, :name => "my_index_name" }
+    t.string :product_code,     index: { unique: true, name: "my_index_name" }
 
 You can also create multi-column indexes, for example:
 
     t.string :first_name
-    t.string :last_name,        :index => { :with => :first_name }
+    t.string :last_name,        index: { with: :first_name }
 
     t.string :country_code
     t.string :area_code
-    t.string :local_number      :index => { :with => [:country_code, :area_code], :unique => true }
+    t.string :local_number      index: { with: [:country_code, :area_code], unique: true }
 
 And you can specify index orders:
 
     t.string :first_name
-    t.string :last_name,        :index => { :with => :first_name, :order => {:first_name => :desc, :last_name => :asc}}
+    t.string :last_name,        index: { with: :first_name, order: :first_name: :desc, last_name: :asc}}
 
 As a convenient shorthand, the :unique option can be specified as
 
-    t.string :product_code,   :index => :unique 
+    t.string :product_code,   index: :unique
 
 which is equivalent to
 
-    t.string :product_code,   :index => { :unique => true }
+    t.string :product_code,   index: { unique: true }
 
 If you're using Postgresql, SchemaPlus provides support for conditions, expressions, index methods, and case-insensitive indexes:
 
-    t.string :last_name,  :index => { :conditions => 'deleted_at IS NULL' }
-    t.string :last_name,  :index => { :expression => 'upper(last_name)' }
-    t.string :last_name,  :index => { :kind => 'hash' }
-    t.string :last_name,  :index => { :case_sensitive => false }        # shorthand for :expression => 'lower(last_name)'
+    t.string :last_name,  index: { conditions: 'deleted_at IS NULL' }
+    t.string :last_name,  index: { expression: 'upper(last_name)' }
+    t.string :last_name,  index: { kind: 'hash' }
+    t.string :last_name,  index: { case_sensitive: false }        # shorthand for expression: 'lower(last_name)'
 
 These features are available also in ActiveRecord::Migration.add_index.  See
 doc at SchemaPlus::ActiveRecord::ConnectionAdapters::PostgresqlAdapter and
@@ -128,29 +128,29 @@ Here are some examples:
 
     t.integer :author_id                                 # automatically references table 'authors', key id
     t.integer :parent_id                                 # special name parent_id automatically references its own table (for tree nodes)
-    t.integer :author_id, :foreign_key => true           # same as default automatic behavior
-    t.integer :author,    :foreign_key => true           # non-conventional column name needs to force creation, table name is assumed to be 'authors'
-    t.integer :author_id, :foreign_key => false          # don't create a constraint
+    t.integer :author_id, foreign_key: true           # same as default automatic behavior
+    t.integer :author,    foreign_key: true           # non-conventional column name needs to force creation, table name is assumed to be 'authors'
+    t.integer :author_id, foreign_key: false          # don't create a constraint
 
-    t.integer :author_id, :foreign_key => { :references => :authors }        # same as automatic behavior
-    t.integer :author,    :foreign_key => { :reference => :authors}          # same default name
-    t.integer :author_id, :foreign_key => { :references => [:authors, :id] } # same as automatic behavior
-    t.integer :author_id, :foreign_key => { :references => :people }         # override table name
-    t.integer :author_id, :foreign_key => { :references => [:people, :ssn] } # override table name and key
-    t.integer :author_id, :foreign_key => { :references => nil }             # don't create a constraint
-    t.integer :author_id, :foreign_key => { :name => "my_fk" }               # override default generated constraint name
-    t.integer :author_id, :foreign_key => { :on_delete => :cascade }
-    t.integer :author_id, :foreign_key => { :on_update: => :set_null }
-    t.integer :author_id, :foreign_key => { :deferrable => true }
+    t.integer :author_id, foreign_key: { references: :authors }        # same as automatic behavior
+    t.integer :author,    foreign_key: { reference: :authors}          # same default name
+    t.integer :author_id, foreign_key: { references: [:authors, :id] } # same as automatic behavior
+    t.integer :author_id, foreign_key: { references: :people }         # override table name
+    t.integer :author_id, foreign_key: { references: [:people, :ssn] } # override table name and key
+    t.integer :author_id, foreign_key: { references: nil }             # don't create a constraint
+    t.integer :author_id, foreign_key: { name: "my_fk" }               # override default generated constraint name
+    t.integer :author_id, foreign_key: { on_delete: :cascade }
+    t.integer :author_id, foreign_key: { on_update: :set_null }
+    t.integer :author_id, foreign_key: { deferrable: true }
 
 Of course the options can be combined, e.g.
 
-    t.integer :author_id, :foreign_key => { :name => "my_fk", :on_delete => :no_action }
+    t.integer :author_id, foreign_key: { name: "my_fk", on_delete: :no_action }
 
 As a shorthand, all options except +:name+ can be specified without placing them in a hash, e.g.
 
-    t.integer :author_id, :on_delete => :cascade
-    t.integer :author_id, :references => nil
+    t.integer :author_id, on_delete: :cascade
+    t.integer :author_id, references: nil
 
 The foreign key behavior can be configured globally (see Config) or per-table (see create_table).
 
@@ -163,7 +163,7 @@ that reference a given table.  See SchemaPlus::ActiveRecord::ConnectionAdapters:
 
 SchemaPlus provides support for creating and dropping views.  In a migration, a view can be created using a rails relation or literal sql:
 
-  create_view :posts_commented_by_staff,  Post.joins(:comment => :user).where(:users => {:role => 'staff'}).uniq
+  create_view :posts_commented_by_staff,  Post.joins(comment: user).where(users: {role: 'staff'}).uniq
   create_view :uncommented_posts,        "SELECT * FROM posts LEFT OUTER JOIN comments ON comments.post_id = posts.id WHERE comments.id IS NULL"
 
 And can be dropped:
@@ -184,19 +184,19 @@ ActiveRecord works with views the same as with ordinary tables.  That is, for th
 
 SchemaPlus allows defaults to be set using expressions or constant values:
 
-  t.datetime :seen_at, :default => { :expr => 'NOW()' }
-  t.datetime :seen_at, :default => { :value => "2011-12-11 00:00:00" }
+  t.datetime :seen_at, default: { expr: 'NOW()' }
+  t.datetime :seen_at, default: { value: "2011-12-11 00:00:00" }
 
 Note that in MySQL only the TIMESTAMP column data type accepts SQL column
 defaults and Rails uses DATETIME, so expressions can't be used with MySQL.
 
 The standard syntax will still work as usual:
 
-  t.datetime :seen_at, :default => "2011-12-11 00:00:00"
+  t.datetime :seen_at, default: "2011-12-11 00:00:00"
 
 Also, as a convenience
 
-  t.datetime :seen_at, :default => :now
+  t.datetime :seen_at, default: :now
 
 resolves to:
 
@@ -208,8 +208,8 @@ resolves to:
 
 SchemaPlus introduces a constant <tt>ActiveRecord::DB_DEFAULT</tt> that you can use to explicitly instruct the database to use the column default value (or expression).  For example:
 
-  Post.create(:category => ActiveRecord::DB_DEFAULT)
-  post.update_attributes(:category => ActiveRecord::DB_DEFAULT)
+  Post.create(category: ActiveRecord::DB_DEFAULT)
+  post.update_attributes(category: ActiveRecord::DB_DEFAULT)
 
 (Without <tt>ActiveRecord::DB_DEFAULT</tt>, you can update a value to <tt>NULL</tt> but not to its default value.) 
 
