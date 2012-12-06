@@ -246,7 +246,12 @@ take advantage of auto-creation of foreign key constraints, you can re-enable it
 
 == Release notes:
 
+
 === master (to be released)
+
+* README cleanups (thanks to https://github.com/denispeplin)
+
+=== 1.0.0
 
 * No longer support rails < 3.2 and ruby < 1.9
 
