@@ -212,6 +212,46 @@ describe "Schema dump" do
     end
   end
 
+  context 'with Postgresql Partitioning' do
+
+    if SchemaPlusHelpers.postgresql?
+
+      before do
+        ActiveRecord::Migration.suppress_messages do
+          ActiveRecord::Schema.define do
+            create_table :parents, :force => true, :cascade => true do |t|
+              t.string :name
+            end
+
+            execute "CREATE TABLE a_through_l_children ( CHECK ( name < 'm' ) ) INHERITS (parents)"
+            execute "CREATE TABLE m_through_z_children ( CHECK ( name >= 'm' ) ) INHERITS (parents)"
+          end
+        end
+      end
+
+      after do
+        ActiveRecord::Migration.suppress_messages do
+          ActiveRecord::Schema.define do
+            drop_table 'parents', :cascade => true
+          end
+        end
+      end
+
+      it "should not raise an error" do
+        expect { dump_schema }.to_not raise_error
+      end
+
+      it "should dump inherited tables with the :cascade => true option" do
+        dump_schema.should match(%r{create_table "parents", :force => true, :cascade => true}m)
+      end
+
+      it "should dump the parents table prior to tables that inherit from it" do
+        dump_schema.should match(%r{create_table "parents".*create_table "a_through_l_children"}m)
+        dump_schema.should match(%r{create_table "parents".*create_table "m_through_z_children"}m)
+      end
+    end
+  end
+
   protected
   def to_regexp(string)
     Regexp.new(Regexp.escape(string))
