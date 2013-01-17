@@ -60,17 +60,21 @@ module SchemaPlus
         # * +:conditions+ - SQL conditions for the WHERE clause of the index
         # * +:expression+ - SQL expression to index.  column_name can be nil or ommitted, in which case :name must be provided
         # * +:kind+ - index method for Postgresql to use
-        # * +:case_sensitive - if +false+ then the index will be created on LOWER(column_name)
+        # * +:case_sensitive - setting to +false+ is a shorthand for :expression => 'LOWER(column_name)'
         #
         # The <tt>:case_sensitive => false</tt> option ties in with Rails built-in support for case-insensitive searching:
         #    validates_uniqueness_of :name, :case_sensitive => false
+        #
+        # Since since <tt>:case_sensitive => false</tt> is implemented by
+        # using <tt>:expression</tt>, this raises an ArgumentError if both
+        # are specified simultaneously.
         #
         def add_index(table_name, column_name, options = {})
           column_name, options = [], column_name if column_name.is_a?(Hash)
           column_names = Array(column_name).compact
           if column_names.empty?
-            raise ArgumentError, "No columns and :expression missing from options - cannot create index" if options[:expression].blank?
-            raise ArgumentError, "Index name not given. Pass :name option" if options[:name].blank?
+            raise ArgumentError, "No columns and :expression missing from options - cannot create index" unless options[:expression]
+            raise ArgumentError, "Index name not given. Pass :name option" unless options[:name]
           end
 
           index_type = options[:unique] ? "UNIQUE" : ""
@@ -79,6 +83,7 @@ module SchemaPlus
           kind       = options[:kind]
 
           if expression = options[:expression] then
+            raise ArgumentError, "Cannot specify :case_sensitive => false with an expression.  Use LOWER(column_name)" if options[:case_sensitive] == false
             # Wrap expression in parentheses if necessary
             expression = "(#{expression})" if expression !~ /(using|with|tablespace|where)/i
             expression = "USING #{kind} #{expression}" if kind

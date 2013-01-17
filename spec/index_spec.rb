@@ -108,12 +108,17 @@ describe "add_index" do
     end
 
     it "should raise if no column given and expression is missing" do
-      expect { add_index(:users, :name => 'users_login_index') }.to raise_error(ArgumentError)
+      expect { add_index(:users, :name => 'users_login_index') }.to raise_error(ArgumentError, /expression/)
     end
 
     it "should raise if expression without name is given" do
-      expect { add_index(:users, :expression => "USING btree (login)") }.to raise_error(ArgumentError)
+      expect { add_index(:users, :expression => "USING btree (login)") }.to raise_error(ArgumentError, /name/)
     end
+
+    it "should raise if expression is given and case_sensitive is false" do
+      expect { add_index(:users, :name => 'users_login_index', :expression => "USING btree (login)", :case_sensitive => false) }.to raise_error(ArgumentError, /use LOWER/i)
+    end
+
 
   end # of postgresql specific examples
 
