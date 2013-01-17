@@ -72,7 +72,7 @@ You can also create multi-column indexes, for example:
 And you can specify index orders:
 
     t.string :first_name
-    t.string :last_name,        index: { with: :first_name, order: :first_name: :desc, last_name: :asc}}
+    t.string :last_name,        index: { with: :first_name, order: { first_name: :desc, last_name: :asc}}
 
 As a convenient shorthand, the :unique option can be specified as
 
