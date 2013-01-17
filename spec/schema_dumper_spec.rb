@@ -163,8 +163,8 @@ describe "Schema dump" do
   if SchemaPlusHelpers.postgresql?
 
     it "should define case insensitive index" do
-      with_index Post, :name => "posts_user_body_index", :expression => "USING btree (LOWER(body))" do
-        dump_posts.should match(to_regexp(%q{t.index ["body"], :name => "posts_user_body_index", :case_sensitive => false}))
+      with_index Post, [:body, :string_no_default], :case_sensitive => false do
+        dump_posts.should match(to_regexp(%q{t.index ["body", "string_no_default"], :name => "index_posts_on_body_and_string_no_default", :case_sensitive => false}))
       end
     end
 
@@ -179,6 +179,13 @@ describe "Schema dump" do
         dump_posts.should match(to_regexp(%q{t.index :name => "posts_freaky_index", :kind => "hash", :expression => "LEAST(id, user_id)"}))
       end
     end
+
+    it "should not define :case_sensitive => false with non-trivial expression" do
+      with_index Post, :name => "posts_user_body_index", :expression => "BTRIM(LOWER(body))" do
+        dump_posts.should match(%r{#{to_regexp(%q{t.index :name => "posts_user_body_index", :expression => "btrim(lower(body))"})}$})
+      end
+    end
+
 
     it "should define kind" do
       with_index Post, :name => "posts_body_index", :expression => "USING hash (body)" do
@@ -277,7 +284,7 @@ describe "Schema dump" do
   def determine_index_name(model, columns, options)
     name = columns[:name] if columns.is_a?(Hash)
     name ||= options[:name]
-    name ||= model.indexes.detect { |index| index.table == model.table_name.to_s && index.columns == Array(columns).collect(&:to_s) }.name
+    name ||= model.indexes.detect { |index| index.table == model.table_name.to_s && index.columns.sort == Array(columns).collect(&:to_s).sort }.name
     name
   end
 

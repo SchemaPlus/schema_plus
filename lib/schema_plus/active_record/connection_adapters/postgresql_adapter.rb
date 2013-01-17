@@ -143,10 +143,16 @@ module SchemaPlus
             SQL
 
             column_names = columns.values_at(*index_keys).compact
-            # extract column name from the expression, for a
-            # case-insensitive 
-            if md = expression.try(:match, /^lower\(\(?([^)]+)\)?(::text)?\)$/i)
-              column_names << md[1]
+            case_sensitive = true
+
+            # extract column names from the expression, for a
+            # case-insensitive index
+            if expression
+              rexp_lower = %r{\blower\(\(?([^)]+)(\)::text)?\)}
+              if expression.match /^(#{rexp_lower}(, )?)+$/
+                column_names = expression.scan(rexp_lower).map(&:first)
+                case_sensitive = false
+              end
             end
             
             # add info on sort order for columns (only desc order is explicitly specified, asc is the default)
@@ -158,7 +164,7 @@ module SchemaPlus
                                                                     :unique => unique,
                                                                     :orders => orders,
                                                                     :conditions => conditions,
-                                                                    :case_sensitive => !(expression =~ /lower/i),
+                                                                    :case_sensitive => case_sensitive,
                                                                     :kind => kind.downcase == "btree" ? nil : kind,
                                                                     :expression => expression)
           end
