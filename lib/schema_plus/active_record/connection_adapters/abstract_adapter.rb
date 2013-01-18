@@ -113,7 +113,7 @@ module SchemaPlus
             # if the index is on a foreign key constraint
             rename_index(newname, index.name, ForeignKeyDefinition.auto_index_name(newname, index.columns)) if index
             begin
-              add_foreign_key(newname, fk.column_names, fk.references_table_name, fk.references_column_names, :name => newname, :on_update => fk.on_update, :on_delete => fk.on_delete, :deferrable => fk.deferrable)
+              add_foreign_key(newname, fk.column_names, fk.references_table_name, fk.references_column_names, :name => fk.name.sub(/#{oldname}/, newname), :on_update => fk.on_update, :on_delete => fk.on_delete, :deferrable => fk.deferrable)
             rescue NotImplementedError
               # sqlite3 can't add foreign keys, so just skip it
             end
