@@ -672,8 +672,40 @@ describe ActiveRecord::Migration do
     end
 
     unless SchemaPlusHelpers.sqlite3?
-      it "should rename foreign key definitions" do
+      it "should rename foreign key constraints" do
         ActiveRecord::Base.connection.foreign_keys(:newname).first.name.should =~ /newname/
+      end
+    end
+
+  end
+
+  unless SchemaPlusHelpers.sqlite3?
+
+    context "when table with more than one fk constraint is renamed" do
+
+      before(:each) do
+        @model = Comment
+        recreate_table @model do |t|
+          t.integer :user_id
+          t.integer :member_id
+        end
+        ActiveRecord::Migration.suppress_messages do
+          ActiveRecord::Migration.rename_table @model.table_name, :newname
+        end
+      end
+
+      around(:each) do |example|
+        begin
+          example.run
+        ensure
+          ActiveRecord::Migration.suppress_messages do
+            ActiveRecord::Migration.rename_table :newname, :comments
+          end
+        end
+      end
+      it "should rename foreign key constraints" do
+        names = ActiveRecord::Base.connection.foreign_keys(:newname).map(&:name)
+        names.grep(/newname/).should == names
       end
     end
 
