@@ -251,6 +251,15 @@ take advantage of auto-creation of foreign key constraints, you can re-enable it
 
 * README cleanups (thanks to https://github.com/denispeplin)
 
+* Now raises ArgumentIndex if index has both :case_sensitive => false and an :expression
+
+* Bug fix: renaming table with multiple foreign key constraints (thanks to https://github.com/teleological )
+
+* Bug fix: don't dump :case_sensitive => false for index with an expression
+that includes "lower(name)".
+
+* Bug fix: Properly dump multi-column case-insensitive indexes
+
 === 1.0.0
 
 * No longer support rails < 3.2 and ruby < 1.9
@@ -273,7 +282,7 @@ take advantage of auto-creation of foreign key constraints, you can re-enable it
 
 * Bug fix: when removing a foreign key constraint, remove its auto-generated index.
 
-* Bug fix: SchemaDumper.ignore_tables needs to support regexps (suggeste by https://github.com/mtalcott)
+* Bug fix: SchemaDumper.ignore_tables needs to support regexps (suggested by https://github.com/mtalcott)
 
 * Bug fix: More robust handling of Postgresql schema_search path (suggested by https://github.com/mtalcott)
 
