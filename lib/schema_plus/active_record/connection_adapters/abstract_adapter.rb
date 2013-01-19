@@ -92,7 +92,12 @@ module SchemaPlus
           unless ::ActiveRecord::Base.connection.class.include?(SchemaPlus::ActiveRecord::ConnectionAdapters::Sqlite3Adapter)
             reverse_foreign_keys(name).each { |foreign_key| remove_foreign_key(foreign_key.table_name, foreign_key.name) }
           end
-          drop_table_without_schema_plus(name)
+          # support for Postgresql Partitioned tables.  Parent table must be dropped with option CASCADE.
+          if options[:cascade]
+            execute "DROP TABLE #{quote_table_name(name)} CASCADE"
+          else
+            drop_table_without_schema_plus(name)
+          end
         end
 
         # called from individual adpaters, after renaming table from old
@@ -147,6 +152,16 @@ module SchemaPlus
           if options[:null] == false
             sql << " NOT NULL"
           end
+        end
+
+        # Support for Postgresql Partitioning. Returns inherited table of table if any.
+        def inherited_table(table, name = nil)
+          []
+        end
+
+        # Support for Postgresql Partitioning. True if table is inherited by other tables, otherwise false.
+        def inherited?(table, name = nil)
+          false
         end
 
         # This is define in rails 3.x, but not in rails2.x

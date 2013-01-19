@@ -236,6 +236,27 @@ module SchemaPlus
           row.first.chomp(';') unless row.nil?
         end
 
+        # Support for Postgresql Partitioning. Returns the inherited table of this table if any
+        def inherited_table(table, name = nil)
+          result = query(<<-SQL, name)
+        SELECT relname
+          FROM pg_class c,pg_inherits i
+         WHERE c.oid=i.inhparent 
+           AND i.inhrelid=(SELECT oid FROM pg_class WHERE relname = '#{table}' limit 1)
+          SQL
+          result.first || []
+        end
+
+        # Support for Postgresql Partitioning. True if table is inherited by other tables, otherwise false.
+        def inherited?(table, name = nil)
+          result = query(<<-SQL, name)
+        SELECT count(*)
+          FROM pg_class c, pg_inherits i
+         WHERE c.oid=i.inhparent and relname='#{table}'
+          SQL
+          result.first.first.to_i > 0
+        end
+
         private
 
         def load_foreign_keys(sql, name = nil) #:nodoc:

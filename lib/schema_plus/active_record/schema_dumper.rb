@@ -63,6 +63,7 @@ module SchemaPlus
           else
             @inline_fks[table] = @connection.foreign_keys(table)
             dependencies = @inline_fks[table].collect(&:references_table_name)
+            dependencies.concat(@connection.inherited_table(table))
           end
           # select against @table_dumps keys to respect filtering based on
           # SchemaDumper.ignore_tables (which was taken into account
@@ -102,6 +103,10 @@ module SchemaPlus
         stream = StringIO.new
         table_without_schema_plus(table, stream)
         stream_string = stream.string
+        # Support for Postgresql Partitioned tables.  Parent table must be dropped with option CASCADE
+        if @connection.inherited?(table)
+          stream_string.gsub!(/:force => true/, ':force => true, :cascade => true')
+        end
         @connection.columns(table).each do |column|
           if !column.default_expr.nil?
             stream_string.gsub!("\"#{column.name}\"", "\"#{column.name}\", :default => { :expr => #{column.default_expr.inspect} }")
