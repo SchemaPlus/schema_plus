@@ -322,10 +322,11 @@ Then:
   $ ./runspecs --install  # do this once, it runs 'bundle install' for all versions
   $ ./runspecs # as many times as you like
 
-See <tt>./runspecs --help</tt> for more options.  You can also manually pick a specific version of rails, ruby, and db to use, such as:
-  $ rvm use 1.9.2
-  $ export BUNDLE_GEMFILE=gemfiles/rails-3.2/Gemfile.sqlite3
-  $ bundle exec rake spec
+See <tt>./runspecs --help</tt> for more options.  In particular, to run
+rspec on a specific file or example (rather than running the full suite)
+you can do, e.g.
+
+  $ ./runspecs [other options] --rspec -- spec/migration_spec.rb -e 'default name'
 
 Code coverage results will be in coverage/index.html -- it should be at 100% coverage if you're running against all databases
 

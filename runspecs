@@ -2,6 +2,7 @@
 
 require 'optparse'
 require 'ostruct'
+require 'shellwords'
 require 'tempfile'
 
 RUBY_VERSIONS = %W[1.9.2 1.9.3]
@@ -52,11 +53,14 @@ OptionParser.new do |opts|
       o.db_adapters = ["postgresql"]
     end
 
+    opts.on("--rspec", "run rspec rather than rake") do |v|
+        o.rspec = v
+    end
+
 end.parse!
 
 
 Combo = Struct.new(:ruby, :rails, :db_adapter)
-
 
 combos = o.ruby_versions.product(o.rails_versions, o.db_adapters).map{|product| Combo.new(*product)}.select {|combo|
     case
@@ -78,11 +82,13 @@ combos.each_with_index do |combo, n|
               "bundle update"
           when o.install
               "bundle install"
+          when o.rspec
+              "bundle exec rspec -Ispec/connections/#{db_adapter}"
           else
               "bundle exec rake #{db_adapter}:spec"
           end
 
-    command = %Q{BUNDLE_GEMFILE="#{File.join(GEMFILES_DIR, "rails-#{rails}", "Gemfile.#{db_adapter}")}" rvm #{ruby} do #{cmd}}
+    command = %Q{BUNDLE_GEMFILE="#{File.join(GEMFILES_DIR, "rails-#{rails}", "Gemfile.#{db_adapter}")}" rvm #{ruby} do #{cmd} #{Shellwords.join(ARGV)}}
 
     puts "\n\n*** ruby version #{ruby} - rails version #{rails} - db adapter: #{db_adapter}  [#{n+1} of #{combos.size}]\n\n#{command}"
 
