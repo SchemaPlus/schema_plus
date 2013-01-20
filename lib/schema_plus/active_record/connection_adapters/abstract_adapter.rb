@@ -102,7 +102,7 @@ module SchemaPlus
             rename_index(newname, index.name, index_name(newname, index.columns))
           end
           foreign_keys(newname).each do |fk|
-            index = indexes(newname).find{|index| index.name == ForeignKeyDefinition.auto_index_name(oldname, index.columns)}
+            index = indexes(newname).find{|index| index.name == ForeignKeyDefinition.auto_index_name(oldname, fk.column_names)}
             begin
               remove_foreign_key(newname, fk.name)
             rescue NotImplementedError
