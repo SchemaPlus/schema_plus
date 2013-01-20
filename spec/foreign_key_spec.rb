@@ -145,7 +145,7 @@ describe "Foreign Key" do
         before(:each) do
           migration.suppress_messages do
             migration.create_table :references, :force => true do |t|
-              t.integer :post_id
+              t.integer :post_id, :foreign_key => false
             end
           end
         end

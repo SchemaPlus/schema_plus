@@ -69,7 +69,7 @@ module SchemaPlus
         # it's created.  If you're using Sqlite3, this method will raise an
         # error.)
         def add_foreign_key(table_name, column_names, references_table_name, references_column_names, options = {})
-          foreign_key = ForeignKeyDefinition.new(options[:name], table_name, column_names, ::ActiveRecord::Migrator.proper_table_name(references_table_name), references_column_names, options[:on_update], options[:on_delete], options[:deferrable])
+          foreign_key = ForeignKeyDefinition.new(options[:name] || ForeignKeyDefinition.default_name(table_name, column_names), table_name, column_names, ::ActiveRecord::Migrator.proper_table_name(references_table_name), references_column_names, options[:on_update], options[:on_delete], options[:deferrable])
           execute "ALTER TABLE #{quote_table_name(table_name)} ADD #{foreign_key.to_sql}"
         end
 

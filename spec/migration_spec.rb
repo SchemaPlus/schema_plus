@@ -78,6 +78,13 @@ describe ActiveRecord::Migration do
       @model.should reference(:users, :id).on(:author_id)
     end
 
+    it "should create foreign key with default name" do
+      recreate_table @model do |t|
+        t.integer :user_id, :foreign_key => true
+      end
+      @model.should reference(:users, :id).with_name("fk_#{@model.table_name}_user_id")
+    end
+
     it "should create foreign key with specified name" do
       recreate_table @model do |t|
         t.integer :user_id, :foreign_key => { :name => "wugga" }

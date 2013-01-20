@@ -106,6 +106,10 @@ module SchemaPlus
           value.to_s.sub(/^["`](.*)["`]$/, '\1')
         end
 
+        def self.default_name(table_name, column_names)
+          "fk_#{table_name}_#{Array.wrap(column_names).join('_and_')}"
+        end
+
         def self.auto_index_name(table_name, column_name)
           "fk__#{table_name}_#{Array.wrap(column_name).join('_and_')}"
         end
