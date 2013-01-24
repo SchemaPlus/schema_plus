@@ -255,6 +255,8 @@ take advantage of auto-creation of foreign key constraints, you can re-enable it
 
 * Now creates consistent default name for foreign key constraints
 
+* Bug fix: respect :length keyword for index (thanks to https://github.com/teleological )
+
 * Bug fix: renaming table with multiple foreign key constraints (thanks to https://github.com/teleological )
 
 * Bug fix: don't dump :case_sensitive => false for index with an expression that includes "lower(name)".
