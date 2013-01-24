@@ -169,6 +169,17 @@ describe ActiveRecord::Migration do
       @model.should have_unique_index.on(:state)
     end
 
+    if SchemaPlusHelpers.mysql?
+      it "should pass index length option properly" do
+        recreate_table(@model) do |t|
+          t.string :foo
+          t.string :bar, :index => { :with => :foo, :length => { :foo => 8, :bar => 12 }}
+        end
+        index = @model.indexes.first
+        Hash[index.columns.zip(index.lengths)].should == { "foo" => 8, "bar" => 12 }
+      end
+    end
+
     it "should create an index if specified explicitly" do
       recreate_table(@model) do |t|
         t.integer :state
