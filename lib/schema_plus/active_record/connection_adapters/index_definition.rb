@@ -22,7 +22,7 @@ module SchemaPlus
           # same args as add_index(table_name, column_names, options)
           if args.length == 3 and Hash === args.last
             table_name, column_names, options = args + [{}]
-            initialize_without_schema_plus(table_name, options[:name], options[:unique], column_names, options[:lengths] || options[:length], options[:orders])
+            initialize_without_schema_plus(table_name, options[:name], options[:unique], column_names, options[:length], options[:orders])
             @conditions = options[:conditions]
             @expression = options[:expression]
             @kind = options[:kind]
