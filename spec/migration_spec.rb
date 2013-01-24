@@ -176,7 +176,7 @@ describe ActiveRecord::Migration do
           t.string :bar, :index => { :with => :foo, :length => { :foo => 8, :bar => 12 }}
         end
         index = @model.indexes.first
-        Hash[index.columns.zip(index.lengths)].should be_eql "bar" => 12, "foo" => 8
+        Hash[index.columns.zip(index.lengths)].should == { "foo" => 8, "bar" => 12 }
       end
     end
 
