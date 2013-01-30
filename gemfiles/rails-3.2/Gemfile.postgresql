@@ -1,4 +1,10 @@
 require "pathname"
 eval(Pathname.new(__FILE__).dirname.join("Gemfile.base").read, binding)
 
-gem "pg"
+platform :ruby do
+  gem "pg"
+end
+
+platform :jruby do
+  gem 'activerecord_jdbcpostgresql_adapter'
+end

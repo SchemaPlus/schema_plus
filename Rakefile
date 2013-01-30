@@ -1,6 +1,14 @@
 require 'bundler'
 Bundler::GemHelper.install_tasks
 
+DATABASES = %w[schema_plus_test]
+ADAPTERS = {
+  postgresql: {uservar: 'POSTGRES_DB_USER', defaultuser: 'postgres', create: "createdb -U '%{user}' %{dbname}", drop: "dropdb -U '%{user}' %{dbname}" },
+  mysql: {uservar: 'MYSQL_DB_USER', defaultuser: 'schema_plus', create: "mysqladmin -u '%{user}' create %{dbname}", drop: "mysqladmin -u '%{user}' -f drop %{dbname}" },
+  mysql2: nil,
+  sqlite3: nil,
+}
+
 task :default => :spec
 
 desc 'Run test for adapter whose name is suffix of current Gemfile'
@@ -26,21 +34,19 @@ unless RUBY_VERSION == "1.9.2"
 end
 
 require 'rspec/core/rake_task'
-%w[postgresql mysql mysql2 sqlite3].each do |adapter|
+ADAPTERS.keys.each do |adapter|
   namespace adapter do
     RSpec::Core::RakeTask.new(:spec) do |spec|
+      ENV[ADAPTERS[adapter][:uservar]] ||= ADAPTERS[adapter][:defaultuser]
       spec.rspec_opts = "-Ispec/connections/#{adapter}"
       spec.fail_on_error = true
     end
   end
 end
 
-DATABASES = %w[schema_plus_test]
-[ 
-  { namespace: :postgresql, uservar: 'POSTGRES_DB_USER', defaultuser: 'postgres', create: "createdb -U '%{user}' %{dbname}", drop: "dropdb -U '%{user}' %{dbname}" },
-  { namespace: :mysql, uservar: 'MYSQL_DB_USER', defaultuser: 'schema_plus', create: "mysqladmin -u '%{user}' create %{dbname}", drop: "mysqladmin -u '%{user}' -f drop %{dbname}" }
-].each do |db|
-  namespace db[:namespace] do
+ADAPTERS.each do |name, db|
+  next unless db
+  namespace name do
     user = ENV.fetch db[:uservar], db[:defaultuser]
     task :create_databases do
       DATABASES.each do |dbname|
@@ -55,19 +61,19 @@ DATABASES = %w[schema_plus_test]
   end
 end
 
-desc 'Run postgresql, mysql, mysql2 and sqlite3 tests'
+desc "Run #{ADAPTERS.keys.tap{|l| l[-1] = "and #{l[-1]}"}.join(', ')} tests"
 task :specs do 
-  invoke_multiple(%w[postgresql mysql mysql2 sqlite3], "spec")
+  invoke_multiple(ADAPTERS.keys, "spec")
 end
 
 desc 'Create test databases'
 task :create_databases do
-  invoke_multiple(%w[postgresql mysql], "create_databases")
+  invoke_multiple(ADAPTERS.select{|k,v| v}.keys, "create_databases")
 end
 
 desc 'Drop test databases'
 task :drop_databases do
-  invoke_multiple(%w[postgresql mysql], "drop_databases")
+  invoke_multiple(ADAPTERS.select{|k,v| v}.keys, "drop_databases")
 end
 
 def invoke_multiple(namespaces, task)
