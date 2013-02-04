@@ -247,11 +247,11 @@ take advantage of auto-creation of foreign key constraints, you can re-enable it
 == Release notes:
 
 
-=== master (to be released)
+=== 1.0.1
 
 * README cleanups (thanks to https://github.com/denispeplin)
 
-* Now raises ArgumentIndex if index has both :case_sensitive => false and an :expression
+* Now raises ArgumentError if index has both :case_sensitive => false and an :expression
 
 * Now creates consistent default name for foreign key constraints
 
