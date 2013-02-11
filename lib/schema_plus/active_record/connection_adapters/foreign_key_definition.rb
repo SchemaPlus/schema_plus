@@ -107,11 +107,16 @@ module SchemaPlus
         end
 
         def self.default_name(table_name, column_names)
-          "fk_#{table_name}_#{Array.wrap(column_names).join('_and_')}"
+          "fk_#{fixup_schema_name(table_name)}_#{Array.wrap(column_names).join('_and_')}"
         end
 
         def self.auto_index_name(table_name, column_name)
-          "fk__#{table_name}_#{Array.wrap(column_name).join('_and_')}"
+          "fk__#{fixup_schema_name(table_name)}_#{Array.wrap(column_name).join('_and_')}"
+        end
+
+        def self.fixup_schema_name(table_name)
+          # replace . with _
+          table_name.to_s.gsub(/[.]/, '_')
         end
 
       end

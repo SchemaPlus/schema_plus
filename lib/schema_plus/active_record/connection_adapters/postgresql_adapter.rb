@@ -126,8 +126,8 @@ module SchemaPlus
            INNER JOIN pg_am m ON i.relam = m.oid
            WHERE i.relkind = 'i'
              AND d.indisprimary = 'f'
-             AND t.relname = '#{table_name}'
-             AND i.relnamespace IN (SELECT oid FROM pg_namespace WHERE nspname = ANY (current_schemas(false)) )
+             AND t.relname = '#{table_name_without_namespace(table_name)}'
+             AND i.relnamespace IN (SELECT oid FROM pg_namespace WHERE nspname = #{namespace_sql(table_name)} )
           ORDER BY i.relname
           SQL
 
@@ -200,8 +200,8 @@ module SchemaPlus
           FROM pg_class t, pg_constraint f
          WHERE f.conrelid = t.oid
            AND f.contype = 'f'
-           AND t.relname = '#{table_name}'
-           AND t.relnamespace IN (SELECT oid FROM pg_namespace WHERE nspname = ANY (current_schemas(false)) )
+           AND t.relname = '#{table_name_without_namespace(table_name)}'
+           AND t.relnamespace IN (SELECT oid FROM pg_namespace WHERE nspname = #{namespace_sql(table_name)} )
           SQL
         end
 
@@ -212,8 +212,8 @@ module SchemaPlus
          WHERE f.confrelid = t.oid
            AND f.conrelid = t2.oid
            AND f.contype = 'f'
-           AND t.relname = '#{table_name}'
-           AND t.relnamespace IN (SELECT oid FROM pg_namespace WHERE nspname = ANY (current_schemas(false)) )
+           AND t.relname = '#{table_name_without_namespace(table_name)}'
+           AND t.relnamespace IN (SELECT oid FROM pg_namespace WHERE nspname = #{namespace_sql(table_name)} )
           SQL
         end
 
@@ -237,6 +237,14 @@ module SchemaPlus
         end
 
         private
+
+        def namespace_sql(table_name)
+          (table_name.to_s =~ /(.*)[.]/) ?  "'#{$1}'" : "ANY (current_schemas(false))"
+        end
+
+        def table_name_without_namespace(table_name)
+          table_name.to_s.sub /.*[.]/, ''
+        end
 
         def load_foreign_keys(sql, name = nil) #:nodoc:
           foreign_keys = []

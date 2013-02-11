@@ -38,6 +38,7 @@ module SchemaPlus::ActiveRecord
         return :none if args.has_key?(:references) and not args[:references]
       end
 
+
       if column_options.has_key?(:references)
         references = column_options[:references]
         return :none unless references
@@ -48,14 +49,16 @@ module SchemaPlus::ActiveRecord
 
       return nil if args.nil?
 
+      schema_prefix = table_name.match(/(.*[.])/) ? $1 : ""
+
       args[:references] ||= case column_name.to_s
                             when 'parent_id'
-                              [table_name, :id]
+                              [schema_prefix + table_name, :id]
                             when /^(.*)_id$/
                               references_table_name = ActiveRecord::Base.pluralize_table_names ? $1.to_s.pluralize : $1
-                              [references_table_name, :id]
+                              [schema_prefix + references_table_name, :id]
                             else
-                              references_table_name = ActiveRecord::Base.pluralize_table_names ? column_name.to_s.pluralize : column_name
+                              schema_prefix + (ActiveRecord::Base.pluralize_table_names ? column_name.to_s.pluralize : column_name)
                             end
       args[:references] = [args[:references], :id] unless args[:references].is_a? Array
 

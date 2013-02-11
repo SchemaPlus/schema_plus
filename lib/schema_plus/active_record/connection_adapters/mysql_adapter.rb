@@ -54,6 +54,9 @@ module SchemaPlus
         def foreign_keys(table_name, name = nil)
           results = execute("SHOW CREATE TABLE #{quote_table_name(table_name)}", name)
 
+          table_name = table_name.to_s
+          namespace_prefix = table_namespace_prefix(table_name)
+
           foreign_keys = []
 
           results.each do |row|
@@ -62,6 +65,7 @@ module SchemaPlus
                 name = $1
                 column_names = $2
                 references_table_name = $3
+                references_table_name = namespace_prefix + references_table_name if table_namespace_prefix(references_table_name).blank?
                 references_column_names = $4
                 on_update = $8
                 on_delete = $6
@@ -69,7 +73,7 @@ module SchemaPlus
                 on_delete = on_delete ? on_delete.downcase.gsub(' ', '_').to_sym : :restrict
 
                 foreign_keys << ForeignKeyDefinition.new(name,
-                                                         table_name, column_names.gsub('`', '').split(', '),
+                                                         namespace_prefix + table_name, column_names.gsub('`', '').split(', '),
                                                          references_table_name, references_column_names.gsub('`', '').split(', '),
                                                          on_update, on_delete)
               end
@@ -83,17 +87,23 @@ module SchemaPlus
           results = execute(<<-SQL, name)
         SELECT constraint_name, table_name, column_name, referenced_table_name, referenced_column_name
           FROM information_schema.key_column_usage
-         WHERE table_schema = SCHEMA()
+         WHERE table_schema = #{table_schema_sql(table_name)}
            AND referenced_table_schema = table_schema
          ORDER BY constraint_name, ordinal_position;
           SQL
           current_foreign_key = nil
           foreign_keys = []
 
+          namespace_prefix = table_namespace_prefix(table_name)
+
           results.each do |row|
-            next unless table_name.casecmp(row[3]) == 0
+            next unless table_name_without_namespace(table_name).casecmp(row[3]) == 0
             if current_foreign_key != row[0]
-              foreign_keys << ForeignKeyDefinition.new(row[0], row[1], [], row[3], [])
+                referenced_table_name = row[1]
+                referenced_table_name = namespace_prefix + referenced_table_name if table_namespace_prefix(referenced_table_name).blank?
+                references_table_name = row[3]
+                references_table_name = namespace_prefix + references_table_name if table_namespace_prefix(references_table_name).blank?
+              foreign_keys << ForeignKeyDefinition.new(row[0], referenced_table_name, [], references_table_name, [])
               current_foreign_key = row[0]
             end
 
@@ -134,6 +144,21 @@ module SchemaPlus
           when :now then 'CURRENT_TIMESTAMP'
           end
         end
+
+        private
+
+        def table_namespace_prefix(table_name)
+          table_name.to_s =~ /(.*[.])/ ? $1 : ""
+        end
+
+        def table_schema_sql(table_name)
+          table_name.to_s =~ /(.*)[.]/ ? "'#{$1}'" : "SCHEMA()"
+        end
+
+        def table_name_without_namespace(table_name)
+          table_name.to_s.sub /.*[.]/, ''
+        end
+
       end
     end
   end

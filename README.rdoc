@@ -246,6 +246,9 @@ take advantage of auto-creation of foreign key constraints, you can re-enable it
 
 == Release notes:
 
+=== master (to be released)
+
+* Bug fix: More robust handling of foreign keys with schema namespaces
 
 === 1.0.1
 

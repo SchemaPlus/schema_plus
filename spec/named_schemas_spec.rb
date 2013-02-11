@@ -121,6 +121,49 @@ describe "with multiple schemas" do
 
   end
 
+  context "foreign key migrations" do
+    before(:each) do
+      define_schema do
+        create_table "schema_plus_test2.groups", :force => true do |t|
+        end
+        create_table "schema_plus_test2.members", :force => true do |t|
+          t.integer :group_id, :foreign_key => true
+        end
+      end
+      class Group < ::ActiveRecord::Base
+        self.table_name = "schema_plus_test2.groups"
+      end
+      class Member < ::ActiveRecord::Base
+        self.table_name = "schema_plus_test2.members"
+      end
+    end
+
+    around(:each) do |example|
+      begin
+        example.run
+      ensure
+        connection.execute 'DROP TABLE IF EXISTS schema_plus_test2.members'
+        connection.execute 'DROP TABLE IF EXISTS schema_plus_test2.groups'
+      end
+    end
+
+    it "should find foreign keys" do
+      Member.foreign_keys.should_not be_empty
+    end
+
+    it "should find reverse foreign keys" do
+      Group.reverse_foreign_keys.should_not be_empty
+    end
+
+    it "should reference table in same schema" do
+      Member.foreign_keys.first.references_table_name.should == "schema_plus_test2.groups"
+    end
+
+    it "should include the schema in the constraint name" do
+      Member.foreign_keys.first.name.should == "fk_schema_plus_test2_members_group_id"
+    end
+  end
+
 end
 
 
