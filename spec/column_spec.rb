@@ -16,7 +16,7 @@ describe "Column" do
     end
     
     it 'Should be JSON serializable' do
-      @login.to_json
+      {example: @login}.to_json.should_not be_empty
     end
   end
 
