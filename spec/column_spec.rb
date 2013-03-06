@@ -8,6 +8,18 @@ describe "Column" do
     
   let(:migration) { ::ActiveRecord::Migration }
 
+  context 'With backwards compatability' do
+    
+    before (:each) do 
+      create_table(User, :login => { :index => true})
+      @login = User.columns.find{|column| column.name == "login"}
+    end
+    
+    it 'Should be JSON serializable' do
+      @login.to_json
+    end
+  end
+
   context "regarding indexes" do
 
     context "if not unique" do
