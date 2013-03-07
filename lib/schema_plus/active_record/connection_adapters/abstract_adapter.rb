@@ -26,7 +26,7 @@ module SchemaPlus
             # Here we handle this and hopefully futher adapter names
           when /^MySQL/i 
             adapter = 'MysqlAdapter'
-          when 'PostgreSQL' 
+          when 'PostgreSQL', 'PostGIS'
             adapter = 'PostgresqlAdapter'
           when 'SQLite'
             adapter = 'Sqlite3Adapter'
