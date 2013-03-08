@@ -145,7 +145,7 @@ describe "Column definition" do
       subject { @sql}
 
       it "should give the default as true" do
-        should match /boolean DEFAULT (\'t\'|1)/
+        should =~ /boolean DEFAULT (\'t\'|1)/
       end
     end
   end
