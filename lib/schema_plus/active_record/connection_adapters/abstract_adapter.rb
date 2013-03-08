@@ -83,16 +83,10 @@ module SchemaPlus
         end
 
         def drop_table_with_schema_plus(name, options = {}) #:nodoc:
-          # (NOTE: rails 3.2 accepts only one arg, no options.  pre rails
-          # 3.2, drop_table took an options={} arg that had no effect: but
-          # create_table(:force=>true) would call drop_table with two args.
-          # so for backwards compatibility, schema_plus drop_table accepts
-          # two args.  but for forward compatibility with rails 3.2, the
-          # second arg is not passed along to rails.)
           unless ::ActiveRecord::Base.connection.class.include?(SchemaPlus::ActiveRecord::ConnectionAdapters::Sqlite3Adapter)
             reverse_foreign_keys(name).each { |foreign_key| remove_foreign_key(foreign_key.table_name, foreign_key.name) }
           end
-          drop_table_without_schema_plus(name)
+          drop_table_without_schema_plus(name, options)
         end
 
         # called from individual adpaters, after renaming table from old
@@ -149,16 +143,6 @@ module SchemaPlus
           end
         end
 
-        # This is define in rails 3.x, but not in rails2.x
-        unless defined? ::ActiveRecord::ConnectionAdapters::SchemaStatements::index_name_exists?
-          # File activerecord/lib/active_record/connection_adapters/abstract/schema_statements.rb, line 403
-          def index_name_exists?(table_name, index_name, default)
-            return default unless respond_to?(:indexes)
-            index_name = index_name.to_s
-            indexes(table_name).detect { |i| i.name == index_name }
-          end
-        end
-        
         #####################################################################
         #
         # The functions below here are abstract; each subclass should
