@@ -78,7 +78,7 @@ describe "Column" do
       User.columns.find{|column| column.name == "login"}.required_on.should == :save
     end
 
-    it "must have a value on :updae if there's default" do
+    it "must have a value on :update if there's default" do
       create_table(User, :login => { :null => false, :default => "foo" })
       User.columns.find{|column| column.name == "login"}.required_on.should == :update
     end

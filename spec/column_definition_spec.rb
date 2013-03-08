@@ -133,7 +133,7 @@ describe "Column definition" do
       subject { @sql}
 
       it "should give the default as false" do
-        should match /boolean DEFAULT (\'f\'|0)/
+        should =~ /boolean DEFAULT (\'f\'|0)/
       end
     end
 
