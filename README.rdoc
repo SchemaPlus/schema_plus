@@ -248,6 +248,7 @@ take advantage of auto-creation of foreign key constraints, you can re-enable it
 
 === master (to be released)
 
+* Bug fix: Circular Reference/Stack Level Too Deep in Column#to_json.  Thanks to https://github.com/robdimarco for tracking down the problem
 * Bug fix: More robust handling of foreign keys with schema namespaces
 
 === 1.0.1

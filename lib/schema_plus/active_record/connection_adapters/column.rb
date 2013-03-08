@@ -51,6 +51,12 @@ module SchemaPlus
             :update
           end
         end
+
+        # The default as_jon includes all instance variables.  but
+        # @connection can't be dumped (it contains circular references)
+        def as_json(options=nil)
+          instance_values.except "connection"
+        end
       end
     end
   end

@@ -8,6 +8,16 @@ describe "Column" do
     
   let(:migration) { ::ActiveRecord::Migration }
 
+  context "JSON serialization" do
+    before(:each) do
+      create_table(User, :login => { :index => true})
+      @login = User.columns.find{|column| column.name == "login"}
+    end
+    it "works properly" do
+      JSON.parse(@login.to_json).should include("name" => "login", "type" => "string")
+    end
+  end
+
   context "regarding indexes" do
 
     context "if not unique" do
