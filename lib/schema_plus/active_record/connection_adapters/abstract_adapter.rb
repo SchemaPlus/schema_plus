@@ -18,31 +18,19 @@ module SchemaPlus
 
         def initialize_with_schema_plus(*args) #:nodoc:
           initialize_without_schema_plus(*args)
-          adapter = nil
-          case adapter_name
-            # name of MySQL adapter depends on mysql gem
-            # * with mysql gem adapter is named MySQL
-            # * with mysql2 gem adapter is named Mysql2
-            # Here we handle this and hopefully futher adapter names
-          when /^MySQL/i 
-            adapter = 'MysqlAdapter'
-          when 'PostgreSQL' 
-            adapter = 'PostgresqlAdapter'
-          when 'SQLite'
-            adapter = 'Sqlite3Adapter'
-          end
-          if adapter 
-            adapter_module = SchemaPlus::ActiveRecord::ConnectionAdapters.const_get(adapter)
-            self.class.send(:include, adapter_module) unless self.class.include?(adapter_module)
-            self.post_initialize if self.respond_to? :post_initialize
-
-            if adapter == 'PostgresqlAdapter'
-              ::ActiveRecord::ConnectionAdapters::PostgreSQLColumn.send(:include, SchemaPlus::ActiveRecord::ConnectionAdapters::PostgreSQLColumn) unless ::ActiveRecord::ConnectionAdapters::PostgreSQLColumn.include?(SchemaPlus::ActiveRecord::ConnectionAdapters::PostgreSQLColumn)
-            end
-            if adapter == 'Sqlite3Adapter'
-              ::ActiveRecord::ConnectionAdapters::SQLiteColumn.send(:include, SchemaPlus::ActiveRecord::ConnectionAdapters::SQLiteColumn) unless ::ActiveRecord::ConnectionAdapters::SQLiteColumn.include?(SchemaPlus::ActiveRecord::ConnectionAdapters::SQLiteColumn)
-            end
-          end
+          adapter = case adapter_name
+                      # name of MySQL adapter depends on mysql gem
+                      # * with mysql gem adapter is named MySQL
+                      # * with mysql2 gem adapter is named Mysql2
+                      # Here we handle this and hopefully futher adapter names
+                    when /^MySQL/i      then 'MysqlAdapter'
+                    when 'PostgreSQL'   then 'PostgresqlAdapter'
+                    when 'SQLite'       then 'Sqlite3Adapter'
+                    else raise "SchemaPlus: Unsupported adapter name #{adapter_name.inspect}"
+                    end
+          adapter_module = SchemaPlus::ActiveRecord::ConnectionAdapters.const_get(adapter)
+          self.class.send(:include, adapter_module) unless self.class.include?(adapter_module)
+          self.post_initialize if self.respond_to? :post_initialize
           extend(SchemaPlus::ActiveRecord::ForeignKeys)
         end
 

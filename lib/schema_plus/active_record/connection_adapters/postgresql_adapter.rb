@@ -53,6 +53,7 @@ module SchemaPlus
             alias_method_chain :rename_table, :schema_plus
             alias_method_chain :exec_cache, :schema_plus
           end
+          ::ActiveRecord::ConnectionAdapters::PostgreSQLColumn.send(:include, PostgreSQLColumn) unless ::ActiveRecord::ConnectionAdapters::PostgreSQLColumn.include?(PostgreSQLColumn)
         end
 
         # SchemaPlus provides the following extra options for Postgres
