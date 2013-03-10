@@ -22,6 +22,7 @@ module SchemaPlusMatchers
       @result.keep_if {|fk| fk.column_names == @column_names } if @column_names
       @result.keep_if {|fk| fk.on_update == @on_update } if @on_update
       @result.keep_if {|fk| fk.on_delete == @on_delete } if @on_delete
+      @result.keep_if {|fk| fk.deferrable == @deferrable } if @deferrable
       @result.keep_if {|fk| fk.name == @name } if @name
       !@result.empty?
     end
@@ -34,6 +35,7 @@ module SchemaPlusMatchers
       with = []
       with << "on_update=#{@on_update.inspect}" if @on_update
       with << "on_delete=#{@on_delete.inspect}" if @on_delete
+      with << "deferrable=#{@deferrable.inspect}" if @deferrable
       with << "name=#{@name.inspect}" if @name
       msg += " with #{with.join(" and ")}" if with.any?
       msg
@@ -50,6 +52,11 @@ module SchemaPlusMatchers
 
     def on_update(action)
       @on_update = action
+      self
+    end
+
+    def deferrable(action)
+      @deferrable = action
       self
     end
 

@@ -142,6 +142,7 @@ Here are some examples:
     t.integer :author_id, foreign_key: { on_delete: :cascade }
     t.integer :author_id, foreign_key: { on_update: :set_null }
     t.integer :author_id, foreign_key: { deferrable: true }
+    t.integer :author_id, foreign_key: { deferrable: :initially_deferred }
 
 Of course the options can be combined, e.g.
 
@@ -248,7 +249,8 @@ take advantage of auto-creation of foreign key constraints, you can re-enable it
 
 === master (to be released)
 
-* Bug fix: Circular Reference/Stack Level Too Deep in Column#to_json.  Thanks to https://github.com/robdimarco for tracking down the problem
+* Add support for :deferrable => :initially_deferred (thanks to @bhavinkamani)
+* Bug fix: Circular Reference/Stack Level Too Deep in Column#to_json.  Thanks to @robdimarco for tracking down the problem
 * Bug fix: More robust handling of foreign keys with schema namespaces
 
 === 1.0.1

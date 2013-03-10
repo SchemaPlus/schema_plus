@@ -293,14 +293,14 @@ describe ActiveRecord::Migration do
       end
     end
 
-    it "should use default on_update action" do
-      with_fk_config(:on_update => :cascade) do
+    [false, true, :initially_deferred].each do |status|
+      it "should create and detect deferrable #{status.inspect}" do
         recreate_table @model do |t|
-          t.integer :user_id
+          t.integer :user_id,   :on_delete => :cascade, :deferrable => status
         end
-        @model.should reference.on(:user_id).on_update(:cascade)
+        @model.should reference.on(:user_id).deferrable(status)
       end
-    end
+    end unless SchemaPlusHelpers.mysql?
 
     it "should use default on_delete action" do
       with_fk_config(:on_delete => :cascade) do
