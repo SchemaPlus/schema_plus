@@ -67,7 +67,8 @@ module SchemaPlus
           dump << ", #{references_table_name.inspect}, [#{Array(references_column_names).collect{ |name| name.inspect }.join(', ')}]"
           dump << ", :on_update => :#{on_update}" if on_update
           dump << ", :on_delete => :#{on_delete}" if on_delete
-          dump << ", :deferrable => #{deferrable}" if deferrable
+          dump << ", :deferrable => #{deferrable}" if deferrable == true
+          dump << ", :deferrable => :#{deferrable}" if deferrable == :initially_deferred
           dump << ", :name => #{name.inspect}" if name
           dump << "\n"
           dump
@@ -79,6 +80,7 @@ module SchemaPlus
           sql << " ON UPDATE #{ACTIONS[on_update]}" if on_update
           sql << " ON DELETE #{ACTIONS[on_delete]}" if on_delete
           sql << " DEFERRABLE" if deferrable
+          sql << " INITIALLY DEFERRED" if deferrable == :initially_deferred
           sql
         end
 
