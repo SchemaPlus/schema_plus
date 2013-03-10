@@ -124,14 +124,20 @@ describe "with multiple schemas" do
   context "foreign key migrations" do
     before(:each) do
       define_schema do
+        create_table "items", :force => true do |t|
+        end
         create_table "schema_plus_test2.groups", :force => true do |t|
         end
         create_table "schema_plus_test2.members", :force => true do |t|
-          t.integer :group_id, :foreign_key => true
+          t.integer :item_id, :foreign_key => true
+          t.integer :group_id, :foreign_key => { references: "schema_plus_test2.groups" }
         end
       end
       class Group < ::ActiveRecord::Base
         self.table_name = "schema_plus_test2.groups"
+      end
+      class Item < ::ActiveRecord::Base
+        self.table_name = "items"
       end
       class Member < ::ActiveRecord::Base
         self.table_name = "schema_plus_test2.members"
@@ -144,6 +150,7 @@ describe "with multiple schemas" do
       ensure
         connection.execute 'DROP TABLE IF EXISTS schema_plus_test2.members'
         connection.execute 'DROP TABLE IF EXISTS schema_plus_test2.groups'
+        connection.execute 'DROP TABLE IF EXISTS items'
       end
     end
 
@@ -156,11 +163,15 @@ describe "with multiple schemas" do
     end
 
     it "should reference table in same schema" do
-      Member.foreign_keys.first.references_table_name.should == "schema_plus_test2.groups"
+      Member.foreign_keys.map(&:references_table_name).should include "schema_plus_test2.groups"
+    end
+
+    it "should reference table in default schema" do
+      Member.foreign_keys.map(&:references_table_name).should include "items"
     end
 
     it "should include the schema in the constraint name" do
-      Member.foreign_keys.first.name.should == "fk_schema_plus_test2_members_group_id"
+      Member.foreign_keys.map(&:name).should =~ ["fk_schema_plus_test2_members_group_id", "fk_schema_plus_test2_members_item_id"]
     end
   end
 
