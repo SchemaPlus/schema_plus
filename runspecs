@@ -97,7 +97,7 @@ combos.each_with_index do |combo, n|
     Tempfile.open('runspecs') do |file|
         system("(#{command}) 2>&1 | tee #{file.path}")
         file.rewind
-        errs << "ruby #{ruby}, rails #{rails}#{db_adapter && ", db_adapter #{db_adapter}"}" if file.readlines.grep(/^Failed examples/).any?
+        errs << "ruby #{ruby}, rails #{rails}#{db_adapter && ", db_adapter #{db_adapter}"}" if file.readlines.grep(/(^Failed examples)|(rake aborted)/).any?
     end
 end
 puts errs.any? ?  "\n*** #{errs.size} failures:\n\t#{errs.join("\n\t")}" : "\n*** #{combos.size > 1 ? 'all versions' : 'spec'} succeeded ***" unless o.dry_run
