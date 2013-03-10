@@ -30,6 +30,7 @@ module SchemaPlus::ActiveRecord
     def get_fk_args(table_name, column_name, column_options = {}, config = {}) #:nodoc:
 
       args = nil
+      column_name = column_name.to_s
 
       if column_options.has_key?(:foreign_key)
         args = column_options[:foreign_key]
@@ -49,15 +50,14 @@ module SchemaPlus::ActiveRecord
 
       return nil if args.nil?
 
-      args[:references] ||= case column_name.to_s
-                            when 'parent_id'
-                              [table_name, :id]
-                            when /^(.*)_id$/
-                              references_table_name = ActiveRecord::Base.pluralize_table_names ? $1.to_s.pluralize : $1
-                              [references_table_name, :id]
-                            else
-                              (ActiveRecord::Base.pluralize_table_names ? column_name.to_s.pluralize : column_name)
+      args[:references] ||= table_name if column_name == 'parent_id'
+
+      args[:references] ||= begin
+                              table_name = column_name.sub(/_id$/, '')
+                              table_name = table_name.pluralize if ActiveRecord::Base.pluralize_table_names
+                              table_name
                             end
+
       args[:references] = [args[:references], :id] unless args[:references].is_a? Array
 
       [:on_update, :on_delete, :deferrable].each do |shortcut|
