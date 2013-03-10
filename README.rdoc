@@ -253,15 +253,15 @@ take advantage of auto-creation of foreign key constraints, you can re-enable it
 
 === 1.0.1
 
-* README cleanups (thanks to https://github.com/denispeplin)
+* README cleanups (thanks to @denispeplin)
 
 * Now raises ArgumentError if index has both :case_sensitive => false and an :expression
 
 * Now creates consistent default name for foreign key constraints
 
-* Bug fix: respect :length keyword for index (thanks to https://github.com/teleological )
+* Bug fix: respect :length keyword for index (thanks to @teleological )
 
-* Bug fix: renaming table with multiple foreign key constraints (thanks to https://github.com/teleological )
+* Bug fix: renaming table with multiple foreign key constraints (thanks to @teleological )
 
 * Bug fix: don't dump :case_sensitive => false for index with an expression that includes "lower(name)".
 
@@ -271,33 +271,33 @@ take advantage of auto-creation of foreign key constraints, you can re-enable it
 
 * No longer support rails < 3.2 and ruby < 1.9
 
-* New feature: specify foreign key constraints using :foreign_key => { ... }, motivated in particular to support :name (suggested by https://github.com/daniele-m)
+* New feature: specify foreign key constraints using :foreign_key => { ... }, motivated in particular to support :name (suggested by @daniele-m)
 
 * New feature: create view using ActiveRecord relation
 
-* New feature: <tt>ActiveRecord::DB_DEFAULT</tt> (suggested by https://github.com/zaadjis)
+* New feature: <tt>ActiveRecord::DB_DEFAULT</tt> (suggested by @zaadjis)
 
 * New feature: renaming a table renames its indexes and constraints correspondingly.
 
-* Bug fix for postgres :kind index attribute (thanks to https://github.com/eugenebolshakov)
+* Bug fix for postgres :kind index attribute (thanks to @eugenebolshakov)
 
-* Sort fks in dump for stability (thanks to https://github.com/zephyr-dev)
+* Sort fks in dump for stability (thanks to @zephyr-dev)
 
 * Bug fix: change_column should maintain foreign key constraints even when config.foreign_keys.auto_create is false
 
-* Bug fix: quote default expressions in schema dump (thanks to https://github.com/jonleighton)
+* Bug fix: quote default expressions in schema dump (thanks to @jonleighton)
 
 * Bug fix: when removing a foreign key constraint, remove its auto-generated index.
 
-* Bug fix: SchemaDumper.ignore_tables needs to support regexps (suggested by https://github.com/mtalcott)
+* Bug fix: SchemaDumper.ignore_tables needs to support regexps (suggested by @mtalcott)
 
-* Bug fix: More robust handling of Postgresql schema_search path (suggested by https://github.com/mtalcott)
+* Bug fix: More robust handling of Postgresql schema_search path (suggested by @mtalcott)
 
-* Bug fix: Only get index, view, and foreign key information from current schema (thanks to https://github.com/bhavinkamani)
+* Bug fix: Only get index, view, and foreign key information from current schema (thanks to @bhavinkamani)
 
 === Earlier releases
 * 0.4.1 - Bug fix: don't attempt foreign key creation for t.belongs_to ... :polymorphic => true
-* 0.4.0 - Add :force for create_view (suggested by greglazarev[https://github.com/greglazarev]).  cleanups by betelgeuse[https://github.com/betelgeuse]
+* 0.4.0 - Add :force for create_view (suggested by @greglazarev).  cleanups by @betelgeuse
 * 0.3.4 - Bug fix: regression causing :default => false to be ignored
 * 0.3.3 - Bug fix: properly handle boolean defaults in mysql
 * 0.3.2 - Bug fix: make sure rake db:schema:load initializes schema_plus 
@@ -308,44 +308,8 @@ take advantage of auto-creation of foreign key constraints, you can re-enable it
 == History
 
 * SchemaPlus is derived from several "Red Hill On Rails" plugins
-  originally created by harukizaemon (https://github.com/harukizaemon)
-  with later contributions from 
-  * Michał Łomnicki (https://github.com/mlomnicki)
-  * Ronen Barzel (https://github.com/ronen)
-  * François Beausoleil (https://github.com/francois)
-  * Greg Barnett (https://github.com/greg-barnett)
-  * Luke Saunders (https://github.com/lukesaunders)
+  originally created by @harukizaemon
+ 
+* SchemaPlus was created in 2011 by Michał Łomnicki @mlomnicki and Ronen Barzel @ronen
 
-
-* SchemaPlus was created in 2011 by Michał Łomnicki and Ronen Barzel
-
-
-
-== Testing
-
-SchemaPlus is tested using rspec and rvm, with some hackery to test against
-multiple versions of rails and ruby and db adapters.  To run the tests,
-after you've forked & cloned: Make sure you have Postgresql and MySQL
-running.  You'll need db users with permissions to create and access
-databases (schema_plus_test and schema_plus_test2).  Default user is
-'postgres' for Postgresql and 'schema_plus' for MySQL; you can change them via
-        $ export POSTGRES_DB_USER = pgusername
-        $ export MYSQL_DB_USER = mysqlusername
-Then:
-  $ cd schema_plus
-  $ bundle install
-  $ rake create_databases
-  $ ./runspecs --install  # do this once, it runs 'bundle install' for all versions
-  $ ./runspecs # as many times as you like
-
-See <tt>./runspecs --help</tt> for more options.  In particular, to run
-rspec on a specific file or example (rather than running the full suite)
-you can do, e.g.
-
-  $ ./runspecs [other options] --rspec -- spec/migration_spec.rb -e 'default name'
-
-Code coverage results will be in coverage/index.html -- it should be at 100% coverage if you're running against all databases
-
-== License
-
-This gem is released under the MIT license.
+* Thanks to [all the contributors](https://github.com/lomba/schema_plus/graphs/contributors)
