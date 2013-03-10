@@ -129,7 +129,7 @@ describe "with multiple schemas" do
         create_table "schema_plus_test2.groups", :force => true do |t|
         end
         create_table "schema_plus_test2.members", :force => true do |t|
-          t.integer :item_id, :foreign_key => true
+          t.integer :item_id, :foreign_key => true unless SchemaPlusHelpers.mysql?
           t.integer :group_id, :foreign_key => { references: "schema_plus_test2.groups" }
         end
       end
@@ -168,10 +168,12 @@ describe "with multiple schemas" do
 
     it "should reference table in default schema" do
       Member.foreign_keys.map(&:references_table_name).should include "items"
-    end
+    end unless SchemaPlusHelpers.mysql?
 
     it "should include the schema in the constraint name" do
-      Member.foreign_keys.map(&:name).should =~ ["fk_schema_plus_test2_members_group_id", "fk_schema_plus_test2_members_item_id"]
+      expected_names = ["fk_schema_plus_test2_members_group_id"]
+      expected_names << "fk_schema_plus_test2_members_item_id" unless SchemaPlusHelpers.mysql?
+      Member.foreign_keys.map(&:name).should =~ expected_names
     end
   end
 
