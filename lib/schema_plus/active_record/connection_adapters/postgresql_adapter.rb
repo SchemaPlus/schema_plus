@@ -223,6 +223,7 @@ module SchemaPlus
         SELECT viewname
           FROM pg_views
          WHERE schemaname = ANY (current_schemas(false))
+           AND schemaname != 'postgis'
           SQL
         end
 

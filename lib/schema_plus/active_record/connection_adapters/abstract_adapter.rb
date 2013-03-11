@@ -22,9 +22,9 @@ module SchemaPlus
                       # * with mysql gem adapter is named MySQL
                       # * with mysql2 gem adapter is named Mysql2
                       # Here we handle this and hopefully futher adapter names
-                    when /^MySQL/i      then 'MysqlAdapter'
-                    when 'PostgreSQL'   then 'PostgresqlAdapter'
-                    when 'SQLite'       then 'Sqlite3Adapter'
+                    when /^MySQL/i                 then 'MysqlAdapter'
+                    when 'PostgreSQL', 'PostGIS'   then 'PostgresqlAdapter'
+                    when 'SQLite'                  then 'Sqlite3Adapter'
                     end or raise "SchemaPlus: Unsupported adapter name #{adapter_name.inspect}"
                       # use 'end or raise' instead of 'else raise' to get
                       # 100% C0 code coverage despite having no test case
