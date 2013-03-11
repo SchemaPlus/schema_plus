@@ -134,8 +134,8 @@ constraint, and specify or override automatic options, using the
 
 Here are some examples:
 
-    t.integer :author_id                                 # automatically references table 'authors', key id
-    t.integer :parent_id                                 # special name parent_id automatically references its own table (for tree nodes)
+    t.integer :author_id                              # automatically references table 'authors', key id
+    t.integer :parent_id                              # special name parent_id automatically references its own table (for tree nodes)
     t.integer :author_id, foreign_key: true           # same as default automatic behavior
     t.integer :author,    foreign_key: true           # non-conventional column name needs to force creation, table name is assumed to be 'authors'
     t.integer :author_id, foreign_key: false          # don't create a constraint
@@ -285,77 +285,57 @@ of foreign key constraints, you can re-enable it:
 *   Add support for drop_table :cascade => true.  Note that until now,
     :cascade was implicitly true.  So this change might break existing code
     that relied on the incorrect implicit cascade behavior.
-
 *   Add support for :deferrable => :initially_deferred (thanks to
-    @bhavinkamani)
-
+    [@bhavinkamani](https://github.com/bhavinkamani))
 *   Bug fix: Circular Reference/Stack Level Too Deep in Column#to_json. 
-    Thanks to @robdimarco for tracking down the problem
-
+    Thanks to [@robdimarco](https://github.com/robdimarco) for tracking down the problem
 *   Bug fix: More robust handling of foreign keys with schema namespaces
 
 
 ### 1.0.1
 
-*   README cleanups (thanks to @denispeplin)
-
+*   README cleanups (thanks to [@denispeplin](https://github.com/denispeplin))
 *   Now raises ArgumentError if index has both :case_sensitive => false and an
     :expression
-
 *   Now creates consistent default name for foreign key constraints
-
-*   Bug fix: respect :length keyword for index (thanks to @teleological )
-
+*   Bug fix: respect :length keyword for index (thanks to [@teleological](https://github.com/teleological))
 *   Bug fix: renaming table with multiple foreign key constraints (thanks to
-    @teleological )
-
+    [@teleological](https://github.com/teleological))
 *   Bug fix: don't dump :case_sensitive => false for index with an expression
     that includes "lower(name)".
-
 *   Bug fix: Properly dump multi-column case-insensitive indexes
 
 
 ### 1.0.0
 
 *   No longer support rails < 3.2 and ruby < 1.9
-
 *   New feature: specify foreign key constraints using :foreign_key => { ...
-    }, motivated in particular to support :name (suggested by @daniele-m)
-
+    }, motivated in particular to support :name (suggested by [@daniele-m](https://github.com/daniele-m))
 *   New feature: create view using ActiveRecord relation
-
-*   New feature: `ActiveRecord::DB_DEFAULT` (suggested by @zaadjis)
-
+*   New feature: `ActiveRecord::DB_DEFAULT` (suggested by
+    [@zaadjis](https://github.com/zaadjis))
 *   New feature: renaming a table renames its indexes and constraints
     correspondingly.
-
-*   Bug fix for postgres :kind index attribute (thanks to @eugenebolshakov)
-
-*   Sort fks in dump for stability (thanks to @zephyr-dev)
-
+*   Bug fix for postgres :kind index attribute (thanks to [@eugenebolshakov](https://github.com/eugenebolshakov))
+*   Sort fks in dump for stability (thanks to [@zephyr-dev](https://github.com/zephyr-dev))
 *   Bug fix: change_column should maintain foreign key constraints even when
     config.foreign_keys.auto_create is false
-
-*   Bug fix: quote default expressions in schema dump (thanks to @jonleighton)
-
+*   Bug fix: quote default expressions in schema dump (thanks to [@jonleighton](https://github.com/jonleighton))
 *   Bug fix: when removing a foreign key constraint, remove its auto-generated
     index.
-
 *   Bug fix: SchemaDumper.ignore_tables needs to support regexps (suggested by
-    @mtalcott)
-
+    [@mtalcott](https://github.com/mtalcott))
 *   Bug fix: More robust handling of Postgresql schema_search path (suggested
-    by @mtalcott)
-
+    by [@mtalcott](https://github.com/mtalcott))
 *   Bug fix: Only get index, view, and foreign key information from current
-    schema (thanks to @bhavinkamani)
+    schema (thanks to [@bhavinkamani](https://github.com/bhavinkamani))
 
 
 ### Earlier releases
 *   0.4.1 - Bug fix: don't attempt foreign key creation for t.belongs_to ...
     :polymorphic => true
-*   0.4.0 - Add :force for create_view (suggested by @greglazarev).  cleanups
-    by @betelgeuse
+*   0.4.0 - Add :force for create_view (suggested by [@greglazarev](https://github.com/greglazarev)).  cleanups
+    by [@betelgeuse](https://github.com/betelgeuse)
 *   0.3.4 - Bug fix: regression causing :default => false to be ignored
 *   0.3.3 - Bug fix: properly handle boolean defaults in mysql
 *   0.3.2 - Bug fix: make sure rake db:schema:load initializes schema_plus 
@@ -370,9 +350,9 @@ of foreign key constraints, you can re-enable it:
 ## History
 
 *   SchemaPlus is derived from several "Red Hill On Rails" plugins originally
-    created by @harukizaemon
+    created by [@harukizaemon](https://github.com/harukizaemon)
 
-*   SchemaPlus was created in 2011 by @mlomnicki and @ronen
+*   SchemaPlus was created in 2011 by [@mlomnicki](https://github.com/mlomnicki) and [@ronen](https://github.com/ronen)
 
 *   And [lots of
     contributors](https://github.com/lomba/schema_plus/graphs/contributors)
