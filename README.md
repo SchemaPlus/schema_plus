@@ -280,7 +280,7 @@ of foreign key constraints, you can re-enable it:
 
 ## Release notes:
 
-### master (to be released)
+### 1.1.0
 
 *   Add support for drop_table :cascade => true.  Note that until now,
     :cascade was implicitly true.  So this change might break existing code
