@@ -219,12 +219,13 @@ module SchemaPlus
         end
 
         def views(name = nil) #:nodoc:
-          query(<<-SQL, name).map { |row| row[0] }
-        SELECT viewname
-          FROM pg_views
-         WHERE schemaname = ANY (current_schemas(false))
-           AND schemaname != 'postgis'
+          sql = <<-SQL
+            SELECT viewname
+              FROM pg_views
+            WHERE schemaname = ANY (current_schemas(false))
           SQL
+          sql += " AND schemaname != 'postgis'" if adapter_name == 'PostGIS'
+          query(sql, name).map { |row| row[0] }
         end
 
         def view_definition(view_name, name = nil) #:nodoc:

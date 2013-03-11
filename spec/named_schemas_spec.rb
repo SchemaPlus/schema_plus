@@ -177,6 +177,42 @@ describe "with multiple schemas" do
     end
   end
 
+  if SchemaPlusHelpers.postgresql?
+    context "when using PostGIS" do
+      before(:all) do
+        begin
+          connection.execute "CREATE SCHEMA postgis"
+        rescue ActiveRecord::StatementInvalid => e
+          raise unless e.message =~ /already exists/
+        end
+      end
+
+      around (:each) do |example|
+        begin
+          connection.execute "SET search_path to '$user','public','postgis'"
+          example.run
+        ensure
+          connection.execute "SET search_path to '$user','public'"
+        end
+      end
+
+      before(:each) do
+        connection.stub :adapter_name => 'PostGIS'
+      end
+
+      it "should hide views in postgis schema" do
+        begin
+        connection.create_view "postgis.hidden", "select 1", :force => true
+        connection.create_view :myview, "select 2", :force => true
+        connection.views.should == ["myview"]
+        ensure
+          connection.execute 'DROP VIEW postgis.hidden' rescue nil
+          connection.execute 'DROP VIEW myview' rescue nil
+        end
+      end
+    end
+  end
+
 end
 
 
