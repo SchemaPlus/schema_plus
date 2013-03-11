@@ -47,6 +47,12 @@ module SchemaPlus
           exec_stmt_without_schema_plus(sql, name, binds, &block)
         end
 
+        # implement cascade by removing foreign keys
+        def drop_table(name, options={})
+          reverse_foreign_keys(name).each{ |foreign_key| remove_foreign_key(foreign_key.table_name, foreign_key.name) } if options[:cascade]
+          super
+        end
+
         def remove_foreign_key(table_name, foreign_key_name, options = {})
           execute "ALTER TABLE #{quote_table_name(table_name)} DROP FOREIGN KEY #{foreign_key_name}"
         end

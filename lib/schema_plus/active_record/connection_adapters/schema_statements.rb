@@ -22,6 +22,9 @@ module SchemaPlus::ActiveRecord::ConnectionAdapters
       config_options = {}
       options.keys.each { |key| config_options[key] = options.delete(key) if SchemaPlus.config.class.attributes.include? key }
 
+      # override rails' :force to cascade
+      drop_table(table, if_exists: true, cascade: true) if options.delete(:force)
+
       indexes = []
       create_table_without_schema_plus(table, options) do |table_definition|
         table_definition.schema_plus_config = SchemaPlus.config.merge(config_options)

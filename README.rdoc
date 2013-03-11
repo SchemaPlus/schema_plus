@@ -160,6 +160,24 @@ list of foreign key constraints defined for a given table, and
 <tt>connection.reverse_foreign_keys</tt> returns a list of foreign key constraints
 that reference a given table.  See SchemaPlus::ActiveRecord::ConnectionAdapters::ForeignKeyDefinition.
 
+=== Tables
+
+SchemaPlus extends rails' <tt>drop_table</tt> method to accept these options:
+
+  drop_table :table_name                    # same as rails
+  drop_table :table_name, if_exists: true   # no error if table doesn't exist
+  drop_table :table_name, cascade: true     # delete dependencies
+
+The <tt>:cascade</tt> option is particularly useful given foreign key
+constraints.  For Postgresql it is implemented using <tt>DROP
+TABLE...CASCADE</tt> which deletes all dependencies.  For MySQL, SchemaPlus
+implements the <tt>:cascade</tt> option to delete foreign key references,
+but does not delete any other dependencies.  For Sqlite3, the
+<tt>:cascade</tt> option is ignored, but Sqlite3 always drops
+tables with cascade-like behavior.
+
+SchemaPlus likewise extends <tt>create_table ... force: true</tt> to use <tt>:cascade</tt>
+
 === Views
 
 SchemaPlus provides support for creating and dropping views.  In a migration, a view can be created using a rails relation or literal sql:
@@ -249,8 +267,14 @@ take advantage of auto-creation of foreign key constraints, you can re-enable it
 
 === master (to be released)
 
+* Add support for drop_table :cascade => true.  Note that until now,
+  :cascade was implicitly true.  So this change might break existing code
+  that relied on the incorrect implicit cascade behavior.
+  
 * Add support for :deferrable => :initially_deferred (thanks to @bhavinkamani)
+
 * Bug fix: Circular Reference/Stack Level Too Deep in Column#to_json.  Thanks to @robdimarco for tracking down the problem
+
 * Bug fix: More robust handling of foreign keys with schema namespaces
 
 === 1.0.1

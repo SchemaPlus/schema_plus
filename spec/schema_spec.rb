@@ -36,7 +36,6 @@ describe ActiveRecord::Schema do
   protected
   def do_schema
     define_schema do
-      connection.tables.each do |table| drop_table table end
 
       create_table :users, :force => true do
       end

@@ -13,7 +13,6 @@ module SchemaPlus
       module AbstractAdapter
         def self.included(base) #:nodoc:
           base.alias_method_chain :initialize, :schema_plus
-          base.alias_method_chain :drop_table, :schema_plus
         end
 
         def initialize_with_schema_plus(*args) #:nodoc:
@@ -72,11 +71,16 @@ module SchemaPlus
           execute "ALTER TABLE #{quote_table_name(table_name)} DROP CONSTRAINT #{foreign_key_name}"
         end
 
-        def drop_table_with_schema_plus(name, options = {}) #:nodoc:
-          unless ::ActiveRecord::Base.connection.class.include?(SchemaPlus::ActiveRecord::ConnectionAdapters::Sqlite3Adapter)
-            reverse_foreign_keys(name).each { |foreign_key| remove_foreign_key(foreign_key.table_name, foreign_key.name) }
-          end
-          drop_table_without_schema_plus(name, options)
+        # Extends rails' drop_table to include these options:
+        #   :cascade
+        #   :if_exists
+        #
+        def drop_table(name, options = {})
+          sql = "DROP TABLE"
+          sql += " IF EXISTS" if options[:if_exists]
+          sql += " #{quote_table_name(name)}"
+          sql += " CASCADE" if options[:cascade]
+          execute sql
         end
 
         # called from individual adpaters, after renaming table from old

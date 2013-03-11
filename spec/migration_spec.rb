@@ -4,7 +4,7 @@ require File.expand_path(File.dirname(__FILE__) + '/spec_helper')
 describe ActiveRecord::Migration do
   include SchemaPlusHelpers
 
-  before(:all) do
+  before(:each) do
     define_schema(:auto_create => true) do
 
       create_table :users, :force => true do |t|

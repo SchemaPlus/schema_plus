@@ -38,7 +38,7 @@ def define_schema(config={}, &block)
     ActiveRecord::Migration.suppress_messages do
       ActiveRecord::Schema.define do
         connection.tables.each do |table|
-          drop_table table
+          drop_table table, :cascade => true
         end
         instance_eval &block
       end

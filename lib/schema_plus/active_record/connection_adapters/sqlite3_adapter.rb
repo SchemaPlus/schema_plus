@@ -48,6 +48,10 @@ module SchemaPlus
           raise NotImplementedError, "Sqlite3 does not support altering a table to remove foreign key constraints (table #{table_name.inspect} constraint #{foreign_key_name.inspect})"
         end
 
+        def drop_table(name, options={})
+          super(name, options.except(:cascade))
+        end
+
         def foreign_keys(table_name, name = nil)
           get_foreign_keys(table_name, name)
         end
