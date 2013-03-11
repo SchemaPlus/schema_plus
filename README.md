@@ -9,10 +9,7 @@ For added rails DRYness see also the gems
 [schema_associations](http://rubygems.org/gems/schema_associations) and
 [schema_validations](http://rubygems.org/gems/schema_validations)
 
-[<img
-src="https://secure.travis-ci.org/lomba/schema_plus.png"/>](http://travis-ci.o
-rg/lomba/schema_plus) [<img src="https://gemnasium.com/lomba/schema_plus.png"
-alt="Dependency Status" />](https://gemnasium.com/lomba/schema_plus)
+[<img src="https://secure.travis-ci.org/lomba/schema_plus.png"/>](http://travis-ci.org/lomba/schema_plus)[<img src="https://gemnasium.com/lomba/schema_plus.png" alt="Dependency Status" />](https://gemnasium.com/lomba/schema_plus)
 
 ## Compatibility
 
