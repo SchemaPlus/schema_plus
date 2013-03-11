@@ -287,6 +287,7 @@ of foreign key constraints, you can re-enable it:
     that relied on the incorrect implicit cascade behavior.
 *   Add support for :deferrable => :initially_deferred (thanks to
     [@bhavinkamani](https://github.com/bhavinkamani))
+*   Works with PostGIS (thanks to [@pete](https://github.com/pete))
 *   Bug fix: Circular Reference/Stack Level Too Deep in Column#to_json. 
     Thanks to [@robdimarco](https://github.com/robdimarco) for tracking down the problem
 *   Bug fix: More robust handling of foreign keys with schema namespaces
