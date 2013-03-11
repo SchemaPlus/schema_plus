@@ -336,6 +336,6 @@ take advantage of auto-creation of foreign key constraints, you can re-enable it
 * SchemaPlus is derived from several "Red Hill On Rails" plugins
   originally created by @harukizaemon
  
-* SchemaPlus was created in 2011 by Michał Łomnicki @mlomnicki and Ronen Barzel @ronen
+* SchemaPlus was created in 2011 by @mlomnicki and @ronen
 
-* Thanks to [all the contributors](https://github.com/lomba/schema_plus/graphs/contributors)
+* And {lots of contributors}[https://github.com/lomba/schema_plus/graphs/contributors] since then
