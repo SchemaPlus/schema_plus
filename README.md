@@ -277,6 +277,11 @@ of foreign key constraints, you can re-enable it:
 
 ## Release notes:
 
+### 1.1.1
+
+*   Dependency constraint to rails 3.2.12 max, since schema_plus doesn't
+    currently work with 3.2.13.rc2
+
 ### 1.1.0
 
 *   Add support for drop_table :cascade => true.  Note that until now,
