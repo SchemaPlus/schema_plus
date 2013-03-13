@@ -8,13 +8,13 @@ module SchemaPlus
       module Column
 
         attr_reader :default_expr
-        attr_writer :connection # connection gets set by SchemaPlus::ActiveRecord::Base::columns_with_schema_plus
+        attr_writer :model # model gets set by SchemaPlus::ActiveRecord::Base::columns_with_schema_plus
 
         # Returns the list of IndexDefinition instances for each index that
         # refers to this column.  Returns an empty list if there are no
         # such indexes.
         def indexes
-          @indexes ||= @connection.indexes.select{|index| index.columns.include? self.name}
+          @indexes ||= @model.indexes.select{|index| index.columns.include? self.name}
         end
 
         # If the column is in a unique index, returns a list of names of other columns in
@@ -53,9 +53,9 @@ module SchemaPlus
         end
 
         # The default as_jon includes all instance variables.  but
-        # @connection can't be dumped (it contains circular references)
+        # @model can't be dumped (it contains circular references)
         def as_json(options=nil)
-          instance_values.except "connection"
+          instance_values.except "model"
         end
       end
     end

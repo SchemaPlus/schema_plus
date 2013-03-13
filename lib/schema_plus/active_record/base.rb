@@ -21,7 +21,7 @@ module SchemaPlus
 
         def columns_with_schema_plus #:nodoc:
           columns = columns_without_schema_plus
-          columns.each do |column| column.connection = self end unless @schema_plus_extended_columns
+          columns.each do |column| column.model = self end unless @schema_plus_extended_columns
           columns
         end
 
