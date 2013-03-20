@@ -277,6 +277,9 @@ of foreign key constraints, you can re-enable it:
 
 ## Release notes:
 
+### 1.1.2
+*   Now works with rails 3.2.13 (fixed railtie initialization)
+
 ### 1.1.1
 
 *   Dependency constraint to rails 3.2.12 max, since schema_plus doesn't
