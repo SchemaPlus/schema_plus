@@ -1,7 +1,9 @@
 require File.expand_path(File.dirname(__FILE__) + '/spec_helper')
 
 describe "with multiple schemas" do
-  let (:connection) { ActiveRecord::Base.connection }
+  def connection
+    ActiveRecord::Base.connection
+  end
 
   before(:all) do
     newdb = case connection.adapter_name
