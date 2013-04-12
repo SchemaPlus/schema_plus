@@ -114,6 +114,7 @@ module SchemaPlus
 
       def dump_indexes(table) #:nodoc:
         @connection.indexes(table).collect{ |index|
+          next if !SchemaPlus.config.foreign_keys.auto_index && (@inline_fks[table].map(&:name).include?(index.name) || @backref_fks[table].map(&:name).include?(index.name))
           dump = "    t.index"
           unless index.columns.blank? 
             dump << " #{index.columns.inspect}, :name => #{index.name.inspect}"
