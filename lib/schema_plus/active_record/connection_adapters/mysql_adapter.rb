@@ -122,14 +122,14 @@ module SchemaPlus
 
         def views(name = nil)
           views = []
-          execute("SELECT table_name FROM information_schema.views WHERE table_schema = SCHEMA()", name).each do |row|
+          execute("SELECT table_name FROM information_schema.views WHERE table_schema = DATABASE()", name).each do |row|
             views << row[0]
           end
           views
         end
 
         def view_definition(view_name, name = nil)
-          result = execute("SELECT view_definition, check_option FROM information_schema.views WHERE table_schema = SCHEMA() AND table_name = #{quote(view_name)}", name)
+          result = execute("SELECT view_definition, check_option FROM information_schema.views WHERE table_schema = DATABASE() AND table_name = #{quote(view_name)}", name)
           return nil unless (result.respond_to?(:num_rows) ? result.num_rows : result.to_a.size) > 0 # mysql vs mysql2
           row = result.respond_to?(:fetch_row) ? result.fetch_row : result.first
           sql = row[0]
@@ -158,7 +158,7 @@ module SchemaPlus
         end
 
         def table_schema_sql(table_name)
-          table_name.to_s =~ /(.*)[.]/ ? "'#{$1}'" : "SCHEMA()"
+          table_name.to_s =~ /(.*)[.]/ ? "'#{$1}'" : "DATABASE()"
         end
 
         def table_name_without_namespace(table_name)
