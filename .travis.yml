@@ -6,6 +6,10 @@ gemfile:
   - gemfiles/rails-3.2/Gemfile.sqlite3
   - gemfiles/rails-3.2/Gemfile.mysql
   - gemfiles/rails-3.2/Gemfile.mysql2
+  - gemfiles/rails-4.0/Gemfile.postgresql
+  - gemfiles/rails-4.0/Gemfile.sqlite3
+  - gemfiles/rails-4.0/Gemfile.mysql
+  - gemfiles/rails-4.0/Gemfile.mysql2
 before_script:
   - rake create_databases
 after_script:
@@ -15,3 +19,9 @@ notifications:
   recipients:
     - michal.lomnicki@gmail.com
     - ronen@barzel.org
+matrix:
+  allow_failures:
+    - gemfile: gemfiles/rails-4.0/Gemfile.postgresql
+    - gemfile: gemfiles/rails-4.0/Gemfile.sqlite3
+    - gemfile: gemfiles/rails-4.0/Gemfile.mysql
+    - gemfile: gemfiles/rails-4.0/Gemfile.mysql2
