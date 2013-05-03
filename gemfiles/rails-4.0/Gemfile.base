@@ -1,0 +1,4 @@
+source 'https://rubygems.org'
+
+gemspec :path => File.expand_path('../../..', __FILE__)
+gem "rails", ">= 4.0.0", :github => "rails/rails"
