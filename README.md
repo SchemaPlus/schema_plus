@@ -9,11 +9,14 @@ For added rails DRYness see also the gems
 [schema_associations](http://rubygems.org/gems/schema_associations) and
 [schema_validations](http://rubygems.org/gems/schema_validations)
 
-[<img src="https://secure.travis-ci.org/lomba/schema_plus.png"/>](http://travis-ci.org/lomba/schema_plus)[<img src="https://gemnasium.com/lomba/schema_plus.png" alt="Dependency Status" />](https://gemnasium.com/lomba/schema_plus)
+[![Gem Version](https://badge.fury.io/rb/schema_plus.png)](http://badge.fury.io/rb/schema_plus)
+[![Build Status](https://secure.travis-ci.org/lomba/schema_plus.png)](http://travis-ci.org/lomba/schema_plus)
+[![Dependency Status](https://gemnasium.com/lomba/schema_plus.png)](https://gemnasium.com/lomba/schema_plus)
 
 ## Compatibility
 
 SchemaPlus supports all combinations of:
+
 *   rails 3.2 (up through 3.2.12)
 *   PostgreSQL, MySQL (using mysql or mysql2 gem), or SQLite3 (using sqlite3
     3.7.7 which has foreign key support)
