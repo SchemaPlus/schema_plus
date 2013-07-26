@@ -150,8 +150,11 @@ module SchemaPlus
             # case-insensitive index
             if expression
               rexp_lower = %r{\blower\(\(?([^)]+)(\)::text)?\)}
-              if expression.match /^(#{rexp_lower}(, )?)+$/
-                column_names = expression.scan(rexp_lower).map(&:first)
+              if expression.match /\A#{rexp_lower}(?:, #{rexp_lower})*\z/
+                case_insensitive_columns = expression.scan(rexp_lower).map(&:first)
+                column_names = index_keys.map do |index_key|
+                  index_key == '0' ? case_insensitive_columns.shift : columns[index_key]
+                end
                 case_sensitive = false
               end
             end

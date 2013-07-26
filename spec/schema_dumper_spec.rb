@@ -22,6 +22,8 @@ describe "Schema dump" do
           t.integer :user_id
           t.integer :first_comment_id
           t.string :string_no_default
+          t.integer :short_id
+          t.string :str_short
         end
 
         create_table :comments, :force => true do |t|
@@ -165,6 +167,12 @@ describe "Schema dump" do
     it "should define case insensitive index" do
       with_index Post, [:body, :string_no_default], :case_sensitive => false do
         dump_posts.should match(to_regexp(%q{t.index ["body", "string_no_default"], :name => "index_posts_on_body_and_string_no_default", :case_sensitive => false}))
+      end
+    end
+
+    it "should define case insensitive index with mixed ids and strings" do
+      with_index Post, [:user_id, :str_short, :short_id, :body], :case_sensitive => false do
+        dump_posts.should match(to_regexp(%q{t.index ["user_id", "str_short", "short_id", "body"], :name => "index_posts_on_user_id_and_str_short_and_short_id_and_body", :case_sensitive => false}))
       end
     end
 
