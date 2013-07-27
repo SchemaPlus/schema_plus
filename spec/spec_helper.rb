@@ -9,6 +9,7 @@ $LOAD_PATH.unshift(File.join(File.dirname(__FILE__), '..', 'lib'))
 
 require 'rspec'
 require 'active_record'
+require 'arjdbc' if defined? JRUBY_VERSION
 require 'schema_plus'
 require 'connection'
 
