@@ -95,7 +95,15 @@ module SchemaPlus
             option_strings = Hash[column_names.map {|name| [name, '']}]
             option_strings = add_index_sort_order(option_strings, column_names, options)
 
-            quoted_column_names = column_names.map { |e| (options[:case_sensitive] == false && e.to_s !~ /_id$/ ? "LOWER(#{quote_column_name(e)})" : quote_column_name(e)) + option_strings[e] }
+            if options[:case_sensitive] == false
+              caseable_columns = columns(table_name).select { |col| [:string, :text].include?(col.type) }.map(&:name)
+              quoted_column_names = column_names.map do |col_name|
+                (caseable_columns.include?(col_name.to_s) ? "LOWER(#{quote_column_name(col_name)})" : quote_column_name(col_name)) + option_strings[col_name]
+              end
+            else
+              quoted_column_names = column_names.map { |col_name| quote_column_name(col_name) + option_strings[col_name] }
+            end
+
             expression = "(#{quoted_column_names.join(', ')})"
             expression = "USING #{kind} #{expression}" if kind
 
