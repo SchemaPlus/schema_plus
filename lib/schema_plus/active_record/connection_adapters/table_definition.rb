@@ -67,6 +67,7 @@ module SchemaPlus::ActiveRecord::ConnectionAdapters
     include SchemaPlus::ActiveRecord::ColumnOptionsHandler
 
     attr_accessor :schema_plus_config #:nodoc:
+    attr_reader :foreign_keys #:nodoc:
 
     def self.included(base) #:nodoc:
       base.class_eval do
@@ -77,19 +78,33 @@ module SchemaPlus::ActiveRecord::ConnectionAdapters
         alias_method_chain :references, :schema_plus
         alias_method_chain :belongs_to, :schema_plus
         alias_method_chain :primary_key, :schema_plus
-        alias_method_chain :to_sql, :schema_plus
+
+        if ::ActiveRecord::VERSION::MAJOR.to_i < 4
+          alias_method_chain :to_sql, :schema_plus
+        end
       end
     end
         
     def initialize_with_schema_plus(*args) #:nodoc:
       initialize_without_schema_plus(*args)
       @foreign_keys = []
-      @indexes = []
+      if ::ActiveRecord::VERSION::MAJOR.to_i < 4
+        @indexes = []
+      else
+        @indexes = {}
+      end
     end
 
-    def primary_key_with_schema_plus(name, options = {}) #:nodoc:
-      column(name, :primary_key, options)
+    if ::ActiveRecord::VERSION::MAJOR.to_i < 4
+      def primary_key_with_schema_plus(name, options = {}) #:nodoc:
+        column(name, :primary_key, options)
+      end
+    else
+      def primary_key_with_schema_plus(name, type = :primary_key, options = {}) #:nodoc:
+        column(name, type, options.merge(:primary_key => true))
+      end
     end
+
 
     # need detect :polymorphic at this level, because rails strips it out
     # before calling #column (twice, once for _id and once for _type)
@@ -123,7 +138,11 @@ module SchemaPlus::ActiveRecord::ConnectionAdapters
 
     # Define an index for the current 
     def index(column_name, options={})
-      @indexes << ::ActiveRecord::ConnectionAdapters::IndexDefinition.new(self.name, column_name, options)
+      if ::ActiveRecord::VERSION::MAJOR.to_i < 4
+        @indexes << ::ActiveRecord::ConnectionAdapters::IndexDefinition.new(self.name, column_name, options)
+      else
+        @indexes[column_name] = options
+      end
     end
 
     def foreign_key(column_names, references_table_name, references_column_names, options = {})
@@ -165,7 +184,11 @@ module SchemaPlus::ActiveRecord::ConnectionAdapters
     # Determines if an indexes is queued to be created.  Called from
     # ColumnOptionsHandler as part of checking whether to auto-create an index
     def index_exists?(_, column_name, options={})
-      @indexes.find{|index| index.table == self.name && index.columns == Array.wrap(column_name) && options.all?{|k, v| index.send(k) == v}}
+      if ::ActiveRecord::VERSION::MAJOR.to_i < 4
+        @indexes.find{|index| index.table == self.name && index.columns == Array.wrap(column_name) && options.all?{|k, v| index.send(k) == v}}
+      else
+        @indexes.find {|index_column_name, index_options| Array.wrap(index_column_name) == Array.wrap(column_name) && options.all?{|k, v| index_options[k] == v} }
+      end
     end
 
 
