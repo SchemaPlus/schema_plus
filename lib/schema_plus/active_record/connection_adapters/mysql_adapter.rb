@@ -15,6 +15,12 @@ module SchemaPlus
             alias_method_chain :rename_table, :schema_plus
             alias_method_chain :exec_stmt, :schema_plus rescue nil # only defined for mysql not mysql2
           end
+
+          if ::ActiveRecord::VERSION::MAJOR.to_i >= 4
+            base.class_eval do
+              include ::ActiveRecord::ConnectionAdapters::SchemaStatements::AddIndex
+            end
+          end
         end
 
         def tables_with_schema_plus(name=nil, *args)
