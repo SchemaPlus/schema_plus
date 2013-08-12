@@ -24,6 +24,11 @@ module SchemaPlus
           ::ActiveRecord::ConnectionAdapters::SQLiteColumn.send(:include, SQLiteColumn) unless ::ActiveRecord::ConnectionAdapters::SQLiteColumn.include?(SQLiteColumn)
         end
 
+        def initialize(*args)
+          super
+          execute('PRAGMA FOREIGN_KEYS = ON')
+        end
+
         def indexes_with_schema_plus(table_name, name = nil)
           indexes = indexes_without_schema_plus(table_name, name)
           exec_query("SELECT name, sql FROM sqlite_master WHERE type = 'index'").map do |row|
@@ -70,10 +75,6 @@ module SchemaPlus
         end
 
         protected
-
-        def post_initialize
-          execute('PRAGMA FOREIGN_KEYS = 1')
-        end
 
         def get_foreign_keys(table_name = nil, name = nil)
           results = execute(<<-SQL, name)
