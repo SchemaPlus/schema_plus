@@ -22,6 +22,17 @@ describe "Schema dump" do
           t.integer :user_id
           t.integer :first_comment_id
           t.string :string_no_default
+          t.integer :short_id
+          t.string :str_short
+          t.integer :integer_col
+          t.float :float_col
+          t.decimal :decimal_col
+          t.datetime :datetime_col
+          t.timestamp :timestamp_col
+          t.time :time_col
+          t.date :date_col
+          t.binary :binary_col
+          t.boolean :boolean_col
         end
 
         create_table :comments, :force => true do |t|
@@ -80,19 +91,19 @@ describe "Schema dump" do
     if SchemaPlusHelpers.postgresql?
       it "should dump the default hash expr as now()" do
         with_additional_column Post, :posted_at, :datetime, :default => :now do
-          dump_posts.should match(to_regexp(%q{t.datetime "posted_at", :default => \{ :expr => "now()" \}}))
+          dump_posts.should match(%r{t\.datetime\s+"posted_at",\s*(?:default:|:default =>)\s*\{\s*(?:expr:|:expr =>)\s*"now\(\)"\s*\}})
         end
       end
 
       it "should dump the default hash expr as CURRENT_TIMESTAMP" do
         with_additional_column Post, :posted_at, :datetime, :default => {:expr => 'date \'2001-09-28\''} do
-          dump_posts.should match(%r{t.datetime "posted_at",\s*:default => '2001-09-28 00:00:00'})
+          dump_posts.should match(%r{t\.datetime\s+"posted_at",\s*(?:default:|:default =>)\s*'2001-09-28 00:00:00'})
         end
       end
 
       it "can dump a complex default expression" do
         with_additional_column Post, :name, :string, :default => {:expr => 'substring(random()::text from 3 for 6)'} do
-          dump_posts.should match(%r{t.string\s+"name", :default => { :expr => "\\"substring\\"\(\(random\(\)\)::text, 3, 6\)" }})
+          dump_posts.should match(%r{t\.string\s+"name",\s*(?:default:|:default =>)\s*{\s*(?:expr:|:expr =>)\s*"\\"substring\\"\(\(random\(\)\)::text, 3, 6\)"\s*}})
         end
       end
     end
@@ -100,19 +111,19 @@ describe "Schema dump" do
     if SchemaPlusHelpers.sqlite3?
       it "should dump the default hash expr as now" do
         with_additional_column Post, :posted_at, :datetime, :default => :now do
-          dump_posts.should match(to_regexp(%q{t.datetime "posted_at", :default => \{ :expr => "(DATETIME('now'))" \}}))
+          dump_posts.should match(%r{t\.datetime\s+"posted_at",\s*(?:default:|:default =>)\s*\{\s*(?:expr:|:expr =>)\s*"\(DATETIME\('now'\)\)"\s*\}})
         end
       end
 
       it "should dump the default hash expr string as now" do
         with_additional_column Post, :posted_at, :datetime, :default => { :expr => "(DATETIME('now'))" } do
-          dump_posts.should match(to_regexp(%q{t.datetime "posted_at", :default => \{ :expr => "(DATETIME('now'))" \}}))
+          dump_posts.should match(%r{t\.datetime\s+"posted_at",\s*(?:default:|:default =>)\s*\{\s*(?:expr:|:expr =>)\s*"\(DATETIME\('now'\)\)"\s*\}})
         end
       end
 
       it "should dump the default value normally" do
         with_additional_column Post, :posted_at, :string, :default => "now" do
-          dump_posts.should match(%r{t.string  "posted_at",\s*:default => "now"})
+          dump_posts.should match(%r{t\.string\s*"posted_at",\s*(?:default:|:default =>)\s*"now"})
         end
       end
     end
@@ -123,7 +134,7 @@ describe "Schema dump" do
     ActiveRecord::Migration.suppress_messages do
       ActiveRecord::Migration.change_column_default :posts, :string_no_default, nil
     end
-    dump_posts.should match(%r{t.string\s+"string_no_default"\s*$})
+    dump_posts.should match(%r{t\.string\s+"string_no_default"\s*$})
   end
 
   it "should include foreign_key options" do
@@ -165,6 +176,21 @@ describe "Schema dump" do
     it "should define case insensitive index" do
       with_index Post, [:body, :string_no_default], :case_sensitive => false do
         dump_posts.should match(to_regexp(%q{t.index ["body", "string_no_default"], :name => "index_posts_on_body_and_string_no_default", :case_sensitive => false}))
+      end
+    end
+
+    it "should define case insensitive index with mixed ids and strings" do
+      with_index Post, [:user_id, :str_short, :short_id, :body], :case_sensitive => false do
+        dump_posts.should match(to_regexp(%q{t.index ["user_id", "str_short", "short_id", "body"], :name => "index_posts_on_user_id_and_str_short_and_short_id_and_body", :case_sensitive => false}))
+      end
+    end
+
+    [:integer, :float, :decimal, :datetime, :timestamp, :time, :date, :binary, :boolean].each do |col_type|
+      col_name = "#{col_type}_col"
+      it "should define case insensitive index that includes an #{col_type}" do
+        with_index Post, [:user_id, :str_short, col_name, :body], :case_sensitive => false do
+          dump_posts.should match(to_regexp(%Q!t.index ["user_id", "str_short", "#{col_name}", "body"], :name => "index_posts_on_user_id_and_str_short_and_#{col_name}_and_body", :case_sensitive => false!))
+        end
       end
     end
 

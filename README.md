@@ -171,6 +171,15 @@ list of foreign key constraints defined for a given table, and
 that reference a given table.  See
 SchemaPlus::ActiveRecord::ConnectionAdapters::ForeignKeyDefinition.
 
+#### Foreign Key Issues
+
+Foreign keys can cause issues for Rails utilities that delete or load data
+because referential integrity imposes a sequencing requirement that those
+utilities may not take into consideration.  Monkey-patching may be required
+to address some of these issues.  The Wiki article [Making yaml_db work with
+foreign key constraints in PostgreSQL](https://github.com/lomba/schema_plus/wiki/Making-yaml_db-work-with-foreign-key-constraints-in-PostgreSQL)
+has some information that may be of assistance in resolving these issues.
+
 ### Tables
 
 SchemaPlus extends rails' `drop_table` method to accept these options:
