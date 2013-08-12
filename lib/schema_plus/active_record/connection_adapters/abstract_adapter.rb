@@ -31,7 +31,6 @@ module SchemaPlus
                       # for this.
           adapter_module = SchemaPlus::ActiveRecord::ConnectionAdapters.const_get(adapter)
           self.class.send(:include, adapter_module) unless self.class.include?(adapter_module)
-          self.post_initialize if self.respond_to? :post_initialize
           extend(SchemaPlus::ActiveRecord::ForeignKeys)
         end
 

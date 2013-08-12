@@ -5,7 +5,7 @@ require 'ostruct'
 require 'shellwords'
 require 'tempfile'
 
-RUBY_VERSIONS = %W[1.9.2 1.9.3]
+RUBY_VERSIONS = %W[1.9.3 2.0.0]
 RAILS_VERSIONS = %W[3.2 4.0]
 DB_ADAPTERS = %W[postgresql mysql mysql2 sqlite3]
 
@@ -69,6 +69,16 @@ combos = o.ruby_versions.product(o.rails_versions, o.db_adapters).map{|product| 
     end
 }
 
+def ruby_version_selector(ruby)
+    if @use_rvm ||= system("which -s rvm")
+        "rvm #{ruby} do"
+    else
+        @versions ||= `rbenv versions --bare`.split
+        version = @versions.select{|v| v.start_with? ruby}.last || abort("no ruby version '#{ruby}' installed in rbenv")
+        "RBENV_VERSION=#{version}"
+    end
+end
+
 
 GEMFILES_DIR = File.expand_path('../gemfiles', __FILE__)
 errs = []
@@ -88,7 +98,7 @@ combos.each_with_index do |combo, n|
               "bundle exec rake #{db_adapter}:spec"
           end
 
-    command = %Q{BUNDLE_GEMFILE="#{File.join(GEMFILES_DIR, "rails-#{rails}", "Gemfile.#{db_adapter}")}" rvm #{ruby} do #{cmd} #{Shellwords.join(ARGV)}}
+    command = %Q{BUNDLE_GEMFILE="#{File.join(GEMFILES_DIR, "rails-#{rails}", "Gemfile.#{db_adapter}")}" #{ruby_version_selector(ruby)} #{cmd} #{Shellwords.join(ARGV)}}
 
     puts "\n\n*** ruby version #{ruby} - rails version #{rails} - db adapter: #{db_adapter}  [#{n+1} of #{combos.size}]\n\n#{command}"
 
