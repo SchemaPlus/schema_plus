@@ -51,8 +51,6 @@ module SchemaPlus
           base.class_eval do
             if ::ActiveRecord::VERSION::MAJOR.to_i < 4
               remove_method :indexes
-            else
-              ::ActiveRecord::ConnectionAdapters::PostgreSQLAdapter::SchemaStatements.send(:remove_method, :indexes)
             end
             alias_method_chain :rename_table, :schema_plus
             alias_method_chain :exec_cache, :schema_plus
