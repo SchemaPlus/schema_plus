@@ -30,7 +30,9 @@ module SchemaPlus::ActiveRecord::ConnectionAdapters
       end
       create_table_without_schema_plus(table, options) do |table_definition|
         table_definition.schema_plus_config = SchemaPlus.config.merge(config_options)
-        table_definition.name = table
+        if ::ActiveRecord::VERSION::MAJOR.to_i < 4
+          table_definition.name = table
+        end
         yield table_definition if block_given?
         if ::ActiveRecord::VERSION::MAJOR.to_i < 4
           indexes = table_definition.indexes
