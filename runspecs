@@ -65,6 +65,7 @@ Combo = Struct.new(:ruby, :rails, :db_adapter)
 combos = o.ruby_versions.product(o.rails_versions, o.db_adapters).map{|product| Combo.new(*product)}.select {|combo|
     case
     when combo.rails >= "3.2" && combo.ruby <= "1.8.7" then false  # no longer happens, just keeping it as an example
+    when combo.rails >= "4" && combo.db_adapter == "mysql" then false
     else true
     end
 }
