@@ -17,15 +17,15 @@ For added rails DRYness see also the gems
 
 SchemaPlus supports all combinations of:
 
-*   Rails 3.2 (up through 3.2.14) or Rails 4
+*   Rails 3.2 or Rails 4
 *   PostgreSQL, MySQL (using mysql2 gem; mysql gem only supported with Rails
-    3.2), or SQLite3 (using sqlite3 3.7.7 which has foreign key support)
+    3.2), or SQLite3 (using sqlite3 >= 3.7.7 which has foreign key support)
 *   MRI Ruby 1.9.3 or 2.0.0
 
 
 Note: As of version 1.0.0, SchemaPlus no longer supports Rails 2.3, 3.0 and
-3.1, and also no longer supports MRI Ruby 1.8.7 or 1.9.2.  The last version
-to support them was 0.4.1.
+3.1, and also no longer supports MRI Ruby 1.8.7; the last version
+to support them was 0.4.1.  As of version 1.2.0, SchemaPlus no longer supports MRI Ruby 1.9.2
 
 ## Installation
 
@@ -289,6 +289,10 @@ of foreign key constraints, you can re-enable it:
     end
 
 ## Release notes:
+
+### 1.2.0
+*   Now works with rails 4, due to efforts of [@tovodeverett](https://github.com/tovodeverett)
+*   Test against MRI ruby 2.0.0, no longer test against 1.9.2
 
 ### 1.1.2
 *   Now works with rails 3.2.13 (fixed railtie initialization)
