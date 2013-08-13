@@ -1,3 +1,7 @@
+if defined?(JRUBY_VERSION)
+  require 'schema_plus/active_record/connection_adapters/arjdbc_pre_postgresql_patch'
+end
+
 module SchemaPlus
   module ActiveRecord
     module ConnectionAdapters
@@ -166,7 +170,7 @@ module SchemaPlus
                 case_sensitive = false
               end
             end
-            
+
             # add info on sort order for columns (only desc order is explicitly specified, asc is the default)
             desc_order_columns = inddef.scan(/(\w+) DESC/).flatten
             orders = desc_order_columns.any? ? Hash[column_names.map {|column| [column, desc_order_columns.include?(column) ? :desc : :asc]}] : {}
@@ -300,4 +304,8 @@ module SchemaPlus
       end
     end
   end
+end
+
+if defined?(JRUBY_VERSION)
+  require 'schema_plus/active_record/connection_adapters/arjdbc_post_postgresql_patch'
 end

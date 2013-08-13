@@ -1,3 +1,7 @@
+if defined?(JRUBY_VERSION)
+  require 'schema_plus/active_record/connection_adapters/arjdbc_pre_patch'
+end
+
 module SchemaPlus
   module ActiveRecord
     module ConnectionAdapters

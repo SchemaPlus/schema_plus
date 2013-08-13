@@ -1,6 +1,7 @@
 rvm:
   - 1.9.2
   - 1.9.3
+  - jruby
 gemfile:
   - gemfiles/rails-3.2/Gemfile.postgresql
   - gemfiles/rails-3.2/Gemfile.sqlite3
@@ -25,3 +26,11 @@ matrix:
     - gemfile: gemfiles/rails-4.0/Gemfile.sqlite3
     - gemfile: gemfiles/rails-4.0/Gemfile.mysql
     - gemfile: gemfiles/rails-4.0/Gemfile.mysql2
+    - rvm: jruby
+      gemfile: gemfiles/rails-3.2/Gemfile.postgresql
+    - rvm: jruby
+      gemfile: gemfiles/rails-3.2/Gemfile.sqlite3
+    - rvm: jruby
+      gemfile: gemfiles/rails-3.2/Gemfile.mysql
+    - rvm: jruby
+      gemfile: gemfiles/rails-3.2/Gemfile.mysql2

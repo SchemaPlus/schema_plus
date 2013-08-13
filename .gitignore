@@ -1,6 +1,9 @@
 ## MAC OS
 .DS_Store
 
+## RubyMine
+/.idea
+
 ## TEXTMATE
 *.tmproj
 tmtags
