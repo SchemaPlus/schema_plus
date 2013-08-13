@@ -17,14 +17,15 @@ For added rails DRYness see also the gems
 
 SchemaPlus supports all combinations of:
 
-*   rails 3.2 (up through 3.2.12)
-*   PostgreSQL, MySQL (using mysql or mysql2 gem), or SQLite3 (using sqlite3
-    3.7.7 which has foreign key support)
-*   MRI ruby 1.9.2 or 1.9.3
+*   Rails 3.2 (up through 3.2.14) or Rails 4
+*   PostgreSQL, MySQL (using mysql2 gem; mysql gem only supported with Rails
+    3.2), or SQLite3 (using sqlite3 3.7.7 which has foreign key support)
+*   MRI Ruby 1.9.3 or 2.0.0
 
 
-Note: As of version 1.0.0, SchemaPlus no longer supports rails 2.3, 3.0 and
-3.1 and ruby 1.8.7.  The last version to support them was 0.4.1.
+Note: As of version 1.0.0, SchemaPlus no longer supports Rails 2.3, 3.0 and
+3.1, and also no longer supports MRI Ruby 1.8.7 or 1.9.2.  The last version
+to support them was 0.4.1.
 
 ## Installation
 
@@ -43,8 +44,8 @@ Here some examples that show off the high points.  For full details see the
 
 ### Indexes
 
-With standard rails migrations, you specify indexes separately from the table
-definition:
+With standard Rails 3 migrations, you specify indexes separately from the
+table definition:
 
     # Standard Rails approach...
     create_table :parts do |t|
@@ -90,7 +91,7 @@ which is equivalent to
 
     t.string :product_code,   index: { unique: true }
 
-If you're using Postgresql, SchemaPlus provides support for conditions,
+If you're using PostgreSQL, SchemaPlus provides support for conditions,
 expressions, index methods, and case-insensitive indexes:
 
     t.string :last_name,  index: { conditions: 'deleted_at IS NULL' }

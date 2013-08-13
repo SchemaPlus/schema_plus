@@ -21,7 +21,11 @@ module SchemaPlus
             alias_method_chain :indexes, :schema_plus
             alias_method_chain :rename_table, :schema_plus
           end
-          ::ActiveRecord::ConnectionAdapters::SQLiteColumn.send(:include, SQLiteColumn) unless ::ActiveRecord::ConnectionAdapters::SQLiteColumn.include?(SQLiteColumn)
+          if ::ActiveRecord::VERSION::MAJOR.to_i < 4
+            ::ActiveRecord::ConnectionAdapters::SQLiteColumn.send(:include, SQLiteColumn) unless ::ActiveRecord::ConnectionAdapters::SQLiteColumn.include?(SQLiteColumn)
+          else
+            ::ActiveRecord::ConnectionAdapters::SQLite3Column.send(:include, SQLiteColumn) unless ::ActiveRecord::ConnectionAdapters::SQLite3Column.include?(SQLiteColumn)
+          end
         end
 
         def initialize(*args)

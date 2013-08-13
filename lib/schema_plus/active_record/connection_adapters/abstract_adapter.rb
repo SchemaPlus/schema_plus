@@ -170,6 +170,28 @@ module SchemaPlus
         # return a DATETIME object for the current time.
         def sql_for_function(function_name) raise "Internal Error: Connection adapter didn't override abstract function"; end
 
+
+        if ::ActiveRecord::VERSION::MAJOR.to_i >= 4
+          module SchemaCreation
+            def self.included(base) #:nodoc:
+              base.alias_method_chain :visit_TableDefinition, :schema_plus
+            end
+
+            def visit_TableDefinition_with_schema_plus(o) #:nodoc:
+              create_sql = visit_TableDefinition_without_schema_plus(o)
+              last_chunk = ") #{o.options}"
+
+              unless create_sql.end_with?(last_chunk)
+                raise "Internal Error: Can't find '#{last_chunk}' at end of '#{create_sql}' - Rails internals have changed!"
+              end
+
+              unless o.foreign_keys.empty?
+                create_sql[create_sql.size - last_chunk.size, 0] = ', ' + o.foreign_keys.map(&:to_sql) * ', '
+              end
+              create_sql
+            end
+          end
+        end
       end
     end
   end
