@@ -31,6 +31,13 @@ module SchemaPlus
                       # for this.
           adapter_module = SchemaPlus::ActiveRecord::ConnectionAdapters.const_get(adapter)
           self.class.send(:include, adapter_module) unless self.class.include?(adapter_module)
+
+          if "#{::ActiveRecord::VERSION::MAJOR}.#{::ActiveRecord::VERSION::MINOR}".to_r >= "4.1".to_r
+            self.class.const_get(:SchemaCreation).send(:include, adapter_module.const_get(:AddColumnOptions))
+          else
+            self.class.send(:include, adapter_module.const_get(:AddColumnOptions))
+          end
+
           extend(SchemaPlus::ActiveRecord::ForeignKeys)
         end
 
@@ -113,26 +120,73 @@ module SchemaPlus
           false
         end
 
-        def add_column_options!(sql, options)
-          if options_include_default?(options)
-            default = options[:default]
-            if default.is_a? Hash
-              value = default[:value]
-              expr = sql_for_function(default[:expr]) || default[:expr] if default[:expr]
+        module AddColumnOptions
+          def self.included(base) #:nodoc:
+            base.alias_method_chain :add_column_options!, :schema_plus
+          end
+
+          def add_column_options_with_schema_plus!(sql, options)
+            if options_include_default?(options)
+              default = options[:default]
+
+              if default.is_a? Hash
+                value = default[:value]
+                expr = sql_for_function(default[:expr]) || default[:expr] if default[:expr]
+              else
+                value = default
+                expr = sql_for_function(default)
+              end
+
+              if expr
+                raise ArgumentError, "Invalid default expression" unless default_expr_valid?(expr)
+                sql << " DEFAULT #{expr}"
+                # must explicitly check for :null to allow change_column to work on migrations
+                if options[:null] == false
+                  sql << " NOT NULL"
+                end
+              else
+                add_column_options_without_schema_plus!(sql, options.merge(default: value))
+              end
             else
-              value = default
-              expr = sql_for_function(default)
-            end
-            if expr
-              raise ArgumentError, "Invalid default expression" unless default_expr_valid?(expr)
-              sql << " DEFAULT #{expr}"
-            else
-              sql << " DEFAULT #{quote(value, options[:column])}" unless value.nil?
+              add_column_options_without_schema_plus!(sql, options)
             end
           end
-          # must explicitly check for :null to allow change_column to work on migrations
-          if options[:null] == false
-            sql << " NOT NULL"
+
+          #####################################################################
+          #
+          # The functions below here are abstract; each subclass should
+          # define them all. Defining them here only for reference.
+
+          # (abstract) Return true if the passed expression can be used as a column
+          # default value.  (For most databases the specific expression
+          # doesn't matter, and the adapter's function would return a
+          # constant true if default expressions are supported or false if
+          # they're not.)
+          def default_expr_valid?(expr) raise "Internal Error: Connection adapter didn't override abstract function"; end
+
+          # (abstract) Return SQL definition for a given canonical function_name symbol.
+          # Currently, the only function to support is :now, which should
+          # return a DATETIME object for the current time.
+          def sql_for_function(function_name) raise "Internal Error: Connection adapter didn't override abstract function"; end
+        end
+
+        module VisitTableDefinition
+          def self.included(base) #:nodoc:
+            base.alias_method_chain :visit_TableDefinition, :schema_plus
+          end
+
+          def visit_TableDefinition_with_schema_plus(o) #:nodoc:
+            create_sql = visit_TableDefinition_without_schema_plus(o)
+            last_chunk = ") #{o.options}"
+
+            unless create_sql.end_with?(last_chunk)
+              raise "Internal Error: Can't find '#{last_chunk}' at end of '#{create_sql}' - Rails internals have changed!"
+            end
+
+            unless o.foreign_keys.empty?
+              create_sql[create_sql.size - last_chunk.size, 0] = ', ' + o.foreign_keys.map(&:to_sql) * ', '
+            end
+            create_sql
           end
         end
 
@@ -141,7 +195,7 @@ module SchemaPlus
         # The functions below here are abstract; each subclass should
         # define them all. Defining them here only for reference.
         #
-        
+
         # (abstract) Returns the names of all views, as an array of strings
         def views(name = nil) raise "Internal Error: Connection adapter didn't override abstract function"; [] end
 
@@ -157,41 +211,6 @@ module SchemaPlus
         # (abstract) Return the ForeignKeyDefinition objects for foreign key
         # constraints defined on other tables that reference this table
         def reverse_foreign_keys(table_name, name = nil) raise "Internal Error: Connection adapter didn't override abstract function"; [] end
-
-        # (abstract) Return true if the passed expression can be used as a column
-        # default value.  (For most databases the specific expression
-        # doesn't matter, and the adapter's function would return a
-        # constant true if default expressions are supported or false if
-        # they're not.)
-        def default_expr_valid?(expr) raise "Internal Error: Connection adapter didn't override abstract function"; end
-
-        # (abstract) Return SQL definition for a given canonical function_name symbol.
-        # Currently, the only function to support is :now, which should
-        # return a DATETIME object for the current time.
-        def sql_for_function(function_name) raise "Internal Error: Connection adapter didn't override abstract function"; end
-
-
-        if ::ActiveRecord::VERSION::MAJOR.to_i >= 4
-          module SchemaCreation
-            def self.included(base) #:nodoc:
-              base.alias_method_chain :visit_TableDefinition, :schema_plus
-            end
-
-            def visit_TableDefinition_with_schema_plus(o) #:nodoc:
-              create_sql = visit_TableDefinition_without_schema_plus(o)
-              last_chunk = ") #{o.options}"
-
-              unless create_sql.end_with?(last_chunk)
-                raise "Internal Error: Can't find '#{last_chunk}' at end of '#{create_sql}' - Rails internals have changed!"
-              end
-
-              unless o.foreign_keys.empty?
-                create_sql[create_sql.size - last_chunk.size, 0] = ', ' + o.foreign_keys.map(&:to_sql) * ', '
-              end
-              create_sql
-            end
-          end
-        end
       end
     end
   end

@@ -125,9 +125,16 @@ module SchemaPlus
     ::ActiveRecord::ConnectionAdapters::SchemaStatements.send(:include, SchemaPlus::ActiveRecord::ConnectionAdapters::SchemaStatements)
     ::ActiveRecord::ConnectionAdapters::TableDefinition.send(:include, SchemaPlus::ActiveRecord::ConnectionAdapters::TableDefinition)
 
-    if ::ActiveRecord::VERSION::MAJOR.to_i >= 4
-      ::ActiveRecord::ConnectionAdapters::AbstractAdapter::SchemaCreation.send(:include, SchemaPlus::ActiveRecord::ConnectionAdapters::AbstractAdapter::SchemaCreation)
+    if "#{::ActiveRecord::VERSION::MAJOR}.#{::ActiveRecord::VERSION::MINOR}".to_r >= "4.1".to_r
+      ::ActiveRecord::ConnectionAdapters::AbstractAdapter::SchemaCreation.send(:include, SchemaPlus::ActiveRecord::ConnectionAdapters::AbstractAdapter::AddColumnOptions)
+    else
+      ::ActiveRecord::ConnectionAdapters::AbstractAdapter.send(:include, SchemaPlus::ActiveRecord::ConnectionAdapters::AbstractAdapter::AddColumnOptions)
     end
+
+    if ::ActiveRecord::VERSION::MAJOR.to_i >= 4
+      ::ActiveRecord::ConnectionAdapters::AbstractAdapter::SchemaCreation.send(:include, SchemaPlus::ActiveRecord::ConnectionAdapters::AbstractAdapter::VisitTableDefinition)
+    end
+
   end
 
   def self.insert #:nodoc:

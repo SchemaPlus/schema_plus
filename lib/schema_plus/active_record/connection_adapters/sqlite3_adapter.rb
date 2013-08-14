@@ -21,6 +21,7 @@ module SchemaPlus
             alias_method_chain :indexes, :schema_plus
             alias_method_chain :rename_table, :schema_plus
           end
+
           if ::ActiveRecord::VERSION::MAJOR.to_i < 4
             ::ActiveRecord::ConnectionAdapters::SQLiteColumn.send(:include, SQLiteColumn) unless ::ActiveRecord::ConnectionAdapters::SQLiteColumn.include?(SQLiteColumn)
           else
@@ -116,14 +117,16 @@ module SchemaPlus
           foreign_keys
         end
 
-        def default_expr_valid?(expr)
-          true # arbitrary sql is okay
-        end
+        module AddColumnOptions
+          def default_expr_valid?(expr)
+            true # arbitrary sql is okay
+          end
 
-        def sql_for_function(function)
-          case function
-            when :now
-              "(DATETIME('now'))"
+          def sql_for_function(function)
+            case function
+              when :now
+                "(DATETIME('now'))"
+            end
           end
         end
       end
