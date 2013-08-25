@@ -15,18 +15,15 @@ module SchemaPlus
 
         def initialize(name, default, sql_type = nil, null = true)
           if default.is_a? Hash
-            if default[:expr]
-              @default_expr = default[:expr]
-            end
-            default = nil
+            raise ArgumentError, "This code path should be impossible" unless default[:expr]
+            @default_expr = default[:expr]
+            default = ActiveRecord::DB_DEFAULT
           end
           super(name, default, sql_type, null)
         end
 
         module ClassMethods
           def extract_value_from_default_with_schema_plus(default)
-
-
             value = extract_value_from_default_without_schema_plus(default)
 
             # in some cases (e.g. if change_column_default(table, column,
