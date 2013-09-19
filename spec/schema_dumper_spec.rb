@@ -91,7 +91,7 @@ describe "Schema dump" do
     if SchemaPlusHelpers.postgresql?
       it "should dump the default hash expr as now()" do
         with_additional_column Post, :posted_at, :datetime, :default => :now do
-          dump_posts.should match(%r{t\.datetime\s+"posted_at",\s*(?:default:|:default =>)\s*\{\s*(?:expr:|:expr =>)\s*"now\(\)"\s*\}})
+          dump_posts.should match(%r{t\.datetime\s+"posted_at",\s*(?:default:|:default =>)\s*\{\s*(?:expr:|:expr\s*=>)\s*"now\(\)"\s*\}})
         end
       end
 
@@ -103,7 +103,7 @@ describe "Schema dump" do
 
       it "can dump a complex default expression" do
         with_additional_column Post, :name, :string, :default => {:expr => 'substring(random()::text from 3 for 6)'} do
-          dump_posts.should match(%r{t\.string\s+"name",\s*(?:default:|:default =>)\s*{\s*(?:expr:|:expr =>)\s*"\\"substring\\"\(\(random\(\)\)::text, 3, 6\)"\s*}})
+          dump_posts.should match(%r{t\.string\s+"name",\s*(?:default:|:default\s*=>)\s*{\s*(?:expr:|:expr\s*=>)\s*"\\"substring\\"\(\(random\(\)\)::text, 3, 6\)"\s*}})
         end
       end
     end
