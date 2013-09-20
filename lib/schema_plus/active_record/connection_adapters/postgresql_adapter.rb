@@ -6,9 +6,13 @@ module SchemaPlus
         # Extracts the value from a PostgreSQL column default definition.
         def self.included(base) #:nodoc:
           base.extend ClassMethods
-          base.class_eval do
-            class << self
-              alias_method_chain :extract_value_from_default, :schema_plus
+          if defined?(JRUBY_VERSION)
+            base.alias_method_chain :default_value, :schema_plus
+          else
+            base.class_eval do
+              class << self
+                alias_method_chain :extract_value_from_default, :schema_plus
+              end
             end
           end
         end
@@ -23,16 +27,22 @@ module SchemaPlus
           super(name, default, sql_type, null)
         end
 
+        def default_value_with_schema_plus(default)
+          value = default_value_without_schema_plus(default)
+          self.class.convert_default_value(default, value)
+        end
+
         module ClassMethods
           def extract_value_from_default_with_schema_plus(default)
-
-
             value = extract_value_from_default_without_schema_plus(default)
+            convert_default_value(default, value)
+          end
 
-            # in some cases (e.g. if change_column_default(table, column,
-            # nil) is used), postgresql will return NULL::xxxxx (rather
-            # than nil) for a null default -- make sure we treat it as nil,
-            # not as a function.
+          # in some cases (e.g. if change_column_default(table, column,
+          # nil) is used), postgresql will return NULL::xxxxx (rather
+          # than nil) for a null default -- make sure we treat it as nil,
+          # not as a function.
+          def convert_default_value(default, value)
             default = nil if value.nil? && default =~ /\ANULL::(?:character varying|bpchar|text)\z/m
 
             if value.nil? && !default.nil?
@@ -49,11 +59,11 @@ module SchemaPlus
 
         def self.included(base) #:nodoc:
           base.class_eval do
-            if ::ActiveRecord::VERSION::MAJOR.to_i < 4
+            if ::ActiveRecord::VERSION::MAJOR.to_i < 4 && !defined?(JRUBY_VERSION)
               remove_method :indexes
             end
             alias_method_chain :rename_table, :schema_plus
-            alias_method_chain :exec_cache, :schema_plus
+            alias_method_chain :exec_cache, :schema_plus unless defined?(JRUBY_VERSION)
           end
           ::ActiveRecord::ConnectionAdapters::PostgreSQLColumn.send(:include, PostgreSQLColumn) unless ::ActiveRecord::ConnectionAdapters::PostgreSQLColumn.include?(PostgreSQLColumn)
         end
@@ -130,7 +140,7 @@ module SchemaPlus
           result = query(<<-SQL, name)
 
            SELECT distinct i.relname, d.indisunique, d.indkey, pg_get_indexdef(d.indexrelid), t.oid,
-                  m.amname, pg_get_expr(d.indpred, t.oid), pg_get_expr(d.indexprs, t.oid)
+                  m.amname, pg_get_expr(d.indpred, t.oid) as conditions, pg_get_expr(d.indexprs, t.oid) as expression
            FROM pg_class t
            INNER JOIN pg_index d ON t.oid = d.indrelid
            INNER JOIN pg_class i ON d.indexrelid = i.oid
@@ -147,7 +157,7 @@ module SchemaPlus
             index_keys = indkey.split(" ")
 
             columns = Hash[query(<<-SQL, "Columns for index #{index_name} on #{table_name}")]
-            SELECT a.attnum, a.attname
+            SELECT CAST(a.attnum as VARCHAR), a.attname
             FROM pg_attribute a
             WHERE a.attrelid = #{oid}
             AND a.attnum IN (#{index_keys.join(",")})
@@ -168,7 +178,7 @@ module SchemaPlus
                 case_sensitive = false
               end
             end
-            
+
             # add info on sort order for columns (only desc order is explicitly specified, asc is the default)
             desc_order_columns = inddef.scan(/(\w+) DESC/).flatten
             orders = desc_order_columns.any? ? Hash[column_names.map {|column| [column, desc_order_columns.include?(column) ? :desc : :asc]}] : {}
@@ -183,6 +193,10 @@ module SchemaPlus
                                                                     :expression => expression)
           end
         end
+
+        def query(*args)
+          select(*args).map(&:values)
+        end if defined?(JRUBY_VERSION)
 
         def rename_table_with_schema_plus(oldname, newname) #:nodoc:
           rename_table_without_schema_plus(oldname, newname)
