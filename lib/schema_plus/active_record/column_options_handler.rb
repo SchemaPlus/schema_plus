@@ -19,6 +19,10 @@ module SchemaPlus::ActiveRecord
       end
       column_index(table_name, column_name, index) if index
 
+      # create check constraint on the field if requested explicitly
+      check = column_options[:check]
+      add_column_check_constraint(table_name, column_name, check) if check
+
       if fk_args
         references = fk_args.delete(:references)
         add_foreign_key(table_name, column_name, references.first, references.last, fk_args)

@@ -181,6 +181,18 @@ to address some of these issues.  The Wiki article [Making yaml_db work with
 foreign key constraints in PostgreSQL](https://github.com/lomba/schema_plus/wiki/Making-yaml_db-work-with-foreign-key-constraints-in-PostgreSQL)
 has some information that may be of assistance in resolving these issues.
 
+### Check Constraints
+
+SchemaPlus adds support for check constraints. You can either write check
+constraint expression youself in SQL:
+
+    t.string :type, check: "type = 'mytype'"
+
+Or you can pass an array of possible column values:
+
+    t.string :type, check: ["Type1", "Type2", "Type3"]
+
+
 ### Tables
 
 SchemaPlus extends rails' `drop_table` method to accept these options:
