@@ -27,11 +27,15 @@ module SchemaPlus
           tables_without_schema_plus(name, *args) - views(name)
         end
 
-        def remove_column_with_schema_plus(table_name, column_name)
+        def remove_column_with_schema_plus(table_name, column_name, type=nil, options={})
           foreign_keys(table_name).select { |foreign_key| foreign_key.column_names.include?(column_name.to_s) }.each do |foreign_key|
             remove_foreign_key(table_name, foreign_key.name)
           end
-          remove_column_without_schema_plus(table_name, column_name)
+          if ::ActiveRecord::VERSION::MAJOR.to_i >= 4
+            remove_column_without_schema_plus(table_name, column_name, type, options)
+          else
+            remove_column_without_schema_plus(table_name, column_name)
+          end
         end
 
         def rename_table_with_schema_plus(oldname, newname)
@@ -59,8 +63,22 @@ module SchemaPlus
           super
         end
 
-        def remove_foreign_key(table_name, foreign_key_name, options = {})
-          execute "ALTER TABLE #{quote_table_name(table_name)} DROP FOREIGN KEY #{foreign_key_name}"
+        def remove_index_sql(table_name, options)
+          return [] if options.delete(:if_exists) and not index_exists?(table_name, options)
+          super
+        end
+
+        def remove_foreign_key_sql(table_name, *args)
+          case ret = super
+          when String then ret.sub(/DROP CONSTRAINT/, 'DROP FOREIGN KEY')
+          else ret
+          end
+        end
+
+        def remove_foreign_key(table_name, *args)
+          case sql = remove_foreign_key_sql(table_name, *args)
+          when String then execute "ALTER TABLE #{quote_table_name(table_name)} #{sql}"
+          end
         end
 
         def foreign_keys(table_name, name = nil)

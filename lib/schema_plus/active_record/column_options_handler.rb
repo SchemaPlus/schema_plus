@@ -73,7 +73,7 @@ module SchemaPlus::ActiveRecord
     def remove_foreign_key_if_exists(table_name, column_name) #:nodoc:
       foreign_keys = ActiveRecord::Base.connection.foreign_keys(table_name.to_s) rescue [] # no fks if table_name doesn't exist
       fk = foreign_keys.detect { |fk| fk.table_name == table_name.to_s && fk.column_names == Array(column_name).collect(&:to_s) }
-      remove_foreign_key(table_name, fk.name) if fk
+      remove_foreign_key(table_name, fk.column_names, fk.references_table_name, fk.references_column_names) if fk
     end
 
 
@@ -86,7 +86,7 @@ module SchemaPlus::ActiveRecord
 
     def remove_auto_index_if_exists(table_name, column_name)
       name = auto_index_name(table_name, column_name)
-      remove_index(table_name, :name => name) if index_exists?(table_name, column_name, :name => name)
+      remove_index(table_name, :name => name, :column => column_name, :if_exists => true)
     end
 
     def auto_index_name(table_name, column_name)

@@ -76,6 +76,7 @@ module SchemaPlus::ActiveRecord::ConnectionAdapters
       # an error.)
       #
       def add_index_with_schema_plus(table, columns, options={})
+        options.delete(:if_exists)
         add_index_without_schema_plus(table, columns, options)
       rescue => e
         SchemaStatements.add_index_exception_handler(self, table, columns, options, e)

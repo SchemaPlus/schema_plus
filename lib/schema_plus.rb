@@ -13,6 +13,7 @@ require 'schema_plus/active_record/connection_adapters/abstract_adapter'
 require 'schema_plus/active_record/connection_adapters/column'
 require 'schema_plus/active_record/connection_adapters/foreign_key_definition'
 require 'schema_plus/active_record/connection_adapters/index_definition'
+require 'schema_plus/active_record/migration/command_recorder'
 require 'schema_plus/railtie' if defined?(Rails::Railtie)
 
 module SchemaPlus
@@ -124,6 +125,7 @@ module SchemaPlus
     ::ActiveRecord::ConnectionAdapters::IndexDefinition.send(:include, SchemaPlus::ActiveRecord::ConnectionAdapters::IndexDefinition)
     ::ActiveRecord::ConnectionAdapters::SchemaStatements.send(:include, SchemaPlus::ActiveRecord::ConnectionAdapters::SchemaStatements)
     ::ActiveRecord::ConnectionAdapters::TableDefinition.send(:include, SchemaPlus::ActiveRecord::ConnectionAdapters::TableDefinition)
+    ::ActiveRecord::Migration::CommandRecorder.send(:include, SchemaPlus::ActiveRecord::Migration::CommandRecorder)
 
     if "#{::ActiveRecord::VERSION::MAJOR}.#{::ActiveRecord::VERSION::MINOR}".to_r >= "4.1".to_r
       ::ActiveRecord::ConnectionAdapters::AbstractAdapter::SchemaCreation.send(:include, SchemaPlus::ActiveRecord::ConnectionAdapters::AbstractAdapter::AddColumnOptions)

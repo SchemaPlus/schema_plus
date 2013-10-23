@@ -386,6 +386,66 @@ describe ActiveRecord::Migration do
 
   end
 
+  context "when table is changed" do
+    before(:each) do
+      @model = Post
+    end
+    [false, true].each do |bulk|
+      suffix = bulk ? ' with :bulk option' : ""
+
+      it "should create an index if specified on column"+suffix do
+        change_table(@model, :bulk => bulk) do |t|
+          t.integer :state, :index => true
+        end
+        @model.should have_index.on(:state)
+      end
+
+      unless SchemaPlusHelpers.sqlite3?
+
+        it "should create a foreign key constraint"+suffix do
+          change_table(@model, :bulk => bulk) do |t|
+            t.integer :user_id
+          end
+          @model.should reference(:users, :id).on(:user_id)
+        end
+
+        context "migrate down" do
+          it "should remove a foreign key constraint"+suffix do
+            Comment.reset_column_information
+            Comment.should reference(:users, :id).on(:user_id)
+            migration = Class.new ::ActiveRecord::Migration do
+              define_method(:change) {
+                change_table("comments", :bulk => bulk) do |t|
+                  t.integer :user_id
+                end
+              }
+            end
+            ActiveRecord::Migration.suppress_messages do
+              migration.migrate(:down)
+            end
+            Comment.reset_column_information
+            Comment.should_not reference(:users, :id).on(:user_id)
+          end
+        end if ActiveRecord::VERSION::MAJOR >= 4
+
+        it "should create a foreign key constraint using :references"+suffix do
+          change_table(@model, :bulk => bulk) do |t|
+            t.references :user
+          end
+          @model.should reference(:users, :id).on(:user_id)
+        end
+
+        it "should create a foreign key constraint using :belongs_to"+suffix do
+          change_table(@model, :bulk => bulk) do |t|
+            t.belongs_to :user
+          end
+          @model.should reference(:users, :id).on(:user_id)
+        end
+      end
+    end
+  end
+
+
   unless SchemaPlusHelpers.sqlite3?
 
     context "when column is added" do
@@ -736,7 +796,12 @@ describe ActiveRecord::Migration do
     model.reset_column_information
   end
 
-
+  def change_table(model, opts={}, &block)
+    ActiveRecord::Migration.suppress_messages do
+      ActiveRecord::Migration.change_table model.table_name, opts, &block
+    end
+    model.reset_column_information
+  end
 
 end
 

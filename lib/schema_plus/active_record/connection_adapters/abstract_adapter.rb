@@ -13,6 +13,7 @@ module SchemaPlus
       module AbstractAdapter
         def self.included(base) #:nodoc:
           base.alias_method_chain :initialize, :schema_plus
+          base.alias_method_chain :remove_index, :schema_plus
         end
 
         def initialize_with_schema_plus(*args) #:nodoc:
@@ -64,8 +65,19 @@ module SchemaPlus
         # it's created.  If you're using Sqlite3, this method will raise an
         # error.)
         def add_foreign_key(table_name, column_names, references_table_name, references_column_names, options = {})
-          foreign_key = ForeignKeyDefinition.new(options[:name] || ForeignKeyDefinition.default_name(table_name, column_names), table_name, column_names, ::ActiveRecord::Migrator.proper_table_name(references_table_name), references_column_names, options[:on_update], options[:on_delete], options[:deferrable])
-          execute "ALTER TABLE #{quote_table_name(table_name)} ADD #{foreign_key.to_sql}"
+          foreign_key_sql = add_foreign_key_sql(table_name, column_names, references_table_name, references_column_names, options)
+          execute "ALTER TABLE #{quote_table_name(table_name)} #{foreign_key_sql}"
+        end
+
+        # called directly by AT's bulk_change_table, for migration
+        # change_table :name, :bulk => true { ... }
+        def add_foreign_key_sql(table_name, column_names, references_table_name, references_column_names, options = {}) #:nodoc:
+          foreign_key = _build_foreign_key(table_name, column_names, references_table_name, references_column_names, options)
+          "ADD #{foreign_key.to_sql}"
+        end
+
+        def _build_foreign_key(table_name, column_names, references_table_name, references_column_names, options = {}) #:nodoc:
+          ForeignKeyDefinition.new(options[:name] || ForeignKeyDefinition.default_name(table_name, column_names), table_name, column_names, ::ActiveRecord::Migrator.proper_table_name(references_table_name), references_column_names, options[:on_update], options[:on_delete], options[:deferrable])
         end
 
         # Remove a foreign key constraint
@@ -73,8 +85,28 @@ module SchemaPlus
         # (NOTE: Sqlite3 does not support altering a table to remove
         # foreign-key constraints.  If you're using Sqlite3, this method will
         # raise an error.)
-        def remove_foreign_key(table_name, foreign_key_name)
-          execute "ALTER TABLE #{quote_table_name(table_name)} DROP CONSTRAINT #{foreign_key_name}"
+        def remove_foreign_key(table_name, *args)
+          case sql = remove_foreign_key_sql(table_name, *args)
+          when String then execute "ALTER TABLE #{quote_table_name(table_name)} #{sql}"
+          end
+        end
+
+        def remove_foreign_key_sql(table_name, *args)
+          column_names, references_table_name, references_column_names, options = args
+          options ||= {}
+          foreign_key_name = case
+                             when args.length == 1      then args.first
+                             when options[:name]        then options[:name]
+                             else
+                               test_fk = _build_foreign_key(table_name, column_names, references_table_name, references_column_names, options)
+                               if foreign_keys(table_name).detect { |fk| fk == test_fk }
+                                 test_fk.name
+                               else
+                                 raise "SchemaPlus: no foreign key constraint found on #{table_name.inspect} matching #{args.inspect}" unless options[:if_exists]
+                                 nil
+                               end
+                             end
+          foreign_key_name ? "DROP CONSTRAINT #{foreign_key_name}" : []  # hack -- return empty array rather than nil, so that result will disappear when caller flattens but doesn't compact
         end
 
         # Extends rails' drop_table to include these options:
@@ -87,6 +119,14 @@ module SchemaPlus
           sql += " #{quote_table_name(name)}"
           sql += " CASCADE" if options[:cascade]
           execute sql
+        end
+
+        # Extends rails' remove_index to include this options:
+        #   :if_exists
+        def remove_index_with_schema_plus(table_name, options={})
+          return if options.delete(:if_exists) and not index_name_exists?(table_name, options[:name] || index_name(table_name, options), false)
+          options.delete(:column) if options[:name] and ::ActiveRecord::VERSION::MAJOR < 4
+          remove_index_without_schema_plus(table_name, options)
         end
 
         # called from individual adpaters, after renaming table from old
