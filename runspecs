@@ -70,10 +70,24 @@ combos = o.ruby_versions.product(o.rails_versions, o.db_adapters).map{|product| 
     end
 }
 
-def ruby_version_selector(ruby)
-    if @use_rvm ||= system("which -s rvm")
+if system("which -s rvm")
+    # using rvm
+    def ruby_version_selector(ruby)
         "rvm #{ruby} do"
-    else
+    end
+else
+    # using rbenv.
+    #
+    # because we're running within a ruby program that was launched by
+    # rbenv, we already have various environment variables set up.  need
+    # strip those out so that the forked shell can run a diifferent ruby
+    # version than the one we're in now.
+    ENV['PATH'] = ENV['PATH'].split(':').reject{|dir| dir =~ %r{/rbenv/(?!shims)}}.join(':')
+    ENV['GEM_PATH'] = ENV['GEM_PATH'].split(':').reject{|dir| dir =~ %r{/rbenv}}.join(':')
+    ENV['RBENV_DIR'] = nil
+    ENV['RBENV_HOOK_PATH'] = nil
+
+    def ruby_version_selector(ruby)
         @versions ||= `rbenv versions --bare`.split
         version = @versions.select{|v| v.start_with? ruby}.last || abort("no ruby version '#{ruby}' installed in rbenv")
         "RBENV_VERSION=#{version}"
