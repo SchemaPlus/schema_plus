@@ -180,6 +180,31 @@ describe "Index definition" do
 
     end
 
+    context "when index has a non-btree type" do
+      before(:each) do
+        migration.execute "CREATE INDEX users_login_index ON users USING hash(login)"
+        User.reset_column_information
+        @index = User.indexes.detect { |i| i.name == "users_login_index" }
+      end
+
+      it "exists" do
+        @index.should_not be_nil
+      end
+
+      it "defines kind" do
+        @index.kind.should == "hash"
+      end
+
+      it "does not define expression" do
+        @index.expression.should be_nil
+      end
+
+      it "does not define order" do
+        @index.orders.should be_blank
+      end
+    end
+
+
   end # of postgresql specific examples
 
   protected

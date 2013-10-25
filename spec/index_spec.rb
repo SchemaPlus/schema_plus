@@ -103,7 +103,7 @@ describe "add_index" do
 
     it "should allow to specify actual expression only" do
       add_index(:users, :expression => "upper(login)", :name => 'users_login_index')
-      @index = User.indexes.detect { |i| i.expression.present? }
+      @index = User.indexes.detect { |i| i.name == 'users_login_index' }
       @index.expression.should == "upper((login)::text)"
     end
 

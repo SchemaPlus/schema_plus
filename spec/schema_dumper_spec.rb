@@ -9,7 +9,7 @@ describe "Schema dump" do
     end
     ActiveRecord::Migration.suppress_messages do
       ActiveRecord::Schema.define do
-        connection.tables.each do |table| drop_table table end
+        connection.tables.each do |table| drop_table table, :cascade => true end
 
         create_table :users, :force => true do |t|
           t.string :login
@@ -164,8 +164,8 @@ describe "Schema dump" do
   unless SchemaPlusHelpers.mysql?
 
     it "should include index order" do
-      with_index Post, [:user_id, :first_comment_id], :order => { :user_id => :asc, :first_comment_id => :desc } do
-        dump_posts.should match(%r{t.index \["user_id", "first_comment_id"\],.*:order => {"user_id" => :asc, "first_comment_id" => :desc}})
+      with_index Post, [:user_id, :first_comment_id, :short_id], :order => { :user_id => :asc, :first_comment_id => :desc } do
+        dump_posts.should match(%r{t.index \["user_id", "first_comment_id", "short_id"\],.*:order => {"user_id" => :asc, "first_comment_id" => :desc, "short_id" => :asc}})
       end
     end
 
@@ -216,6 +216,13 @@ describe "Schema dump" do
     it "should define kind" do
       with_index Post, :name => "posts_body_index", :expression => "USING hash (body)" do
         dump_posts.should match(to_regexp(%q{t.index ["body"], :name => "posts_body_index", :kind => "hash"}))
+      end
+    end
+
+    it "should not include index order for non-ordered index types" do
+      with_index Post, :user_id, :kind => :hash do
+        dump_posts.should match(to_regexp(%q{t.index ["user_id"], :name => "index_posts_on_user_id", :kind => "hash"}))
+        dump_posts.should_not match(%r{:order})
       end
     end
 
