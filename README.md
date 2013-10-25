@@ -118,6 +118,8 @@ SchemaPlus also tidies some index-related behavior:
 *   If you rename a table, indexes named using rails' automatic naming
     convention will be renamed correspondingly.
 
+*   `remove_index` now accepts an `:if_exists` option to prevent errors from attempting to remove non-existent indexes.
+
 
 ### Foreign Key Constraints
 
@@ -289,6 +291,14 @@ of foreign key constraints, you can re-enable it:
     end
 
 ## Release notes:
+
+### Master branch (to be released)
+
+* Bug fix for change_table
+* Bug fix for schema_dump postgresql non-btree indexes
+* Added :if_exists option for remove_index
+* Initial jruby support (rails 3.2, postgresql), due to efforts of [@donv](https://github.com/donv)
+* Preliminatry groundwork for rails 4.1, due to efforts of [@tovodeverett](https://github.com/tovodeverett)
 
 ### 1.2.0
 *   Now works with rails 4, due to efforts of [@tovodeverett](https://github.com/tovodeverett)
