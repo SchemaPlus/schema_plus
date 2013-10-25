@@ -150,7 +150,7 @@ describe ActiveRecord::Migration do
 
     it "should create an index if specified on column" do
       recreate_table(@model) do |t|
-        t.integer :state, :index => true 
+        t.integer :state, :index => true
       end
       @model.should have_index.on(:state)
     end
@@ -203,7 +203,7 @@ describe ActiveRecord::Migration do
       end
       @model.should have_index.on([:state, :city])
     end
-    
+
     it "should auto-index foreign keys only" do
       recreate_table(@model) do |t|
         t.integer :user_id
@@ -234,7 +234,7 @@ describe ActiveRecord::Migration do
     end
 
     it "should override foreign key auto_index positively" do
-      with_fk_config(:auto_index => false) do 
+      with_fk_config(:auto_index => false) do
         recreate_table @model, :foreign_keys => {:auto_index => true} do |t|
           t.integer :user_id
         end
@@ -365,7 +365,7 @@ describe ActiveRecord::Migration do
 
     unless SchemaPlusHelpers.mysql?
       it "should override foreign key auto_index negatively" do
-        with_fk_config(:auto_index => true) do 
+        with_fk_config(:auto_index => true) do
           recreate_table @model, :foreign_keys => {:auto_index => false} do |t|
             t.integer :user_id
           end
@@ -479,8 +479,8 @@ describe ActiveRecord::Migration do
       end
 
       it "should create foreign key to explicitly given table and column name" do
-        add_column(:author_login, :string, :foreign_key => { :references => [:users, :login]}) do 
-          @model.should reference(:users, :login).on(:author_login) 
+        add_column(:author_login, :string, :foreign_key => { :references => [:users, :login]}) do
+          @model.should reference(:users, :login).on(:author_login)
         end
       end
 
@@ -564,7 +564,7 @@ describe ActiveRecord::Migration do
       it "should use default on_update action" do
         SchemaPlus.config.foreign_keys.on_update = :cascade
         add_column(:post_id, :integer) do
-          @model.should reference.on(:post_id).on_update(:cascade) 
+          @model.should reference.on(:post_id).on_update(:cascade)
         end
         SchemaPlus.config.foreign_keys.on_update = nil
       end
@@ -572,7 +572,7 @@ describe ActiveRecord::Migration do
       it "should use default on_delete action" do
         SchemaPlus.config.foreign_keys.on_delete = :cascade
         add_column(:post_id, :integer) do
-          @model.should reference.on(:post_id).on_delete(:cascade) 
+          @model.should reference.on(:post_id).on_delete(:cascade)
         end
         SchemaPlus.config.foreign_keys.on_delete = nil
       end
@@ -703,7 +703,7 @@ describe ActiveRecord::Migration do
         remove_column(:post_id)
         @model.should_not have_index.on(:post_id)
       end
-      
+
       protected
       def remove_column(column_name)
         table = @model.table_name
@@ -788,7 +788,7 @@ describe ActiveRecord::Migration do
     end
 
   end
-    
+
   def recreate_table(model, opts={}, &block)
     ActiveRecord::Migration.suppress_messages do
       ActiveRecord::Migration.create_table model.table_name, opts.merge(:force => true), &block
