@@ -82,6 +82,11 @@ module SchemaPlus
 
         # Remove a foreign key constraint
         #
+        # Arguments are the same as for add_foreign_key, or by name:
+        #
+        #    remove_foreign_key table_name, column_names, references_table_name, references_column_names
+        #    remove_foreign_key name: constraint_name
+        #
         # (NOTE: Sqlite3 does not support altering a table to remove
         # foreign-key constraints.  If you're using Sqlite3, this method will
         # raise an error.)
@@ -95,8 +100,11 @@ module SchemaPlus
           column_names, references_table_name, references_column_names, options = args
           options ||= {}
           foreign_key_name = case
-                             when args.length == 1      then args.first
-                             when options[:name]        then options[:name]
+                             when args.length == 1
+                               case args[0]
+                               when Hash then   args[0][:name]
+                               else args[0]
+                               end
                              else
                                test_fk = _build_foreign_key(table_name, column_names, references_table_name, references_column_names, options)
                                if foreign_keys(table_name).detect { |fk| fk == test_fk }
