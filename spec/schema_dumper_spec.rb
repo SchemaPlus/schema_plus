@@ -179,6 +179,13 @@ describe "Schema dump" do
       end
     end
 
+    it "should define index with type cast" do
+      with_index Post, [:integer_col], :name => "index_with_type_cast", :expression => "LOWER(integer_col::text)" do
+        dump_posts.should match(to_regexp(%q{t.index :name => "index_with_type_cast", :expression => "lower((integer_col)::text)"}))
+      end
+    end
+
+
     it "should define case insensitive index with mixed ids and strings" do
       with_index Post, [:user_id, :str_short, :short_id, :body], :case_sensitive => false do
         dump_posts.should match(to_regexp(%q{t.index ["user_id", "str_short", "short_id", "body"], :name => "index_posts_on_user_id_and_str_short_and_short_id_and_body", :case_sensitive => false}))

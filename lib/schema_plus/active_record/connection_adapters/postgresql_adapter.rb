@@ -156,26 +156,35 @@ module SchemaPlus
             unique = (is_unique == 't')
             index_keys = indkey.split(" ")
 
-            columns = Hash[query(<<-SQL, "Columns for index #{index_name} on #{table_name}")]
-            SELECT CAST(a.attnum as VARCHAR), a.attname
-            FROM pg_attribute a
-            WHERE a.attrelid = #{oid}
-            AND a.attnum IN (#{index_keys.join(",")})
+            rows = query(<<-SQL, "Columns for index #{index_name} on #{table_name}")
+              SELECT CAST(a.attnum as VARCHAR), a.attname, t.typname
+              FROM pg_attribute a
+              INNER JOIN pg_type t ON a.atttypid = t.oid
+              WHERE a.attrelid = #{oid}
             SQL
+            columns = {}
+            types = {}
+            rows.each do |num, name, type|
+              columns[num] = name
+              types[name] = type
+            end
 
             column_names = columns.values_at(*index_keys).compact
             case_sensitive = true
 
             # extract column names from the expression, for a
-            # case-insensitive index
+            # case-insensitive index.
+            # only applies to character, character varying, and text
             if expression
               rexp_lower = %r{\blower\(\(?([^)]+)(\)::text)?\)}
               if expression.match /\A#{rexp_lower}(?:, #{rexp_lower})*\z/
-                case_insensitive_columns = expression.scan(rexp_lower).map(&:first)
-                column_names = index_keys.map do |index_key|
-                  index_key == '0' ? case_insensitive_columns.shift : columns[index_key]
+                case_insensitive_columns = expression.scan(rexp_lower).map(&:first).select{|column| %W[char varchar text].include? types[column]}
+                if case_insensitive_columns.any?
+                  case_sensitive = false
+                  column_names = index_keys.map { |index_key|
+                    index_key == '0' ? case_insensitive_columns.shift : columns[index_key]
+                  }.compact
                 end
-                case_sensitive = false
               end
             end
 
