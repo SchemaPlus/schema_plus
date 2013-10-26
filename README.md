@@ -22,6 +22,10 @@ SchemaPlus supports all combinations of:
     3.2), or SQLite3 (using sqlite3 >= 3.7.7 which has foreign key support)
 *   MRI Ruby 1.9.3 or 2.0.0
 
+And also supports:
+
+* jruby with Rails 3.2 and PostgreSQL
+
 
 Note: As of version 1.0.0, SchemaPlus no longer supports Rails 2.3, 3.0 and
 3.1, and also no longer supports MRI Ruby 1.8.7; the last version
@@ -294,11 +298,16 @@ of foreign key constraints, you can re-enable it:
 
 ### Master branch (to be released)
 
-* Bug fix for change_table
-* Bug fix for schema_dump postgresql non-btree indexes
+* (nothing new yet)
+
+### 1.3.0
+
 * Added :if_exists option for remove_index
 * Initial jruby support (rails 3.2, postgresql), due to efforts of [@donv](https://github.com/donv)
 * Preliminatry groundwork for rails 4.1, due to efforts of [@tovodeverett](https://github.com/tovodeverett)
+* Bug fix for change_table
+* Bug fix for schema_dump postgresql non-btree indexes
+* Bug fix regarding expressions that cast non-string columns to strings in a lower()
 
 ### 1.2.0
 *   Now works with rails 4, due to efforts of [@tovodeverett](https://github.com/tovodeverett)
