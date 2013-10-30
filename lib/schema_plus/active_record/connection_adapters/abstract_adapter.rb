@@ -131,10 +131,12 @@ module SchemaPlus
 
         # Extends rails' remove_index to include this options:
         #   :if_exists
-        def remove_index_with_schema_plus(table_name, options={})
-          return if options.delete(:if_exists) and not index_name_exists?(table_name, options[:name] || index_name(table_name, options), false)
+        def remove_index_with_schema_plus(table_name, *args)
+          options = args.extract_options!
+          return if options.delete(:if_exists) and not index_name_exists?(table_name, options[:name] || index_name(table_name, *args), false)
           options.delete(:column) if options[:name] and ::ActiveRecord::VERSION::MAJOR < 4
-          remove_index_without_schema_plus(table_name, options)
+          args << options if options.any?
+          remove_index_without_schema_plus(table_name, *args)
         end
 
         # called from individual adpaters, after renaming table from old
