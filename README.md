@@ -300,6 +300,10 @@ of foreign key constraints, you can re-enable it:
 
 * (nothing new yet)
 
+### 1.3.1
+
+* Regression bug fix, non-option arguemnts to remove_index
+
 ### 1.3.0
 
 * Added :if_exists option for remove_index
