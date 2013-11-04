@@ -26,10 +26,11 @@ module SchemaPlus
                     when /^MySQL/i                 then 'MysqlAdapter'
                     when 'PostgreSQL', 'PostGIS'   then 'PostgresqlAdapter'
                     when 'SQLite'                  then 'Sqlite3Adapter'
-                    end or raise "SchemaPlus: Unsupported adapter name #{adapter_name.inspect}"
-                      # use 'end or raise' instead of 'else raise' to get
-                      # 100% C0 code coverage despite having no test case
-                      # for this.
+                    end
+          unless adapter
+            ::ActiveRecord::Base.logger.warn "SchemaPlus: Unsupported adapter name #{adapter_name.inspect}.  Leaving it alone."
+            return
+          end
           adapter_module = SchemaPlus::ActiveRecord::ConnectionAdapters.const_get(adapter)
           self.class.send(:include, adapter_module) unless self.class.include?(adapter_module)
 
