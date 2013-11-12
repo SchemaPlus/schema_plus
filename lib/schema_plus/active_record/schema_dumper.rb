@@ -133,7 +133,7 @@ module SchemaPlus
             dump << ", :expression => #{index.expression.inspect}"
           end
           dump << "\n"
-        }.join
+        }.sort.join
       end
 
       def dump_foreign_keys(foreign_keys, opts={}) #:nodoc:

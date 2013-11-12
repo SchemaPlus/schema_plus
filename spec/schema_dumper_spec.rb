@@ -161,6 +161,14 @@ describe "Schema dump" do
     end
   end
 
+  it "should sort indexes" do
+    with_index Post, :user_id do
+      with_index Post, :short_id do
+        dump_posts.should match(/on_short_id.+on_user_id/m)
+      end
+    end
+  end
+
   unless SchemaPlusHelpers.mysql?
 
     it "should include index order" do
