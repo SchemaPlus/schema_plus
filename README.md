@@ -298,7 +298,7 @@ of foreign key constraints, you can re-enable it:
 
 ### Master branch (to be released)
 
-* (nothing new yet)
+* Sort indexes alphabetically when dumping, like rails does
 
 ### 1.3.1
 
