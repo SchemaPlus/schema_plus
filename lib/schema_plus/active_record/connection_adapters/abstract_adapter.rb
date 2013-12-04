@@ -134,7 +134,7 @@ module SchemaPlus
         #   :if_exists
         def remove_index_with_schema_plus(table_name, *args)
           options = args.extract_options!
-          return if options.delete(:if_exists) and not index_name_exists?(table_name, options[:name] || index_name(table_name, options), false)
+          return if options.delete(:if_exists) and not index_name_exists?(table_name, options[:name] || index_name(table_name, (options.any? ? options : args.first)), false)
           options.delete(:column) if options[:name] and ::ActiveRecord::VERSION::MAJOR < 4
           args << options if options.any?
           remove_index_without_schema_plus(table_name, *args)
