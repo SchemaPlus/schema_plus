@@ -177,10 +177,31 @@ describe "index" do
       User.indexes.length.should == 0
     end
 
+    it "removes index using column option" do
+      add_index :users, :login
+      User.indexes.length.should == 1
+      remove_index :users, column: :login
+      User.indexes.length.should == 0
+    end
+
     it "removes index if_exists" do
       add_index :users, :login
       User.indexes.length.should == 1
       remove_index :users, :login, :if_exists => true
+      User.indexes.length.should == 0
+    end
+
+    it "removes multi-column index if exists" do
+      add_index :users, [:login, :deleted_at]
+      User.indexes.length.should == 1
+      remove_index :users, [:login, :deleted_at], :if_exists => true
+      User.indexes.length.should == 0
+    end
+
+    it "removes index if_exists using column option" do
+      add_index :users, :login
+      User.indexes.length.should == 1
+      remove_index :users, column: :login, :if_exists => true
       User.indexes.length.should == 0
     end
 
