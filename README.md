@@ -298,6 +298,7 @@ of foreign key constraints, you can re-enable it:
 
 ### Master branch (to be released)
 
+* Bug fix, remove_index with if_exists but no name
 * Sort indexes alphabetically when dumping, like rails does
 
 ### 1.3.1
