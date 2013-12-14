@@ -103,14 +103,14 @@ expressions, index methods, and case-insensitive indexes:
     t.string :last_name,  index: { kind: 'hash' }
     t.string :last_name,  index: { case_sensitive: false }        # shorthand for expression: 'lower(last_name)'
 
-These features are available also in ActiveRecord::Migration.add_index.  See
-doc at SchemaPlus::ActiveRecord::ConnectionAdapters::PostgresqlAdapter and
-SchemaPlus::ActiveRecord::ConnectionAdapters::IndexDefinition
+These features are available also in `ActiveRecord::Migration.add_index`.  See
+doc for [SchemaPlus::ActiveRecord::ConnectionAdapters::PostgresqlAdapter](http://rubydoc.info/gems/schema_plus/SchemaPlus/ActiveRecord/ConnectionAdapters/PostgresqlAdapter) and
+[SchemaPlus::ActiveRecord::ConnectionAdapters::IndexDefinition](http://rubydoc.info/gems/schema_plus/SchemaPlus/ActiveRecord/ConnectionAdapters/IndexDefinition)
 
 When you query column information using ActiveRecord::Base#columns, SchemaPlus
 analogously provides index information relevant to each column: which indexes
-reference the column, whether the column must be unique, etc.  See doc at
-SchemaPlus::ActiveRecord::ConnectionAdapters::Column
+reference the column, whether the column must be unique, etc.  See doc for
+[SchemaPlus::ActiveRecord::ConnectionAdapters::Column](http://rubydoc.info/gems/schema_plus/SchemaPlus/ActiveRecord/ConnectionAdapters/Column).
 
 SchemaPlus also tidies some index-related behavior:
 
@@ -175,8 +175,8 @@ The foreign key behavior can be configured globally (see Config) or per-table
 To examine your foreign key constraints, `connection.foreign_keys` returns a
 list of foreign key constraints defined for a given table, and
 `connection.reverse_foreign_keys` returns a list of foreign key constraints
-that reference a given table.  See
-SchemaPlus::ActiveRecord::ConnectionAdapters::ForeignKeyDefinition.
+that reference a given table.  See doc at
+[SchemaPlus::ActiveRecord::ConnectionAdapters::ForeignKeyDefinition](http://rubydoc.info/gems/schema_plus/SchemaPlus/ActiveRecord/ConnectionAdapters/ForeignKeyDefinition).
 
 #### Foreign Key Issues
 
