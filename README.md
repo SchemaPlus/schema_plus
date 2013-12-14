@@ -298,6 +298,10 @@ of foreign key constraints, you can re-enable it:
 
 ### Master branch (to be released)
 
+* *nothing currently waiting to be released*
+
+### 1.3.2
+
 * Bug fix, remove_index with if_exists but no name
 * Sort indexes alphabetically when dumping, like rails does
 
