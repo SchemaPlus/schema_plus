@@ -43,7 +43,7 @@ or in a Gemfile
 
 ## Features
 
-Here some examples that show off the high points.  For full details see the
+This README lists the major features, with examples of use.  For full details see the
 [RDoc documentation](http://rubydoc.info/gems/schema_plus).
 
 ### Indexes
