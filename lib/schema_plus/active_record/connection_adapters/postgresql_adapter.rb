@@ -215,7 +215,10 @@ module SchemaPlus
         # Prepass to replace each ActiveRecord::DB_DEFAULT with a literal
         # DEFAULT in the sql string.  (The underlying pg gem provides no
         # way to bind a value that will replace $n with DEFAULT)
-        def exec_cache_with_schema_plus(sql, binds)
+        def exec_cache_with_schema_plus(sql, *args)
+          name_passed = (2 == args.size)
+          binds, name = args.reverse
+
           if binds.any?{ |col, val| val.equal? ::ActiveRecord::DB_DEFAULT}
             j = 0
             binds.each_with_index do |(col, val), i|
@@ -228,7 +231,9 @@ module SchemaPlus
             end
             binds = binds.reject{|col, val| val.equal? ::ActiveRecord::DB_DEFAULT}
           end
-          exec_cache_without_schema_plus(sql, binds)
+
+          args = name_passed ? [name, binds] : [binds]
+          exec_cache_without_schema_plus(sql, *args)
         end
 
         def foreign_keys(table_name, name = nil) #:nodoc:
