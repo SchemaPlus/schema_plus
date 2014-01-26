@@ -409,3 +409,7 @@ of foreign key constraints, you can re-enable it:
     contributors](https://github.com/lomba/schema_plus/graphs/contributors)
     since then
 
+
+
+[![Bitdeli Badge](https://d2weczhvl823v0.cloudfront.net/lomba/schema_plus/trend.png)](https://bitdeli.com/free "Bitdeli Badge")
+
