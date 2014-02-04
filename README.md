@@ -300,6 +300,11 @@ of foreign key constraints, you can re-enable it:
 
 * *nothing currently waiting to be released*
 
+### 1.3.3
+
+* Bug fix, dump unique index with expression (Issue #142)
+
+
 ### 1.3.2
 
 * Bug fix, remove_index with if_exists but no name
