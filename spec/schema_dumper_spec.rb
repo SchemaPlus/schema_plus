@@ -221,6 +221,13 @@ describe "Schema dump" do
       end
     end
 
+    it "should dump unique: true with expression (Issue #142)" do
+      with_index Post, :name => "posts_user_body_index", :unique => true, :expression => "BTRIM(LOWER(body))" do
+        dump_posts.should match(%r{#{to_regexp(%q{t.index :name => "posts_user_body_index", :unique => true, :expression => "btrim(lower(body))"})}$})
+      end
+    end
+
+
     it "should not define :case_sensitive => false with non-trivial expression" do
       with_index Post, :name => "posts_user_body_index", :expression => "BTRIM(LOWER(body))" do
         dump_posts.should match(%r{#{to_regexp(%q{t.index :name => "posts_user_body_index", :expression => "btrim(lower(body))"})}$})

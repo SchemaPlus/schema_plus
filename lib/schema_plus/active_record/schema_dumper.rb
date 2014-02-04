@@ -118,18 +118,17 @@ module SchemaPlus
       def dump_indexes(table) #:nodoc:
         @connection.indexes(table).collect{ |index|
           dump = "    t.index"
+          dump << " #{index.columns.inspect}," unless index.columns.blank?
+          dump << " :name => #{index.name.inspect}"
+          dump << ", :unique => true" if index.unique
+          dump << ", :kind => \"#{index.kind}\"" unless index.kind.blank?
           unless index.columns.blank? 
-            dump << " #{index.columns.inspect}, :name => #{index.name.inspect}"
-            dump << ", :unique => true" if index.unique
-            dump << ", :kind => \"#{index.kind}\"" unless index.kind.blank?
             dump << ", :case_sensitive => false" unless index.case_sensitive?
             dump << ", :conditions => #{index.conditions.inspect}" unless index.conditions.blank?
             index_lengths = index.lengths.compact if index.lengths.is_a?(Array)
             dump << ", :length => #{Hash[*index.columns.zip(index.lengths).flatten].inspect}" if index_lengths.present?
             dump << ", :order => {" + index.orders.map{|column, val| "#{column.inspect} => #{val.inspect}"}.join(", ") + "}" unless index.orders.blank?
           else
-            dump << " :name => #{index.name.inspect}"
-            dump << ", :kind => \"#{index.kind}\"" unless index.kind.blank?
             dump << ", :expression => #{index.expression.inspect}"
           end
           dump << "\n"
