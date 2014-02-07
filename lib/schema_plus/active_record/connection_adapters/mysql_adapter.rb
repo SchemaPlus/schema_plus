@@ -60,7 +60,12 @@ module SchemaPlus
         # implement cascade by removing foreign keys
         def drop_table(name, options={})
           reverse_foreign_keys(name).each{ |foreign_key| remove_foreign_key(foreign_key.table_name, foreign_key.name) } if options[:cascade]
-          super
+          sql = "DROP"
+          sql += " TEMPORARY" if options[:temporary]
+          sql += " TABLE"
+          sql += " IF EXISTS" if options[:if_exists]
+          sql += " #{quote_table_name(name)}"
+          execute sql
         end
 
         def remove_index_sql(table_name, options)
