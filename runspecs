@@ -68,8 +68,9 @@ combos = o.ruby_versions.product(o.rails_versions, o.db_adapters).map{|product| 
     when combo.rails >= "4" && combo.db_adapter == "mysql" then false
     when combo.ruby == "jruby"
       case
-      when combo.rails == "3.2" && combo.db_adapter == "postgresql" then true
-      when combo.db_adapter = "mysql" then true
+      when combo.rails > "3.2" then false
+      when combo.db_adapter == "postgresql" then true
+      when combo.db_adapter =~ /mysql/ then true
       else false
       end
     else true
