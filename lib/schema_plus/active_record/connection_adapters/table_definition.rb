@@ -142,7 +142,7 @@ module SchemaPlus::ActiveRecord::ConnectionAdapters
     end
 
     def foreign_key(column_names, references_table_name, references_column_names, options = {})
-      @foreign_keys << ForeignKeyDefinition.new(options[:name] || ForeignKeyDefinition.default_name(self.name, column_names), self.name, column_names, ::ActiveRecord::Migrator.proper_table_name(references_table_name), references_column_names, options[:on_update], options[:on_delete], options[:deferrable])
+      @foreign_keys << ForeignKeyDefinition.new(options[:name] || ForeignKeyDefinition.default_name(self.name, column_names), self.name, column_names, AbstractAdapter.proper_table_name(references_table_name), references_column_names, options[:on_update], options[:on_delete], options[:deferrable])
       self
     end
 

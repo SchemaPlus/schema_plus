@@ -78,7 +78,15 @@ module SchemaPlus
         end
 
         def _build_foreign_key(table_name, column_names, references_table_name, references_column_names, options = {}) #:nodoc:
-          ForeignKeyDefinition.new(options[:name] || ForeignKeyDefinition.default_name(table_name, column_names), table_name, column_names, ::ActiveRecord::Migrator.proper_table_name(references_table_name), references_column_names, options[:on_update], options[:on_delete], options[:deferrable])
+          ForeignKeyDefinition.new(options[:name] || ForeignKeyDefinition.default_name(table_name, column_names), table_name, column_names, AbstractAdapter.proper_table_name(references_table_name), references_column_names, options[:on_update], options[:on_delete], options[:deferrable])
+        end
+
+        def self.proper_table_name(name)
+           if ::ActiveRecord::Migration.instance_methods(false).include? :proper_table_name
+           proper_name = ::ActiveRecord::Migration.new.proper_table_name(name) # Rails >= 4.1
+         else
+           proper_name = ::ActiveRecord::Migrator.proper_table_name(name) # Rails <= 4.0 ; Deprecated in 4.1
+         end
         end
 
         # Remove a foreign key constraint
