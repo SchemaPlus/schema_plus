@@ -6,7 +6,7 @@ require 'shellwords'
 require 'tempfile'
 
 RUBY_VERSIONS = %W[jruby 1.9.3 2.0.0]
-RAILS_VERSIONS = %W[3.2 edge 4.0]
+RAILS_VERSIONS = %W[3.2 4.0 4.1]
 DB_ADAPTERS = %W[postgresql mysql mysql2 sqlite3]
 
 o = OpenStruct.new
