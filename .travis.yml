@@ -17,13 +17,13 @@ before_script:
   - rake create_databases
 after_script:
   - rake drop_databases
-env: 'POSTGRES_DB_USER=postgres MYSQL_DB_USER=""'
+env: 'POSTGRES_DB_USER=postgres MYSQL_DB_USER="travis"'
 notifications:
   recipients:
     - michal.lomnicki@gmail.com
     - ronen@barzel.org
 matrix:
-  allow_failures:
+  exclude:
     - rvm: jruby
       gemfile: gemfiles/rails-3.2/Gemfile.sqlite3
       env: 'POSTGRES_DB_USER=postgres MYSQL_DB_USER=""'
