@@ -1,4 +1,3 @@
-source 'https://rubygems.org'
+eval File.read File.expand_path('../../Gemfile.base', __FILE__)
 
-gemspec :path => File.expand_path('../../..', __FILE__)
 gem "rails", "~> 3.2.0"

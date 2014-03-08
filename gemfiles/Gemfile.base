@@ -1,0 +1,4 @@
+source 'https://rubygems.org'
+gemspec :path => File.expand_path('..', __FILE__)
+
+gem "byebug" if RUBY_VERSION > "2"
