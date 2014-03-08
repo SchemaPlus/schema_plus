@@ -14,4 +14,4 @@ ActiveRecord::Base.configurations = {
 
 }
 
-ActiveRecord::Base.establish_connection 'schema_plus'
+ActiveRecord::Base.establish_connection :schema_plus
