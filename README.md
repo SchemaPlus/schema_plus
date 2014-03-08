@@ -297,6 +297,10 @@ of foreign key constraints, you can re-enable it:
 
 * *nothing currently waiting to be released*
 
+### 1.4.1
+
+* Bug fixes `migration.add_references` with `polymophic: true` (issue #145 and others)
+
 ### 1.4.0
 
 * Supports jruby & mysql, thanks to [@rzenha](https://github.com/razenha)
