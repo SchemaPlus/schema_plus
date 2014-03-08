@@ -29,7 +29,7 @@ module SchemaPlus
         def add_reference_with_schema_plus(table_name, ref_name, options = {}) #:nodoc:
           options[:references] = nil if options[:polymorphic]
           # which is the worse hack...?
-          if RUBY_VERSION >= "2.0.0"
+          if RUBY_VERSION >= "2.0.0" and self.delegate.respond_to? :add_reference_sql
             # .. rebinding a method from a different module?  (can't do this in ruby 1.9.3)
             ::ActiveRecord::ConnectionAdapters::SchemaStatements.instance_method(:add_reference).bind(self).call(table_name, ref_name, options)
           else
