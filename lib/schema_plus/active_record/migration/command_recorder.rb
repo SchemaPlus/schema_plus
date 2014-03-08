@@ -27,6 +27,7 @@ module SchemaPlus
         # should track it down separately and submit a patch/fix to rails
         #
         def add_reference_with_schema_plus(table_name, ref_name, options = {}) #:nodoc:
+          options[:references] = nil if options[:polymorphic]
           # which is the worse hack...?
           if RUBY_VERSION >= "2.0.0"
             # .. rebinding a method from a different module?  (can't do this in ruby 1.9.3)

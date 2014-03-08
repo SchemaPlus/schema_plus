@@ -83,6 +83,7 @@ module SchemaPlus
         # are specified simultaneously.
         #
         def add_index(table_name, column_name, options = {})
+          options = {} if options.nil?  # some callers explicitly pass options=nil
           column_name, options = [], column_name if column_name.is_a?(Hash)
           column_names = Array(column_name).compact
           if column_names.empty?

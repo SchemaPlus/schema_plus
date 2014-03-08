@@ -4,8 +4,14 @@ module SchemaPlus::ActiveRecord::ConnectionAdapters
     def self.included(base) #:nodoc:
       base.class_eval do
         alias_method_chain :create_table, :schema_plus
+        alias_method_chain :add_reference, :schema_plus unless ::ActiveRecord::VERSION::MAJOR.to_i < 4
         include AddIndex
       end
+    end
+
+    def add_reference_with_schema_plus(table_name, ref_name, options = {}) #:nodoc:
+      options[:references] = nil if options[:polymorphic]
+      add_reference_without_schema_plus(table_name, ref_name, options)
     end
 
     ##
@@ -76,7 +82,7 @@ module SchemaPlus::ActiveRecord::ConnectionAdapters
       # an error.)
       #
       def add_index_with_schema_plus(table, columns, options={})
-        options.delete(:if_exists)
+        options.delete(:if_exists) if options # some callers explcitly pass options=nil
         add_index_without_schema_plus(table, columns, options)
       rescue => e
         SchemaStatements.add_index_exception_handler(self, table, columns, options, e)

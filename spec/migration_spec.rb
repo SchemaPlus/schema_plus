@@ -599,6 +599,44 @@ describe ActiveRecord::Migration do
 
     end
 
+    context "when add reference" do
+
+      before(:each) do
+        @model = Comment
+      end
+
+      it "should create foreign key" do
+        add_reference(:post) do
+          @model.should reference(:posts, :id).on(:post_id)
+        end
+      end
+
+      it "should not create a foreign_key if polymorphic" do
+        add_reference(:post, :polymorphic => true) do
+          @model.should_not reference(:posts, :id).on(:post_id)
+        end
+      end
+
+      it "should create a two-column index if polymophic and index requested" do
+        add_reference(:post, :polymorphic => true, :index => true) do
+          @model.should have_index.on([:post_id, :post_type])
+        end
+      end
+
+
+      protected
+      def add_reference(column_name, *args)
+        table = @model.table_name
+        ActiveRecord::Migration.suppress_messages do
+          ActiveRecord::Migration.add_reference(table, column_name, *args)
+          @model.reset_column_information
+          yield if block_given?
+          ActiveRecord::Migration.remove_column(table, "#{column_name}_id")
+        end
+      end
+
+    end unless ::ActiveRecord::VERSION::MAJOR.to_i < 4
+
     context "when column is changed" do
 
       before(:each) do
