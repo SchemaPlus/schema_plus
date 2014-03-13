@@ -261,16 +261,13 @@ module SchemaPlus
         end
 
         def views(name = nil) #:nodoc:
-          pg_stat_statements = query("SELECT extname from pg_extension", name).inject(false) do |acc, row|
-            acc |= (row[0] == "pg_stat_statements")
-          end
           sql = <<-SQL
             SELECT viewname
               FROM pg_views
             WHERE schemaname = ANY (current_schemas(false))
+            AND viewname NOT LIKE 'pg\_%'
           SQL
           sql += " AND schemaname != 'postgis'" if adapter_name == 'PostGIS'
-          sql += " AND viewname != 'pg_stat_statements'" if pg_stat_statements
           query(sql, name).map { |row| row[0] }
         end
 

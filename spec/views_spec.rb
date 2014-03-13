@@ -38,6 +38,7 @@ describe ActiveRecord do
     end
 
     it "should instrospect" do
+      # pg_stat_statements extension comes with a built-in view, but it shouldn't be included
       connection.views.sort.should == %W[a_ones ab_ones]
       connection.view_definition('a_ones').should match(%r{^SELECT .*b.*,.*s.* FROM .*items.* WHERE .*a.* = 1}i)
       connection.view_definition('ab_ones').should match(%r{^SELECT .*s.* FROM .*a_ones.* WHERE .*b.* = 1}i)
@@ -142,6 +143,9 @@ describe ActiveRecord do
 
         create_view :a_ones, Item.select('b, s').where(:a => 1)
         create_view :ab_ones, "select s from a_ones where b = 1"
+        if SchemaPlusHelpers.postgresql?
+          enable_extension "pg_stat_statements"
+        end
       end
     end
     connection.execute "insert into items (a, b, s) values (1, 1, 'one_one')"
@@ -157,6 +161,9 @@ describe ActiveRecord do
         drop_view "ab_ones"
         drop_view "a_ones"
         drop_table "items"
+        if SchemaPlusHelpers.postgresql?
+          disable_extension "pg_stat_statements"
+        end
       end
     end
   end
