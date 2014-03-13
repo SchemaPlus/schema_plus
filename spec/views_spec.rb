@@ -144,7 +144,11 @@ describe ActiveRecord do
         create_view :a_ones, Item.select('b, s').where(:a => 1)
         create_view :ab_ones, "select s from a_ones where b = 1"
         if SchemaPlusHelpers.postgresql?
-          enable_extension "pg_stat_statements"
+          if connection.respond_to? :enable_extension
+            enable_extension "pg_stat_statements"
+          else # fallback for active_record 3.2
+            connection.execute "CREATE EXTENSION IF NOT EXISTS \"pg_stat_statements\""
+          end
         end
       end
     end
@@ -162,7 +166,11 @@ describe ActiveRecord do
         drop_view "a_ones"
         drop_table "items"
         if SchemaPlusHelpers.postgresql?
-          disable_extension "pg_stat_statements"
+          if connection.respond_to? :disable_extension
+            disable_extension "pg_stat_statements"
+          else # fallback for active_record 3.2
+            connection.execute "DROP EXTENSION IF EXISTS \"pg_stat_statements\" CASCADE"
+          end
         end
       end
     end
