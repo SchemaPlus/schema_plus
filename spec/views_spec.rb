@@ -38,7 +38,7 @@ describe ActiveRecord do
     end
 
     it "should instrospect" do
-      # pg_stat_statements extension comes with a built-in view, but it shouldn't be included
+      # for postgresql, ignore views named pg_*
       connection.views.sort.should == %W[a_ones ab_ones]
       connection.view_definition('a_ones').should match(%r{^SELECT .*b.*,.*s.* FROM .*items.* WHERE .*a.* = 1}i)
       connection.view_definition('ab_ones').should match(%r{^SELECT .*s.* FROM .*a_ones.* WHERE .*b.* = 1}i)
