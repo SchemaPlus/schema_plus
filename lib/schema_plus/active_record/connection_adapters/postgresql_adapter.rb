@@ -265,6 +265,7 @@ module SchemaPlus
             SELECT viewname
               FROM pg_views
             WHERE schemaname = ANY (current_schemas(false))
+            AND viewname NOT LIKE 'pg\_%'
           SQL
           sql += " AND schemaname != 'postgis'" if adapter_name == 'PostGIS'
           query(sql, name).map { |row| row[0] }

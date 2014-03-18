@@ -224,6 +224,8 @@ the above views you can define
     class UncommentedPost < ActiveRecord::Base
     end
 
+Note: In Postgres, all internal views (the ones with `pg_` prefix) will be skipped.
+
 ### Column Defaults: Expressions
 
 SchemaPlus allows defaults to be set using expressions or constant values:
