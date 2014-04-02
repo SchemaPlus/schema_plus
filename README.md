@@ -17,15 +17,14 @@ For added rails DRYness see also the gems
 
 SchemaPlus supports all combinations of:
 
-*   Rails 3.2, 4.0, and 4.1 (currently 4.1.0beta3)
+*   Rails/ActiveRecord 3.2, 4.0, and 4.1 (currently 4.1.0beta3)
 *   PostgreSQL, MySQL (using mysql2 gem; mysql gem only supported with Rails
     3.2), or SQLite3 (using sqlite3 >= 3.7.7 which has foreign key support)
 *   MRI Ruby 1.9.3, 2.0.0, or 2.1.0
 
 And also supports:
 
-* jruby with Rails 3.2 and PostgreSQL or MySQL
-
+* jruby with Rails/ActiveRecord 3.2 and PostgreSQL or MySQL
 
 
 ## Installation
@@ -298,6 +297,10 @@ of foreign key constraints, you can re-enable it:
 ### Master branch (to be released)
 
 * *nothing currently waiting to be released*
+
+### 1.5.0
+* Can now be used with activerecord standalone, doesn't need all of rails.
+* `views` ignores postgres internal views, thanks to [@everplays](https://github.com/everplays) (issue #147)
 
 ### 1.4.1
 
