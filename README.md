@@ -76,7 +76,7 @@ You can also create multi-column indexes, for example:
 
     t.string :country_code
     t.string :area_code
-    t.string :local_number      index: { with: [:country_code, :area_code], unique: true }
+    t.string :local_number,      index: { with: [:country_code, :area_code], unique: true }
 
 And you can specify index orders:
 
