@@ -17,13 +17,6 @@ describe ActiveRecord do
 
   let(:connection) { ActiveRecord::Base.connection }
 
-  let (:dump) {
-    StringIO.open { |stream|
-      ActiveRecord::SchemaDumper.dump(ActiveRecord::Base.connection, stream)
-      stream.string
-    }
-  }
-
   context "views" do
 
     around (:each) do |example|
@@ -58,6 +51,14 @@ describe ActiveRecord do
     it "should be included in schema dump in dependency order" do
       dump.should match(%r{create_table "items".*create_view "a_ones".*create_view "ab_ones"}m) 
     end
+
+    it "should not be included in schema if listed in ignore_tables" do
+      dump(ignore_tables: /b_/) do |dump|
+        dump.should match(%r{create_view "a_ones", "SELECT .*b.*,.*s.* FROM .*items.* WHERE .*a.* = 1.*, :force => true}i)
+        dump.should_not match(%r{"ab_ones"})
+      end
+    end
+
 
     it "dump should not reference current database" do
       # why check this?  mysql default to providing the view definition
@@ -164,9 +165,11 @@ describe ActiveRecord do
     end
   end
 
-  def dump
+  def dump(opts={})
     StringIO.open { |stream|
+      ActiveRecord::SchemaDumper.ignore_tables = Array.wrap(opts[:ignore_tables])
       ActiveRecord::SchemaDumper.dump(ActiveRecord::Base.connection, stream)
+      yield stream.string if block_given?
       stream.string
     }
   end

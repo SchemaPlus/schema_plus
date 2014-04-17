@@ -52,6 +52,7 @@ module SchemaPlus
         tables_without_schema_plus(nil)
 
         @connection.views.each do |view_name|
+          next if Array.wrap(::ActiveRecord::SchemaDumper.ignore_tables).any? {|pattern| view_name.match pattern}
           definition = @connection.view_definition(view_name)
           @table_dumps[view_name] = "  create_view #{view_name.inspect}, #{definition.inspect}, :force => true\n"
         end
