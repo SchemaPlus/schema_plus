@@ -298,6 +298,11 @@ of foreign key constraints, you can re-enable it:
 
 * *nothing currently waiting to be released*
 
+
+### 1.5.1
+
+* Now respects ActiveRecord::SchemaDumper.ignore_tables for views (issue #153)
+
 ### 1.5.0
 * Can now be used with activerecord standalone, doesn't need all of rails.
 * `views` ignores postgres internal views, thanks to [@everplays](https://github.com/everplays) (issue #147)
