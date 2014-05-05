@@ -171,6 +171,10 @@ module SchemaPlus
           sql
         end
 
+        def view_options(view_name)
+          return ""
+        end
+        
         module AddColumnOptions
           def default_expr_valid?(expr)
             false # only the TIMESTAMP column accepts SQL column defaults and rails uses DATETIME
