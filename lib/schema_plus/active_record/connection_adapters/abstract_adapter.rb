@@ -47,13 +47,13 @@ module SchemaPlus
         # to first drop the view if it already exists.
         def create_view(view_name, definition, options={})
           definition = definition.to_sql if definition.respond_to? :to_sql
-          execute "DROP VIEW IF EXISTS #{quote_table_name(view_name)}" if options[:force]
+          execute "DROP #{options[:create_options] || ''} VIEW IF EXISTS #{quote_table_name(view_name)}" if options[:force]
           execute "CREATE #{options[:create_options] || ''} VIEW #{quote_table_name(view_name)} AS #{definition}"
         end
 
         # Drop the named view
         def drop_view(view_name)
-          execute "DROP VIEW #{quote_table_name(view_name)}"
+          execute "DROP #{view_create_options(view_name)} VIEW #{quote_table_name(view_name)}"
         end
 
 

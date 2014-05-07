@@ -261,6 +261,8 @@ module SchemaPlus
         end
 
         def views(name = nil) #:nodoc:
+          # This will not work if there are views and materialized views
+          # with the same name.
           sql = <<-SQL
             SELECT viewname
               FROM pg_views
@@ -276,7 +278,7 @@ module SchemaPlus
           query(sql, name).map { |row| row[0] }
         end
         
-        def view_options(view_name, name = nil) #:nodoc:
+        def view_create_options(view_name, name = nil) #:nodoc:
           sql = <<-SQL
              SELECT relkind
              FROM pg_class 
@@ -285,7 +287,7 @@ module SchemaPlus
           SQL
           result = query(sql, name)
           if result[0][0].eql?('m')
-            return ":create_options => 'MATERIALIZED'"
+            return "MATERIALIZED"
           else
             return ""
           end

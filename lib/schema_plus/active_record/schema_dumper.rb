@@ -50,11 +50,11 @@ module SchemaPlus
         @dump_dependencies = {}
 
         tables_without_schema_plus(nil)
-        
+
         @connection.views.each do |view_name|
           next if Array.wrap(::ActiveRecord::SchemaDumper.ignore_tables).any? {|pattern| view_name.match pattern}
           definition = @connection.view_definition(view_name)
-          @table_dumps[view_name] = "  create_view #{view_name.inspect}, #{definition.inspect}, :force => true, #{@connection.view_options(view_name)}\n"
+          @table_dumps[view_name] = "  create_view #{view_name.inspect}, #{definition.inspect}, :force => true, :create_options => '#{@connection.view_create_options(view_name)}'\n"
         end
 
         re_view_referent = %r{(?:(?i)FROM|JOIN) \S*\b(#{(@table_dumps.keys).join('|')})\b}

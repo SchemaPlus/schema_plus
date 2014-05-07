@@ -171,7 +171,7 @@ module SchemaPlus
           sql
         end
 
-        def view_options(view_name)
+        def view_create_options(view_name)
           return ""
         end
         
