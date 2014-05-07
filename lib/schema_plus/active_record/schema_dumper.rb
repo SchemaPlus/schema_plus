@@ -89,6 +89,10 @@ module SchemaPlus
           stream.puts dump_foreign_keys(@backref_fks[table], :inline => false)+"\n" if @backref_fks[table].any?
         end
 
+        @connection.views.each do |view_name|
+          next if Array.wrap(::ActiveRecord::SchemaDumper.ignore_tables).any? {|pattern| view_name.match pattern}
+          indexes_without_schema_plus(view_name, stream)
+        end
       end
 
       def tsort_each_node(&block) #:nodoc:
