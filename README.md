@@ -191,10 +191,10 @@ SchemaPlus extends rails' `drop_table` method to accept these options:
     drop_table :table_name, if_exists: true   # no error if table doesn't exist
     drop_table :table_name, cascade: true     # delete dependencies
 
-The `:cascade` option is particularly useful given foreign key constraints. 
+The `:cascade` option is particularly useful given foreign key constraints.
 For Postgresql it is implemented using `DROP TABLE...CASCADE` which deletes
 all dependencies.  For MySQL, SchemaPlus implements the `:cascade` option to
-delete foreign key references, but does not delete any other dependencies. 
+delete foreign key references, but does not delete any other dependencies.
 For Sqlite3, the `:cascade` option is ignored, but Sqlite3 always drops tables
 with cascade-like behavior.
 
@@ -259,7 +259,7 @@ expression).  For example:
     post.update_attributes(category: ActiveRecord::DB_DEFAULT)
 
 (Without `ActiveRecord::DB_DEFAULT`, you can update a value to `NULL` but not
-to its default value.) 
+to its default value.)
 
 Note that after updating, you would need to reload a record to replace
 `ActiveRecord::DB_DEFAULT` with the value assigned by the database.
@@ -304,20 +304,62 @@ of foreign key constraints, you can re-enable it:
 
 *   And [lots of contributors](https://github.com/lomba/schema_plus/graphs/contributors) since then
 
+## Development & Testing
+
+Are you interested in contributing to schema_plus?  Thanks!
+
+Schema_plus has a full set of rspec tests.  [travis-ci](http://travis-ci.org/lomba/schema_plus) runs the tests on the full matrix of supported versions of ruby, rails, and db adapters.  But you can also test all or some part of the matrix locally before you push your changes.  Here's what you need to know:
+
+#### Required environment:
+
+*  You must have either [rbenv](https://github.com/sstephenson/rbenv) or [rvm](http://rvm.io) installed and working, whichever you prefer.  Within it, have available whichever ruby versions you want to test.  The default set is MRI 1.9.3, 2.0.0, 2.1.0, and jruby
+
+* Of course you must have installed whichever databases you want to test. The default set is: PostgreSQL, MySQL, and SQLite3.
+
+* For PostgreSQL and MySQL the tests need a db user with permissions to create and access databases: The default username used by the specs is 'postgres' for Postgresql and 'schema_plus' for MySQL; you can change them via:
+
+        $ export POSTGRES_DB_USER = pgusername
+        $ export MYSQL_DB_USER = mysqlusername
+
+* For PostgreSQL and MySQL you must explicitly create the databases used by the tests:
+
+        $ rake create_databases  # creates both postgresql & mysql
+           OR
+        $ rake postgresql:create_databases
+        $ rake mysql:create_databases
+
+#### Running the tests
+
+The tests are run via a script in the repo root.  Its args are documented by
+
+     $ ./runspecs --help
+
+By default it runs on a matrix of postgresql, mysql2, and sqlite3, for all rubies and all versions of rails.  But the matrix options `--db`, `--ruby`, and `--rails` options let you limit those.  The `--quick` option runs on just one set: postgresql, rails 4.1 and ruby 2.1.0.  The `--full` option adds the mysql adapter to the set (in addition to mysql2 adapter).
+
+* Install gem dependencies for the sets you'll be testing:
+
+		 $ ./runspecs [matrix options] --install   # runs 'bundle install' for all sets
+		 	e.g.
+		 $ ./runspecs --db 'posgresql' --ruby '2.1.0' --rails '4.0 4.1' --install
+
+* Run all the tests:
+
+	     $ ./runspecs [matrix options]  # runs rspec for each set in the matrix
+		    e.g.
+		 $ ./runspecs --db 'posgresql' --ruby '2.1.0' --rails '4.0 4.1'
+
+  Code coverage information will be in coverage/index.html -- it should be at 100% coverage if you're running against all databases.
+
+* To run rspec on just a limited set of specs, you can do:
+
+		$ ./runspecs [matrix options] --rspec -- [rspec args]
+		   e.g.
+		$ ./runspecs --quick --rspec -- spec/migration_spec.rb -e 'default name'
+
+Contributions to making the testing process itself easier and better will also be gratefully accepted!
 
 
-
-## History
-
-*   SchemaPlus is derived from several "Red Hill On Rails" plugins originally
-    created by [@harukizaemon](https://github.com/harukizaemon)
-
-*   SchemaPlus was created in 2011 by [@mlomnicki](https://github.com/mlomnicki) and [@ronen](https://github.com/ronen)
-
-*   And [lots of
-    contributors](https://github.com/lomba/schema_plus/graphs/contributors)
-    since then
-
+-
 
 
 [![Bitdeli Badge](https://d2weczhvl823v0.cloudfront.net/lomba/schema_plus/trend.png)](https://bitdeli.com/free "Bitdeli Badge")
