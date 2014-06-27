@@ -2,6 +2,10 @@
 
 ## Change Log
 
+### 1.5.2
+
+* For now, pin to rspec 2.* and limit rails to 4.1.1 (issue #158)
+
 ### 1.5.1
 
 * Now respects ActiveRecord::SchemaDumper.ignore_tables for views (issue #153)
