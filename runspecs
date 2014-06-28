@@ -90,7 +90,7 @@ else
     # strip those out so that the forked shell can run a diifferent ruby
     # version than the one we're in now.
     ENV['PATH'] = ENV['PATH'].split(':').reject{|dir| dir =~ %r{/rbenv/(?!shims)}}.join(':')
-    ENV['GEM_PATH'] = ENV['GEM_PATH'].split(':').reject{|dir| dir =~ %r{/rbenv}}.join(':')
+    ENV['GEM_PATH'] = ENV['GEM_PATH'].split(':').reject{|dir| dir =~ %r{/rbenv}}.join(':') unless ENV['GEM_PATH'].nil?
     ENV['RBENV_DIR'] = nil
     ENV['RBENV_HOOK_PATH'] = nil
 
