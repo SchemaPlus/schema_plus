@@ -55,7 +55,7 @@ module SchemaPlus
         # The default as_jon includes all instance variables.  but
         # @model can't be dumped (it contains circular references)
         def as_json(options=nil)
-          instance_values.except "model"
+          instance_values.except "model", "adapter"
         end
       end
     end
