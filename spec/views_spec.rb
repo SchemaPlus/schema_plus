@@ -33,8 +33,8 @@ describe ActiveRecord do
     it "should instrospect" do
       # for postgresql, ignore views named pg_*
       connection.views.sort.should == %W[a_ones ab_ones]
-      connection.view_definition('a_ones').should match(%r{^SELECT .*b.*,.*s.* FROM .*items.* WHERE .*a.* = 1}i)
-      connection.view_definition('ab_ones').should match(%r{^SELECT .*s.* FROM .*a_ones.* WHERE .*b.* = 1}i)
+      connection.view_definition('a_ones').should match(%r{^ ?SELECT .*b.*,.*s.* FROM .*items.* WHERE .*a.* = 1}mi)
+      connection.view_definition('ab_ones').should match(%r{^ ?SELECT .*s.* FROM .*a_ones.* WHERE .*b.* = 1}mi)
     end
 
     it "should not be listed as a table" do
@@ -44,8 +44,8 @@ describe ActiveRecord do
 
 
     it "should be included in schema dump" do
-      dump.should match(%r{create_view "a_ones", "SELECT .*b.*,.*s.* FROM .*items.* WHERE .*a.* = 1.*, :force => true}i)
-      dump.should match(%r{create_view "ab_ones", "SELECT .*s.* FROM .*a_ones.* WHERE .*b.* = 1.*, :force => true}i)
+      dump.should match(%r{create_view "a_ones", " ?SELECT .*b.*,.*s.* FROM .*items.* WHERE .*a.* = 1.*, :force => true}mi)
+      dump.should match(%r{create_view "ab_ones", " ?SELECT .*s.* FROM .*a_ones.* WHERE .*b.* = 1.*, :force => true}mi)
     end
 
     it "should be included in schema dump in dependency order" do
@@ -54,7 +54,7 @@ describe ActiveRecord do
 
     it "should not be included in schema if listed in ignore_tables" do
       dump(ignore_tables: /b_/) do |dump|
-        dump.should match(%r{create_view "a_ones", "SELECT .*b.*,.*s.* FROM .*items.* WHERE .*a.* = 1.*, :force => true}i)
+        dump.should match(%r{create_view "a_ones", " ?SELECT .*b.*,.*s.* FROM .*items.* WHERE .*a.* = 1.*, :force => true}mi)
         dump.should_not match(%r{"ab_ones"})
       end
     end
