@@ -64,7 +64,7 @@ describe "Index definition" do
   it "should not crash on equality test with nil" do
     index = ActiveRecord::ConnectionAdapters::IndexDefinition.new(:table, :column)
     expect{index == nil}.to_not raise_error
-    (index == nil).should be_false
+    (index == nil).should be false
   end
 
 
@@ -134,7 +134,7 @@ describe "Index definition" do
       end
 
       it "is included in User.indexes" do
-        User.indexes.select { |index| index.columns == ["login"] }.should have(1).item
+        expect(User.indexes.select { |index| index.columns == ["login"] }.size).to eq(1)
       end
 
       it "is case_sensitive" do

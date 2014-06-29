@@ -47,7 +47,7 @@ describe ActiveRecord::Migration do
          t.boolean :bool, :default => true
         end
       }.to_not raise_error
-      @model.create.reload.bool.should be_true
+      @model.create.reload.bool.should be true
     end
 
     it "should create auto foreign keys" do
