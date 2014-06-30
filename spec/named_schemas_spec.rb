@@ -46,13 +46,13 @@ describe "with multiple schemas" do
 
     it "should not find indexes in other schema" do
       User.reset_column_information
-      User.indexes.should be_empty
+      expect(User.indexes).to be_empty
     end
 
     it "should find index in current schema" do
       connection.execute 'CREATE INDEX index_users_on_login ON users (login)'
       User.reset_column_information
-      User.indexes.map(&:name).should == ['index_users_on_login']
+      expect(User.indexes.map(&:name)).to eq(['index_users_on_login'])
     end
   end
 
@@ -72,12 +72,12 @@ describe "with multiple schemas" do
     end
 
     it "should not find views in other schema" do
-      connection.views.should be_empty
+      expect(connection.views).to be_empty
     end
 
     it "should find views in this schema" do
       connection.execute 'CREATE VIEW myview AS SELECT * FROM users'
-      connection.views.should == ['myview']
+      expect(connection.views).to eq(['myview'])
     end
   end
 
@@ -106,9 +106,9 @@ describe "with multiple schemas" do
         t.integer :user_id, :foreign_key => false
       end
       Comment.reset_column_information
-      Comment.foreign_keys.length.should == 0
+      expect(Comment.foreign_keys.length).to eq(0)
       User.reset_column_information
-      User.reverse_foreign_keys.length.should == 0
+      expect(User.reverse_foreign_keys.length).to eq(0)
     end
 
     it "should find foreign keys in this schema" do
@@ -116,9 +116,9 @@ describe "with multiple schemas" do
         t.integer :user_id, :foreign_key => true
       end
       Comment.reset_column_information
-      Comment.foreign_keys.map(&:column_names).flatten.should == ["user_id"]
+      expect(Comment.foreign_keys.map(&:column_names).flatten).to eq(["user_id"])
       User.reset_column_information
-      User.reverse_foreign_keys.map(&:column_names).flatten.should == ["user_id"]
+      expect(User.reverse_foreign_keys.map(&:column_names).flatten).to eq(["user_id"])
     end
 
   end
@@ -157,25 +157,25 @@ describe "with multiple schemas" do
     end
 
     it "should find foreign keys" do
-      Member.foreign_keys.should_not be_empty
+      expect(Member.foreign_keys).not_to be_empty
     end
 
     it "should find reverse foreign keys" do
-      Group.reverse_foreign_keys.should_not be_empty
+      expect(Group.reverse_foreign_keys).not_to be_empty
     end
 
     it "should reference table in same schema" do
-      Member.foreign_keys.map(&:references_table_name).should include "schema_plus_test2.groups"
+      expect(Member.foreign_keys.map(&:references_table_name)).to include "schema_plus_test2.groups"
     end
 
     it "should reference table in default schema" do
-      Member.foreign_keys.map(&:references_table_name).should include "items"
+      expect(Member.foreign_keys.map(&:references_table_name)).to include "items"
     end unless SchemaPlusHelpers.mysql?
 
     it "should include the schema in the constraint name" do
       expected_names = ["fk_schema_plus_test2_members_group_id"]
       expected_names << "fk_schema_plus_test2_members_item_id" unless SchemaPlusHelpers.mysql?
-      Member.foreign_keys.map(&:name).should =~ expected_names
+      expect(Member.foreign_keys.map(&:name).sort).to match_array(expected_names.sort)
     end
   end
 
@@ -206,7 +206,7 @@ describe "with multiple schemas" do
         begin
         connection.create_view "postgis.hidden", "select 1", :force => true
         connection.create_view :myview, "select 2", :force => true
-        connection.views.should == ["myview"]
+        expect(connection.views).to eq(["myview"])
         ensure
           connection.execute 'DROP VIEW postgis.hidden' rescue nil
           connection.execute 'DROP VIEW myview' rescue nil

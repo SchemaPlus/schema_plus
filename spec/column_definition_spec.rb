@@ -44,7 +44,7 @@ describe "Column definition" do
       subject { @sql}
 
       it "should use the normal default" do
-        should == "time_taken text DEFAULT '2011-12-11 00:00:00'"
+        is_expected.to eq("time_taken text DEFAULT '2011-12-11 00:00:00'")
       end
     end
 
@@ -56,7 +56,7 @@ describe "Column definition" do
       subject { @sql}
 
       it "should use the normal default" do
-        should == "time_taken text DEFAULT '2011-12-11 00:00:00'"
+        is_expected.to eq("time_taken text DEFAULT '2011-12-11 00:00:00'")
       end
     end
 
@@ -68,7 +68,7 @@ describe "Column definition" do
       subject { @sql}
 
       it "should use the normal default" do
-        should == "time_taken text DEFAULT '2011-12-11 00:00:00' NOT NULL"
+        is_expected.to eq("time_taken text DEFAULT '2011-12-11 00:00:00' NOT NULL")
       end
     end
 
@@ -80,7 +80,7 @@ describe "Column definition" do
       subject { @sql}
 
       it "should use the normal default" do
-        should == "time_taken text DEFAULT '2011-12-11 00:00:00' NOT NULL"
+        is_expected.to eq("time_taken text DEFAULT '2011-12-11 00:00:00' NOT NULL")
       end
     end
 
@@ -97,19 +97,19 @@ describe "Column definition" do
 
       if SchemaPlusHelpers.postgresql?
         it "should use NOW() as the default" do
-          should == "time_taken text DEFAULT NOW()"
+          is_expected.to eq("time_taken text DEFAULT NOW()")
         end
       end
 
       if SchemaPlusHelpers.sqlite3?
         it "should use NOW() as the default" do
-          should == "time_taken text DEFAULT (DATETIME('now'))"
+          is_expected.to eq("time_taken text DEFAULT (DATETIME('now'))")
         end
       end
 
       if SchemaPlusHelpers.mysql?
         it "should raise an error" do
-          @raised_argument_error.should be_a ArgumentError
+          expect(@raised_argument_error).to be_a ArgumentError
         end
       end
     end
@@ -127,19 +127,19 @@ describe "Column definition" do
 
       if SchemaPlusHelpers.postgresql?
         it "should use NOW() as the default" do
-          should == "time_taken text DEFAULT NOW() NOT NULL"
+          is_expected.to eq("time_taken text DEFAULT NOW() NOT NULL")
         end
       end
 
       if SchemaPlusHelpers.sqlite3?
         it "should use NOW() as the default" do
-          should == "time_taken text DEFAULT (DATETIME('now')) NOT NULL"
+          is_expected.to eq("time_taken text DEFAULT (DATETIME('now')) NOT NULL")
         end
       end
 
       if SchemaPlusHelpers.mysql?
         it "should raise an error" do
-          @raised_argument_error.should be_a ArgumentError
+          expect(@raised_argument_error).to be_a ArgumentError
         end
       end
     end
@@ -149,19 +149,19 @@ describe "Column definition" do
 
       if SchemaPlusHelpers.postgresql?
         it "should use NOW() as the default" do
-          should == "time_taken text DEFAULT NOW()"
+          is_expected.to eq("time_taken text DEFAULT NOW()")
         end
       end
 
       if SchemaPlusHelpers.sqlite3?
         it "should use NOW() as the default" do
-          should == "time_taken text DEFAULT NOW()"
+          is_expected.to eq("time_taken text DEFAULT NOW()")
         end
       end
 
       if SchemaPlusHelpers.mysql?
         it "should raise an error" do
-          lambda { subject }.should raise_error
+          expect { subject }.to raise_error
         end
       end
     end
@@ -169,12 +169,12 @@ describe "Column definition" do
     context "invalid expr passed as default" do
       if SchemaPlusHelpers.mysql?
         it "should raise an error" do
-          lambda {call_add_column_options!(@sql, { :default => { :expr => "ARBITRARY_EXPR" } })}.should raise_error ArgumentError
+          expect {call_add_column_options!(@sql, { :default => { :expr => "ARBITRARY_EXPR" } })}.to raise_error ArgumentError
         end
       else
         it "should just accept the SQL" do
           call_add_column_options!(@sql, { :default => { :expr => "ARBITRARY_EXPR" } })
-          @sql.should == "time_taken text DEFAULT ARBITRARY_EXPR"
+          expect(@sql).to eq("time_taken text DEFAULT ARBITRARY_EXPR")
         end
       end
     end
@@ -193,7 +193,7 @@ describe "Column definition" do
       subject { @sql}
 
       it "should give the default as false" do
-        should =~ /boolean DEFAULT (\'f\'|0)/
+        is_expected.to match(/boolean DEFAULT (\'f\'|0)/)
       end
     end
 
@@ -205,7 +205,7 @@ describe "Column definition" do
       subject { @sql}
 
       it "should give the default as true" do
-        should =~ /boolean DEFAULT (\'t\'|1)/
+        is_expected.to match(/boolean DEFAULT (\'t\'|1)/)
       end
     end
   end

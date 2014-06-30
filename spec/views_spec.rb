@@ -26,36 +26,36 @@ describe ActiveRecord do
     end
 
     it "should query correctly" do
-      AOnes.all.collect(&:s).should == %W[one_one one_two]
-      ABOnes.all.collect(&:s).should == %W[one_one]
+      expect(AOnes.all.collect(&:s)).to eq(%W[one_one one_two])
+      expect(ABOnes.all.collect(&:s)).to eq(%W[one_one])
     end
 
     it "should instrospect" do
       # for postgresql, ignore views named pg_*
-      connection.views.sort.should == %W[a_ones ab_ones]
-      connection.view_definition('a_ones').should match(%r{^ ?SELECT .*b.*,.*s.* FROM .*items.* WHERE .*a.* = 1}mi)
-      connection.view_definition('ab_ones').should match(%r{^ ?SELECT .*s.* FROM .*a_ones.* WHERE .*b.* = 1}mi)
+      expect(connection.views.sort).to eq(%W[a_ones ab_ones])
+      expect(connection.view_definition('a_ones')).to match(%r{^ ?SELECT .*b.*,.*s.* FROM .*items.* WHERE .*a.* = 1}mi)
+      expect(connection.view_definition('ab_ones')).to match(%r{^ ?SELECT .*s.* FROM .*a_ones.* WHERE .*b.* = 1}mi)
     end
 
     it "should not be listed as a table" do
-      connection.tables.should_not include('a_ones')
-      connection.tables.should_not include('ab_ones')
+      expect(connection.tables).not_to include('a_ones')
+      expect(connection.tables).not_to include('ab_ones')
     end
 
 
     it "should be included in schema dump" do
-      dump.should match(%r{create_view "a_ones", " ?SELECT .*b.*,.*s.* FROM .*items.* WHERE .*a.* = 1.*, :force => true}mi)
-      dump.should match(%r{create_view "ab_ones", " ?SELECT .*s.* FROM .*a_ones.* WHERE .*b.* = 1.*, :force => true}mi)
+      expect(dump).to match(%r{create_view "a_ones", " ?SELECT .*b.*,.*s.* FROM .*items.* WHERE .*a.* = 1.*, :force => true}mi)
+      expect(dump).to match(%r{create_view "ab_ones", " ?SELECT .*s.* FROM .*a_ones.* WHERE .*b.* = 1.*, :force => true}mi)
     end
 
     it "should be included in schema dump in dependency order" do
-      dump.should match(%r{create_table "items".*create_view "a_ones".*create_view "ab_ones"}m) 
+      expect(dump).to match(%r{create_table "items".*create_view "a_ones".*create_view "ab_ones"}m) 
     end
 
     it "should not be included in schema if listed in ignore_tables" do
       dump(ignore_tables: /b_/) do |dump|
-        dump.should match(%r{create_view "a_ones", " ?SELECT .*b.*,.*s.* FROM .*items.* WHERE .*a.* = 1.*, :force => true}mi)
-        dump.should_not match(%r{"ab_ones"})
+        expect(dump).to match(%r{create_view "a_ones", " ?SELECT .*b.*,.*s.* FROM .*items.* WHERE .*a.* = 1.*, :force => true}mi)
+        expect(dump).not_to match(%r{"ab_ones"})
       end
     end
 
@@ -69,7 +69,7 @@ describe ActiveRecord do
       # initialize the test database when testing.  this meant that the
       # test database had views into the development database.
       db = connection.respond_to?(:current_database)? connection.current_database : ActiveRecord::Base.configurations['schema_plus'][:database]
-      dump.should_not match(%r{#{connection.quote_table_name(db)}[.]})
+      expect(dump).not_to match(%r{#{connection.quote_table_name(db)}[.]})
     end
 
     context "duplicate view creation" do
@@ -91,7 +91,7 @@ describe ActiveRecord do
 
       it "should override existing definition if :force true" do
         migration.create_view('dupe_me', 'SELECT * FROM items WHERE (a=2)', :force => true)
-        connection.view_definition('dupe_me').should =~ %r{WHERE .*a.*=.*2}i
+        expect(connection.view_definition('dupe_me')).to match(%r{WHERE .*a.*=.*2}i)
       end
     end
 
@@ -111,17 +111,17 @@ describe ActiveRecord do
 
         it "should introspect WITH CHECK OPTION" do
           migration.create_view :check, 'SELECT * FROM items WHERE (a=2) WITH CHECK OPTION'
-          connection.view_definition('check').should match(%r{WITH CASCADED CHECK OPTION$})
+          expect(connection.view_definition('check')).to match(%r{WITH CASCADED CHECK OPTION$})
         end
 
         it "should introspect WITH CASCADED CHECK OPTION" do
           migration.create_view :check, 'SELECT * FROM items WHERE (a=2) WITH CASCADED CHECK OPTION'
-          connection.view_definition('check').should match(%r{WITH CASCADED CHECK OPTION$})
+          expect(connection.view_definition('check')).to match(%r{WITH CASCADED CHECK OPTION$})
         end
 
         it "should introspect WITH LOCAL CHECK OPTION" do
           migration.create_view :check, 'SELECT * FROM items WHERE (a=2) WITH LOCAL CHECK OPTION'
-          connection.view_definition('check').should match(%r{WITH LOCAL CHECK OPTION$})
+          expect(connection.view_definition('check')).to match(%r{WITH LOCAL CHECK OPTION$})
         end
       end 
     end

@@ -20,11 +20,11 @@ describe "Foreign Key" do
     end
 
     it "should report foreign key constraints" do
-      Comment.foreign_keys.collect(&:column_names).flatten.should == [ "user_id" ]
+      expect(Comment.foreign_keys.collect(&:column_names).flatten).to eq([ "user_id" ])
     end
 
     it "should report reverse foreign key constraints" do
-      User.reverse_foreign_keys.collect(&:column_names).flatten.should == [ "user_id" ]
+      expect(User.reverse_foreign_keys.collect(&:column_names).flatten).to eq([ "user_id" ])
     end
 
   end
@@ -105,23 +105,23 @@ describe "Foreign Key" do
         end
 
         it "references users(id)" do
-          Post.should reference(:users, :id).on(:author_id)
+          expect(Post).to reference(:users, :id).on(:author_id)
         end
 
         it "cascades on update" do
-          Post.should reference(:users).on_update(:cascade)
+          expect(Post).to reference(:users).on_update(:cascade)
         end
 
         it "restricts on delete" do
-          Post.should reference(:users).on_delete(:restrict)
+          expect(Post).to reference(:users).on_delete(:restrict)
         end
 
         it "is available in Post.foreign_keys" do
-          Post.foreign_keys.collect(&:column_names).should include(%w[author_id])
+          expect(Post.foreign_keys.collect(&:column_names)).to include(%w[author_id])
         end
 
         it "is available in User.reverse_foreign_keys" do
-          User.reverse_foreign_keys.collect(&:column_names).should include(%w[author_id])
+          expect(User.reverse_foreign_keys.collect(&:column_names)).to include(%w[author_id])
         end
 
       end
@@ -139,15 +139,15 @@ describe "Foreign Key" do
         end
 
         it "doesn't reference posts(id)" do
-          Comment.should_not reference(:posts).on(:post_id)
+          expect(Comment).not_to reference(:posts).on(:post_id)
         end
 
         it "is no longer available in Post.foreign_keys" do
-          Comment.foreign_keys.collect(&:column_names).should_not include(%w[post_id])
+          expect(Comment.foreign_keys.collect(&:column_names)).not_to include(%w[post_id])
         end
 
         it "is no longer available in User.reverse_foreign_keys" do
-          Post.reverse_foreign_keys.collect(&:column_names).should_not include(%w[post_id])
+          expect(Post.reverse_foreign_keys.collect(&:column_names)).not_to include(%w[post_id])
         end
 
       end
@@ -158,7 +158,7 @@ describe "Foreign Key" do
 
         it "should remove foreign keys" do
           remove_foreign_key(:comments, foreign_key_name)
-          Post.reverse_foreign_keys.collect { |fk| fk.column_names == %w[post_id] && fk.table_name == "comments" }.should be_empty
+          expect(Post.reverse_foreign_keys.collect { |fk| fk.column_names == %w[post_id] && fk.table_name == "comments" }).to be_empty
         end
 
       end

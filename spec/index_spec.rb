@@ -42,39 +42,39 @@ describe "index" do
 
     it "should create index when called without additional options" do
       add_index(:users, :login)
-      index_for(:login).should_not be_nil
+      expect(index_for(:login)).not_to be_nil
     end
 
     it "should create unique index" do
       add_index(:users, :login, :unique => true)
-      index_for(:login).unique.should == true
+      expect(index_for(:login).unique).to eq(true)
     end
 
     it "should assign given name" do
       add_index(:users, :login, :name => 'users_login_index')
-      index_for(:login).name.should == 'users_login_index'
+      expect(index_for(:login).name).to eq('users_login_index')
     end
 
     unless SchemaPlusHelpers.mysql?
       it "should assign order" do
         add_index(:users, [:login, :deleted_at], :order => {:login => :desc, :deleted_at => :asc})
-        index_for([:login, :deleted_at]).orders.should == {"login" => :desc, "deleted_at" => :asc}
+        expect(index_for([:login, :deleted_at]).orders).to eq({"login" => :desc, "deleted_at" => :asc})
       end
     end
 
     context "for duplicate index" do
       it "should not complain if the index is the same" do
         add_index(:users, :login)
-        index_for(:login).should_not be_nil
-        ActiveRecord::Base.logger.should_receive(:warn).with(/login.*Skipping/)
+        expect(index_for(:login)).not_to be_nil
+        expect(ActiveRecord::Base.logger).to receive(:warn).with(/login.*Skipping/)
         expect { add_index(:users, :login) }.to_not raise_error
-        index_for(:login).should_not be_nil
+        expect(index_for(:login)).not_to be_nil
       end
       it "should complain if the index is different" do
         add_index(:users, :login, :unique => true)
-        index_for(:login).should_not be_nil
+        expect(index_for(:login)).not_to be_nil
         expect { add_index(:users, :login) }.to raise_error
-        index_for(:login).should_not be_nil
+        expect(index_for(:login)).not_to be_nil
       end
     end
 
@@ -82,34 +82,34 @@ describe "index" do
 
       it "should assign conditions" do
         add_index(:users, :login, :conditions => 'deleted_at IS NULL')
-        index_for(:login).conditions.should == '(deleted_at IS NULL)'
+        expect(index_for(:login).conditions).to eq('(deleted_at IS NULL)')
       end
 
       it "should assign expression, conditions and kind" do
         add_index(:users, :expression => "USING hash (upper(login)) WHERE deleted_at IS NULL", :name => 'users_login_index')
         @index = User.indexes.detect { |i| i.expression.present? }
-        @index.expression.should == "upper((login)::text)"
-        @index.conditions.should == "(deleted_at IS NULL)"
-        @index.kind.should       == "hash"
+        expect(@index.expression).to eq("upper((login)::text)")
+        expect(@index.conditions).to eq("(deleted_at IS NULL)")
+        expect(@index.kind).to       eq("hash")
       end
 
       it "should allow to specify expression, conditions and kind separately" do
         add_index(:users, :kind => "hash", :expression => "upper(login)", :conditions => "deleted_at IS NULL", :name => 'users_login_index')
         @index = User.indexes.detect { |i| i.expression.present? }
-        @index.expression.should == "upper((login)::text)"
-        @index.conditions.should == "(deleted_at IS NULL)"
-        @index.kind.should       == "hash"
+        expect(@index.expression).to eq("upper((login)::text)")
+        expect(@index.conditions).to eq("(deleted_at IS NULL)")
+        expect(@index.kind).to       eq("hash")
       end
 
       it "should allow to specify kind" do
         add_index(:users, :login, :kind => "hash")
-        index_for(:login).kind.should == 'hash'
+        expect(index_for(:login).kind).to eq('hash')
       end
 
       it "should allow to specify actual expression only" do
         add_index(:users, :expression => "upper(login)", :name => 'users_login_index')
         @index = User.indexes.detect { |i| i.name == 'users_login_index' }
-        @index.expression.should == "upper((login)::text)"
+        expect(@index.expression).to eq("upper((login)::text)")
       end
 
       it "should raise if no column given and expression is missing" do
@@ -151,58 +151,58 @@ describe "index" do
 
     it "removes index by column name (symbols)" do
       add_index :users, :login
-      User.indexes.length.should == 1
+      expect(User.indexes.length).to eq(1)
       remove_index :users, :login
-      User.indexes.length.should == 0
+      expect(User.indexes.length).to eq(0)
     end
 
     it "removes index by column name (symbols)" do
       add_index :users, :login
-      User.indexes.length.should == 1
+      expect(User.indexes.length).to eq(1)
       remove_index 'users', 'login'
-      User.indexes.length.should == 0
+      expect(User.indexes.length).to eq(0)
     end
 
     it "removes multi-column index by column names (symbols)" do
       add_index :users, [:login, :deleted_at]
-      User.indexes.length.should == 1
+      expect(User.indexes.length).to eq(1)
       remove_index :users, [:login, :deleted_at]
-      User.indexes.length.should == 0
+      expect(User.indexes.length).to eq(0)
     end
 
     it "removes multi-column index by column names (strings)" do
       add_index 'users', [:login, :deleted_at]
-      User.indexes.length.should == 1
+      expect(User.indexes.length).to eq(1)
       remove_index 'users', ['login', 'deleted_at']
-      User.indexes.length.should == 0
+      expect(User.indexes.length).to eq(0)
     end
 
     it "removes index using column option" do
       add_index :users, :login
-      User.indexes.length.should == 1
+      expect(User.indexes.length).to eq(1)
       remove_index :users, column: :login
-      User.indexes.length.should == 0
+      expect(User.indexes.length).to eq(0)
     end
 
     it "removes index if_exists" do
       add_index :users, :login
-      User.indexes.length.should == 1
+      expect(User.indexes.length).to eq(1)
       remove_index :users, :login, :if_exists => true
-      User.indexes.length.should == 0
+      expect(User.indexes.length).to eq(0)
     end
 
     it "removes multi-column index if exists" do
       add_index :users, [:login, :deleted_at]
-      User.indexes.length.should == 1
+      expect(User.indexes.length).to eq(1)
       remove_index :users, [:login, :deleted_at], :if_exists => true
-      User.indexes.length.should == 0
+      expect(User.indexes.length).to eq(0)
     end
 
     it "removes index if_exists using column option" do
       add_index :users, :login
-      User.indexes.length.should == 1
+      expect(User.indexes.length).to eq(1)
       remove_index :users, column: :login, :if_exists => true
-      User.indexes.length.should == 0
+      expect(User.indexes.length).to eq(0)
     end
 
     it "raises exception if doesn't exist" do

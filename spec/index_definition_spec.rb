@@ -47,7 +47,7 @@ describe "Index definition" do
     end
 
     it "is included in User.indexes" do
-      @index.should_not be_nil
+      expect(@index).not_to be_nil
     end
 
   end
@@ -55,16 +55,16 @@ describe "Index definition" do
   it "should correctly report supports_partial_indexes?" do
     query = lambda { migration.execute "CREATE INDEX users_login_index ON users(login) WHERE deleted_at IS NULL" }
     if migration.supports_partial_indexes?
-      query.should_not raise_error
+      expect(query).not_to raise_error
     else
-      query.should raise_error
+      expect(query).to raise_error
     end
   end
 
   it "should not crash on equality test with nil" do
     index = ActiveRecord::ConnectionAdapters::IndexDefinition.new(:table, :column)
     expect{index == nil}.to_not raise_error
-    (index == nil).should be false
+    expect(index == nil).to be false
   end
 
 
@@ -85,7 +85,7 @@ describe "Index definition" do
           migration.execute "CREATE INDEX users_login_index ON users (#{quote}login#{quote} DESC, #{quote}deleted_at#{quote} ASC)"
           User.reset_column_information
           index = index_definition(%w[login deleted_at])
-          index.orders.should == {"login" => :desc, "deleted_at" => :asc}
+          expect(index.orders).to eq({"login" => :desc, "deleted_at" => :asc})
         end
 
       end
@@ -104,23 +104,23 @@ describe "Index definition" do
       end
 
       it "is included in User.indexes" do
-        @index.should_not be_nil
+        expect(@index).not_to be_nil
       end
 
       it "is not case_sensitive" do
-        @index.should_not be_case_sensitive
+        expect(@index).not_to be_case_sensitive
       end
 
       it "its column should not be case sensitive" do
-        User.columns.find{|column| column.name == "login"}.should_not be_case_sensitive
+        expect(User.columns.find{|column| column.name == "login"}).not_to be_case_sensitive
       end
 
       it "defines expression" do
-        @index.expression.should == "lower((login)::text)"
+        expect(@index.expression).to eq("lower((login)::text)")
       end
 
       it "doesn't define conditions" do
-        @index.conditions.should be_nil
+        expect(@index.conditions).to be_nil
       end
 
     end
@@ -138,15 +138,15 @@ describe "Index definition" do
       end
 
       it "is case_sensitive" do
-        @index.should be_case_sensitive
+        expect(@index).to be_case_sensitive
       end
 
       it "doesn't define expression" do
-        @index.expression.should be_nil
+        expect(@index.expression).to be_nil
       end
 
       it "defines conditions" do
-        @index.conditions.should == "(deleted_at IS NULL)"
+        expect(@index.conditions).to eq("(deleted_at IS NULL)")
       end
 
     end
@@ -159,23 +159,23 @@ describe "Index definition" do
       end
 
       it "exists" do
-        @index.should_not be_nil
+        expect(@index).not_to be_nil
       end
 
       it "doesnt have columns defined" do
-        @index.columns.should be_empty
+        expect(@index.columns).to be_empty
       end
 
       it "is case_sensitive" do
-        @index.should be_case_sensitive
+        expect(@index).to be_case_sensitive
       end
 
       it "defines expression" do
-        @index.expression.should == "date_part('epoch'::text, deleted_at)"
+        expect(@index.expression).to eq("date_part('epoch'::text, deleted_at)")
       end
 
       it "defines conditions" do
-        @index.conditions.should == "(deleted_at IS NULL)"
+        expect(@index.conditions).to eq("(deleted_at IS NULL)")
       end
 
     end
@@ -188,19 +188,19 @@ describe "Index definition" do
       end
 
       it "exists" do
-        @index.should_not be_nil
+        expect(@index).not_to be_nil
       end
 
       it "defines kind" do
-        @index.kind.should == "hash"
+        expect(@index.kind).to eq("hash")
       end
 
       it "does not define expression" do
-        @index.expression.should be_nil
+        expect(@index.expression).to be_nil
       end
 
       it "does not define order" do
-        @index.orders.should be_blank
+        expect(@index.orders).to be_blank
       end
     end
 
