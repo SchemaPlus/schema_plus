@@ -199,7 +199,7 @@ describe "with multiple schemas" do
       end
 
       before(:each) do
-        connection.stub :adapter_name => 'PostGIS'
+        allow(connection).to receive(:adapter_name).and_return('PostGIS')
       end
 
       it "should hide views in postgis schema" do
