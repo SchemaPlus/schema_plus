@@ -14,7 +14,7 @@ describe "Column" do
       @login = User.columns.find{|column| column.name == "login"}
     end
     it "works properly" do
-      JSON.parse(@login.to_json).should include("name" => "login", "type" => "string")
+      expect(JSON.parse(@login.to_json)).to include("name" => "login", "type" => "string")
     end
   end
 
@@ -28,12 +28,12 @@ describe "Column" do
       end
 
       it "should report not unique" do
-        @login.should_not be_unique
+        expect(@login).not_to be_unique
       end
 
       it "should report nil unique scope" do
         create_table(User, :login => { :index => true})
-        @login.unique_scope.should be_nil
+        expect(@login.unique_scope).to be_nil
       end
     end
 
@@ -44,11 +44,11 @@ describe "Column" do
       end
 
       it "should report unique" do
-        @login.should be_unique
+        expect(@login).to be_unique
       end
 
       it "should report an empty unique scope" do
-        @login.unique_scope.should == []
+        expect(@login.unique_scope).to eq([])
       end
     end
 
@@ -62,15 +62,15 @@ describe "Column" do
       end
 
       it "should report unique for each" do
-        @first.should be_unique
-        @middle.should be_unique
-        @last.should be_unique
+        expect(@first).to be_unique
+        expect(@middle).to be_unique
+        expect(@last).to be_unique
       end
 
       it "should report unique scope for each" do
-        @first.unique_scope.should =~ %W[middle last]
-        @middle.unique_scope.should =~ %W[first last]
-        @last.unique_scope.should =~ %W[first middle]
+        expect(@first.unique_scope).to match_array(%W[middle last])
+        expect(@middle.unique_scope).to match_array(%W[first last])
+        expect(@last.unique_scope).to match_array(%W[first middle])
       end
     end
 
@@ -80,17 +80,17 @@ describe "Column" do
 
     it "not required if the column can be null" do
       create_table(User, :login => { :null => true})
-      User.columns.find{|column| column.name == "login"}.required_on.should be_nil
+      expect(User.columns.find{|column| column.name == "login"}.required_on).to be_nil
     end
 
     it "must have a value on :save if there's no default" do
       create_table(User, :login => { :null => false })
-      User.columns.find{|column| column.name == "login"}.required_on.should == :save
+      expect(User.columns.find{|column| column.name == "login"}.required_on).to eq(:save)
     end
 
     it "must have a value on :update if there's default" do
       create_table(User, :login => { :null => false, :default => "foo" })
-      User.columns.find{|column| column.name == "login"}.required_on.should == :update
+      expect(User.columns.find{|column| column.name == "login"}.required_on).to eq(:update)
     end
 
   end
@@ -113,19 +113,19 @@ describe "Column" do
 
       it "creating a record should respect default expression" do
         User.create!(:alpha => ActiveRecord::DB_DEFAULT, :beta => "hello")
-        User.last.alpha.should == "gabba"
-        User.last.beta.should == "hello"
+        expect(User.last.alpha).to eq("gabba")
+        expect(User.last.beta).to eq("hello")
       end
 
       it "updating a record should respect default expression" do
         u = User.create!(:alpha => "hey", :beta => "hello")
         u.reload
-        u.alpha.should == "hey"
-        u.beta.should == "hello"
+        expect(u.alpha).to eq("hey")
+        expect(u.beta).to eq("hello")
         u.update_attributes(:alpha => ActiveRecord::DB_DEFAULT, :beta => "goodbye")
         u.reload
-        u.alpha.should == "gabba"
-        u.beta.should == "goodbye"
+        expect(u.alpha).to eq("gabba")
+        expect(u.beta).to eq("goodbye")
       end
     end
   end

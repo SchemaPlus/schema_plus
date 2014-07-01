@@ -15,13 +15,13 @@ module SchemaPlusMatchers
       end
     end
 
-    def failure_message_for_should(should_not = false)
+    def failure_message(should_not = false)
       invert = should_not ? "not to" : ""
       "Expected #{@model.table_name} to #{invert} contain index on #{@required_columns.entries.inspect}"
     end
 
-    def failure_message_for_should_not
-      failure_message_for_should(true)
+    def failure_message_when_negated
+      failure_message(true)
     end
 
     def on(expectation)

@@ -23,12 +23,12 @@ describe ActiveRecord::Schema do
     it "should create only explicity added indexes" do
       do_schema
       expected = SchemaPlusHelpers.mysql? ? 2 : 1
-      connection.tables.collect { |table| connection.indexes(table) }.flatten.should have(expected).items
+      expect(connection.tables.collect { |table| connection.indexes(table) }.flatten.size).to eq(expected)
     end
 
     it "should create only explicity added foriegn keys" do
       do_schema
-      connection.tables.collect { |table| connection.foreign_keys(table) }.flatten.should have(2).items
+      expect(connection.tables.collect { |table| connection.foreign_keys(table) }.flatten.size).to eq(2)
     end
 
   end
