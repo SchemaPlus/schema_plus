@@ -1,5 +1,5 @@
 require 'simplecov'
-require 'simplecov-gem-adapter'
+require 'simplecov-gem-profile'
 SimpleCov.use_merging true
 SimpleCov.merge_timeout 3600
 SimpleCov.start "gem"
