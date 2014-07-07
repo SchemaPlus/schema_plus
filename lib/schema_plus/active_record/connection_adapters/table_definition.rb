@@ -109,6 +109,7 @@ module SchemaPlus::ActiveRecord::ConnectionAdapters
     def references_with_schema_plus(*args) #:nodoc:
       options = args.extract_options!
       options[:references] = nil if options[:polymorphic]
+      options[:_index] = options.delete(:index) unless options[:polymorphic] # usurp index creation from AR
       args << options
       references_without_schema_plus(*args)
     end
@@ -118,6 +119,7 @@ module SchemaPlus::ActiveRecord::ConnectionAdapters
     def belongs_to_with_schema_plus(*args) #:nodoc:
       options = args.extract_options!
       options[:references] = nil if options[:polymorphic]
+      options[:_index] = options.delete(:index) unless options[:polymorphic] # usurp index creation from AR
       args << options
       belongs_to_without_schema_plus(*args)
     end

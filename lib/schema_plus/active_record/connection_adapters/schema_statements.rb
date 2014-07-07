@@ -11,6 +11,7 @@ module SchemaPlus::ActiveRecord::ConnectionAdapters
 
     def add_reference_with_schema_plus(table_name, ref_name, options = {}) #:nodoc:
       options[:references] = nil if options[:polymorphic]
+      options[:_index] = options.delete(:index) unless options[:polymorphic] # usurp index creation from AR
       add_reference_without_schema_plus(table_name, ref_name, options)
     end
 

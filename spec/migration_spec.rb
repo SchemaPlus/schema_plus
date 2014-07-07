@@ -187,6 +187,21 @@ describe ActiveRecord::Migration do
           expect(@model).not_to reference(:posts, :id).on(:post_id)
         end
 
+        it "should create an index implicitly" do
+          create_reference(reftype, :post)
+          expect(@model).to have_index.on(:post_id)
+        end
+
+        it "should create exactly one index explicitly (#157)" do
+          create_reference(reftype, :post, :index => true)
+          expect(@model).to have_index.on(:post_id)
+        end
+
+        it "should respect :unique (#157)" do
+          create_reference(reftype, :post, :index => :unique)
+          expect(@model).to have_unique_index.on(:post_id)
+        end
+
         it "should create a two-column index if polymophic and index requested" do
           create_reference(reftype, :post, :polymorphic => true, :index => true)
           expect(@model).to have_index.on([:post_id, :post_type])
