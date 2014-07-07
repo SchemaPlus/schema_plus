@@ -3,21 +3,30 @@ module SchemaPlusMatchers
   class HaveIndex
 
     def initialize(expectation, options = {})
-      set_required_columns(expectation, options)
+      set_required_columns(expectation)
+      @unique = options.delete(:unique)
+      @name   = options.delete(:name)
     end
 
     def matches?(model)
       @model = model
-      @model.indexes.any? do |index|
-        index.columns.to_set == @required_columns &&
-          (@unique  ? index.unique : true) &&
-          (@name    ? index.name == @name.to_s : true)
+      indexes = @model.indexes.select { |index| index.columns.to_set == @required_columns }
+      if indexes.length > 1
+        @too_many = indexes.length
+        return false
       end
+      index = indexes.first
+      return index && (@unique ? index.unique : true) && (@name ? index.name == @name.to_s : true)
     end
 
     def failure_message(should_not = false)
-      invert = should_not ? "not to" : ""
-      "Expected #{@model.table_name} to #{invert} contain index on #{@required_columns.entries.inspect}"
+      invert = should_not ? "not to" : "to"
+      what = ""
+      what += "unique " if @unique
+      what += "named '{@name}'" if @name
+      msg = "Expected #{@model.table_name} #{invert} contain one #{what}index on #{@required_columns.entries.inspect}"
+      msg += "; found #{@too_many} indexes" if @too_many
+      msg
     end
 
     def failure_message_when_negated
@@ -30,10 +39,8 @@ module SchemaPlusMatchers
     end
 
     private
-    def set_required_columns(expectation, options = {})
+    def set_required_columns(expectation)
       @required_columns = Array(expectation).collect(&:to_s).to_set
-      @unique = options.delete(:unique)
-      @name   = options.delete(:name)
     end
 
   end
