@@ -10,9 +10,16 @@ describe "Column definition" do
     class Model < ::ActiveRecord::Base ; end
   end
 
-  subject { Model.create.reload.test_column }
+  subject {
+    Model.connection.execute("INSERT INTO models (dummy) values (1)")
+    Model.last.reload.test_column
+  }
 
   context "text columns" do
+
+    before(:each) do
+      @nowish = /(#{Time.now.utc.to_s.sub(/:[^:]+$/, '')}|#{Time.now.to_s.sub(/:[^:]+$/,'')}).*/
+    end
 
     context "just default passed" do
       before(:each) do
@@ -54,11 +61,10 @@ describe "Column definition" do
       end
     end
 
-    context "default function passed as now" do
+    context "default function passed as :now" do
       before(:each) do
         begin
           define_test_column(:string, :default => :now)
-          @nowish = /#{Time.now.utc.to_s.sub(/:[^:]+$/, '')}.*/
         rescue ArgumentError => e
           @raised_argument_error = e
         end
@@ -79,7 +85,6 @@ describe "Column definition" do
       before(:each) do
         begin
           define_test_column(:string, :default => :now, null: false)
-          @nowish = /#{Time.now.utc.to_s.sub(/:[^:]+$/, '')}.*/
         rescue ArgumentError => e
           @raised_argument_error = e
         end
@@ -142,6 +147,7 @@ describe "Column definition" do
     ActiveRecord::Migration.suppress_messages do
       ActiveRecord::Migration.create_table Model.table_name, :force => true do |t|
         t.send type, :test_column, *args
+        t.integer :dummy
       end
     end
     Model.reset_column_information
