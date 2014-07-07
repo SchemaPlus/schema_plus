@@ -169,6 +169,40 @@ describe ActiveRecord::Migration do
       expect(@model).to have_unique_index.on(:state)
     end
 
+    [:references, :belongs_to].each do |reftype|
+
+      context "when define #{reftype}" do
+
+        before(:each) do
+          @model = Comment
+        end
+
+        it "should create foreign key" do
+          create_reference(reftype, :post)
+          expect(@model).to reference(:posts, :id).on(:post_id)
+        end
+
+        it "should not create a foreign_key if polymorphic" do
+          create_reference(reftype, :post, :polymorphic => true)
+          expect(@model).not_to reference(:posts, :id).on(:post_id)
+        end
+
+        it "should create a two-column index if polymophic and index requested" do
+          create_reference(reftype, :post, :polymorphic => true, :index => true)
+          expect(@model).to have_index.on([:post_id, :post_type])
+        end unless ::ActiveRecord::VERSION::MAJOR.to_i < 4
+
+        protected
+
+        def create_reference(reftype, column_name, *args)
+          recreate_table(@model) do |t|
+            t.send reftype, column_name, *args
+          end
+        end
+
+      end
+    end
+
     if SchemaPlusHelpers.mysql?
       it "should pass index length option properly" do
         recreate_table(@model) do |t|
@@ -599,43 +633,6 @@ describe ActiveRecord::Migration do
 
     end
 
-    context "when add reference" do
-
-      before(:each) do
-        @model = Comment
-      end
-
-      it "should create foreign key" do
-        add_reference(:post) do
-          expect(@model).to reference(:posts, :id).on(:post_id)
-        end
-      end
-
-      it "should not create a foreign_key if polymorphic" do
-        add_reference(:post, :polymorphic => true) do
-          expect(@model).not_to reference(:posts, :id).on(:post_id)
-        end
-      end
-
-      it "should create a two-column index if polymophic and index requested" do
-        add_reference(:post, :polymorphic => true, :index => true) do
-          expect(@model).to have_index.on([:post_id, :post_type])
-        end
-      end
-
-
-      protected
-      def add_reference(column_name, *args)
-        table = @model.table_name
-        ActiveRecord::Migration.suppress_messages do
-          ActiveRecord::Migration.add_reference(table, column_name, *args)
-          @model.reset_column_information
-          yield if block_given?
-          ActiveRecord::Migration.remove_column(table, "#{column_name}_id")
-        end
-      end
-
-    end unless ::ActiveRecord::VERSION::MAJOR.to_i < 4
 
     context "when column is changed" do
 
