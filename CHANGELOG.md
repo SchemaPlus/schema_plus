@@ -2,6 +2,13 @@
 
 ## Change Log
 
+### 1.5.3
+
+* No longer limited to rails 4.1.1 (issue #159)
+* Bug fix: multiple competing indexes created for `t.references... index: :unique` (issue #157)
+* Now works with rspec 3 (thanks to [@robababa](https://github.com/robababa) (issue #160)
+* Improvements to ./runspecs (thanks to [@robababa](https://github.com/robababa) (issue #162)
+
 ### 1.5.2
 
 * For now, pin to rspec 2.* and limit rails to 4.1.1 (issue #158)
