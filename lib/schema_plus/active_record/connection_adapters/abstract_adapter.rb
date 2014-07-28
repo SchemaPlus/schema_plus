@@ -27,8 +27,10 @@ module SchemaPlus
                     when 'PostgreSQL', 'PostGIS'   then 'PostgresqlAdapter'
                     when 'SQLite'                  then 'Sqlite3Adapter'
                     end
-          unless adapter
-            ::ActiveRecord::Base.logger.warn "SchemaPlus: Unsupported adapter name #{adapter_name.inspect}.  Leaving it alone."
+          if adapter.nil?
+            unless adapter_name == 'JDBC' # ARJDBC
+              ::ActiveRecord::Base.logger.warn "SchemaPlus: Unsupported adapter name #{adapter_name.inspect}.  Leaving it alone."
+            end
             return
           end
           adapter_module = SchemaPlus::ActiveRecord::ConnectionAdapters.const_get(adapter)
