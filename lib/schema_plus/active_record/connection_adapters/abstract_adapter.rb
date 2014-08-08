@@ -26,6 +26,7 @@ module SchemaPlus
                     when /^MySQL/i                 then 'MysqlAdapter'
                     when 'PostgreSQL', 'PostGIS'   then 'PostgresqlAdapter'
                     when 'SQLite'                  then 'Sqlite3Adapter'
+                    when 'MSSQL','jbdcmssql'       then 'MssqlAdapter'
                     end
           if adapter.nil?
             unless adapter_name == 'JDBC' # ARJDBC
