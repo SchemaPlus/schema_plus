@@ -95,35 +95,33 @@ describe ActiveRecord do
       end
     end
 
-    if SchemaPlusHelpers.mysql?
-      context "in mysql" do
+    context "in mysql", :mysql => :only do
 
-        around(:each) do |example|
-          migration.suppress_messages do
-            begin
-              migration.drop_view :check if connection.views.include? 'check'
-              example.run
-            ensure
-              migration.drop_view :check if connection.views.include? 'check'
-            end
+      around(:each) do |example|
+        migration.suppress_messages do
+          begin
+            migration.drop_view :check if connection.views.include? 'check'
+            example.run
+          ensure
+            migration.drop_view :check if connection.views.include? 'check'
           end
         end
+      end
 
-        it "should introspect WITH CHECK OPTION" do
-          migration.create_view :check, 'SELECT * FROM items WHERE (a=2) WITH CHECK OPTION'
-          expect(connection.view_definition('check')).to match(%r{WITH CASCADED CHECK OPTION$})
-        end
+      it "should introspect WITH CHECK OPTION" do
+        migration.create_view :check, 'SELECT * FROM items WHERE (a=2) WITH CHECK OPTION'
+        expect(connection.view_definition('check')).to match(%r{WITH CASCADED CHECK OPTION$})
+      end
 
-        it "should introspect WITH CASCADED CHECK OPTION" do
-          migration.create_view :check, 'SELECT * FROM items WHERE (a=2) WITH CASCADED CHECK OPTION'
-          expect(connection.view_definition('check')).to match(%r{WITH CASCADED CHECK OPTION$})
-        end
+      it "should introspect WITH CASCADED CHECK OPTION" do
+        migration.create_view :check, 'SELECT * FROM items WHERE (a=2) WITH CASCADED CHECK OPTION'
+        expect(connection.view_definition('check')).to match(%r{WITH CASCADED CHECK OPTION$})
+      end
 
-        it "should introspect WITH LOCAL CHECK OPTION" do
-          migration.create_view :check, 'SELECT * FROM items WHERE (a=2) WITH LOCAL CHECK OPTION'
-          expect(connection.view_definition('check')).to match(%r{WITH LOCAL CHECK OPTION$})
-        end
-      end 
+      it "should introspect WITH LOCAL CHECK OPTION" do
+        migration.create_view :check, 'SELECT * FROM items WHERE (a=2) WITH LOCAL CHECK OPTION'
+        expect(connection.view_definition('check')).to match(%r{WITH LOCAL CHECK OPTION$})
+      end
     end
   end
 

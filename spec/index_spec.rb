@@ -55,11 +55,9 @@ describe "index" do
       expect(index_for(:login).name).to eq('users_login_index')
     end
 
-    unless SchemaPlusHelpers.mysql?
-      it "should assign order" do
-        add_index(:users, [:login, :deleted_at], :order => {:login => :desc, :deleted_at => :asc})
-        expect(index_for([:login, :deleted_at]).orders).to eq({"login" => :desc, "deleted_at" => :asc})
-      end
+    it "should assign order", :mysql => :skip do
+      add_index(:users, [:login, :deleted_at], :order => {:login => :desc, :deleted_at => :asc})
+      expect(index_for([:login, :deleted_at]).orders).to eq({"login" => :desc, "deleted_at" => :asc})
     end
 
     context "for duplicate index" do
@@ -78,7 +76,7 @@ describe "index" do
       end
     end
 
-    if SchemaPlusHelpers.postgresql?
+    context "extra features", :postgresql => :only do
 
       it "should assign conditions" do
         add_index(:users, :login, :conditions => 'deleted_at IS NULL')
@@ -124,8 +122,7 @@ describe "index" do
         expect { add_index(:users, :name => 'users_login_index', :expression => "USING btree (login)", :case_sensitive => false) }.to raise_error(ArgumentError, /use LOWER/i)
       end
 
-
-    end # of postgresql specific examples
+    end
 
     protected
 

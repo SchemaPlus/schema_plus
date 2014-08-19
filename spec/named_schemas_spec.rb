@@ -168,9 +168,9 @@ describe "with multiple schemas" do
       expect(Member.foreign_keys.map(&:references_table_name)).to include "schema_plus_test2.groups"
     end
 
-    it "should reference table in default schema" do
+    it "should reference table in default schema", :mysql => :skip do
       expect(Member.foreign_keys.map(&:references_table_name)).to include "items"
-    end unless SchemaPlusHelpers.mysql?
+    end
 
     it "should include the schema in the constraint name" do
       expected_names = ["fk_schema_plus_test2_members_group_id"]
@@ -179,38 +179,36 @@ describe "with multiple schemas" do
     end
   end
 
-  if SchemaPlusHelpers.postgresql?
-    context "when using PostGIS" do
-      before(:all) do
-        begin
-          connection.execute "CREATE SCHEMA postgis"
-        rescue ActiveRecord::StatementInvalid => e
-          raise unless e.message =~ /already exists/
-        end
+  context "when using PostGIS", :postgresql => :only do
+    before(:all) do
+      begin
+        connection.execute "CREATE SCHEMA postgis"
+      rescue ActiveRecord::StatementInvalid => e
+        raise unless e.message =~ /already exists/
       end
+    end
 
-      around (:each) do |example|
-        begin
-          connection.execute "SET search_path to '$user','public','postgis'"
-          example.run
-        ensure
-          connection.execute "SET search_path to '$user','public'"
-        end
+    around (:each) do |example|
+      begin
+        connection.execute "SET search_path to '$user','public','postgis'"
+        example.run
+      ensure
+        connection.execute "SET search_path to '$user','public'"
       end
+    end
 
-      before(:each) do
-        allow(connection).to receive(:adapter_name).and_return('PostGIS')
-      end
+    before(:each) do
+      allow(connection).to receive(:adapter_name).and_return('PostGIS')
+    end
 
-      it "should hide views in postgis schema" do
-        begin
+    it "should hide views in postgis schema" do
+      begin
         connection.create_view "postgis.hidden", "select 1", :force => true
         connection.create_view :myview, "select 2", :force => true
         expect(connection.views).to eq(["myview"])
-        ensure
-          connection.execute 'DROP VIEW postgis.hidden' rescue nil
-          connection.execute 'DROP VIEW myview' rescue nil
-        end
+      ensure
+        connection.execute 'DROP VIEW postgis.hidden' rescue nil
+        connection.execute 'DROP VIEW myview' rescue nil
       end
     end
   end

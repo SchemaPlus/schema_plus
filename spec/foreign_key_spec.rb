@@ -79,25 +79,12 @@ describe "Foreign Key" do
       class Comment < ::ActiveRecord::Base ; end
     end
 
-    if SchemaPlusHelpers.sqlite3?
 
-      it "raises an exception when attempting to add" do
-        expect { 
-          add_foreign_key(:posts, :author_id, :users, :id, :on_update => :cascade, :on_delete => :restrict)
-        }.to raise_error(NotImplementedError)
-      end
-
-      it "raises an exception when attempting to remove" do
-        expect { 
-          remove_foreign_key(:posts, "dummy")
-        }.to raise_error(NotImplementedError)
-      end
-
-    else
+    context "works", :sqlite3 => :skip do
 
       context "when is added", "posts(author_id)" do
 
-        before(:each) do 
+        before(:each) do
           add_foreign_key(:posts, :author_id, :users, :id, :on_update => :cascade, :on_delete => :restrict)
         end
 
@@ -183,6 +170,22 @@ describe "Foreign Key" do
             }.to_not raise_error
           end
         end
+      end
+
+    end
+
+    context "raises an exception", :sqlite3 => :only do
+
+      it "when attempting to add" do
+        expect {
+          add_foreign_key(:posts, :author_id, :users, :id, :on_update => :cascade, :on_delete => :restrict)
+        }.to raise_error(NotImplementedError)
+      end
+
+      it "when attempting to remove" do
+        expect {
+          remove_foreign_key(:posts, "dummy")
+        }.to raise_error(NotImplementedError)
       end
 
     end

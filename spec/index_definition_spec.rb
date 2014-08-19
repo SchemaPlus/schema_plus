@@ -68,144 +68,139 @@ describe "Index definition" do
   end
 
 
-  unless SchemaPlusHelpers.mysql?
-    context "when index is ordered" do
+  context "when index is ordered", :mysql => :skip do
 
-      quotes = [
-        ["unquoted", ''],
-        ["double-quoted", '"'],
-      ]
-      quotes += [
-        ["single-quoted", "'"],
-        ["back-quoted", '`']
-      ] if SchemaPlusHelpers.sqlite3?
+    quotes = [
+      ["unquoted", ''],
+      ["double-quoted", '"'],
+    ]
+    quotes += [
+      ["single-quoted", "'"],
+      ["back-quoted", '`']
+    ] if SchemaPlusHelpers.sqlite3?
 
-      quotes.each do |quotename, quote|
-        it "index definition includes orders for #{quotename} columns" do
-          migration.execute "CREATE INDEX users_login_index ON users (#{quote}login#{quote} DESC, #{quote}deleted_at#{quote} ASC)"
-          User.reset_column_information
-          index = index_definition(%w[login deleted_at])
-          expect(index.orders).to eq({"login" => :desc, "deleted_at" => :asc})
-        end
-
+    quotes.each do |quotename, quote|
+      it "index definition includes orders for #{quotename} columns" do
+        migration.execute "CREATE INDEX users_login_index ON users (#{quote}login#{quote} DESC, #{quote}deleted_at#{quote} ASC)"
+        User.reset_column_information
+        index = index_definition(%w[login deleted_at])
+        expect(index.orders).to eq({"login" => :desc, "deleted_at" => :asc})
       end
+
     end
   end
 
 
-  if SchemaPlusHelpers.postgresql?
+  context "when case insensitive is added", :postgresql => :only do
 
-    context "when case insensitive is added" do
-
-      before(:each) do
-        migration.execute "CREATE INDEX users_login_index ON users(LOWER(login))"
-        User.reset_column_information
-        @index = User.indexes.detect { |i| i.expression =~ /lower\(\(login\)::text\)/i }
-      end
-
-      it "is included in User.indexes" do
-        expect(@index).not_to be_nil
-      end
-
-      it "is not case_sensitive" do
-        expect(@index).not_to be_case_sensitive
-      end
-
-      it "its column should not be case sensitive" do
-        expect(User.columns.find{|column| column.name == "login"}).not_to be_case_sensitive
-      end
-
-      it "defines expression" do
-        expect(@index.expression).to eq("lower((login)::text)")
-      end
-
-      it "doesn't define conditions" do
-        expect(@index.conditions).to be_nil
-      end
-
+    before(:each) do
+      migration.execute "CREATE INDEX users_login_index ON users(LOWER(login))"
+      User.reset_column_information
+      @index = User.indexes.detect { |i| i.expression =~ /lower\(\(login\)::text\)/i }
     end
 
-
-    context "when index is partial and column is not downcased" do
-      before(:each) do
-        migration.execute "CREATE INDEX users_login_index ON users(login) WHERE deleted_at IS NULL"
-        User.reset_column_information
-        @index = index_definition("login")
-      end
-
-      it "is included in User.indexes" do
-        expect(User.indexes.select { |index| index.columns == ["login"] }.size).to eq(1)
-      end
-
-      it "is case_sensitive" do
-        expect(@index).to be_case_sensitive
-      end
-
-      it "doesn't define expression" do
-        expect(@index.expression).to be_nil
-      end
-
-      it "defines conditions" do
-        expect(@index.conditions).to eq("(deleted_at IS NULL)")
-      end
-
+    it "is included in User.indexes" do
+      expect(@index).not_to be_nil
     end
 
-    context "when index contains expression" do
-      before(:each) do
-        migration.execute "CREATE INDEX users_login_index ON users (extract(EPOCH from deleted_at)) WHERE deleted_at IS NULL"
-        User.reset_column_information
-        @index = User.indexes.detect { |i| i.expression.present? }
-      end
-
-      it "exists" do
-        expect(@index).not_to be_nil
-      end
-
-      it "doesnt have columns defined" do
-        expect(@index.columns).to be_empty
-      end
-
-      it "is case_sensitive" do
-        expect(@index).to be_case_sensitive
-      end
-
-      it "defines expression" do
-        expect(@index.expression).to eq("date_part('epoch'::text, deleted_at)")
-      end
-
-      it "defines conditions" do
-        expect(@index.conditions).to eq("(deleted_at IS NULL)")
-      end
-
+    it "is not case_sensitive" do
+      expect(@index).not_to be_case_sensitive
     end
 
-    context "when index has a non-btree type" do
-      before(:each) do
-        migration.execute "CREATE INDEX users_login_index ON users USING hash(login)"
-        User.reset_column_information
-        @index = User.indexes.detect { |i| i.name == "users_login_index" }
-      end
-
-      it "exists" do
-        expect(@index).not_to be_nil
-      end
-
-      it "defines kind" do
-        expect(@index.kind).to eq("hash")
-      end
-
-      it "does not define expression" do
-        expect(@index.expression).to be_nil
-      end
-
-      it "does not define order" do
-        expect(@index.orders).to be_blank
-      end
+    it "its column should not be case sensitive" do
+      expect(User.columns.find{|column| column.name == "login"}).not_to be_case_sensitive
     end
 
+    it "defines expression" do
+      expect(@index.expression).to eq("lower((login)::text)")
+    end
 
-  end # of postgresql specific examples
+    it "doesn't define conditions" do
+      expect(@index.conditions).to be_nil
+    end
+
+  end
+
+
+  context "when index is partial and column is not downcased", :postgresql => :only do
+    before(:each) do
+      migration.execute "CREATE INDEX users_login_index ON users(login) WHERE deleted_at IS NULL"
+      User.reset_column_information
+      @index = index_definition("login")
+    end
+
+    it "is included in User.indexes" do
+      expect(User.indexes.select { |index| index.columns == ["login"] }.size).to eq(1)
+    end
+
+    it "is case_sensitive" do
+      expect(@index).to be_case_sensitive
+    end
+
+    it "doesn't define expression" do
+      expect(@index.expression).to be_nil
+    end
+
+    it "defines conditions" do
+      expect(@index.conditions).to eq("(deleted_at IS NULL)")
+    end
+
+  end
+
+  context "when index contains expression", :postgresql => :only do
+    before(:each) do
+      migration.execute "CREATE INDEX users_login_index ON users (extract(EPOCH from deleted_at)) WHERE deleted_at IS NULL"
+      User.reset_column_information
+      @index = User.indexes.detect { |i| i.expression.present? }
+    end
+
+    it "exists" do
+      expect(@index).not_to be_nil
+    end
+
+    it "doesnt have columns defined" do
+      expect(@index.columns).to be_empty
+    end
+
+    it "is case_sensitive" do
+      expect(@index).to be_case_sensitive
+    end
+
+    it "defines expression" do
+      expect(@index.expression).to eq("date_part('epoch'::text, deleted_at)")
+    end
+
+    it "defines conditions" do
+      expect(@index.conditions).to eq("(deleted_at IS NULL)")
+    end
+
+  end
+
+  context "when index has a non-btree type", :postgresql => :only do
+    before(:each) do
+      migration.execute "CREATE INDEX users_login_index ON users USING hash(login)"
+      User.reset_column_information
+      @index = User.indexes.detect { |i| i.name == "users_login_index" }
+    end
+
+    it "exists" do
+      expect(@index).not_to be_nil
+    end
+
+    it "defines kind" do
+      expect(@index.kind).to eq("hash")
+    end
+
+    it "does not define expression" do
+      expect(@index.expression).to be_nil
+    end
+
+    it "does not define order" do
+      expect(@index.orders).to be_blank
+    end
+  end
+
+
 
   protected
   def index_definition(column_names)

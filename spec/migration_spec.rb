@@ -2,7 +2,6 @@
 require File.expand_path(File.dirname(__FILE__) + '/spec_helper')
 
 describe ActiveRecord::Migration do
-  include SchemaPlusHelpers
 
   before(:each) do
     define_schema(:auto_create => true) do
@@ -44,7 +43,7 @@ describe ActiveRecord::Migration do
     it "should properly handle default values for booleans" do
       expect {
         recreate_table(@model) do |t|
-         t.boolean :bool, :default => true
+          t.boolean :bool, :default => true
         end
       }.to_not raise_error
       expect(@model.create.reload.bool).to be true
@@ -218,15 +217,13 @@ describe ActiveRecord::Migration do
       end
     end
 
-    if SchemaPlusHelpers.mysql?
-      it "should pass index length option properly" do
-        recreate_table(@model) do |t|
-          t.string :foo
-          t.string :bar, :index => { :with => :foo, :length => { :foo => 8, :bar => 12 }}
-        end
-        index = @model.indexes.first
-        expect(Hash[index.columns.zip(index.lengths.map(&:to_i))]).to eq({ "foo" => 8, "bar" => 12})
+    it "should pass index length option properly", :mysql => :only do
+      recreate_table(@model) do |t|
+        t.string :foo
+        t.string :bar, :index => { :with => :foo, :length => { :foo => 8, :bar => 12 }}
       end
+      index = @model.indexes.first
+      expect(Hash[index.columns.zip(index.lengths.map(&:to_i))]).to eq({ "foo" => 8, "bar" => 12})
     end
 
     it "should create an index if specified explicitly" do
@@ -293,63 +290,69 @@ describe ActiveRecord::Migration do
 
     actions = [:cascade, :restrict, :set_null, :set_default, :no_action]
 
-    if SchemaPlusHelpers.mysql?
-      actions.delete(:set_default)
-      it "should raise a not-implemented error for on_update => :set_default" do
-        expect {
-          recreate_table @model do |t|
-            t.integer :user_id, :foreign_key => { :on_update => :set_default }
-          end
-        }.to raise_error(NotImplementedError)
-      end
-
-      it "should raise a not-implemented error for on_delete => :set_default" do
-        expect {
-          recreate_table @model do |t|
-            t.integer :user_id, :foreign_key => { :on_delete => :set_default }
-          end
-        }.to raise_error(NotImplementedError)
-      end
-    end
-
     actions.each do |action|
-      it "should create and detect on_update #{action.inspect}" do
+      if action == :set_default
+        if_action_supported = { :mysql => :skip }
+        if_action_unsupported = { :mysql => :only }
+      else
+        if_action_supported = { :if => true }
+        if_action_unsupported = { :if => false }
+      end
+
+      it "should create and detect on_update #{action.inspect}", if_action_supported do
         recreate_table @model do |t|
           t.integer :user_id,   :foreign_key => { :on_update => action }
         end
         expect(@model).to reference.on(:user_id).on_update(action)
       end
 
-      it "should create and detect on_update #{action.inspect} using shortcut" do
+      it "should create and detect on_update #{action.inspect} using shortcut", if_action_supported do
         recreate_table @model do |t|
           t.integer :user_id,   :on_update => action
         end
         expect(@model).to reference.on(:user_id).on_update(action)
       end
 
-      it "should create and detect on_delete #{action.inspect}" do
+      it "should raise a not-implemented error for on_update => #{action}", if_action_unsupported do
+        expect {
+          recreate_table @model do |t|
+            t.integer :user_id, :foreign_key => { :on_update => action }
+          end
+        }.to raise_error(NotImplementedError)
+      end
+
+      it "should create and detect on_delete #{action.inspect}", if_action_supported do
         recreate_table @model do |t|
           t.integer :user_id,   :foreign_key => { :on_delete => action }
         end
         expect(@model).to reference.on(:user_id).on_delete(action)
       end
 
-      it "should create and detect on_delete #{action.inspect} using shortcut" do
+      it "should create and detect on_delete #{action.inspect} using shortcut", if_action_supported do
         recreate_table @model do |t|
           t.integer :user_id,   :on_delete => action
         end
         expect(@model).to reference.on(:user_id).on_delete(action)
       end
+
+      it "should raise a not-implemented error for on_delete => #{action}", if_action_unsupported do
+        expect {
+          recreate_table @model do |t|
+            t.integer :user_id, :foreign_key => { :on_delete => action }
+          end
+        }.to raise_error(NotImplementedError)
+      end
+
     end
 
     [false, true, :initially_deferred].each do |status|
-      it "should create and detect deferrable #{status.inspect}" do
+      it "should create and detect deferrable #{status.inspect}", :mysql => :skip do
         recreate_table @model do |t|
           t.integer :user_id,   :on_delete => :cascade, :deferrable => status
         end
         expect(@model).to reference.on(:user_id).deferrable(status)
       end
-    end unless SchemaPlusHelpers.mysql?
+    end
 
     it "should use default on_delete action" do
       with_fk_config(:on_delete => :cascade) do
@@ -407,30 +410,27 @@ describe ActiveRecord::Migration do
     it "should raise an error for an invalid on_delete action" do
       expect {
         recreate_table @model do |t|
-        t.integer :user_id, :foreign_key => { :on_delete => :invalid }
+          t.integer :user_id, :foreign_key => { :on_delete => :invalid }
         end
       }.to raise_error(ArgumentError)
     end
 
-    unless SchemaPlusHelpers.mysql?
-      it "should override foreign key auto_index negatively" do
-        with_fk_config(:auto_index => true) do
-          recreate_table @model, :foreign_keys => {:auto_index => false} do |t|
-            t.integer :user_id
-          end
-          expect(@model).not_to have_index.on(:user_id)
+    it "should override foreign key auto_index negatively", :mysql => :skip do
+      with_fk_config(:auto_index => true) do
+        recreate_table @model, :foreign_keys => {:auto_index => false} do |t|
+          t.integer :user_id
         end
+        expect(@model).not_to have_index.on(:user_id)
       end
+    end
 
-      it "should disable auto-index for a column" do
-        with_fk_config(:auto_index => true) do
-          recreate_table @model do |t|
-            t.integer :user_id, :index => false
-          end
-          expect(@model).not_to have_index.on(:user_id)
+    it "should disable auto-index for a column", :mysql => :skip do
+      with_fk_config(:auto_index => true) do
+        recreate_table @model do |t|
+          t.integer :user_id, :index => false
         end
+        expect(@model).not_to have_index.on(:user_id)
       end
-
     end
 
   end
@@ -449,322 +449,312 @@ describe ActiveRecord::Migration do
         expect(@model).to have_index.on(:state)
       end
 
-      unless SchemaPlusHelpers.sqlite3?
-
-        it "should create a foreign key constraint"+suffix do
-          change_table(@model, :bulk => bulk) do |t|
-            t.integer :user_id
-          end
-          expect(@model).to reference(:users, :id).on(:user_id)
+      it "should create a foreign key constraint"+suffix, :sqlite3 => :skip do
+        change_table(@model, :bulk => bulk) do |t|
+          t.integer :user_id
         end
+        expect(@model).to reference(:users, :id).on(:user_id)
+      end
 
-        context "migrate down" do
-          it "should remove a foreign key constraint"+suffix do
-            Comment.reset_column_information
-            expect(Comment).to reference(:users, :id).on(:user_id)
-            migration = Class.new ::ActiveRecord::Migration do
-              define_method(:change) {
-                change_table("comments", :bulk => bulk) do |t|
-                  t.integer :user_id
-                end
-              }
-            end
-            ActiveRecord::Migration.suppress_messages do
-              migration.migrate(:down)
-            end
-            Comment.reset_column_information
-            expect(Comment).not_to reference(:users, :id).on(:user_id)
+      context "migrate down" do
+        it "should remove a foreign key constraint"+suffix, :sqlite3 => :skip do
+          Comment.reset_column_information
+          expect(Comment).to reference(:users, :id).on(:user_id)
+          migration = Class.new ::ActiveRecord::Migration do
+            define_method(:change) {
+              change_table("comments", :bulk => bulk) do |t|
+                t.integer :user_id
+              end
+            }
           end
-        end if ActiveRecord::VERSION::MAJOR >= 4
-
-        it "should create a foreign key constraint using :references"+suffix do
-          change_table(@model, :bulk => bulk) do |t|
-            t.references :user
+          ActiveRecord::Migration.suppress_messages do
+            migration.migrate(:down)
           end
-          expect(@model).to reference(:users, :id).on(:user_id)
+          Comment.reset_column_information
+          expect(Comment).not_to reference(:users, :id).on(:user_id)
         end
+      end if ActiveRecord::VERSION::MAJOR >= 4
 
-        it "should create a foreign key constraint using :belongs_to"+suffix do
-          change_table(@model, :bulk => bulk) do |t|
-            t.belongs_to :user
-          end
-          expect(@model).to reference(:users, :id).on(:user_id)
+      it "should create a foreign key constraint using :references"+suffix, :sqlite3 => :skip do
+        change_table(@model, :bulk => bulk) do |t|
+          t.references :user
         end
+        expect(@model).to reference(:users, :id).on(:user_id)
+      end
+
+      it "should create a foreign key constraint using :belongs_to"+suffix, :sqlite3 => :skip do
+        change_table(@model, :bulk => bulk) do |t|
+          t.belongs_to :user
+        end
+        expect(@model).to reference(:users, :id).on(:user_id)
       end
     end
   end
 
+  context "when column is added", :sqlite3 => :skip do
 
-  unless SchemaPlusHelpers.sqlite3?
-
-    context "when column is added" do
-
-      before(:each) do
-        @model = Comment
-      end
-
-      it "should create an index" do
-        add_column(:slug, :string, :index => true) do
-          expect(@model).to have_index.on(:slug)
-        end
-      end
-
-      it "should create foreign key" do
-        add_column(:post_id, :integer) do
-          expect(@model).to reference(:posts, :id).on(:post_id)
-        end
-      end
-
-      it "should create foreign key to explicitly given table" do
-        add_column(:author_id, :integer, :foreign_key => { :references => :users }) do
-          expect(@model).to reference(:users, :id).on(:author_id)
-        end
-      end
-
-      it "should create foreign key to explicitly given table using shortcut" do
-        add_column(:author_id, :integer, :references => :users) do
-          expect(@model).to reference(:users, :id).on(:author_id)
-        end
-      end
-
-      it "should create foreign key to explicitly given table and column name" do
-        add_column(:author_login, :string, :foreign_key => { :references => [:users, :login]}) do
-          expect(@model).to reference(:users, :login).on(:author_login)
-        end
-      end
-
-      it "should create foreign key to the same table on parent_id" do
-        add_column(:parent_id, :integer) do
-          expect(@model).to reference(@model.table_name, :id).on(:parent_id)
-        end
-      end
-
-      it "shouldn't create foreign key if column doesn't look like foreign key" do
-        add_column(:views_count, :integer) do
-          expect(@model).not_to reference.on(:views_count)
-        end
-      end
-
-      it "shouldn't create foreign key if specified explicitly" do
-        add_column(:post_id, :integer, :foreign_key => false) do
-          expect(@model).not_to reference.on(:post_id)
-        end
-      end
-
-      it "shouldn't create foreign key if specified explicitly by shorthand" do
-        add_column(:post_id, :integer, :references => nil) do
-          expect(@model).not_to reference.on(:post_id)
-        end
-      end
-
-      it "should create an index if specified" do
-        add_column(:post_id, :integer, :index => true) do
-          expect(@model).to have_index.on(:post_id)
-        end
-      end
-
-      it "should create a unique index if specified" do
-        add_column(:post_id, :integer, :index => { :unique => true }) do
-          expect(@model).to have_unique_index.on(:post_id)
-        end
-      end
-
-      it "should create a unique index if specified by shorthand" do
-        add_column(:post_id, :integer, :index => :unique) do
-          expect(@model).to have_unique_index.on(:post_id)
-        end
-      end
-
-      it "should allow custom name for index" do
-        index_name = 'comments_post_id_unique_index'
-        add_column(:post_id, :integer, :index => { :unique => true, :name => index_name }) do
-          expect(@model).to have_unique_index(:name => index_name).on(:post_id)
-        end
-      end
-
-      it "should auto-index if specified in global options" do
-        SchemaPlus.config.foreign_keys.auto_index = true
-        add_column(:post_id, :integer) do
-          expect(@model).to have_index.on(:post_id)
-        end
-        SchemaPlus.config.foreign_keys.auto_index = false
-      end
-
-      it "should auto-index foreign keys only" do
-        SchemaPlus.config.foreign_keys.auto_index = true
-        add_column(:state, :integer) do
-          expect(@model).not_to have_index.on(:state)
-        end
-        SchemaPlus.config.foreign_keys.auto_index = false
-      end
-
-      it "should allow to overwrite auto_index options in column definition" do
-        SchemaPlus.config.foreign_keys.auto_index = true
-        add_column(:post_id, :integer, :index => false) do
-          # MySQL creates an index on foreign by default
-          # and we can do nothing with that
-          unless SchemaPlusHelpers.mysql?
-            expect(@model).not_to have_index.on(:post_id)
-          end
-        end
-        SchemaPlus.config.foreign_keys.auto_index = false
-      end
-
-      it "should use default on_update action" do
-        SchemaPlus.config.foreign_keys.on_update = :cascade
-        add_column(:post_id, :integer) do
-          expect(@model).to reference.on(:post_id).on_update(:cascade)
-        end
-        SchemaPlus.config.foreign_keys.on_update = nil
-      end
-
-      it "should use default on_delete action" do
-        SchemaPlus.config.foreign_keys.on_delete = :cascade
-        add_column(:post_id, :integer) do
-          expect(@model).to reference.on(:post_id).on_delete(:cascade)
-        end
-        SchemaPlus.config.foreign_keys.on_delete = nil
-      end
-
-      it "should allow to overwrite default actions" do
-        SchemaPlus.config.foreign_keys.on_delete = :cascade
-        SchemaPlus.config.foreign_keys.on_update = :restrict
-        add_column(:post_id, :integer, :foreign_key => { :on_update => :set_null, :on_delete => :set_null}) do
-          expect(@model).to reference.on(:post_id).on_delete(:set_null).on_update(:set_null)
-        end
-        SchemaPlus.config.foreign_keys.on_delete = nil
-      end
-
-      protected
-      def add_column(column_name, *args)
-        table = @model.table_name
-        ActiveRecord::Migration.suppress_messages do
-          ActiveRecord::Migration.add_column(table, column_name, *args)
-          @model.reset_column_information
-          yield if block_given?
-          ActiveRecord::Migration.remove_column(table, column_name)
-        end
-      end
-
+    before(:each) do
+      @model = Comment
     end
 
+    it "should create an index" do
+      add_column(:slug, :string, :index => true) do
+        expect(@model).to have_index.on(:slug)
+      end
+    end
 
-    context "when column is changed" do
+    it "should create foreign key" do
+      add_column(:post_id, :integer) do
+        expect(@model).to reference(:posts, :id).on(:post_id)
+      end
+    end
+
+    it "should create foreign key to explicitly given table" do
+      add_column(:author_id, :integer, :foreign_key => { :references => :users }) do
+        expect(@model).to reference(:users, :id).on(:author_id)
+      end
+    end
+
+    it "should create foreign key to explicitly given table using shortcut" do
+      add_column(:author_id, :integer, :references => :users) do
+        expect(@model).to reference(:users, :id).on(:author_id)
+      end
+    end
+
+    it "should create foreign key to explicitly given table and column name" do
+      add_column(:author_login, :string, :foreign_key => { :references => [:users, :login]}) do
+        expect(@model).to reference(:users, :login).on(:author_login)
+      end
+    end
+
+    it "should create foreign key to the same table on parent_id" do
+      add_column(:parent_id, :integer) do
+        expect(@model).to reference(@model.table_name, :id).on(:parent_id)
+      end
+    end
+
+    it "shouldn't create foreign key if column doesn't look like foreign key" do
+      add_column(:views_count, :integer) do
+        expect(@model).not_to reference.on(:views_count)
+      end
+    end
+
+    it "shouldn't create foreign key if specified explicitly" do
+      add_column(:post_id, :integer, :foreign_key => false) do
+        expect(@model).not_to reference.on(:post_id)
+      end
+    end
+
+    it "shouldn't create foreign key if specified explicitly by shorthand" do
+      add_column(:post_id, :integer, :references => nil) do
+        expect(@model).not_to reference.on(:post_id)
+      end
+    end
+
+    it "should create an index if specified" do
+      add_column(:post_id, :integer, :index => true) do
+        expect(@model).to have_index.on(:post_id)
+      end
+    end
+
+    it "should create a unique index if specified" do
+      add_column(:post_id, :integer, :index => { :unique => true }) do
+        expect(@model).to have_unique_index.on(:post_id)
+      end
+    end
+
+    it "should create a unique index if specified by shorthand" do
+      add_column(:post_id, :integer, :index => :unique) do
+        expect(@model).to have_unique_index.on(:post_id)
+      end
+    end
+
+    it "should allow custom name for index" do
+      index_name = 'comments_post_id_unique_index'
+      add_column(:post_id, :integer, :index => { :unique => true, :name => index_name }) do
+        expect(@model).to have_unique_index(:name => index_name).on(:post_id)
+      end
+    end
+
+    it "should auto-index if specified in global options" do
+      SchemaPlus.config.foreign_keys.auto_index = true
+      add_column(:post_id, :integer) do
+        expect(@model).to have_index.on(:post_id)
+      end
+      SchemaPlus.config.foreign_keys.auto_index = false
+    end
+
+    it "should auto-index foreign keys only" do
+      SchemaPlus.config.foreign_keys.auto_index = true
+      add_column(:state, :integer) do
+        expect(@model).not_to have_index.on(:state)
+      end
+      SchemaPlus.config.foreign_keys.auto_index = false
+    end
+
+    # MySQL creates an index on foreign key and we can't override that
+    it "should allow to overwrite auto_index options in column definition", :mysql => :skip do
+      SchemaPlus.config.foreign_keys.auto_index = true
+      add_column(:post_id, :integer, :index => false) do
+        expect(@model).not_to have_index.on(:post_id)
+      end
+      SchemaPlus.config.foreign_keys.auto_index = false
+    end
+
+    it "should use default on_update action" do
+      SchemaPlus.config.foreign_keys.on_update = :cascade
+      add_column(:post_id, :integer) do
+        expect(@model).to reference.on(:post_id).on_update(:cascade)
+      end
+      SchemaPlus.config.foreign_keys.on_update = nil
+    end
+
+    it "should use default on_delete action" do
+      SchemaPlus.config.foreign_keys.on_delete = :cascade
+      add_column(:post_id, :integer) do
+        expect(@model).to reference.on(:post_id).on_delete(:cascade)
+      end
+      SchemaPlus.config.foreign_keys.on_delete = nil
+    end
+
+    it "should allow to overwrite default actions" do
+      SchemaPlus.config.foreign_keys.on_delete = :cascade
+      SchemaPlus.config.foreign_keys.on_update = :restrict
+      add_column(:post_id, :integer, :foreign_key => { :on_update => :set_null, :on_delete => :set_null}) do
+        expect(@model).to reference.on(:post_id).on_delete(:set_null).on_update(:set_null)
+      end
+      SchemaPlus.config.foreign_keys.on_delete = nil
+    end
+
+    protected
+    def add_column(column_name, *args)
+      table = @model.table_name
+      ActiveRecord::Migration.suppress_messages do
+        ActiveRecord::Migration.add_column(table, column_name, *args)
+        @model.reset_column_information
+        yield if block_given?
+        ActiveRecord::Migration.remove_column(table, column_name)
+      end
+    end
+
+  end
+
+
+  context "when column is changed", :sqlite3 => :skip do
+
+    before(:each) do
+      @model = Comment
+    end
+
+    it "should create foreign key" do
+      change_column :user, :string, :foreign_key => { :references => [:users, :login] }
+      expect(@model).to reference(:users, :login).on(:user)
+    end
+
+    context "and initially references to users table" do
 
       before(:each) do
-        @model = Comment
+        recreate_table @model do |t|
+          t.integer :user_id
+        end
       end
 
-      it "should create foreign key" do
-        change_column :user, :string, :foreign_key => { :references => [:users, :login] }
-        expect(@model).to reference(:users, :login).on(:user)
+      it "should have foreign key" do
+        expect(@model).to reference(:users)
       end
 
-      context "and initially references to users table" do
+      it "should drop foreign key if it is no longer valid" do
+        change_column :user_id, :integer, :foreign_key => { :references => :members }
+        expect(@model).not_to reference(:users)
+      end
 
-        before(:each) do
-          recreate_table @model do |t|
-            t.integer :user_id
-          end
-        end
+      it "should drop foreign key if requested to do so" do
+        change_column :user_id, :integer, :foreign_key => { :references => nil }
+        expect(@model).not_to reference(:users)
+      end
 
-        it "should have foreign key" do
-          expect(@model).to reference(:users)
-        end
+      it "should remove auto-created index if foreign key is removed" do
+        expect(@model).to have_index.on(:user_id)  # sanity check that index was auto-created
+        change_column :user_id, :integer, :foreign_key => { :references => nil }
+        expect(@model).not_to have_index.on(:user_id)
+      end
 
-        it "should drop foreign key if it is no longer valid" do
-          change_column :user_id, :integer, :foreign_key => { :references => :members }
-          expect(@model).not_to reference(:users)
-        end
+      it "should reference pointed table afterwards if new one is created" do
+        change_column :user_id, :integer, :foreign_key => { :references => :members }
+        expect(@model).to reference(:members)
+      end
 
-        it "should drop foreign key if requested to do so" do
-          change_column :user_id, :integer, :foreign_key => { :references => nil }
-          expect(@model).not_to reference(:users)
-        end
+      it "should maintain foreign key if it's unaffected by change" do
+        change_column :user_id, :integer, :default => 0
+        expect(@model).to reference(:users)
+      end
 
-        it "should remove auto-created index if foreign key is removed" do
-          expect(@model).to have_index.on(:user_id)  # sanity check that index was auto-created
-          change_column :user_id, :integer, :foreign_key => { :references => nil }
-          expect(@model).not_to have_index.on(:user_id)
-        end
-
-        it "should reference pointed table afterwards if new one is created" do
-          change_column :user_id, :integer, :foreign_key => { :references => :members }
-          expect(@model).to reference(:members)
-        end
-
-        it "should maintain foreign key if it's unaffected by change" do
+      it "should maintain foreign key if it's unaffected by change, even if auto_index is off" do
+        with_fk_config(:auto_create => false) do
           change_column :user_id, :integer, :default => 0
           expect(@model).to reference(:users)
         end
-
-        it "should maintain foreign key if it's unaffected by change, even if auto_index is off" do
-          with_fk_config(:auto_create => false) do
-            change_column :user_id, :integer, :default => 0
-            expect(@model).to reference(:users)
-          end
-        end
-
-      end
-
-      context "if column defined without foreign key but with index" do
-        before(:each) do
-          recreate_table @model do |t|
-            t.integer :user_id, :foreign_key => false, :index => true
-          end
-        end
-
-        it "should create the index" do
-          expect(@model).to have_index.on(:user_id)
-        end
-
-        it "adding foreign key should not fail due to attempt to auto-create existing index" do
-          expect { change_column :user_id, :integer, :foreign_key => true }.to_not raise_error
-        end
-      end
-
-      protected
-      def change_column(column_name, *args)
-        table = @model.table_name
-        ActiveRecord::Migration.suppress_messages do
-          ActiveRecord::Migration.change_column(table, column_name, *args)
-          @model.reset_column_information
-        end
       end
 
     end
 
-    context "when column is removed" do
+    context "if column defined without foreign key but with index" do
       before(:each) do
-        @model = Comment
         recreate_table @model do |t|
-          t.integer :post_id
+          t.integer :user_id, :foreign_key => false, :index => true
         end
       end
 
-      it "should remove a foreign key" do
-        expect(@model).to reference(:posts)
-        remove_column(:post_id)
-        expect(@model).not_to reference(:posts)
+      it "should create the index" do
+        expect(@model).to have_index.on(:user_id)
       end
 
-      it "should remove an index" do
-        expect(@model).to have_index.on(:post_id)
-        remove_column(:post_id)
-        expect(@model).not_to have_index.on(:post_id)
+      it "adding foreign key should not fail due to attempt to auto-create existing index" do
+        expect { change_column :user_id, :integer, :foreign_key => true }.to_not raise_error
       end
+    end
 
-      protected
-      def remove_column(column_name)
-        table = @model.table_name
-        ActiveRecord::Migration.suppress_messages do
-          ActiveRecord::Migration.remove_column(table, column_name)
-          @model.reset_column_information
-        end
+    protected
+    def change_column(column_name, *args)
+      table = @model.table_name
+      ActiveRecord::Migration.suppress_messages do
+        ActiveRecord::Migration.change_column(table, column_name, *args)
+        @model.reset_column_information
       end
     end
 
   end
+
+  context "when column is removed", :sqlite3 => :skip do
+    before(:each) do
+      @model = Comment
+      recreate_table @model do |t|
+        t.integer :post_id
+      end
+    end
+
+    it "should remove a foreign key" do
+      expect(@model).to reference(:posts)
+      remove_column(:post_id)
+      expect(@model).not_to reference(:posts)
+    end
+
+    it "should remove an index" do
+      expect(@model).to have_index.on(:post_id)
+      remove_column(:post_id)
+      expect(@model).not_to have_index.on(:post_id)
+    end
+
+    protected
+    def remove_column(column_name)
+      table = @model.table_name
+      ActiveRecord::Migration.suppress_messages do
+        ActiveRecord::Migration.remove_column(table, column_name)
+        @model.reset_column_information
+      end
+    end
+  end
+
 
   context "when table is renamed" do
 
@@ -799,44 +789,39 @@ describe ActiveRecord::Migration do
       expect(index.name).to match(/^fk__newname_/)
     end
 
-    unless SchemaPlusHelpers.sqlite3?
-      it "should rename foreign key constraints" do
-        expect(ActiveRecord::Base.connection.foreign_keys(:newname).first.name).to match(/newname/)
-      end
+    it "should rename foreign key constraints", :sqlite3 => :skip do
+      expect(ActiveRecord::Base.connection.foreign_keys(:newname).first.name).to match(/newname/)
     end
 
   end
 
-  unless SchemaPlusHelpers.sqlite3?
 
-    context "when table with more than one fk constraint is renamed" do
+  context "when table with more than one fk constraint is renamed", :sqlite3 => :skip do
 
-      before(:each) do
-        @model = Comment
-        recreate_table @model do |t|
-          t.integer :user_id
-          t.integer :member_id
-        end
-        ActiveRecord::Migration.suppress_messages do
-          ActiveRecord::Migration.rename_table @model.table_name, :newname
-        end
+    before(:each) do
+      @model = Comment
+      recreate_table @model do |t|
+        t.integer :user_id
+        t.integer :member_id
       end
-
-      around(:each) do |example|
-        begin
-          example.run
-        ensure
-          ActiveRecord::Migration.suppress_messages do
-            ActiveRecord::Migration.rename_table :newname, :comments
-          end
-        end
-      end
-      it "should rename foreign key constraints" do
-        names = ActiveRecord::Base.connection.foreign_keys(:newname).map(&:name)
-        expect(names.grep(/newname/)).to eq(names)
+      ActiveRecord::Migration.suppress_messages do
+        ActiveRecord::Migration.rename_table @model.table_name, :newname
       end
     end
 
+    around(:each) do |example|
+      begin
+        example.run
+      ensure
+        ActiveRecord::Migration.suppress_messages do
+          ActiveRecord::Migration.rename_table :newname, :comments
+        end
+      end
+    end
+    it "should rename foreign key constraints" do
+      names = ActiveRecord::Base.connection.foreign_keys(:newname).map(&:name)
+      expect(names.grep(/newname/)).to eq(names)
+    end
   end
 
   def recreate_table(model, opts={}, &block)

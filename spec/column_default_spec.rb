@@ -70,14 +70,12 @@ describe "Column definition" do
         end
       end
 
-      if SchemaPlusHelpers.mysql?
-        it "should raise an error" do
-          expect(@raised_argument_error).to be_a ArgumentError
-        end
-      else
-        it "should use NOW() as the default" do
-          is_expected.to match @nowish
-        end
+      it "should use NOW() as the default", :mysql => :skip do
+        is_expected.to match @nowish
+      end
+
+      it "should raise an error", :mysql => :only do
+        expect(@raised_argument_error).to be_a ArgumentError
       end
     end
 
@@ -90,29 +88,25 @@ describe "Column definition" do
         end
       end
 
-      if SchemaPlusHelpers.mysql?
-        it "should raise an error" do
-          expect(@raised_argument_error).to be_a ArgumentError
-        end
-      else
-        it "should use NOW() as the default" do
-          is_expected.to match @nowish
-        end
+      it "should use NOW() as the default", :mysql => :skip do
+        is_expected.to match @nowish
+      end
+
+      it "should raise an error", :mysql => :only do
+        expect(@raised_argument_error).to be_a ArgumentError
       end
     end
 
     context "valid expr passed as default" do
-      if SchemaPlusHelpers.mysql?
-        it "raises an error" do
-          expect {
-            define_test_column(:string, :default => { :expr => "(replace('THIS IS A TEST', 'TEST', 'DOG'))" })
-          }.to raise_error ArgumentError
-        end
-      else
-        it "uses the expression" do
+      it "uses the expression", :mysql => :skip do
+        define_test_column(:string, :default => { :expr => "(replace('THIS IS A TEST', 'TEST', 'DOG'))" })
+        is_expected.to eq "THIS IS A DOG"
+      end
+
+      it "raises an error", :mysql => :only do
+        expect {
           define_test_column(:string, :default => { :expr => "(replace('THIS IS A TEST', 'TEST', 'DOG'))" })
-          is_expected.to eq "THIS IS A DOG"
-        end
+        }.to raise_error ArgumentError
       end
     end
 

@@ -87,47 +87,44 @@ describe "Schema dump" do
 
   end
 
-  context "with date default" do
-    if SchemaPlusHelpers.postgresql?
-      it "should dump the default hash expr as now()" do
-        with_additional_column Post, :posted_at, :datetime, :default => :now do
-          expect(dump_posts).to match(%r{t\.datetime\s+"posted_at",\s*(?:default:|:default =>)\s*\{\s*(?:expr:|:expr\s*=>)\s*"now\(\)"\s*\}})
-        end
-      end
-
-      it "should dump the default hash expr as CURRENT_TIMESTAMP" do
-        with_additional_column Post, :posted_at, :datetime, :default => {:expr => 'date \'2001-09-28\''} do
-          expect(dump_posts).to match(%r{t\.datetime\s+"posted_at",\s*(?:default:|:default =>)\s*'2001-09-28 00:00:00'})
-        end
-      end
-
-      it "can dump a complex default expression" do
-        with_additional_column Post, :name, :string, :default => {:expr => 'substring(random()::text from 3 for 6)'} do
-          expect(dump_posts).to match(%r{t\.string\s+"name",\s*(?:default:|:default\s*=>)\s*{\s*(?:expr:|:expr\s*=>)\s*"\\"substring\\"\(\(random\(\)\)::text, 3, 6\)"\s*}})
-        end
+  context "with date default", :postgresql => :only do
+    it "should dump the default hash expr as now()" do
+      with_additional_column Post, :posted_at, :datetime, :default => :now do
+        expect(dump_posts).to match(%r{t\.datetime\s+"posted_at",\s*(?:default:|:default =>)\s*\{\s*(?:expr:|:expr\s*=>)\s*"now\(\)"\s*\}})
       end
     end
 
-    if SchemaPlusHelpers.sqlite3?
-      it "should dump the default hash expr as now" do
-        with_additional_column Post, :posted_at, :datetime, :default => :now do
-          expect(dump_posts).to match(%r{t\.datetime\s+"posted_at",\s*(?:default:|:default =>)\s*\{\s*(?:expr:|:expr =>)\s*"\(DATETIME\('now'\)\)"\s*\}})
-        end
-      end
-
-      it "should dump the default hash expr string as now" do
-        with_additional_column Post, :posted_at, :datetime, :default => { :expr => "(DATETIME('now'))" } do
-          expect(dump_posts).to match(%r{t\.datetime\s+"posted_at",\s*(?:default:|:default =>)\s*\{\s*(?:expr:|:expr =>)\s*"\(DATETIME\('now'\)\)"\s*\}})
-        end
-      end
-
-      it "should dump the default value normally" do
-        with_additional_column Post, :posted_at, :string, :default => "now" do
-          expect(dump_posts).to match(%r{t\.string\s*"posted_at",\s*(?:default:|:default =>)\s*"now"})
-        end
+    it "should dump the default hash expr as CURRENT_TIMESTAMP" do
+      with_additional_column Post, :posted_at, :datetime, :default => {:expr => 'date \'2001-09-28\''} do
+        expect(dump_posts).to match(%r{t\.datetime\s+"posted_at",\s*(?:default:|:default =>)\s*'2001-09-28 00:00:00'})
       end
     end
 
+    it "can dump a complex default expression" do
+      with_additional_column Post, :name, :string, :default => {:expr => 'substring(random()::text from 3 for 6)'} do
+        expect(dump_posts).to match(%r{t\.string\s+"name",\s*(?:default:|:default\s*=>)\s*{\s*(?:expr:|:expr\s*=>)\s*"\\"substring\\"\(\(random\(\)\)::text, 3, 6\)"\s*}})
+      end
+    end
+  end
+
+  context "with date default", :sqlite3 => :only do
+    it "should dump the default hash expr as now" do
+      with_additional_column Post, :posted_at, :datetime, :default => :now do
+        expect(dump_posts).to match(%r{t\.datetime\s+"posted_at",\s*(?:default:|:default =>)\s*\{\s*(?:expr:|:expr =>)\s*"\(DATETIME\('now'\)\)"\s*\}})
+      end
+    end
+
+    it "should dump the default hash expr string as now" do
+      with_additional_column Post, :posted_at, :datetime, :default => { :expr => "(DATETIME('now'))" } do
+        expect(dump_posts).to match(%r{t\.datetime\s+"posted_at",\s*(?:default:|:default =>)\s*\{\s*(?:expr:|:expr =>)\s*"\(DATETIME\('now'\)\)"\s*\}})
+      end
+    end
+
+    it "should dump the default value normally" do
+      with_additional_column Post, :posted_at, :string, :default => "now" do
+        expect(dump_posts).to match(%r{t\.string\s*"posted_at",\s*(?:default:|:default =>)\s*"now"})
+      end
+    end
   end
 
   it "should leave out :default when default was changed to null" do
@@ -169,17 +166,13 @@ describe "Schema dump" do
     end
   end
 
-  unless SchemaPlusHelpers.mysql?
-
-    it "should include index order" do
-      with_index Post, [:user_id, :first_comment_id, :short_id], :order => { :user_id => :asc, :first_comment_id => :desc } do
-        expect(dump_posts).to match(%r{t.index \["user_id", "first_comment_id", "short_id"\],.*:order => {"user_id" => :asc, "first_comment_id" => :desc, "short_id" => :asc}})
-      end
+  it "should include index order", :mysql => :skip do
+    with_index Post, [:user_id, :first_comment_id, :short_id], :order => { :user_id => :asc, :first_comment_id => :desc } do
+      expect(dump_posts).to match(%r{t.index \["user_id", "first_comment_id", "short_id"\],.*:order => {"user_id" => :asc, "first_comment_id" => :desc, "short_id" => :asc}})
     end
-
   end
 
-  if SchemaPlusHelpers.postgresql?
+  context "index extras", :postgresql => :only do
 
     it "should define case insensitive index" do
       with_index Post, [:body, :string_no_default], :case_sensitive => false do
@@ -250,27 +243,25 @@ describe "Schema dump" do
 
   end
 
-  unless SchemaPlusHelpers.sqlite3?
-    context "with cyclic foreign key constraints" do
-      before (:all) do
-        ActiveRecord::Base.connection.add_foreign_key(Comment.table_name, :commenter_id, User.table_name, :id)
-        ActiveRecord::Base.connection.add_foreign_key(Comment.table_name, :post_id, Post.table_name, :id)
-        ActiveRecord::Base.connection.add_foreign_key(Post.table_name, :first_comment_id, Comment.table_name, :id)
-        ActiveRecord::Base.connection.add_foreign_key(Post.table_name, :user_id, User.table_name, :id)
-        ActiveRecord::Base.connection.add_foreign_key(User.table_name, :first_post_id, Post.table_name, :id)
-      end
+  context "with cyclic foreign key constraints", :sqlite3 => :skip do
+    before (:all) do
+      ActiveRecord::Base.connection.add_foreign_key(Comment.table_name, :commenter_id, User.table_name, :id)
+      ActiveRecord::Base.connection.add_foreign_key(Comment.table_name, :post_id, Post.table_name, :id)
+      ActiveRecord::Base.connection.add_foreign_key(Post.table_name, :first_comment_id, Comment.table_name, :id)
+      ActiveRecord::Base.connection.add_foreign_key(Post.table_name, :user_id, User.table_name, :id)
+      ActiveRecord::Base.connection.add_foreign_key(User.table_name, :first_post_id, Post.table_name, :id)
+    end
 
-      it "should not raise an error" do
-        expect { dump_schema }.to_not raise_error
-      end
+    it "should not raise an error" do
+      expect { dump_schema }.to_not raise_error
+    end
 
-      it "should dump constraints after the tables they reference" do
-        expect(dump_schema).to match(%r{create_table "comments".*foreign_key.*\["first_comment_id"\], "comments", \["id"\]}m)
-        expect(dump_schema).to match(%r{create_table "posts".*foreign_key.*\["first_post_id"\], "posts", \["id"\]}m)
-        expect(dump_schema).to match(%r{create_table "posts".*foreign_key.*\["post_id"\], "posts", \["id"\]}m)
-        expect(dump_schema).to match(%r{create_table "users".*foreign_key.*\["commenter_id"\], "users", \["id"\]}m)
-        expect(dump_schema).to match(%r{create_table "users".*foreign_key.*\["user_id"\], "users", \["id"\]}m)
-      end
+    it "should dump constraints after the tables they reference" do
+      expect(dump_schema).to match(%r{create_table "comments".*foreign_key.*\["first_comment_id"\], "comments", \["id"\]}m)
+      expect(dump_schema).to match(%r{create_table "posts".*foreign_key.*\["first_post_id"\], "posts", \["id"\]}m)
+      expect(dump_schema).to match(%r{create_table "posts".*foreign_key.*\["post_id"\], "posts", \["id"\]}m)
+      expect(dump_schema).to match(%r{create_table "users".*foreign_key.*\["commenter_id"\], "users", \["id"\]}m)
+      expect(dump_schema).to match(%r{create_table "users".*foreign_key.*\["user_id"\], "users", \["id"\]}m)
     end
   end
 
