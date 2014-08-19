@@ -68,7 +68,7 @@ module SchemaPlus
           ::ActiveRecord::ConnectionAdapters::PostgreSQLColumn.send(:include, PostgreSQLColumn) unless ::ActiveRecord::ConnectionAdapters::PostgreSQLColumn.include?(PostgreSQLColumn)
         end
 
-        # SchemaPlus provides the following extra options for Postgres
+        # SchemaPlus provides the following extra options for PostgreSQL
         # indexes:
         # * +:conditions+ - SQL conditions for the WHERE clause of the index
         # * +:expression+ - SQL expression to index.  column_name can be nil or ommitted, in which case :name must be provided

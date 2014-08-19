@@ -19,7 +19,7 @@
 
 ### 1.5.0
 * Can now be used with activerecord standalone, doesn't need all of rails.
-* `views` ignores postgres internal views, thanks to [@everplays](https://github.com/everplays) (issue #147)
+* `views` ignores PostgreSQL internal views, thanks to [@everplays](https://github.com/everplays) (issue #147)
 
 ### 1.4.1
 
@@ -103,7 +103,7 @@
     [@zaadjis](https://github.com/zaadjis))
 *   New feature: renaming a table renames its indexes and constraints
     correspondingly.
-*   Bug fix for postgres :kind index attribute (thanks to [@eugenebolshakov](https://github.com/eugenebolshakov))
+*   Bug fix for PostgreSQL :kind index attribute (thanks to [@eugenebolshakov](https://github.com/eugenebolshakov))
 *   Sort fks in dump for stability (thanks to [@zephyr-dev](https://github.com/zephyr-dev))
 *   Bug fix: change_column should maintain foreign key constraints even when
     config.foreign_keys.auto_create is false

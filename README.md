@@ -223,7 +223,7 @@ the above views you can define
     class UncommentedPost < ActiveRecord::Base
     end
 
-Note: In Postgres, all internal views (the ones with `pg_` prefix) will be skipped.
+Note: In PostgreSQL, all internal views (the ones with `pg_` prefix) will be skipped.
 
 ### Column Defaults: Expressions
 
@@ -316,9 +316,9 @@ Schema_plus has a full set of rspec tests.  [travis-ci](http://travis-ci.org/lom
 
 * Of course you must have installed whichever databases you want to test. The default set is: PostgreSQL, MySQL, and SQLite3.
 
-* For PostgreSQL and MySQL the tests need a db user with permissions to create and access databases: The default username used by the specs is 'postgres' for Postgresql and 'schema_plus' for MySQL; you can change them via:
+* For PostgreSQL and MySQL the tests need a db user with permissions to create and access databases: The default username used by the specs is 'postgres' for PostgreSQL and 'schema_plus' for MySQL; you can change them via:
 
-        $ export POSTGRES_DB_USER = pgusername
+        $ export POSTGRESQL_DB_USER = pgusername
         $ export MYSQL_DB_USER = mysqlusername
 
 * For PostgreSQL and MySQL you must explicitly create the databases used by the tests:
