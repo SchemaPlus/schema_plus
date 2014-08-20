@@ -267,6 +267,26 @@ Note that after updating, you would need to reload a record to replace
 Note also that Sqlite3 does not support `ActiveRecord::DB_DEFAULT`; attempting
 to use it will raise `ActiveRecord::StatementInvalid`
 
+### Enums (PostgreSQL only)
+
+SchemaPlus provides support for creating, altering and dropping enums. In a migration,
+a enum can be created:
+
+    create_enum :color, :red, :green, :blue # default schema is 'public'
+    create_enum :cmyk, :cyan, :magenta, :yellow, :black, :schema => 'color'
+
+And can be altered: (added a new value)
+
+    alter_enum :color, :black
+    alter_enum :color, :purple, :after => 'red'
+    alter_enum :color, :pink, :before => 'purple'
+    alter_enum :color, :white, :schema => 'public'
+
+Finally, a enum can be dropped:
+
+    drop_enum :color
+    drop_enum :cmyk, :schema => 'color'
+
 ### Schema Dump and Load (schema.rb)
 
 When dumping `schema.rb`, SchemaPlus orders the views and tables in the schema
