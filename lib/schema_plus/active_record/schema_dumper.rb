@@ -49,6 +49,16 @@ module SchemaPlus
         @backref_fks = Hash.new{ |h, k| h[k] = [] }
         @dump_dependencies = {}
 
+        if @connection.respond_to?(:enums)
+          @connection.enums.each do |schema, name, values|
+            params = [name.inspect]
+            params << values.map(&:inspect).join(', ')
+            params << ":schema => #{schema.inspect}" if schema != 'public'
+
+            stream.puts "  create_enum #{params.join(', ')}"
+          end
+        end
+
         tables_without_schema_plus(nil)
 
         @connection.views.each do |view_name|
