@@ -261,21 +261,43 @@ module SchemaPlus
         end
 
         def views(name = nil) #:nodoc:
+          # This will not work if there are views and materialized views
+          # with the same name.
           sql = <<-SQL
             SELECT viewname
               FROM pg_views
             WHERE schemaname = ANY (current_schemas(false))
             AND viewname NOT LIKE 'pg\_%'
+            UNION
+            SELECT matviewname
+              FROM pg_matviews
+            WHERE schemaname = ANY (current_schemas(false))
+            AND matviewname NOT LIKE 'pg\_%'
           SQL
           sql += " AND schemaname != 'postgis'" if adapter_name == 'PostGIS'
           query(sql, name).map { |row| row[0] }
+        end
+        
+        def view_create_options(view_name, name = nil) #:nodoc:
+          sql = <<-SQL
+             SELECT relkind
+             FROM pg_class 
+             WHERE relname = '#{view_name}'
+               AND relkind IN ('v', 'm')
+          SQL
+          result = query(sql, name)
+          if result[0][0].eql?('m')
+            return "MATERIALIZED"
+          else
+            return ""
+          end
         end
 
         def view_definition(view_name, name = nil) #:nodoc:
           result = query(<<-SQL, name)
         SELECT pg_get_viewdef(oid)
           FROM pg_class
-         WHERE relkind = 'v'
+         WHERE relkind IN ('v', 'm')
            AND relname = '#{view_name}'
           SQL
           row = result.first
@@ -283,7 +305,7 @@ module SchemaPlus
         end
 
         private
-
+        
         def namespace_sql(table_name)
           (table_name.to_s =~ /(.*)[.]/) ?  "'#{$1}'" : "ANY (current_schemas(false))"
         end
