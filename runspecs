@@ -1,0 +1,136 @@
+#!/usr/bin/env ruby
+
+require 'optparse'
+require 'ostruct'
+require 'shellwords'
+require 'tempfile'
+
+RUBY_VERSIONS = %W[jruby 1.9.3 2.0.0 2.1.0]
+RAILS_VERSIONS = %W[3.2 4.0 4.1 4.2]
+DB_ADAPTERS = %W[postgresql mysql mysql2 sqlite3]
+
+o = OpenStruct.new
+o.ruby_versions = RUBY_VERSIONS
+o.rails_versions = RAILS_VERSIONS
+o.db_adapters = DB_ADAPTERS - ["mysql"]
+
+OptionParser.new do |opts|
+    opts.banner = "Usage: #{$0} [options]"
+
+    opts.on("-n", "--dry-run", "Do a dry run without executing actions") do |v|
+        o.dry_run = true
+    end
+
+    opts.on("--update", "Update gem dependencies") do |v|
+        o.update = v
+    end
+
+    opts.on("--install", "Install gem dependencies") do |v|
+        o.install = v
+    end
+
+    opts.on("--db adapter", String, "Choose which db adapter(s) to run. Default is: #{o.db_adapters.join(' ')}" ) do |adapter|
+        o.db_adapters = adapter.split
+    end
+
+    opts.on("--ruby version", String, "Choose which version(s) of ruby to run.  Default is: #{o.ruby_versions.join(' ')}") do |ruby|
+        o.ruby_versions = ruby.split(' ')
+    end
+
+    opts.on("--rails version", String, "Choose which version(s) of rails to run.  Default is: #{o.rails_versions.join(' ')}") do |rails|
+        o.rails_versions = rails.split(' ')
+    end
+
+    opts.on("--full", "run complete matrix of ruby, rails, and db") do
+      o.ruby_versions  = RUBY_VERSIONS
+      o.rails_versions = RAILS_VERSIONS
+      o.db_adapters = DB_ADAPTERS
+    end
+
+    opts.on("--quick", "quick run on PostgreSQL, ruby #{RUBY_VERSIONS.last} and rails #{RAILS_VERSIONS.last}") do
+      o.ruby_versions  = [RUBY_VERSIONS.last]
+      o.rails_versions = [RAILS_VERSIONS.last]
+      o.db_adapters = ["postgresql"]
+    end
+
+    opts.on("--rspec", "run rspec rather than rake") do |v|
+        o.rspec = v
+    end
+
+end.parse!
+
+
+Combo = Struct.new(:ruby, :rails, :db_adapter)
+
+combos = o.ruby_versions.product(o.rails_versions, o.db_adapters).map{|product| Combo.new(*product)}.select {|combo|
+    case
+    when combo.rails >= "3.2" && combo.ruby <= "1.8.7" then false  # no longer happens, just keeping it as an example
+    when combo.rails >= "4" && combo.db_adapter == "mysql" then false
+    when combo.ruby == "jruby"
+      case
+      when combo.rails > "3.2" then false
+      when combo.db_adapter == "postgresql" then true
+      when combo.db_adapter =~ /mysql/ then true
+      else false
+      end
+    else true
+    end
+}
+
+if system("which -s rvm")
+    # using rvm
+    def ruby_version_selector(ruby)
+        "rvm #{ruby} do"
+    end
+else
+    # using rbenv.
+    #
+    # because we're running within a ruby program that was launched by
+    # rbenv, we already have various environment variables set up.  need
+    # strip those out so that the forked shell can run a diifferent ruby
+    # version than the one we're in now.
+    ENV['PATH'] = ENV['PATH'].split(':').reject{|dir| dir =~ %r{/\.?rbenv/(?!shims)}}.join(':')
+    ENV['GEM_PATH'] = ENV['GEM_PATH'].split(':').reject{|dir| dir =~ %r{/\.?rbenv}}.join(':') unless ENV['GEM_PATH'].nil?
+    ENV['RBENV_DIR'] = nil
+    ENV['RBENV_HOOK_PATH'] = nil
+
+    def ruby_version_selector(ruby)
+        @versions ||= `rbenv versions --bare`.split
+        version = @versions.select{|v| v.start_with? ruby}.last || abort("no ruby version '#{ruby}' installed in rbenv")
+        "RBENV_VERSION=#{version}"
+    end
+end
+
+
+GEMFILES_DIR = File.expand_path('../gemfiles', __FILE__)
+errs = []
+combos.each_with_index do |combo, n|
+    ruby = combo.ruby
+    rails = combo.rails
+    db_adapter = combo.db_adapter
+
+    cmd = case
+          when o.update
+              "bundle update"
+          when o.install
+              "bundle install"
+          when o.rspec
+              "bundle exec rspec -Ispec/connections/#{db_adapter}"
+          else
+              "bundle exec rake #{db_adapter}:spec"
+          end
+
+    command = %Q{BUNDLE_GEMFILE="#{File.join(GEMFILES_DIR, "rails-#{rails}", "Gemfile.#{db_adapter}")}" #{ruby_version_selector(ruby)} #{cmd} #{Shellwords.join(ARGV)}}
+
+    puts "\n\n*** ruby version #{ruby} - rails version #{rails} - db adapter: #{db_adapter}  [#{n+1} of #{combos.size}]\n\n#{command}"
+
+    next if o.dry_run
+
+    Tempfile.open('runspecs') do |file|
+        system("(#{command}) 2>&1 | tee #{file.path}")
+        file.rewind
+        errs << "ruby #{ruby}, rails #{rails}#{db_adapter && ", db_adapter #{db_adapter}"}" if file.readlines.grep(/(^Failed examples)|(rake aborted)/).any?
+    end
+end
+puts errs.any? ?  "\n*** #{errs.size} failures:\n\t#{errs.join("\n\t")}" : "\n*** #{combos.size > 1 ? 'all versions' : 'spec'} succeeded ***" unless o.dry_run
+exit !errs.any?
