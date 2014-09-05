@@ -80,7 +80,9 @@ module SchemaPlus
         end
 
         def _build_foreign_key(table_name, column_names, references_table_name, references_column_names, options = {}) #:nodoc:
-          ForeignKeyDefinition.new(options[:name] || ForeignKeyDefinition.default_name(table_name, column_names), table_name, column_names, AbstractAdapter.proper_table_name(references_table_name), references_column_names, options[:on_update], options[:on_delete], options[:deferrable])
+          options.merge!(:column_names => column_names, :references_column_names => references_column_names)
+          options.reverse_merge!(:name => ForeignKeyDefinition.default_name(table_name, column_names))
+          ForeignKeyDefinition.new(table_name, AbstractAdapter.proper_table_name(references_table_name), options)
         end
 
         def self.proper_table_name(name)

@@ -107,10 +107,17 @@ module SchemaPlus
               on_update = on_update ? on_update.downcase.gsub(' ', '_').to_sym : :no_action
               on_delete = on_delete ? on_delete.downcase.gsub(' ', '_').to_sym : :no_action
               deferrable = deferrable ? (initially_deferred ? :initially_deferred : true) : false
-              foreign_keys << ForeignKeyDefinition.new(name,
-                                                       table_name, column_names,
-                                                       references_table_name, references_column_names,
-                                                       on_update, on_delete, deferrable)
+
+              options = { :name => name,
+                          :on_update => on_update,
+                          :on_delete => on_delete,
+                          :column_names => column_names,
+                          :references_column_names => references_column_names,
+                          :deferrable => deferrable }
+
+              foreign_keys << ForeignKeyDefinition.new(table_name,
+                                                       references_table_name,
+                                                       options)
             end
           end
 
