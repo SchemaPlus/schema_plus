@@ -2,19 +2,24 @@ require File.expand_path(File.dirname(__FILE__) + '/spec_helper')
 
 describe "Foreign Key definition" do
 
-  let(:definition) { SchemaPlus::ActiveRecord::ConnectionAdapters::ForeignKeyDefinition.new("posts_user_fkey", :posts, :user, :users, :id) }
+  let(:definition) {
+    options = {:name => "posts_user_fkey", :column_names => :user, :references_column_names => :id}
+    SchemaPlus::ActiveRecord::ConnectionAdapters::ForeignKeyDefinition.new(:posts, :users, options)
+  }
 
   it "dumps to sql with quoted values" do
     expect(definition.to_sql).to eq(%Q{CONSTRAINT posts_user_fkey FOREIGN KEY (#{quote_column_name('user')}) REFERENCES #{quote_table_name('users')} (#{quote_column_name('id')})})
   end
 
   it "dumps to sql with deferrable values" do
-    deferred_definition = SchemaPlus::ActiveRecord::ConnectionAdapters::ForeignKeyDefinition.new("posts_user_fkey", :posts, :user, :users, :id, nil, nil, true)
+    options = {:name => "posts_user_fkey", :column_names => :user, :references_column_names => :id, :deferrable => true}
+    deferred_definition = SchemaPlus::ActiveRecord::ConnectionAdapters::ForeignKeyDefinition.new(:posts, :users, options)
     expect(deferred_definition.to_sql).to eq(%Q{CONSTRAINT posts_user_fkey FOREIGN KEY (#{quote_column_name('user')}) REFERENCES #{quote_table_name('users')} (#{quote_column_name('id')}) DEFERRABLE})
   end
 
   it "dumps to sql with initially deferrable values" do
-    initially_deferred_definition = SchemaPlus::ActiveRecord::ConnectionAdapters::ForeignKeyDefinition.new("posts_user_fkey", :posts, :user, :users, :id, nil, nil, :initially_deferred)
+    options = {:name => "posts_user_fkey", :column_names => :user, :references_column_names => :id, :deferrable => :initially_deferred}
+    initially_deferred_definition = SchemaPlus::ActiveRecord::ConnectionAdapters::ForeignKeyDefinition.new(:posts, :users, options)
     expect(initially_deferred_definition.to_sql).to eq(%Q{CONSTRAINT posts_user_fkey FOREIGN KEY (#{quote_column_name('user')}) REFERENCES #{quote_table_name('users')} (#{quote_column_name('id')}) DEFERRABLE INITIALLY DEFERRED})
   end
 

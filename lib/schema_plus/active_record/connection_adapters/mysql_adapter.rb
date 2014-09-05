@@ -108,10 +108,15 @@ module SchemaPlus
                 on_update = on_update ? on_update.downcase.gsub(' ', '_').to_sym : :restrict
                 on_delete = on_delete ? on_delete.downcase.gsub(' ', '_').to_sym : :restrict
 
-                foreign_keys << ForeignKeyDefinition.new(name,
-                                                         namespace_prefix + table_name, column_names.gsub('`', '').split(', '),
-                                                         references_table_name, references_column_names.gsub('`', '').split(', '),
-                                                         on_update, on_delete)
+                options = { :name => name,
+                            :on_delete => on_delete,
+                            :on_update => on_update,
+                            :column_names => column_names.gsub('`', '').split(', '),
+                            :references_column_names => references_column_names.gsub('`', '').split(', ') }
+
+                foreign_keys << ForeignKeyDefinition.new(namespace_prefix + table_name,
+                                                         references_table_name,
+                                                         options)
               end
             end
           end

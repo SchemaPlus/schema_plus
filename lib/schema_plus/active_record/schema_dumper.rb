@@ -59,7 +59,11 @@ module SchemaPlus
           end
         end
 
+      if "#{::ActiveRecord::VERSION::MAJOR}.#{::ActiveRecord::VERSION::MINOR}".to_r < "4.2".to_r
         tables_without_schema_plus(nil)
+      else
+        tables_without_schema_plus(stream)
+      end
 
         @connection.views.each do |view_name|
           next if Array.wrap(::ActiveRecord::SchemaDumper.ignore_tables).any? {|pattern| view_name.match pattern}
