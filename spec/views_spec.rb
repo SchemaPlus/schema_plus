@@ -101,7 +101,7 @@ describe ActiveRecord do
       end
 
       it "should fail silently when using if_exists option" do
-        migration.drop_view('doesnt_exist', :if_exists => true)
+        expect { migration.drop_view('doesnt_exist', :if_exists => true) }.not_to raise_error
       end
 
       context "with a view that exists" do
