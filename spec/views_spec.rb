@@ -95,6 +95,25 @@ describe ActiveRecord do
       end
     end
 
+    context "dropping views" do
+      it "should raise an error if the view doesn't exist" do
+        expect { migration.drop_view('doesnt_exist') }.to raise_error ActiveRecord::StatementInvalid
+      end
+
+      it "should fail silently when using if_exists option" do
+        expect { migration.drop_view('doesnt_exist', :if_exists => true) }.not_to raise_error
+      end
+
+      context "with a view that exists" do
+        before { migration.create_view('view_that_exists', 'SELECT * FROM items WHERE (a=1)') }
+
+        it "should succeed" do
+          migration.drop_view('view_that_exists')
+          expect(connection.views).not_to include('view_that_exists')
+        end
+      end
+    end
+
     context "in mysql", :mysql => :only do
 
       around(:each) do |example|

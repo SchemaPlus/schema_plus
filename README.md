@@ -211,7 +211,7 @@ a view can be created using a rails relation or literal sql:
 And can be dropped:
 
     drop_view :posts_commented_by_staff
-    drop_view :uncommented_posts
+    drop_view :uncommented_posts, :if_exists => true
 
 ActiveRecord works with views the same as with ordinary tables.  That is, for
 the above views you can define
