@@ -154,7 +154,7 @@ module SchemaPlus
           SQL
 
           result.map do |(index_name, is_unique, indkey, inddef, oid, kind, conditions, expression)|
-            unique = (is_unique == 't' || is_unique == true)
+            unique = (is_unique == 't' || is_unique == true) # The test against true is for JDBC which is returning a boolean and not a String.
             index_keys = indkey.split(" ")
 
             rows = query(<<-SQL, "Columns for index #{index_name} on #{table_name}")
