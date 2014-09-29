@@ -31,6 +31,13 @@ module SchemaPlus
           end
         else
           def initialize(name, default, cast_type, sql_type = nil, null = true, default_function = nil)
+            if default.is_a? Hash
+              if default[:expr]
+                @default_function = default[:expr]
+              end
+              default = nil
+            end
+            default = self.class.convert_default_value(default_function, default)
             if sql_type =~ /\[\]$/
               @array = true
               super(name, default, cast_type, sql_type[0..sql_type.length - 3], null)
@@ -39,7 +46,7 @@ module SchemaPlus
               super(name, default, cast_type, sql_type, null)
             end
 
-            @default_function = @default_expr = default_function
+            @default_function = default_function
           end
         end
 
