@@ -10,8 +10,8 @@ For added rails DRYness see also the gems
 [schema_validations](http://rubygems.org/gems/schema_validations)
 
 [![Gem Version](https://badge.fury.io/rb/schema_plus.png)](http://badge.fury.io/rb/schema_plus)
-[![Build Status](https://secure.travis-ci.org/lomba/schema_plus.png)](http://travis-ci.org/lomba/schema_plus)
-[![Dependency Status](https://gemnasium.com/lomba/schema_plus.png)](https://gemnasium.com/lomba/schema_plus)
+[![Build Status](https://secure.travis-ci.org/SchemaPlus/schema_plus.png)](http://travis-ci.org/SchemaPlus/schema_plus)
+[![Dependency Status](https://gemnasium.com/SchemaPlus/schema_plus.png)](https://gemnasium.com/SchemaPlus/schema_plus)
 
 ## Compatibility
 
@@ -180,7 +180,7 @@ Foreign keys can cause issues for Rails utilities that delete or load data
 because referential integrity imposes a sequencing requirement that those
 utilities may not take into consideration.  Monkey-patching may be required
 to address some of these issues.  The Wiki article [Making yaml_db work with
-foreign key constraints in PostgreSQL](https://github.com/lomba/schema_plus/wiki/Making-yaml_db-work-with-foreign-key-constraints-in-PostgreSQL)
+foreign key constraints in PostgreSQL](https://github.com/SchemaPlus/schema_plus/wiki/Making-yaml_db-work-with-foreign-key-constraints-in-PostgreSQL)
 has some information that may be of assistance in resolving these issues.
 
 ### Tables
@@ -322,13 +322,13 @@ of foreign key constraints, you can re-enable it:
 
 *   SchemaPlus was created in 2011 by [@mlomnicki](https://github.com/mlomnicki) and [@ronen](https://github.com/ronen)
 
-*   And [lots of contributors](https://github.com/lomba/schema_plus/graphs/contributors) since then
+*   And [lots of contributors](https://github.com/SchemaPlus/schema_plus/graphs/contributors) since then
 
 ## Development & Testing
 
 Are you interested in contributing to schema_plus?  Thanks!
 
-Schema_plus has a full set of rspec tests.  [travis-ci](http://travis-ci.org/lomba/schema_plus) runs the tests on the full matrix of supported versions of ruby, rails, and db adapters.  But you can also test all or some part of the matrix locally before you push your changes.  Here's what you need to know:
+Schema_plus has a full set of rspec tests.  [travis-ci](http://travis-ci.org/SchemaPlus/schema_plus) runs the tests on the full matrix of supported versions of ruby, rails, and db adapters.  But you can also test all or some part of the matrix locally before you push your changes.  Here's what you need to know:
 
 #### Required environment:
 
@@ -377,10 +377,3 @@ By default it runs on a matrix of postgresql, mysql2, and sqlite3, for all rubie
 		$ ./runspecs --quick --rspec -- spec/migration_spec.rb -e 'default name'
 
 Contributions to making the testing process itself easier and better will also be gratefully accepted!
-
-
--
-
-
-[![Bitdeli Badge](https://d2weczhvl823v0.cloudfront.net/lomba/schema_plus/trend.png)](https://bitdeli.com/free "Bitdeli Badge")
-
