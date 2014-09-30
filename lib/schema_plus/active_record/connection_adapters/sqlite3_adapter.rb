@@ -34,6 +34,10 @@ module SchemaPlus
           execute('PRAGMA FOREIGN_KEYS = ON')
         end
 
+        def supports_partial_indexes? #:nodoc:
+          true # this assumes sqlite version >= 3.8
+        end
+
         def indexes_with_schema_plus(table_name, name = nil)
           indexes = indexes_without_schema_plus(table_name, name)
           exec_query("SELECT name, sql FROM sqlite_master WHERE type = 'index'").map do |row|
