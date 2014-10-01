@@ -9,22 +9,45 @@ module SchemaPlus
           if defined?(JRUBY_VERSION)
             base.alias_method_chain :default_value, :schema_plus
           else
-            base.class_eval do
-              class << self
-                alias_method_chain :extract_value_from_default, :schema_plus
+            if "#{::ActiveRecord::VERSION::MAJOR}.#{::ActiveRecord::VERSION::MINOR}".to_r < "4.2".to_r
+              base.class_eval do
+                class << self
+                  alias_method_chain :extract_value_from_default, :schema_plus
+                end
               end
             end
           end
         end
 
-        def initialize(name, default, sql_type = nil, null = true)
-          if default.is_a? Hash
-            if default[:expr]
-              @default_expr = default[:expr]
+        if "#{::ActiveRecord::VERSION::MAJOR}.#{::ActiveRecord::VERSION::MINOR}".to_r <= "4.1".to_r
+          def initialize(name, default, sql_type = nil, null = true)
+            if default.is_a? Hash
+              if default[:expr]
+                @default_expr = default[:expr]
+              end
+              default = nil
             end
-            default = nil
+            super(name, default, sql_type, null)
           end
-          super(name, default, sql_type, null)
+        else
+          def initialize(name, default, cast_type, sql_type = nil, null = true, default_function = nil)
+            if default.is_a? Hash
+              if default[:expr]
+                @default_function = default[:expr]
+              end
+              default = nil
+            end
+            default = self.class.convert_default_value(default_function, default)
+            if sql_type =~ /\[\]$/
+              @array = true
+              super(name, default, cast_type, sql_type[0..sql_type.length - 3], null)
+            else
+              @array = false
+              super(name, default, cast_type, sql_type, null)
+            end
+
+            @default_function = default_function
+          end
         end
 
         def default_value_with_schema_plus(default)
@@ -365,10 +388,16 @@ module SchemaPlus
               on_update = on_update ? on_update.downcase.gsub(' ', '_').to_sym : :no_action
               on_delete = on_delete ? on_delete.downcase.gsub(' ', '_').to_sym : :no_action
 
-              foreign_keys << ForeignKeyDefinition.new(name,
-                                                       from_table_name, column_names.split(', '),
-                                                       references_table_name.sub(/^"(.*)"$/, '\1'), references_column_names.split(', '),
-                                                       on_update, on_delete, deferrable)
+              options = { :name => name,
+                          :on_delete => on_delete,
+                          :on_update => on_update,
+                          :column_names => column_names.split(', '),
+                          :references_column_names => references_column_names.split(', '),
+                          :deferrable => deferrable }
+
+              foreign_keys << ForeignKeyDefinition.new(from_table_name,
+                                                       references_table_name.sub(/^"(.*)"$/, '\1'),
+                                                       options)
             end
           end
 

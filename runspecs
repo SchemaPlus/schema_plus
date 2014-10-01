@@ -6,7 +6,7 @@ require 'shellwords'
 require 'tempfile'
 
 RUBY_VERSIONS = %W[jruby 1.9.3 2.0.0 2.1.0]
-RAILS_VERSIONS = %W[3.2 4.0 4.1]
+RAILS_VERSIONS = %W[3.2 4.0 4.1 4.2]
 DB_ADAPTERS = %W[postgresql mysql mysql2 sqlite3]
 
 o = OpenStruct.new
@@ -129,7 +129,7 @@ combos.each_with_index do |combo, n|
     Tempfile.open('runspecs') do |file|
         system("(#{command}) 2>&1 | tee #{file.path}")
         file.rewind
-        errs << "ruby #{ruby}, rails #{rails}#{db_adapter && ", db_adapter #{db_adapter}"}" if file.readlines.grep(/(^Failed examples)|(rake aborted)/).any?
+        errs << "ruby #{ruby}, rails #{rails}#{db_adapter && ", db_adapter #{db_adapter}"}" if file.readlines.grep(/(^Failed examples)|(rake aborted)|(failed$)/).any?
     end
 end
 puts errs.any? ?  "\n*** #{errs.size} failures:\n\t#{errs.join("\n\t")}" : "\n*** #{combos.size > 1 ? 'all versions' : 'spec'} succeeded ***" unless o.dry_run

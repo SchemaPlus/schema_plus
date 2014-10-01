@@ -14,7 +14,11 @@ describe "Column" do
       @login = User.columns.find{|column| column.name == "login"}
     end
     it "works properly" do
-      expect(JSON.parse(@login.to_json)).to include("name" => "login", "type" => "string")
+      if "#{::ActiveRecord::VERSION::MAJOR}.#{::ActiveRecord::VERSION::MINOR}".to_r <= "4.1".to_r
+        expect(JSON.parse(@login.to_json)).to include("name" => "login", "type" => "string")
+      else
+        expect(JSON.parse(@login.to_json)).to include("name" => "login", "sql_type" => "character varying")
+      end
     end
   end
 

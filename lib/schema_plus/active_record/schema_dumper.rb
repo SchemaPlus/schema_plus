@@ -59,7 +59,11 @@ module SchemaPlus
           end
         end
 
+      if "#{::ActiveRecord::VERSION::MAJOR}.#{::ActiveRecord::VERSION::MINOR}".to_r < "4.2".to_r
         tables_without_schema_plus(nil)
+      else
+        tables_without_schema_plus(stream)
+      end
 
         @connection.views.each do |view_name|
           next if Array.wrap(::ActiveRecord::SchemaDumper.ignore_tables).any? {|pattern| view_name.match pattern}
@@ -114,8 +118,14 @@ module SchemaPlus
         table_without_schema_plus(table, stream)
         stream_string = stream.string
         @connection.columns(table).each do |column|
-          if !column.default_expr.nil?
-            stream_string.gsub!("\"#{column.name}\"", "\"#{column.name}\", :default => { :expr => #{column.default_expr.inspect} }")
+          if "#{::ActiveRecord::VERSION::MAJOR}.#{::ActiveRecord::VERSION::MINOR}".to_r < "4.2".to_r
+            if !column.default_expr.nil?
+              stream_string.gsub!("\"#{column.name}\"", "\"#{column.name}\", :default => { :expr => #{column.default_expr.inspect} }")
+            end
+          else
+            if !column.default_function.nil?
+              stream_string.gsub!("\"#{column.name}\"", "\"#{column.name}\", :default => { :expr => #{column.default_function.inspect} }")
+            end
           end
         end
         @table_dumps[table] = stream_string
