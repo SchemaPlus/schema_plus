@@ -15,8 +15,12 @@ module SchemaPlus::ActiveRecord
       # create index if requested explicity or implicitly due to auto_index
       index = column_options[:index]
       index = column_options[:_index] if column_options.include? :_index
-      if index.nil? and fk_args && config.foreign_keys.auto_index?
-        index = { :name => auto_index_name(table_name, column_name) }
+      if index.nil? and fk_args
+        if fk_args[:name]
+          index = { :name => fk_args[:name] }
+        elsif config.foreign_keys.auto_index?
+          index = { :name => auto_index_name(table_name, column_name) }
+        end
       end
       column_index(table_name, column_name, index) if index
 
