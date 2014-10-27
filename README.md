@@ -19,8 +19,8 @@ SchemaPlus supports all combinations of:
 
 *   Rails/ActiveRecord 3.2, 4.0, and 4.1
 *   PostgreSQL, MySQL (using mysql2 gem; mysql gem only supported with Rails
-*   MRI Ruby 1.9.3, 2.0.0, or 2.1.0
     3.2), or SQLite3 (using sqlite3 >= 3.7.7 for foreign key support, >= 3.8 for partial indexes)
+*   MRI Ruby >= 1.9.3
 
 And also supports:
 
@@ -332,7 +332,7 @@ Schema_plus has a full set of rspec tests.  [travis-ci](http://travis-ci.org/Sch
 
 #### Required environment:
 
-*  You must have one of [chruby](https://github.com/postmodern/chruby),) [rbenv](https://github.com/sstephenson/rbenv) or [rvm](http://rvm.io) installed and working.  Within it, have available whichever ruby versions you want to test.  The default set is MRI 1.9.3, 2.0.0, 2.1.0, and jruby
+*  You must have one of [chruby](https://github.com/postmodern/chruby),) [rbenv](https://github.com/sstephenson/rbenv) or [rvm](http://rvm.io) installed and working.  Within it, have available whichever ruby versions you want to test.  The default set is MRI 1.9.3, 2.1.3, and jruby
 
 * Of course you must have installed whichever databases you want to test. The default set is: PostgreSQL, MySQL, and SQLite3.
 
