@@ -10,7 +10,7 @@ module SchemaPlus
           base.alias_method_chain :initialize, :schema_plus
         end
         
-        attr_reader :conditions
+        attr_accessor :conditions
         attr_reader :expression
         attr_reader :kind
 

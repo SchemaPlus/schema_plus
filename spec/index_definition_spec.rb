@@ -122,7 +122,7 @@ describe "Index definition" do
   end
 
 
-  context "when index is partial and column is not downcased", :postgresql => :only do
+  context "when index is partial" do
     before(:each) do
       migration.execute "CREATE INDEX users_login_index ON users(login) WHERE deleted_at IS NULL"
       User.reset_column_information
@@ -142,10 +142,10 @@ describe "Index definition" do
     end
 
     it "defines conditions" do
-      expect(@index.conditions).to eq("(deleted_at IS NULL)")
+      expect(@index.conditions).to match %r{[(]?deleted_at IS NULL[)]?}
     end
 
-  end
+  end if ::ActiveRecord::Migration.supports_partial_indexes?
 
   context "when index contains expression", :postgresql => :only do
     before(:each) do
