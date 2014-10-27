@@ -35,7 +35,10 @@ module SchemaPlus
         end
 
         def supports_partial_indexes? #:nodoc:
-          true # this assumes sqlite version >= 3.8
+          # unfortunately with the current setup there's no easy way to
+          # test multiple SQLite3 versions.  Currently travis-ci uses
+          # SQLite3 version 3.7 but local development on OS X uses 3.8.
+          SQLite3.libversion >= 3008000
         end
 
         def indexes_with_schema_plus(table_name, name = nil)
