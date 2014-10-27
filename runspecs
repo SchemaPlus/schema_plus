@@ -77,7 +77,13 @@ combos = o.ruby_versions.product(o.rails_versions, o.db_adapters).map{|product| 
     end
 }
 
-if system("which -s rvm")
+case
+when system("which -s chruby-exec")
+    def ruby_version_selector(ruby)
+        "SHELL=`which bash` chruby-exec #{ruby} --"
+    end
+
+when system("which -s rvm")
     # using rvm
     def ruby_version_selector(ruby)
         "rvm #{ruby} do"
@@ -120,7 +126,7 @@ combos.each_with_index do |combo, n|
               "bundle exec rake #{db_adapter}:spec"
           end
 
-    command = %Q{BUNDLE_GEMFILE="#{File.join(GEMFILES_DIR, "rails-#{rails}", "Gemfile.#{db_adapter}")}" #{ruby_version_selector(ruby)} #{cmd} #{Shellwords.join(ARGV)}}
+    command = %Q{/usr/bin/env BUNDLE_GEMFILE="#{File.join(GEMFILES_DIR, "rails-#{rails}", "Gemfile.#{db_adapter}")}" #{ruby_version_selector(ruby)} #{cmd} #{Shellwords.join(ARGV)}}
 
     puts "\n\n*** ruby version #{ruby} - rails version #{rails} - db adapter: #{db_adapter}  [#{n+1} of #{combos.size}]\n\n#{command}"
 

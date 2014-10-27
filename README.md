@@ -332,7 +332,7 @@ Schema_plus has a full set of rspec tests.  [travis-ci](http://travis-ci.org/Sch
 
 #### Required environment:
 
-*  You must have either [rbenv](https://github.com/sstephenson/rbenv) or [rvm](http://rvm.io) installed and working, whichever you prefer.  Within it, have available whichever ruby versions you want to test.  The default set is MRI 1.9.3, 2.0.0, 2.1.0, and jruby
+*  You must have one of [chruby](https://github.com/postmodern/chruby),) [rbenv](https://github.com/sstephenson/rbenv) or [rvm](http://rvm.io) installed and working.  Within it, have available whichever ruby versions you want to test.  The default set is MRI 1.9.3, 2.0.0, 2.1.0, and jruby
 
 * Of course you must have installed whichever databases you want to test. The default set is: PostgreSQL, MySQL, and SQLite3.
 
