@@ -336,7 +336,7 @@ Schema_plus has a full set of rspec tests.  [travis-ci](http://travis-ci.org/Sch
 
 * Of course you must have installed whichever databases you want to test. The default set is: PostgreSQL, MySQL, and SQLite3.
 
-* For PostgreSQL and MySQL the tests need a db user with permissions to create and access databases: The default username used by the specs is 'postgres' for PostgreSQL and 'schema_plus' for MySQL; you can change them via:
+* For PostgreSQL and MySQL the tests need a db user with permissions to create and access databases: The default username used by the specs is 'schema_plus' for both PostgreSQL and MySQL; you can change them via:
 
         $ export POSTGRESQL_DB_USER = pgusername
         $ export MYSQL_DB_USER = mysqlusername
