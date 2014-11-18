@@ -92,12 +92,14 @@ which is equivalent to
     t.string :product_code,   index: { unique: true }
 
 If you're using PostgreSQL, SchemaPlus provides support for conditions,
-expressions, index methods, and case-insensitive indexes:
+expressions, index methods, operator classes, and case-insensitive indexes:
 
     t.string :last_name,  index: { conditions: 'deleted_at IS NULL' }
     t.string :last_name,  index: { expression: 'upper(last_name)' }
     t.string :last_name,  index: { kind: 'hash' }
-    t.string :last_name,  index: { case_sensitive: false }        # shorthand for expression: 'lower(last_name)'
+    t.text :last_name, index: { operator_class: { lastname: 'text_pattern_ops' } }
+    t.string :last_name,  index: { case_sensitive: false } # shorthand for expression: 'lower(last_name)'
+
 
 These features are available also in `ActiveRecord::Migration.add_index`.  See
 doc for [SchemaPlus::ActiveRecord::ConnectionAdapters::PostgresqlAdapter](http://rubydoc.info/gems/schema_plus/SchemaPlus/ActiveRecord/ConnectionAdapters/PostgresqlAdapter) and

@@ -73,6 +73,7 @@ module SchemaPlus
         # * +:conditions+ - SQL conditions for the WHERE clause of the index
         # * +:expression+ - SQL expression to index.  column_name can be nil or ommitted, in which case :name must be provided
         # * +:kind+ - index method for Postgresql to use
+        # * +:operator_class+ - hash mapping column name to operator class
         # * +:case_sensitive - setting to +false+ is a shorthand for :expression => 'LOWER(column_name)'
         #
         # The <tt>:case_sensitive => false</tt> option ties in with Rails built-in support for case-insensitive searching:
@@ -95,6 +96,7 @@ module SchemaPlus
           index_name = options[:name] || index_name(table_name, column_names)
           conditions = options[:conditions]
           kind       = options[:kind]
+          operator_classes = options[:operator_class]
 
           if expression = options[:expression] then
             raise ArgumentError, "Cannot specify :case_sensitive => false with an expression.  Use LOWER(column_name)" if options[:case_sensitive] == false
@@ -106,6 +108,9 @@ module SchemaPlus
             sql = "CREATE #{index_type} INDEX #{quote_column_name(index_name)} ON #{quote_table_name(table_name)} #{expression}"
           else
             option_strings = Hash[column_names.map {|name| [name, '']}]
+            (operator_classes||{}).each do |column, opclass|
+              option_strings[column] += " #{opclass}" if opclass
+            end
             option_strings = add_index_sort_order(option_strings, column_names, options)
 
             if options[:case_sensitive] == false
@@ -141,7 +146,8 @@ module SchemaPlus
           result = query(<<-SQL, name)
 
            SELECT distinct i.relname, d.indisunique, d.indkey, pg_get_indexdef(d.indexrelid), t.oid,
-                  m.amname, pg_get_expr(d.indpred, t.oid) as conditions, pg_get_expr(d.indexprs, t.oid) as expression
+                  m.amname, pg_get_expr(d.indpred, t.oid) as conditions, pg_get_expr(d.indexprs, t.oid) as expression,
+                  d.indclass
            FROM pg_class t
            INNER JOIN pg_index d ON t.oid = d.indrelid
            INNER JOIN pg_class i ON d.indexrelid = i.oid
@@ -153,9 +159,10 @@ module SchemaPlus
           ORDER BY i.relname
           SQL
 
-          result.map do |(index_name, is_unique, indkey, inddef, oid, kind, conditions, expression)|
+          result.map do |(index_name, is_unique, indkey, inddef, oid, kind, conditions, expression, indclass)|
             unique = (is_unique == 't' || is_unique == true) # The test against true is for JDBC which is returning a boolean and not a String.
             index_keys = indkey.split(" ")
+            opclasses = indclass.split(" ")
 
             rows = query(<<-SQL, "Columns for index #{index_name} on #{table_name}")
               SELECT CAST(a.attnum as VARCHAR), a.attname, t.typname
@@ -189,6 +196,20 @@ module SchemaPlus
               end
             end
 
+            opclass_name  = {}
+            rows = query(<<-SQL, "Op classes for index #{index_name} on #{table_name}")
+              SELECT oid, opcname FROM pg_opclass
+              WHERE (NOT opcdefault) AND oid IN (#{opclasses.join(',')})
+            SQL
+            rows.each do |oid, opcname|
+              opclass_name[oid.to_s] = opcname
+            end
+            operator_classes = {}
+            index_keys.zip(opclasses).each do |index_key, opclass|
+              operator_classes[columns[index_key]] = opclass_name[opclass]
+            end
+            operator_classes.delete_if{|k,v| v.nil?}
+
             # add info on sort order for columns (only desc order is explicitly specified, asc is the default)
             desc_order_columns = inddef.scan(/(\w+) DESC/).flatten
             orders = desc_order_columns.any? ? Hash[column_names.map {|column| [column, desc_order_columns.include?(column) ? :desc : :asc]}] : {}
@@ -200,6 +221,7 @@ module SchemaPlus
                                                                     :conditions => conditions,
                                                                     :case_sensitive => case_sensitive,
                                                                     :kind => kind.downcase == "btree" ? nil : kind,
+                                                                    :operator_classes => operator_classes,
                                                                     :expression => expression)
           end
         end

@@ -139,6 +139,7 @@ module SchemaPlus
             index_lengths = index.lengths.compact if index.lengths.is_a?(Array)
             dump << ", :length => #{Hash[*index.columns.zip(index.lengths).flatten].inspect}" if index_lengths.present?
             dump << ", :order => {" + index.orders.map{|column, val| "#{column.inspect} => #{val.inspect}"}.join(", ") + "}" unless index.orders.blank?
+            dump << ", :operator_class => {" + index.operator_classes.map{|column, val| "#{column.inspect} => #{val.inspect}"}.join(", ") + "}" unless index.operator_classes.blank?
           else
             dump << ", :expression => #{index.expression.inspect}"
           end
