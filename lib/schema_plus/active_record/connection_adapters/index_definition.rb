@@ -32,6 +32,7 @@ module SchemaPlus
           else # backwards compatibility
             initialize_without_schema_plus(*args)
             @case_sensitive = true
+            @operator_classes = {}
           end
         end
 
