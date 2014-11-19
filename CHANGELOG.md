@@ -2,6 +2,10 @@
 
 ## Change Log
 
+### 1.7.0
+
+* Added Postgresql index operator support (issue #184)
+
 ### 1.6.0
 
 * Added PostgreSQL enum support (thanks to [@juike](https://github.com/juike)) (issue #167)
