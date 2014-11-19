@@ -13,6 +13,7 @@ describe "index" do
       define_schema(:auto_create => false) do
         create_table :users, :force => true do |t|
           t.string :login
+          t.text :address
           t.datetime :deleted_at
         end
 
@@ -102,6 +103,16 @@ describe "index" do
       it "should allow to specify kind" do
         add_index(:users, :login, :kind => "hash")
         expect(index_for(:login).kind).to eq('hash')
+      end
+
+      it "should assign operator_class" do
+        add_index(:users, :login, :operator_class => 'varchar_pattern_ops')
+        expect(index_for(:login).operator_classes).to eq({"login" => 'varchar_pattern_ops'})
+      end
+
+      it "should assign multiple operator_classes" do
+        add_index(:users, [:login, :address], :operator_class => {:login => 'varchar_pattern_ops', :address => 'text_pattern_ops'})
+        expect(index_for([:login, :address]).operator_classes).to eq({"login" => 'varchar_pattern_ops', "address" => 'text_pattern_ops'})
       end
 
       it "should allow to specify actual expression only" do

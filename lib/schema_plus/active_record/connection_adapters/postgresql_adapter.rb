@@ -73,7 +73,7 @@ module SchemaPlus
         # * +:conditions+ - SQL conditions for the WHERE clause of the index
         # * +:expression+ - SQL expression to index.  column_name can be nil or ommitted, in which case :name must be provided
         # * +:kind+ - index method for Postgresql to use
-        # * +:operator_class+ - hash mapping column name to operator class
+        # * +:operator_class+ - an operator class name or a hash mapping column name to operator class name
         # * +:case_sensitive - setting to +false+ is a shorthand for :expression => 'LOWER(column_name)'
         #
         # The <tt>:case_sensitive => false</tt> option ties in with Rails built-in support for case-insensitive searching:
@@ -97,6 +97,9 @@ module SchemaPlus
           conditions = options[:conditions]
           kind       = options[:kind]
           operator_classes = options[:operator_class]
+          if operator_classes and not operator_classes.is_a? Hash
+            operator_classes = Hash[column_names.map {|name| [name, operator_classes]}]
+          end
 
           if expression = options[:expression] then
             raise ArgumentError, "Cannot specify :case_sensitive => false with an expression.  Use LOWER(column_name)" if options[:case_sensitive] == false

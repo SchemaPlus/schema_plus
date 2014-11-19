@@ -215,7 +215,7 @@ describe "Schema dump" do
     end
 
     it "should define operator_class" do
-      with_index Post, :body, :operator_class => {body: 'text_pattern_ops'} do
+      with_index Post, :body, :operator_class => 'text_pattern_ops' do
         expect(dump_posts).to match(to_regexp(%q{t.index ["body"], :name => "index_posts_on_body", :operator_class => {"body" => "text_pattern_ops"}}))
       end
     end

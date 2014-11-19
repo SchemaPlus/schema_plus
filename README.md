@@ -97,7 +97,8 @@ expressions, index methods, operator classes, and case-insensitive indexes:
     t.string :last_name,  index: { conditions: 'deleted_at IS NULL' }
     t.string :last_name,  index: { expression: 'upper(last_name)' }
     t.string :last_name,  index: { kind: 'hash' }
-    t.text :last_name, index: { operator_class: { lastname: 'text_pattern_ops' } }
+    t.string :last_name,  index: { operator_class: 'varchar_pattern_ops' }
+    t.string :last_name,  index: { with: :address, operator_class: {last_name: 'varchar_pattern_ops', address: 'text_pattern_ops' }
     t.string :last_name,  index: { case_sensitive: false } # shorthand for expression: 'lower(last_name)'
 
 
