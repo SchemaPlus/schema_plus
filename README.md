@@ -331,52 +331,8 @@ of foreign key constraints, you can re-enable it:
 
 Are you interested in contributing to schema_plus?  Thanks!
 
-Schema_plus has a full set of rspec tests.  [travis-ci](http://travis-ci.org/SchemaPlus/schema_plus) runs the tests on the full matrix of supported versions of ruby, rails, and db adapters.  But you can also test all or some part of the matrix locally before you push your changes.  Here's what you need to know:
+Schema_plus has a full set of rspec tests.  [travis-ci](http://travis-ci.org/SchemaPlus/schema_plus) runs the tests on the full matrix of supported versions of ruby, rails, and db adapters.  But you can also test all or some part of the matrix locally before you push your changes, using
 
-#### Required environment:
+    $ schema_dev rspec
 
-*  You must have one of [chruby](https://github.com/postmodern/chruby),) [rbenv](https://github.com/sstephenson/rbenv) or [rvm](http://rvm.io) installed and working.  Within it, have available whichever ruby versions you want to test.  The default set is MRI 1.9.3, 2.1.3, and jruby
-
-* Of course you must have installed whichever databases you want to test. The default set is: PostgreSQL, MySQL, and SQLite3.
-
-* For PostgreSQL and MySQL the tests need a db user with permissions to create and access databases: The default username used by the specs is 'schema_plus' for both PostgreSQL and MySQL; you can change them via:
-
-        $ export POSTGRESQL_DB_USER = pgusername
-        $ export MYSQL_DB_USER = mysqlusername
-
-* For PostgreSQL and MySQL you must explicitly create the databases used by the tests:
-
-        $ rake create_databases  # creates both postgresql & mysql
-           OR
-        $ rake postgresql:create_databases
-        $ rake mysql:create_databases
-
-#### Running the tests
-
-The tests are run via a script in the repo root.  Its args are documented by
-
-     $ ./runspecs --help
-
-By default it runs on a matrix of postgresql, mysql2, and sqlite3, for all rubies and all versions of rails.  But the matrix options `--db`, `--ruby`, and `--rails` options let you limit those.  The `--quick` option runs on just one set: postgresql, rails 4.1 and ruby 2.1.0.  The `--full` option adds the mysql adapter to the set (in addition to mysql2 adapter).
-
-* Install gem dependencies for the sets you'll be testing:
-
-		 $ ./runspecs [matrix options] --install   # runs 'bundle install' for all sets
-		 	e.g.
-		 $ ./runspecs --db 'posgresql' --ruby '2.1.0' --rails '4.0 4.1' --install
-
-* Run all the tests:
-
-	     $ ./runspecs [matrix options]  # runs rspec for each set in the matrix
-		    e.g.
-		 $ ./runspecs --db 'posgresql' --ruby '2.1.0' --rails '4.0 4.1'
-
-  Code coverage information will be in coverage/index.html -- it should be at 100% coverage if you're running against all databases.
-
-* To run rspec on just a limited set of specs, you can do:
-
-		$ ./runspecs [matrix options] --rspec -- [rspec args]
-		   e.g.
-		$ ./runspecs --quick --rspec -- spec/migration_spec.rb -e 'default name'
-
-Contributions to making the testing process itself easier and better will also be gratefully accepted!
+For more details, see the [schema_dev](https://github.com/SchemaPlus/schema_dev) README.
