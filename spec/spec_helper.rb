@@ -10,7 +10,9 @@ $LOAD_PATH.unshift(File.join(File.dirname(__FILE__), '..', 'lib'))
 require 'rspec'
 require 'active_record'
 require 'schema_plus'
-require 'connection'
+require 'schema_dev/rspec'
+
+SchemaDev::Rspec.db_connect # relies on ENV['SCHEMA_DEV_ENV'] having been set by schema_dev tool
 
 Dir[File.dirname(__FILE__) + "/support/**/*.rb"].each {|f| require f}
 

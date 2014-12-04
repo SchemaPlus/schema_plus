@@ -68,7 +68,7 @@ describe ActiveRecord do
       # when in the (say) development database, but then uses it to
       # initialize the test database when testing.  this meant that the
       # test database had views into the development database.
-      db = connection.respond_to?(:current_database)? connection.current_database : ActiveRecord::Base.configurations['schema_plus'][:database]
+      db = connection.respond_to?(:current_database)? connection.current_database : ActiveRecord::Base.configurations['schema_dev'][:database]
       expect(dump).not_to match(%r{#{connection.quote_table_name(db)}[.]})
     end
 

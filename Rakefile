@@ -29,7 +29,7 @@ require 'rspec/core/rake_task'
 %w[postgresql mysql mysql2 sqlite3].each do |adapter|
   namespace adapter do
     RSpec::Core::RakeTask.new(:spec) do |spec|
-      spec.rspec_opts = "-Ispec/connections/#{adapter}"
+      ENV['SCHEMA_DEV_DB'] = adapter
       spec.fail_on_error = true
     end
   end
