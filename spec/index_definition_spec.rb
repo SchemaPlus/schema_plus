@@ -77,7 +77,7 @@ describe "Index definition" do
     quotes += [
       ["single-quoted", "'"],
       ["back-quoted", '`']
-    ] if SchemaPlusHelpers.sqlite3?
+    ] if SchemaDev::Rspec::Helpers.sqlite3?
 
     quotes.each do |quotename, quote|
       it "index definition includes orders for #{quotename} columns" do

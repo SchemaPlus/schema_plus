@@ -22,7 +22,7 @@ describe ActiveRecord::Schema do
 
     it "should create only explicity added indexes" do
       do_schema
-      expected = SchemaPlusHelpers.mysql? ? 2 : 1
+      expected = SchemaDev::Rspec::Helpers.mysql? ? 2 : 1
       expect(connection.tables.collect { |table| connection.indexes(table) }.flatten.size).to eq(expected)
     end
 
