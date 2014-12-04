@@ -14,9 +14,9 @@ gemfile:
   - gemfiles/rails-4.1/Gemfile.sqlite3
   - gemfiles/rails-4.1/Gemfile.mysql2
 before_script:
-  - rake create_databases
+  - bundle exec rake create_databases
 after_script:
-  - rake drop_databases
+  - bundle exec rake drop_databases
 env: 'POSTGRESQL_DB_USER=postgres MYSQL_DB_USER="travis"'
 notifications:
   recipients:
