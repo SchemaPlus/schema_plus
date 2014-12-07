@@ -2,7 +2,7 @@ module SchemaPlusMatchers
 
   class Reference
     def initialize(expected)
-      @column_names = nil
+      @column_names = @on_update = @on_delete = @deferrable = @name = @references_table_name = @references_column_names = nil
       unless expected.empty?
         @references_column_names = Array(expected).collect(&:to_s)
         @references_table_name = @references_column_names.shift 

@@ -11,6 +11,7 @@ require 'rspec'
 require 'active_record'
 require 'schema_plus'
 require 'schema_dev/rspec'
+require 'its-it'
 
 SchemaDev::Rspec.setup_db
 

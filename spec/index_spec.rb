@@ -37,7 +37,7 @@ describe "index" do
 
     after(:each) do
       migration.suppress_messages do
-        migration.remove_index(:users, :name => @index.name) if @index
+        migration.remove_index(:users, :name => @index.name) if (@index ||= nil)
       end
     end
 
