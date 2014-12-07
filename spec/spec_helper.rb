@@ -19,6 +19,7 @@ Dir[File.dirname(__FILE__) + "/support/**/*.rb"].each {|f| require f}
 RSpec.configure do |config|
   config.include(SchemaPlusMatchers)
   config.include(SchemaPlusHelpers)
+  config.warnings = true
 end
 
 def with_fk_config(opts, &block)
