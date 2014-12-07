@@ -2,6 +2,11 @@
 
 ## Change Log
 
+### 1.7.1
+
+* Eliminate warnings when ruby is in verbose mode
+* Internal: Now using schema_dev matrix test framework.
+
 ### 1.7.0
 
 * Added Postgresql index operator support (issue #184)
