@@ -21,9 +21,6 @@ gemfile:
 before_script: bundle exec rake create_databases
 after_script: bundle exec rake drop_databases
 env: POSTGRESQL_DB_USER=postgres MYSQL_DB_USER="travis"
-notifications:
-  email:
-  - ronen@barzel.org
 matrix:
   exclude:
   - rvm: jruby
