@@ -59,12 +59,18 @@ module SchemaPlus
 
         # implement cascade by removing foreign keys
         def drop_table(name, options={})
-          reverse_foreign_keys(name).each{ |foreign_key| remove_foreign_key(foreign_key.table_name, foreign_key.name) } if options[:cascade]
-          sql = "DROP"
-          sql += " TEMPORARY" if options[:temporary]
-          sql += " TABLE"
-          sql += " IF EXISTS" if options[:if_exists]
+          if options[:cascade]
+            reverse_foreign_keys(name).each do |foreign_key|
+              remove_foreign_key(foreign_key.table_name, foreign_key.name)
+            end
+          end
+
+          sql = 'DROP'
+          sql += ' TEMPORARY' if options[:temporary]
+          sql += ' TABLE'
+          sql += ' IF EXISTS' if options[:if_exists]
           sql += " #{quote_table_name(name)}"
+
           execute sql
         end
 
@@ -132,27 +138,27 @@ module SchemaPlus
            AND referenced_table_schema = table_schema
          ORDER BY constraint_name, ordinal_position;
           SQL
-          current_foreign_key = nil
-          foreign_keys = []
 
-          namespace_prefix = table_namespace_prefix(table_name)
-
-          results.each do |row|
-            next unless table_name_without_namespace(table_name).casecmp(row["referenced_table_name"]) == 0
-            if current_foreign_key != row["constraint_name"]
-                referenced_table_name = row["table_name"]
-                referenced_table_name = namespace_prefix + referenced_table_name if table_namespace_prefix(referenced_table_name).blank?
-                references_table_name = row["referenced_table_name"]
-                references_table_name = namespace_prefix + references_table_name if table_namespace_prefix(references_table_name).blank?
-              foreign_keys << ForeignKeyDefinition.new(row["constraint_name"], referenced_table_name, [], references_table_name, [])
-              current_foreign_key = row["constraint_name"]
-            end
-
-            foreign_keys.last.column_names << row["column_name"]
-            foreign_keys.last.references_column_names << row["referenced_column_name"]
+          constraints = results.to_a.group_by do |r|
+            r.values_at('constraint_name', 'table_name', 'referenced_table_name')
           end
 
-          foreign_keys
+          from_table_constraints = constraints.select do |(_, _, to_table), _|
+            table_name_without_namespace(table_name).casecmp(to_table) == 0
+          end
+
+          from_table_constraints.map do |(constraint_name, from_table, to_table), columns|
+            from_table = table_namespace_prefix(from_table) + from_table
+            to_table = table_namespace_prefix(to_table) + to_table
+
+            options = {
+              :name => constraint_name,
+              :column_names => columns.map { |row| row['column_name'] },
+              :references_column_names => columns.map { |row| row['referenced_column_name'] }
+            }
+
+            ForeignKeyDefinition.new(from_table, to_table, options)
+          end
         end
 
         def views(name = nil)
