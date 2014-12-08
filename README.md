@@ -335,4 +335,6 @@ Schema_plus has a full set of rspec tests.  [travis-ci](http://travis-ci.org/Sch
 
     $ schema_dev rspec
 
+
 For more details, see the [schema_dev](https://github.com/SchemaPlus/schema_dev) README.
+
