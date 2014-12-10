@@ -137,7 +137,7 @@ module SchemaPlus
       ::ActiveRecord::ConnectionAdapters::AbstractAdapter::SchemaCreation.send(:include, SchemaPlus::ActiveRecord::ConnectionAdapters::AbstractAdapter::VisitTableDefinition)
     end
 
-    if "#{::ActiveRecord::VERSION::MAJOR}.#{::ActiveRecord::VERSION::MINOR}".to_r >= "4.1".to_r
+    if "#{::ActiveRecord::VERSION::MAJOR}.#{::ActiveRecord::VERSION::MINOR}".to_r >= "4.2".to_r
       require 'active_record/connection_adapters/abstract_mysql_adapter'
       ::ActiveRecord::ConnectionAdapters::AbstractMysqlAdapter::SchemaCreation.send(:include, SchemaPlus::ActiveRecord::ConnectionAdapters::AbstractAdapter::VisitTableDefinition)
     end
