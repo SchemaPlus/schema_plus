@@ -129,7 +129,7 @@ module SchemaPlus::ActiveRecord::ConnectionAdapters
     def column_with_schema_plus(name, type, options = {}) #:nodoc:
       schema_plus_normalize_column_options(options)
       column_without_schema_plus(name, type, options)
-      schema_plus_handle_column_options(self.name, name, options.merge(index_options), :config => schema_plus_config)
+      schema_plus_handle_column_options(self.name, name, options, :config => schema_plus_config)
       self
     end
 
