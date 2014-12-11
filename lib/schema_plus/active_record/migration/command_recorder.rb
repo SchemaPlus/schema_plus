@@ -16,6 +16,7 @@ module SchemaPlus
         end
 
         def add_column_with_schema_plus(table_name, name, type, options = {}) #:nodoc:
+          schema_plus_normalize_column_options(options)
           add_column_without_schema_plus(table_name, name, type, options)
           revertable_schema_plus_handle_column_options(table_name, name, options, :config => schema_plus_config)
           self
