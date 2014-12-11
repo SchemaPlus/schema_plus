@@ -1,5 +1,13 @@
 module SchemaPlus::ActiveRecord
   module ColumnOptionsHandler
+    def schema_plus_normalize_column_options(options)
+      # replace some shortcuts with full versions
+      case options[:index]
+      when true then options[:index] = {}
+      when :unique then options[:index] = { :unique => true }
+      end
+    end
+
     def schema_plus_handle_column_options(table_name, column_name, column_options, opts = {}) #:nodoc:
       config = opts[:config] || SchemaPlus.config
       fk_args = get_fk_args(table_name, column_name, column_options, config)
@@ -79,8 +87,6 @@ module SchemaPlus::ActiveRecord
 
 
     def column_index(table_name, column_name, options) #:nodoc:
-      options = {} if options == true
-      options = { :unique => true } if options == :unique
       column_name = [column_name] + Array.wrap(options.delete(:with)).compact
       add_index(table_name, column_name, options)
     end

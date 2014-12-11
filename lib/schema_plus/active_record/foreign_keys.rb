@@ -121,12 +121,14 @@ module SchemaPlus::ActiveRecord
     # automatically create an index for foreign keys if you don't.)
     #
     def add_column(table_name, column_name, type, options = {})
+      schema_plus_normalize_column_options(options)
       super
       schema_plus_handle_column_options(table_name, column_name, options)
     end
 
     # Enhances ActiveRecord::Migration#change_column to support indexes and foreign keys same as add_column.
     def change_column(table_name, column_name, type, options = {})
+      schema_plus_normalize_column_options(options)
       super
       schema_plus_handle_column_options(table_name, column_name, options)
     end
