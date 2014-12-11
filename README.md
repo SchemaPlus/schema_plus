@@ -57,7 +57,7 @@ table definition:
     add_index :parts, :product_code, unique: true
 
 But with SchemaPlus you can specify your indexes when you define each column,
-with options as desired
+with options as desired.  (Rails 4.2 introduced this same capability. Yay! But SchemaPlus still adds some shorthands that aren't in Rails 4.2.)
 
     # More DRY way...
     create_table :parts do |t|
