@@ -24,7 +24,7 @@ Gem::Specification.new do |s|
   s.add_dependency("activerecord", ">= 3.2")
   s.add_dependency("valuable")
 
-  s.add_development_dependency("schema_dev", "~> 0.1")
+  s.add_development_dependency("schema_dev", "~> 1.1")
   s.add_development_dependency("rake")
   s.add_development_dependency("rspec", "~> 3.0.0")
   s.add_development_dependency("rdoc")
