@@ -9,6 +9,7 @@ module SchemaPlusMatchers
     end
 
     def matches?(model)
+      @too_many = nil
       @model = model
       indexes = @model.indexes.select { |index| index.columns.to_set == @required_columns }
       if indexes.length > 1
