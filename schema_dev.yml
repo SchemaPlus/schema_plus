@@ -6,6 +6,7 @@ rails:
     - 3.2
     - 4.0
     - 4.1
+    - 4.2
 db:
     - mysql
     - mysql2
@@ -17,6 +18,9 @@ exclude:
     db: mysql
   -
     rails: 4.1
+    db: mysql
+  -
+    rails: 4.2
     db: mysql
   -
     ruby: jruby
