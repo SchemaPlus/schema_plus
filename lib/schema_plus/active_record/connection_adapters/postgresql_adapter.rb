@@ -9,22 +9,38 @@ module SchemaPlus
           if defined?(JRUBY_VERSION)
             base.alias_method_chain :default_value, :schema_plus
           else
-            base.class_eval do
-              class << self
-                alias_method_chain :extract_value_from_default, :schema_plus
+            if "#{::ActiveRecord::VERSION::MAJOR}.#{::ActiveRecord::VERSION::MINOR}".to_r < "4.2".to_r
+              base.class_eval do
+                class << self
+                  alias_method_chain :extract_value_from_default, :schema_plus
+                end
               end
             end
           end
         end
 
-        def initialize(name, default, sql_type = nil, null = true)
-          if default.is_a? Hash
-            if default[:expr]
-              @default_expr = default[:expr]
+        if "#{::ActiveRecord::VERSION::MAJOR}.#{::ActiveRecord::VERSION::MINOR}".to_r <= "4.1".to_r
+          def initialize(name, default, sql_type = nil, null = true)
+            if default.is_a? Hash
+              if default[:expr]
+                @default_expr = default[:expr]
+              end
+              default = nil
             end
-            default = nil
+            super(name, default, sql_type, null)
           end
-          super(name, default, sql_type, null)
+        else
+          def initialize(name, default, cast_type, sql_type = nil, null = true, default_function = nil)
+            if sql_type =~ /\[\]$/
+              @array = true
+              super(name, default, cast_type, sql_type[0..sql_type.length - 3], null)
+            else
+              @array = false
+              super(name, default, cast_type, sql_type, null)
+            end
+
+            @default_function = @default_expr = default_function
+          end
         end
 
         def default_value_with_schema_plus(default)
@@ -73,6 +89,7 @@ module SchemaPlus
         # * +:conditions+ - SQL conditions for the WHERE clause of the index
         # * +:expression+ - SQL expression to index.  column_name can be nil or ommitted, in which case :name must be provided
         # * +:kind+ - index method for Postgresql to use
+        # * +:operator_class+ - an operator class name or a hash mapping column name to operator class name
         # * +:case_sensitive - setting to +false+ is a shorthand for :expression => 'LOWER(column_name)'
         #
         # The <tt>:case_sensitive => false</tt> option ties in with Rails built-in support for case-insensitive searching:
@@ -95,6 +112,10 @@ module SchemaPlus
           index_name = options[:name] || index_name(table_name, column_names)
           conditions = options[:conditions]
           kind       = options[:kind]
+          operator_classes = options[:operator_class]
+          if operator_classes and not operator_classes.is_a? Hash
+            operator_classes = Hash[column_names.map {|name| [name, operator_classes]}]
+          end
 
           if expression = options[:expression] then
             raise ArgumentError, "Cannot specify :case_sensitive => false with an expression.  Use LOWER(column_name)" if options[:case_sensitive] == false
@@ -106,6 +127,9 @@ module SchemaPlus
             sql = "CREATE #{index_type} INDEX #{quote_column_name(index_name)} ON #{quote_table_name(table_name)} #{expression}"
           else
             option_strings = Hash[column_names.map {|name| [name, '']}]
+            (operator_classes||{}).each do |column, opclass|
+              option_strings[column] += " #{opclass}" if opclass
+            end
             option_strings = add_index_sort_order(option_strings, column_names, options)
 
             if options[:case_sensitive] == false
@@ -141,7 +165,8 @@ module SchemaPlus
           result = query(<<-SQL, name)
 
            SELECT distinct i.relname, d.indisunique, d.indkey, pg_get_indexdef(d.indexrelid), t.oid,
-                  m.amname, pg_get_expr(d.indpred, t.oid) as conditions, pg_get_expr(d.indexprs, t.oid) as expression
+                  m.amname, pg_get_expr(d.indpred, t.oid) as conditions, pg_get_expr(d.indexprs, t.oid) as expression,
+                  d.indclass
            FROM pg_class t
            INNER JOIN pg_index d ON t.oid = d.indrelid
            INNER JOIN pg_class i ON d.indexrelid = i.oid
@@ -153,9 +178,10 @@ module SchemaPlus
           ORDER BY i.relname
           SQL
 
-          result.map do |(index_name, is_unique, indkey, inddef, oid, kind, conditions, expression)|
+          result.map do |(index_name, is_unique, indkey, inddef, oid, kind, conditions, expression, indclass)|
             unique = (is_unique == 't' || is_unique == true) # The test against true is for JDBC which is returning a boolean and not a String.
             index_keys = indkey.split(" ")
+            opclasses = indclass.split(" ")
 
             rows = query(<<-SQL, "Columns for index #{index_name} on #{table_name}")
               SELECT CAST(a.attnum as VARCHAR), a.attname, t.typname
@@ -189,6 +215,20 @@ module SchemaPlus
               end
             end
 
+            opclass_name  = {}
+            rows = query(<<-SQL, "Op classes for index #{index_name} on #{table_name}")
+              SELECT oid, opcname FROM pg_opclass
+              WHERE (NOT opcdefault) AND oid IN (#{opclasses.join(',')})
+            SQL
+            rows.each do |oid, opcname|
+              opclass_name[oid.to_s] = opcname
+            end
+            operator_classes = {}
+            index_keys.zip(opclasses).each do |index_key, opclass|
+              operator_classes[columns[index_key]] = opclass_name[opclass]
+            end
+            operator_classes.delete_if{|k,v| v.nil?}
+
             # add info on sort order for columns (only desc order is explicitly specified, asc is the default)
             desc_order_columns = inddef.scan(/(\w+) DESC/).flatten
             orders = desc_order_columns.any? ? Hash[column_names.map {|column| [column, desc_order_columns.include?(column) ? :desc : :asc]}] : {}
@@ -200,6 +240,7 @@ module SchemaPlus
                                                                     :conditions => conditions,
                                                                     :case_sensitive => case_sensitive,
                                                                     :kind => kind.downcase == "btree" ? nil : kind,
+                                                                    :operator_classes => operator_classes,
                                                                     :expression => expression)
           end
         end
@@ -365,10 +406,16 @@ module SchemaPlus
               on_update = on_update ? on_update.downcase.gsub(' ', '_').to_sym : :no_action
               on_delete = on_delete ? on_delete.downcase.gsub(' ', '_').to_sym : :no_action
 
-              foreign_keys << ForeignKeyDefinition.new(name,
-                                                       from_table_name, column_names.split(', '),
-                                                       references_table_name.sub(/^"(.*)"$/, '\1'), references_column_names.split(', '),
-                                                       on_update, on_delete, deferrable)
+              options = { :name => name,
+                          :on_delete => on_delete,
+                          :on_update => on_update,
+                          :column_names => column_names.split(', '),
+                          :references_column_names => references_column_names.split(', '),
+                          :deferrable => deferrable }
+
+              foreign_keys << ForeignKeyDefinition.new(from_table_name,
+                                                       references_table_name.sub(/^"(.*)"$/, '\1'),
+                                                       options)
             end
           end
 

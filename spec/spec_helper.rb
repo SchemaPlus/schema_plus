@@ -10,19 +10,17 @@ $LOAD_PATH.unshift(File.join(File.dirname(__FILE__), '..', 'lib'))
 require 'rspec'
 require 'active_record'
 require 'schema_plus'
-require 'connection'
+require 'schema_dev/rspec'
+require 'its-it'
+
+SchemaDev::Rspec.setup_db
 
 Dir[File.dirname(__FILE__) + "/support/**/*.rb"].each {|f| require f}
 
 RSpec.configure do |config|
   config.include(SchemaPlusMatchers)
   config.include(SchemaPlusHelpers)
-  config.filter_run_excluding :postgresql => :only unless SchemaPlusHelpers.postgresql?
-  config.filter_run_excluding :postgresql => :skip if SchemaPlusHelpers.postgresql?
-  config.filter_run_excluding :mysql => :only unless SchemaPlusHelpers.mysql?
-  config.filter_run_excluding :mysql => :skip if SchemaPlusHelpers.mysql?
-  config.filter_run_excluding :sqlite3 => :only unless SchemaPlusHelpers.sqlite3?
-  config.filter_run_excluding :sqlite3 => :skip if SchemaPlusHelpers.sqlite3?
+  config.warnings = true
 end
 
 def with_fk_config(opts, &block)

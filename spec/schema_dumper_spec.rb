@@ -55,7 +55,7 @@ describe "Schema dump" do
 
   it "should include foreign_key name" do
     with_foreign_key Post, :user_id, :users, :id, :name => "yippee" do
-      expect(dump_posts).to match /foreign_key.*user_id.*users.*id.*:name => "yippee"/
+      expect(dump_posts).to match(/foreign_key.*user_id.*users.*id.*:name => "yippee"/)
     end
   end
 
@@ -80,8 +80,8 @@ describe "Schema dump" do
     it "should handle regexp in ignore_tables" do
       with_foreign_key Comment, :post_id, :posts, :id do
         dump = dump_schema(:ignore => /post/)
-        expect(dump).to match /create_table "comments"/
-        expect(dump).not_to match /create_table "posts"/
+        expect(dump).to match(/create_table "comments"/)
+        expect(dump).not_to match(/create_table "posts"/)
       end
     end
 
@@ -211,6 +211,12 @@ describe "Schema dump" do
     it "should define expression" do
       with_index Post, :name => "posts_freaky_index", :expression => "USING hash (least(id, user_id))" do
         expect(dump_posts).to match(to_regexp(%q{t.index :name => "posts_freaky_index", :kind => "hash", :expression => "LEAST(id, user_id)"}))
+      end
+    end
+
+    it "should define operator_class" do
+      with_index Post, :body, :operator_class => 'text_pattern_ops' do
+        expect(dump_posts).to match(to_regexp(%q{t.index ["body"], :name => "index_posts_on_body", :operator_class => {"body" => "text_pattern_ops"}}))
       end
     end
 

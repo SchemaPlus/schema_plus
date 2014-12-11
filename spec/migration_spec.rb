@@ -780,12 +780,12 @@ describe ActiveRecord::Migration do
     end
 
     it "should rename rails-named indexes" do
-      index = ActiveRecord::Base.connection.indexes(:newname).find{|index| index.columns == ['xyz']}
+      index = ActiveRecord::Base.connection.indexes(:newname).find(&its.columns == ['xyz'])
       expect(index.name).to match(/^index_newname_on/)
     end
 
     it "should rename fk indexes" do
-      index = ActiveRecord::Base.connection.indexes(:newname).find{|index| index.columns == ['user_id']}
+      index = ActiveRecord::Base.connection.indexes(:newname).find(&its.columns == ['user_id'])
       expect(index.name).to match(/^fk__newname_/)
     end
 

@@ -131,7 +131,7 @@ describe "with multiple schemas" do
         create_table "schema_plus_test2.groups", :force => true do |t|
         end
         create_table "schema_plus_test2.members", :force => true do |t|
-          t.integer :item_id, :foreign_key => true unless SchemaPlusHelpers.mysql?
+          t.integer :item_id, :foreign_key => true unless SchemaDev::Rspec::Helpers.mysql?
           t.integer :group_id, :foreign_key => { references: "schema_plus_test2.groups" }
         end
       end
@@ -174,7 +174,7 @@ describe "with multiple schemas" do
 
     it "should include the schema in the constraint name" do
       expected_names = ["fk_schema_plus_test2_members_group_id"]
-      expected_names << "fk_schema_plus_test2_members_item_id" unless SchemaPlusHelpers.mysql?
+      expected_names << "fk_schema_plus_test2_members_item_id" unless SchemaDev::Rspec::Helpers.mysql?
       expect(Member.foreign_keys.map(&:name).sort).to match_array(expected_names.sort)
     end
   end

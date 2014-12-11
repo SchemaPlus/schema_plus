@@ -4,7 +4,7 @@ describe "Connection" do
 
   it "should re-open without failure" do
     expect {
-      ActiveRecord::Base.establish_connection :schema_plus
+      ActiveRecord::Base.establish_connection :schema_dev
     }.to_not raise_error
   end
 end

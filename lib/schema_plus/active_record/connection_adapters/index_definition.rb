@@ -10,9 +10,10 @@ module SchemaPlus
           base.alias_method_chain :initialize, :schema_plus
         end
         
-        attr_reader :conditions
+        attr_accessor :conditions
         attr_reader :expression
         attr_reader :kind
+        attr_reader :operator_classes
 
         def case_sensitive?
           @case_sensitive
@@ -27,9 +28,11 @@ module SchemaPlus
             @expression = options[:expression]
             @kind = options[:kind]
             @case_sensitive = options.include?(:case_sensitive) ? options[:case_sensitive] : true
+            @operator_classes = options[:operator_classes] || {}
           else # backwards compatibility
             initialize_without_schema_plus(*args)
             @case_sensitive = true
+            @operator_classes = {}
           end
         end
 
@@ -43,6 +46,7 @@ module SchemaPlus
           opts[:expression]     = expression unless expression.nil?
           opts[:kind]           = kind unless kind.nil?
           opts[:case_sensitive] = case_sensitive? unless @case_sensitive.nil?
+          opts[:operator_classes] = @operator_classes unless @operator_classes.nil?
           opts
         end
 
@@ -56,6 +60,7 @@ module SchemaPlus
           return false unless self.conditions == other.conditions
           return false unless self.expression == other.expression
           return false unless self.kind == other.kind
+          return false unless self.operator_classes == other.operator_classes
           return false unless !!self.case_sensitive? == !!other.case_sensitive?
           true
         end

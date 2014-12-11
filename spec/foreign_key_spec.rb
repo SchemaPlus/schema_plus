@@ -89,7 +89,7 @@ describe "Foreign Key" do
         end
 
         after(:each) do
-          fk = Post.foreign_keys.detect { |fk| fk.column_names == %w[author_id] }
+          fk = Post.foreign_keys.detect(&its.column_names == %w[author_id])
           remove_foreign_key(:posts, fk.name)
         end
 
@@ -117,7 +117,7 @@ describe "Foreign Key" do
 
       context "when is dropped", "comments(post_id)" do
 
-        let(:foreign_key_name) { fk = Comment.foreign_keys.detect { |definition| definition.column_names == %w[post_id] } and fk.name }
+        let(:foreign_key_name) { fk = Comment.foreign_keys.detect(&its.column_names == %w[post_id]) and fk.name }
 
         before(:each) do
           remove_foreign_key(:comments, foreign_key_name)

@@ -68,7 +68,7 @@ describe ActiveRecord do
       # when in the (say) development database, but then uses it to
       # initialize the test database when testing.  this meant that the
       # test database had views into the development database.
-      db = connection.respond_to?(:current_database)? connection.current_database : ActiveRecord::Base.configurations['schema_plus'][:database]
+      db = connection.respond_to?(:current_database)? connection.current_database : SchemaDev::Rspec.db_configuration[:database]
       expect(dump).not_to match(%r{#{connection.quote_table_name(db)}[.]})
     end
 
@@ -161,7 +161,7 @@ describe ActiveRecord do
 
         create_view :a_ones, Item.select('b, s').where(:a => 1)
         create_view :ab_ones, "select s from a_ones where b = 1"
-        create_view :pg_dummy_internal, "select 1" if SchemaPlusHelpers.postgresql?
+        create_view :pg_dummy_internal, "select 1" if SchemaDev::Rspec::Helpers.postgresql?
       end
     end
     connection.execute "insert into items (a, b, s) values (1, 1, 'one_one')"
@@ -177,7 +177,7 @@ describe ActiveRecord do
         drop_view "ab_ones"
         drop_view "a_ones"
         drop_table "items"
-        drop_view :pg_dummy_internal if SchemaPlusHelpers.postgresql?
+        drop_view :pg_dummy_internal if SchemaDev::Rspec::Helpers.postgresql?
       end
     end
   end
