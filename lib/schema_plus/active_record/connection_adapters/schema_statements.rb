@@ -54,6 +54,7 @@ module SchemaPlus::ActiveRecord::ConnectionAdapters
     end
 
     def add_index_options_with_schema_plus(table_name, column_name, options = {})
+      options = options.dup
       with_columns = options.delete(:with) { |_| [] }
       add_index_options_without_schema_plus(table_name, Array(column_name).concat(Array(with_columns).map(&:to_s)), options)
     end
