@@ -1,3 +1,4 @@
+require 'active_record'
 require 'valuable'
 
 require 'schema_plus/version'
