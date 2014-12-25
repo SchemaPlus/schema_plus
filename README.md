@@ -9,9 +9,9 @@ For added rails DRYness see also the gems
 [schema_associations](http://rubygems.org/gems/schema_associations) and
 [schema_validations](http://rubygems.org/gems/schema_validations)
 
-[![Gem Version](https://badge.fury.io/rb/schema_plus.png)](http://badge.fury.io/rb/schema_plus)
-[![Build Status](https://secure.travis-ci.org/SchemaPlus/schema_plus.png)](http://travis-ci.org/SchemaPlus/schema_plus)
-[![Dependency Status](https://gemnasium.com/SchemaPlus/schema_plus.png)](https://gemnasium.com/SchemaPlus/schema_plus)
+[![Gem Version](https://badge.fury.io/rb/schema_plus.svg)](http://badge.fury.io/rb/schema_plus)
+[![Build Status](https://secure.travis-ci.org/SchemaPlus/schema_plus.svg)](http://travis-ci.org/SchemaPlus/schema_plus)
+[![Dependency Status](https://gemnasium.com/lomba/schema_plus.svg)](https://gemnasium.com/SchemaPlus/schema_plus)
 
 ## Compatibility
 
