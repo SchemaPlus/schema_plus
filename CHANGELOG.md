@@ -2,6 +2,12 @@
 
 ## Change Log
 
+## 1.8.0
+
+* Rails 4.2 now supported.  Thanks to [@methodmissing](https://github.com/methodmissing) and [@dimonzozo](https://github.com/dimonzozo)
+* Padrino compatibility.  Thanks to [@thmzlt](https://github.com/thmzlt)
+* Internal: Now use our own drop_view function rather than duplicating code.  Thanks to [@robertomiranda](https://github.com/robertomiranda)
+
 ### 1.7.1
 
 * Eliminate warnings when ruby is in verbose mode
