@@ -22,8 +22,6 @@ gemfile:
 - gemfiles/rails-4.2/Gemfile.mysql2
 - gemfiles/rails-4.2/Gemfile.postgresql
 - gemfiles/rails-4.2/Gemfile.sqlite3
-before_script: bundle exec rake create_databases
-after_script: bundle exec rake drop_databases
 env: POSTGRESQL_DB_USER=postgres MYSQL_DB_USER=travis
 before_script: bundle exec rake create_databases
 after_script: bundle exec rake drop_databases
@@ -50,6 +48,12 @@ matrix:
     env: POSTGRESQL_DB_USER=postgres MYSQL_DB_USER=travis
   - rvm: jruby
     gemfile: gemfiles/rails-4.1/Gemfile.sqlite3
+    env: POSTGRESQL_DB_USER=postgres MYSQL_DB_USER=travis
+  - rvm: jruby
+    gemfile: gemfiles/rails-4.2/Gemfile.mysql2
+    env: POSTGRESQL_DB_USER=postgres MYSQL_DB_USER=travis
+  - rvm: jruby
+    gemfile: gemfiles/rails-4.2/Gemfile.postgresql
     env: POSTGRESQL_DB_USER=postgres MYSQL_DB_USER=travis
   - rvm: jruby
     gemfile: gemfiles/rails-4.2/Gemfile.sqlite3
