@@ -1,3 +1,43 @@
+if "#{::ActiveRecord::VERSION::MAJOR}.#{::ActiveRecord::VERSION::MINOR}".to_r < "4.2".to_r
+  class ActiveRecord::ConnectionAdapters::ForeignKeyDefinition < Struct.new(:from_table, :to_table, :options) #:nodoc:
+    # The name of the foreign key constraint
+    def name
+      options[:name]
+    end
+
+    def column
+      options[:column]
+    end
+
+    def primary_key
+      options[:primary_key] || default_primary_key
+    end
+
+    # The ON_DELETE behavior for the constraint.  See above for the
+    # possible values.
+    def on_delete
+      options[:on_delete]
+    end
+
+    # The ON_UPDATE behavior for the constraint.  See above for the
+    # possible values.
+    def on_update
+      options[:on_update]
+    end
+
+    def custom_primary_key?
+      options[:primary_key] != default_primary_key
+    end
+
+    private
+    def default_primary_key
+      "id"
+    end
+  end
+else
+  require 'active_record/connection_adapters/abstract/schema_definitions'
+end
+
 module SchemaPlus
   module ActiveRecord
     module ConnectionAdapters
@@ -13,48 +53,24 @@ module SchemaPlus
       # The deferrable attribute can take on the following values:
       #   true
       #   :initially_deferred
-      class ForeignKeyDefinition
-
-        # The name of the foreign key constraint
-        attr_reader :name
-
-        # The name of the table the constraint is defined on
-        attr_reader :table_name
+      class ForeignKeyDefinition < ::ActiveRecord::ConnectionAdapters::ForeignKeyDefinition
 
         # The list of column names that are constrained (as strings).
         attr_reader :column_names
 
-        # The foreign table that is referenced by the constraint
-        attr_reader :references_table_name
-
         # The list of column names (as strings) of the foreign table that are referenced
         # by the constraint
         attr_reader :references_column_names
-
-        # The ON_UPDATE behavior for the constraint.  See above for the
-        # possible values.
-        attr_reader :on_update
-
-        # The ON_DELETE behavior for the constraint.  See above for the
-        # possible values.
-        attr_reader :on_delete
-
-        # True if the constraint is deferrable
-        attr_reader :deferrable
-
         # :enddoc:
 
         ACTIONS = { :cascade => "CASCADE", :restrict => "RESTRICT", :set_null => "SET NULL", :set_default => "SET DEFAULT", :no_action => "NO ACTION" }.freeze
 
-        def initialize(name, table_name, column_names, references_table_name, references_column_names, on_update = nil, on_delete = nil, deferrable = nil)
-          @name = name
-          @table_name = unquote(table_name)
-          @column_names = unquote(Array.wrap(column_names))
-          @references_table_name = unquote(references_table_name)
-          @references_column_names = unquote(Array.wrap(references_column_names))
-          @on_update = on_update
-          @on_delete = on_delete
-          @deferrable = deferrable
+        def initialize(from_table, to_table, options) 
+          super
+          @from_table = unquote(from_table)
+          @to_table = unquote(to_table)
+          @column_names = unquote(Array.wrap(options.delete(:column_names)))
+          @references_column_names = unquote(Array.wrap(options.delete(:references_column_names)))
 
           ACTIONS.has_key?(on_update) or raise(ArgumentError, "invalid :on_update action: #{on_update.inspect}") if on_update
           ACTIONS.has_key?(on_delete) or raise(ArgumentError, "invalid :on_delete action: #{on_delete.inspect}") if on_delete
@@ -62,6 +78,19 @@ module SchemaPlus
             raise(NotImplementedError, "MySQL does not support ON UPDATE SET DEFAULT") if on_update == :set_default
             raise(NotImplementedError, "MySQL does not support ON DELETE SET DEFAULT") if on_delete == :set_default
           end
+        end
+
+        def table_name
+          from_table
+        end
+
+        def references_table_name
+          to_table
+        end
+
+        # True if the constraint is deferrable
+        def deferrable
+          options[:deferrable]
         end
 
         # Dumps a definition of foreign key.

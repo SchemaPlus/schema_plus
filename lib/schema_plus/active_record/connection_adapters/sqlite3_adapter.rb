@@ -8,6 +8,16 @@ module SchemaPlus
           end
           super(name, default, sql_type, null)
         end
+
+        # AR 4.2 uses default_function rather than default_expr
+        def self.included(base)
+          base.alias_method_chain :default_function, :sqlite3 if base.instance_methods.include? :default_function
+        end
+
+        def default_function_with_sqlite3
+          @default_function ||= "(#{default})" if default =~ /DATETIME/
+          default_function_without_sqlite3
+        end
       end
 
       # SchemaPlus includes an Sqlite3 implementation of the AbstractAdapter
@@ -20,12 +30,15 @@ module SchemaPlus
           base.class_eval do
             alias_method_chain :indexes, :schema_plus
             alias_method_chain :rename_table, :schema_plus
+            alias_method_chain :tables, :schema_plus
           end
 
           if ::ActiveRecord::VERSION::MAJOR.to_i < 4
             ::ActiveRecord::ConnectionAdapters::SQLiteColumn.send(:include, SQLiteColumn) unless ::ActiveRecord::ConnectionAdapters::SQLiteColumn.include?(SQLiteColumn)
-          else
+          elsif defined? ::ActiveRecord::ConnectionAdapters::SQLite3Column
             ::ActiveRecord::ConnectionAdapters::SQLite3Column.send(:include, SQLiteColumn) unless ::ActiveRecord::ConnectionAdapters::SQLite3Column.include?(SQLiteColumn)
+          else # in ActiveRecord::VERSION 4.2 there's no SQLite3Column
+            ::ActiveRecord::ConnectionAdapters::Column.send(:include, SQLiteColumn) unless ::ActiveRecord::ConnectionAdapters::Column.include?(SQLiteColumn)
           end
         end
 
@@ -84,6 +97,11 @@ module SchemaPlus
           get_foreign_keys(nil, name).select{|definition| definition.references_table_name == table_name}
         end
 
+        def tables_with_schema_plus(*args)
+          # AR 4.2 explicitly looks for views or tables, but only for sqlite3.  so take away the tables.
+          tables_without_schema_plus(*args) - views
+        end
+
         def views(name = nil)
           execute("SELECT name FROM sqlite_master WHERE type='view'", name).collect{|row| row["name"]}
         end
@@ -121,10 +139,17 @@ module SchemaPlus
               on_update = on_update ? on_update.downcase.gsub(' ', '_').to_sym : :no_action
               on_delete = on_delete ? on_delete.downcase.gsub(' ', '_').to_sym : :no_action
               deferrable = deferrable ? (initially_deferred ? :initially_deferred : true) : false
-              foreign_keys << ForeignKeyDefinition.new(name,
-                                                       table_name, column_names,
-                                                       references_table_name, references_column_names,
-                                                       on_update, on_delete, deferrable)
+
+              options = { :name => name,
+                          :on_update => on_update,
+                          :on_delete => on_delete,
+                          :column_names => column_names,
+                          :references_column_names => references_column_names,
+                          :deferrable => deferrable }
+
+              foreign_keys << ForeignKeyDefinition.new(table_name,
+                                                       references_table_name,
+                                                       options)
             end
           end
 

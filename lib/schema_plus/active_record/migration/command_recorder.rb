@@ -11,10 +11,12 @@ module SchemaPlus
             alias_method_chain :add_column, :schema_plus
             alias_method_chain :add_reference, :schema_plus unless ::ActiveRecord::VERSION::MAJOR.to_i < 4
             alias_method_chain :invert_add_index, :schema_plus
+            alias_method_chain :invert_add_foreign_key, :schema_plus if "#{::ActiveRecord::VERSION::MAJOR}.#{::ActiveRecord::VERSION::MINOR}".to_r >= "4.2".to_r
           end
         end
 
         def add_column_with_schema_plus(table_name, name, type, options = {}) #:nodoc:
+          schema_plus_normalize_column_options(options)
           add_column_without_schema_plus(table_name, name, type, options)
           revertable_schema_plus_handle_column_options(table_name, name, options, :config => schema_plus_config)
           self
@@ -69,6 +71,7 @@ module SchemaPlus
           table_name, column_names, references_table_name, references_column_names, options = args
           [:remove_foreign_key, [table_name, column_names, references_table_name, references_column_names, (options||{}).merge(if_exists: true)]]
         end
+        alias :invert_add_foreign_key_with_schema_plus :invert_add_foreign_key
 
         def invert_add_index_with_schema_plus(args)
           table, columns, options = *args

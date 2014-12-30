@@ -5,6 +5,7 @@ module SchemaPlus::ActiveRecord::ConnectionAdapters
       base.class_eval do
         alias_method_chain :create_table, :schema_plus
         alias_method_chain :add_reference, :schema_plus unless ::ActiveRecord::VERSION::MAJOR.to_i < 4
+        alias_method_chain :add_index_options, :schema_plus if "#{::ActiveRecord::VERSION::MAJOR}.#{::ActiveRecord::VERSION::MINOR}".to_r >= "4.2".to_r
         include AddIndex
       end
     end
@@ -50,6 +51,11 @@ module SchemaPlus::ActiveRecord::ConnectionAdapters
           add_index(table, index.columns, index.opts)
         end
       end
+    end
+
+    def add_index_options_with_schema_plus(table_name, column_name, options = {})
+      columns = options.delete(:with) { |_| [] }
+      add_index_options_without_schema_plus(table_name, Array(column_name).concat(Array(columns).map(&:to_s)), options)
     end
 
     def self.add_index_exception_handler(connection, table, columns, options, e) #:nodoc:

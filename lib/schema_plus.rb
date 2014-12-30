@@ -2,6 +2,7 @@ require 'active_record'
 require 'valuable'
 
 require 'schema_plus/version'
+require 'schema_plus/active_record/attribute'
 require 'schema_plus/active_record/base'
 require 'schema_plus/active_record/column_options_handler'
 require 'schema_plus/active_record/db_default'
@@ -138,6 +139,10 @@ module SchemaPlus
       ::ActiveRecord::ConnectionAdapters::AbstractAdapter::SchemaCreation.send(:include, SchemaPlus::ActiveRecord::ConnectionAdapters::AbstractAdapter::VisitTableDefinition)
     end
 
+    if "#{::ActiveRecord::VERSION::MAJOR}.#{::ActiveRecord::VERSION::MINOR}".to_r >= "4.2".to_r
+      require 'active_record/connection_adapters/abstract_mysql_adapter'
+      ::ActiveRecord::ConnectionAdapters::AbstractMysqlAdapter::SchemaCreation.send(:include, SchemaPlus::ActiveRecord::ConnectionAdapters::AbstractAdapter::VisitTableDefinition)
+    end
   end
 
   def self.insert #:nodoc:
@@ -148,6 +153,7 @@ module SchemaPlus
     ::ActiveRecord::Schema.send(:include, SchemaPlus::ActiveRecord::Schema)
     ::ActiveRecord::SchemaDumper.send(:include, SchemaPlus::ActiveRecord::SchemaDumper)
     ::ActiveRecord.const_set(:DB_DEFAULT, SchemaPlus::ActiveRecord::DB_DEFAULT)
+    ::ActiveRecord::Attribute.send(:include, SchemaPlus::ActiveRecord::Attribute) if defined? ::ActiveRecord::Attribute
   end
 
 end

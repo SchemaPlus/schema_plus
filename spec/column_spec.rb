@@ -14,7 +14,17 @@ describe "Column" do
       @login = User.columns.find{|column| column.name == "login"}
     end
     it "works properly" do
-      expect(JSON.parse(@login.to_json)).to include("name" => "login", "type" => "string")
+      type = case
+             when "#{::ActiveRecord::VERSION::MAJOR}.#{::ActiveRecord::VERSION::MINOR}".to_r <= "4.1".to_r
+               { "type" => "string" }
+             when SchemaDev::Rspec::Helpers.mysql?
+               { "sql_type" => "varchar(255)" }
+             when SchemaDev::Rspec::Helpers.postgresql?
+               { "sql_type" => "character varying" }
+             when SchemaDev::Rspec::Helpers.sqlite3?
+               { "sql_type" => "varchar" }
+             end
+      expect(JSON.parse(@login.to_json)).to include(type.merge("name" => "login"))
     end
   end
 

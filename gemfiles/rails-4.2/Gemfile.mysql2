@@ -1,0 +1,10 @@
+require "pathname"
+eval(Pathname.new(__FILE__).dirname.join("Gemfile.base").read, binding)
+
+platform :ruby do
+  gem "mysql2"
+end
+
+platform :jruby do
+  gem 'activerecord-jdbcmysql-adapter'
+end

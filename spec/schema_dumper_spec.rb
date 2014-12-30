@@ -96,7 +96,7 @@ describe "Schema dump" do
 
     it "should dump the default hash expr as CURRENT_TIMESTAMP" do
       with_additional_column Post, :posted_at, :datetime, :default => {:expr => 'date \'2001-09-28\''} do
-        expect(dump_posts).to match(%r{t\.datetime\s+"posted_at",\s*(?:default:|:default =>)\s*'2001-09-28 00:00:00'})
+        expect(dump_posts).to match(%r{t\.datetime\s+"posted_at",\s*(?:default:|:default =>).*2001-09-28.*})
       end
     end
 
@@ -131,7 +131,9 @@ describe "Schema dump" do
     ActiveRecord::Migration.suppress_messages do
       ActiveRecord::Migration.change_column_default :posts, :string_no_default, nil
     end
-    expect(dump_posts).to match(%r{t\.string\s+"string_no_default"\s*$})
+    # mysql2 includes 'limit: 255' in the output.  that's OK, just want to
+    # make sure the full line doesn't have 'default' in it.
+    expect(dump_posts).to match(%r{t\.string\s+"string_no_default"\s*(,\s*limit:\s*\d+)?$})
   end
 
   it "should include foreign_key options" do

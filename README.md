@@ -18,7 +18,7 @@ For added rails DRYness see also the gems
 
 SchemaPlus supports all combinations of:
 
-*   Rails/ActiveRecord 3.2, 4.0, and 4.1
+*   Rails/ActiveRecord 3.2, 4.0, 4.1, and 4.2
 *   PostgreSQL, MySQL (using mysql2 gem; mysql gem only supported with Rails
     3.2), or SQLite3 (using sqlite3 >= 3.7.7 for foreign key support, >= 3.8 for partial indexes)
 *   MRI Ruby >= 1.9.3
@@ -58,7 +58,7 @@ table definition:
     add_index :parts, :product_code, unique: true
 
 But with SchemaPlus you can specify your indexes when you define each column,
-with options as desired
+with options as desired.  (Rails 4.2 introduced this same capability. Yay! But SchemaPlus still adds some shorthands that aren't in Rails 4.2.)
 
     # More DRY way...
     create_table :parts do |t|
@@ -336,4 +336,6 @@ Schema_plus has a full set of rspec tests.  [travis-ci](http://travis-ci.org/Sch
 
     $ schema_dev rspec
 
+
 For more details, see the [schema_dev](https://github.com/SchemaPlus/schema_dev) README.
+
