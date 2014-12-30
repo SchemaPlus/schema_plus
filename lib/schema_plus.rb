@@ -153,7 +153,7 @@ module SchemaPlus
     ::ActiveRecord::Schema.send(:include, SchemaPlus::ActiveRecord::Schema)
     ::ActiveRecord::SchemaDumper.send(:include, SchemaPlus::ActiveRecord::SchemaDumper)
     ::ActiveRecord.const_set(:DB_DEFAULT, SchemaPlus::ActiveRecord::DB_DEFAULT)
-    ::ActiveRecord::Attribute.send(:include, SchemaPlus::ActiveRecord::Attribute)
+    ::ActiveRecord::Attribute.send(:include, SchemaPlus::ActiveRecord::Attribute) if defined? ::ActiveRecord::Attribute
   end
 
 end
