@@ -7,7 +7,12 @@ module SchemaPlus::ActiveRecord
       when :unique then options[:index] = { :unique => true }
       when Hash
         if options[:index][:length].is_a? Hash
-          options[:index][:length].stringify_keys!
+          normalize = if "#{::ActiveRecord::VERSION::MAJOR}.#{::ActiveRecord::VERSION::MINOR}".to_r >= "4.2".to_r
+                        :stringify_keys!
+                      else
+                        :symbolize_keys!
+                      end
+          options[:index][:length].send normalize
         end
       end
     end
