@@ -30,4 +30,7 @@ exclude:
     rails: 4.1
   -
     ruby: jruby
+    rails: 4.2
+  -
+    ruby: jruby
     db: sqlite3
