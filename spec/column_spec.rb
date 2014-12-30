@@ -19,8 +19,10 @@ describe "Column" do
                { "type" => "string" }
              when SchemaDev::Rspec::Helpers.mysql?
                { "sql_type" => "varchar(255)" }
-             else
+             when SchemaDev::Rspec::Helpers.postgresql?
                { "sql_type" => "character varying" }
+             when SchemaDev::Rspec::Helpers.sqlite3?
+               { "sql_type" => "varchar" }
              end
       expect(JSON.parse(@login.to_json)).to include(type.merge("name" => "login"))
     end
