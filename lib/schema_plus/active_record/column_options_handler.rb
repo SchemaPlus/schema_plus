@@ -5,6 +5,10 @@ module SchemaPlus::ActiveRecord
       case options[:index]
       when true then options[:index] = {}
       when :unique then options[:index] = { :unique => true }
+      when Hash
+        if options[:index][:length].is_a? Hash
+          options[:index][:length].stringify_keys!
+        end
       end
     end
 
