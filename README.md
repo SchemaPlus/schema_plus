@@ -18,7 +18,7 @@ For added rails DRYness see also the gems
 
 SchemaPlus supports all combinations of:
 
-*   Rails/ActiveRecord 3.2, 4.0, and 4.1
+*   Rails/ActiveRecord 3.2, 4.0, 4.1, and 4.2
 *   PostgreSQL, MySQL (using mysql2 gem; mysql gem only supported with Rails
     3.2), or SQLite3 (using sqlite3 >= 3.7.7 for foreign key support, >= 3.8 for partial indexes)
 *   MRI Ruby >= 1.9.3
