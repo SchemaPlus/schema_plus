@@ -8,6 +8,16 @@ module SchemaPlus
           end
           super(name, default, sql_type, null)
         end
+
+        # AR 4.2 uses default_function rather than default_expr
+        def self.included(base)
+          base.alias_method_chain :default_function, :sqlite3 if base.instance_methods.include? :default_function
+        end
+
+        def default_function_with_sqlite3
+          @default_function ||= "(#{default})" if default =~ /DATETIME/
+          default_function_without_sqlite3
+        end
       end
 
       # SchemaPlus includes an Sqlite3 implementation of the AbstractAdapter
@@ -24,8 +34,10 @@ module SchemaPlus
 
           if ::ActiveRecord::VERSION::MAJOR.to_i < 4
             ::ActiveRecord::ConnectionAdapters::SQLiteColumn.send(:include, SQLiteColumn) unless ::ActiveRecord::ConnectionAdapters::SQLiteColumn.include?(SQLiteColumn)
-          else
+          elsif defined? ::ActiveRecord::ConnectionAdapters::SQLite3Column
             ::ActiveRecord::ConnectionAdapters::SQLite3Column.send(:include, SQLiteColumn) unless ::ActiveRecord::ConnectionAdapters::SQLite3Column.include?(SQLiteColumn)
+          else # in ActiveRecord::VERSION 4.2 there's no SQLite3Column
+            ::ActiveRecord::ConnectionAdapters::Column.send(:include, SQLiteColumn) unless ::ActiveRecord::ConnectionAdapters::Column.include?(SQLiteColumn)
           end
         end
 
