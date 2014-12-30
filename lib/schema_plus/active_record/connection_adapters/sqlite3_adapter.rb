@@ -30,6 +30,7 @@ module SchemaPlus
           base.class_eval do
             alias_method_chain :indexes, :schema_plus
             alias_method_chain :rename_table, :schema_plus
+            alias_method_chain :tables, :schema_plus
           end
 
           if ::ActiveRecord::VERSION::MAJOR.to_i < 4
@@ -94,6 +95,11 @@ module SchemaPlus
 
         def reverse_foreign_keys(table_name, name = nil)
           get_foreign_keys(nil, name).select{|definition| definition.references_table_name == table_name}
+        end
+
+        def tables_with_schema_plus(*args)
+          # AR 4.2 explicitly looks for views or tables, but only for sqlite3.  so take away the tables.
+          tables_without_schema_plus(*args) - views
         end
 
         def views(name = nil)
