@@ -96,7 +96,7 @@ describe "Schema dump" do
 
     it "should dump the default hash expr as CURRENT_TIMESTAMP" do
       with_additional_column Post, :posted_at, :datetime, :default => {:expr => 'date \'2001-09-28\''} do
-        expect(dump_posts).to match(%r{t\.datetime\s+"posted_at",\s*(?:default:|:default =>)\s*'2001-09-28 00:00:00'})
+        expect(dump_posts).to match(%r{t\.datetime\s+"posted_at",\s*(?:default:|:default =>).*2001-09-28.*})
       end
     end
 
