@@ -128,7 +128,12 @@ module SchemaPlus::ActiveRecord::ConnectionAdapters
 
     def column_with_schema_plus(name, type, options = {}) #:nodoc:
       schema_plus_normalize_column_options(options)
+      # prevent AR from seeing :index => false as a request for an index
+      if noindex = options[:index] == false
+        options.delete(:index)
+      end
       column_without_schema_plus(name, type, options)
+      options[:index] = false if noindex
       schema_plus_handle_column_options(self.name, name, options, :config => schema_plus_config)
       self
     end
