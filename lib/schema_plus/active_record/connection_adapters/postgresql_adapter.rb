@@ -103,6 +103,7 @@ module SchemaPlus
           options = {} if options.nil?  # some callers explicitly pass options=nil
           column_name, options = [], column_name if column_name.is_a?(Hash)
           column_names = Array(column_name).compact
+          column_names += Array(options[:with] || [])
           if column_names.empty?
             raise ArgumentError, "No columns and :expression missing from options - cannot create index" unless options[:expression]
             raise ArgumentError, "Index name not given. Pass :name option" unless options[:name]
