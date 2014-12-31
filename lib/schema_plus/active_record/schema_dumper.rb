@@ -26,7 +26,7 @@ module SchemaPlus
           alias_method_chain :table, :schema_plus
           alias_method_chain :tables, :schema_plus
           alias_method_chain :indexes, :schema_plus
-          alias_method_chain :foreign_keys, :schema_plus
+          alias_method_chain :foreign_keys, :schema_plus if private_method_defined? :foreign_keys
         end
       end
 
