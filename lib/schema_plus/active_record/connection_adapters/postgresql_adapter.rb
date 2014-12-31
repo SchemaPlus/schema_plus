@@ -14,31 +14,6 @@ module SchemaPlus
 
           @default_function = @default_expr = default_function
         end
-
-        def default_value_with_schema_plus(default)
-          value = default_value_without_schema_plus(default)
-          self.class.convert_default_value(default, value)
-        end
-
-        module ClassMethods
-          def extract_value_from_default_with_schema_plus(default)
-            value = extract_value_from_default_without_schema_plus(default)
-            convert_default_value(default, value)
-          end
-
-          # in some cases (e.g. if change_column_default(table, column,
-          # nil) is used), postgresql will return NULL::xxxxx (rather
-          # than nil) for a null default -- make sure we treat it as nil,
-          # not as a function.
-          def convert_default_value(default, value)
-            default = nil if value.nil? && default =~ /\ANULL::(?:character varying|bpchar|text)\z/m
-
-            if value.nil? && !default.nil?
-              value = { :expr => default }
-            end
-            value
-          end
-        end
       end
 
       # The Postgresql adapter implements the SchemaPlus extensions and
