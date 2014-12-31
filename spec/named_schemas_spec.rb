@@ -188,7 +188,7 @@ describe "with multiple schemas" do
       end
     end
 
-    around (:each) do |example|
+    around(:each) do |example|
       begin
         connection.execute "SET search_path to '$user','public','postgis'"
         example.run

@@ -19,7 +19,7 @@ describe ActiveRecord do
 
   context "views" do
 
-    around (:each) do |example|
+    around(:each) do |example|
       define_schema_and_data
       example.run
       drop_definitions
