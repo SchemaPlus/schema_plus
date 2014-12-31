@@ -59,6 +59,13 @@ describe "Schema dump" do
     end
   end
 
+  it "should include foreign_key exactly once" do
+    with_foreign_key Post, :user_id, :users, :id, :name => "yippee" do
+      expect(dump_posts.scan(/foreign_key.*yippee"/).length).to eq 1
+    end
+  end
+
+
   it "should sort foreign_key definitions" do
     with_foreign_keys Comment, [ [ :post_id, :posts, :id ], [ :commenter_id, :users, :id ]] do
       expect(dump_schema).to match(/foreign_key.+commenter_id.+foreign_key.+post_id/m)

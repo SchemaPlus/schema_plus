@@ -26,10 +26,16 @@ module SchemaPlus
           alias_method_chain :table, :schema_plus
           alias_method_chain :tables, :schema_plus
           alias_method_chain :indexes, :schema_plus
+          alias_method_chain :foreign_keys, :schema_plus
         end
       end
 
       private
+
+      def foreign_keys_with_schema_plus(*)
+        # do nothing.  this overrides AR 4.2's foreign key dumping method, which isn't needed
+        # because we're dong them inline
+      end
 
       def break_fk_cycles #:nodoc:
         strongly_connected_components.select{|component| component.size > 1}.each do |tables|
