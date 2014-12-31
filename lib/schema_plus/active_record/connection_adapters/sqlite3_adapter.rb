@@ -2,14 +2,7 @@ module SchemaPlus
   module ActiveRecord
     module ConnectionAdapters
       module SQLiteColumn
-        def initialize(name, default, sql_type = nil, null = true)
-          if default =~ /DATETIME/
-            @default_expr = "(#{default})"
-          end
-          super(name, default, sql_type, null)
-        end
 
-        # AR 4.2 uses default_function rather than default_expr
         def self.included(base)
           base.alias_method_chain :default_function, :sqlite3 if base.instance_methods.include? :default_function
         end
