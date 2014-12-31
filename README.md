@@ -1,4 +1,16 @@
-# SchemaPlus
+
+> ## This is the README for SchemaPlus 2.x
+> which is under development in the master branch, and which supports Rails >= 4.2.  For info about the stable 1.x releases which support Rails 3.1, 4.0, 4.1, and 4.2, see the [schema_plus 1.x](https://github.com/SchemaPlus/schema_plus/tree/1.x) branch
+
+---
+
+[![Gem Version](https://badge.fury.io/rb/schema_plus.svg)](http://badge.fury.io/rb/schema_plus)
+[![Build Status](https://secure.travis-ci.org/SchemaPlus/schema_plus.svg)](http://travis-ci.org/SchemaPlus/schema_plus)
+[![Coverage Status](https://img.shields.io/coveralls/SchemaPlus/schema_plus.svg)](https://coveralls.io/r/SchemaPlus/schema_plus)
+[![Dependency Status](https://gemnasium.com/lomba/schema_plus.svg)](https://gemnasium.com/SchemaPlus/schema_plus)
+
+# SchemaPlus 2.x
+
 
 SchemaPlus is an ActiveRecord extension that provides enhanced capabilities
 for schema definition and querying, including: enhanced and more DRY index
@@ -9,10 +21,6 @@ For added rails DRYness see also the gems
 [schema_associations](http://rubygems.org/gems/schema_associations) and
 [schema_validations](http://rubygems.org/gems/schema_validations)
 
-[![Gem Version](https://badge.fury.io/rb/schema_plus.svg)](http://badge.fury.io/rb/schema_plus)
-[![Build Status](https://secure.travis-ci.org/SchemaPlus/schema_plus.svg)](http://travis-ci.org/SchemaPlus/schema_plus)
-[![Coverage Status](https://img.shields.io/coveralls/SchemaPlus/schema_plus.svg)](https://coveralls.io/r/SchemaPlus/schema_plus)
-[![Dependency Status](https://gemnasium.com/lomba/schema_plus.svg)](https://gemnasium.com/SchemaPlus/schema_plus)
 
 ## Compatibility
 
