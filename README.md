@@ -1,4 +1,10 @@
-# SchemaPlus
+# SchemaPlus: 1.x
+
+## *This is the README for schema_plus 1.x (latest release 1.8.1)*
+
+which supports Rails 3.2, 4.0, 4.1, and 4.2.  Ongoing development towards schema_plus 2.x takes place in the master branch, supporting only Rails >= 4.2
+
+---
 
 SchemaPlus is an ActiveRecord extension that provides enhanced capabilities
 for schema definition and querying, including: enhanced and more DRY index
