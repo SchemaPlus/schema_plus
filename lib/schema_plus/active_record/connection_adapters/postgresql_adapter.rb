@@ -3,14 +3,6 @@ module SchemaPlus
     module ConnectionAdapters
       # PostgreSQL-specific extensions to column definitions in a table.
       module PostgreSQLColumn
-        # Extracts the value from a PostgreSQL column default definition.
-        def self.included(base) #:nodoc:
-          base.extend ClassMethods
-          if defined?(JRUBY_VERSION)
-            base.alias_method_chain :default_value, :schema_plus
-          end
-        end
-
         def initialize(name, default, cast_type, sql_type = nil, null = true, default_function = nil)
           if sql_type =~ /\[\]$/
             @array = true
@@ -56,7 +48,7 @@ module SchemaPlus
         def self.included(base) #:nodoc:
           base.class_eval do
             alias_method_chain :rename_table, :schema_plus
-            alias_method_chain :exec_cache, :schema_plus unless defined?(JRUBY_VERSION)
+            alias_method_chain :exec_cache, :schema_plus
           end
           ::ActiveRecord::ConnectionAdapters::PostgreSQLColumn.send(:include, PostgreSQLColumn) unless ::ActiveRecord::ConnectionAdapters::PostgreSQLColumn.include?(PostgreSQLColumn)
         end
@@ -222,10 +214,6 @@ module SchemaPlus
                                                                     :expression => expression)
           end
         end
-
-        def query(*args)
-          select(*args).map(&:values)
-        end if defined?(JRUBY_VERSION)
 
         def rename_table_with_schema_plus(oldname, newname) #:nodoc:
           rename_table_without_schema_plus(oldname, newname)
