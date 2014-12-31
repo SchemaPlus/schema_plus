@@ -13,7 +13,6 @@ module SchemaPlus
             alias_method_chain :tables, :schema_plus
             alias_method_chain :remove_column, :schema_plus
             alias_method_chain :rename_table, :schema_plus
-            alias_method_chain :exec_stmt, :schema_plus rescue nil # only defined for mysql not mysql2
           end
 
           if ::ActiveRecord::VERSION::MAJOR.to_i >= 4
@@ -37,20 +36,6 @@ module SchemaPlus
         def rename_table_with_schema_plus(oldname, newname)
           rename_table_without_schema_plus(oldname, newname)
           rename_indexes_and_foreign_keys(oldname, newname)
-        end
-
-        # used only for mysql not mysql2.  the quoting methods on ActiveRecord::DB_DEFAULT are
-        # sufficient for mysql2
-        def exec_stmt_with_schema_plus(sql, name, binds, &block)
-          if binds.any?{ |col, val| val.equal? ::ActiveRecord::DB_DEFAULT}
-            binds.each_with_index do |(col, val), i|
-              if val.equal? ::ActiveRecord::DB_DEFAULT
-                sql = sql.sub(/(([^?]*?){#{i}}[^?]*)\?/, "\\1DEFAULT")
-              end
-            end
-            binds = binds.reject{|col, val| val.equal? ::ActiveRecord::DB_DEFAULT}
-          end
-          exec_stmt_without_schema_plus(sql, name, binds, &block)
         end
 
         # implement cascade by removing foreign keys
