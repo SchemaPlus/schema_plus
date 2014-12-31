@@ -36,20 +36,6 @@ module SchemaPlus
           end
         end
 
-        # returns the options as a hash suitable for add_index
-        def opts #:nodoc:
-          opts = {}
-          opts[:name]           = name unless name.nil?
-          opts[:unique]         = unique unless unique.nil?
-          opts[:length]         = lengths unless lengths.nil?
-          opts[:conditions]     = conditions unless conditions.nil?
-          opts[:expression]     = expression unless expression.nil?
-          opts[:kind]           = kind unless kind.nil?
-          opts[:case_sensitive] = case_sensitive? unless @case_sensitive.nil?
-          opts[:operator_classes] = @operator_classes unless @operator_classes.nil?
-          opts
-        end
-
         # tests if the corresponding indexes would be the same
         def ==(other)
           return false if other.nil?
