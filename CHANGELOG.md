@@ -2,6 +2,10 @@
 
 ## Change Log
 
+## 1.8.1
+
+* Bug fix for AR 4.2, spurious add_foreign_key statements at the top of schema dump.  Thanks to [@tovodeverett](https://github.com/tovodeverett) for doing better testing than me!
+
 ## 1.8.0
 
 * Rails 4.2 now supported.  Thanks to [@methodmissing](https://github.com/methodmissing) and [@dimonzozo](https://github.com/dimonzozo)
