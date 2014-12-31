@@ -36,11 +36,7 @@ module SchemaPlus
           adapter_module = SchemaPlus::ActiveRecord::ConnectionAdapters.const_get(adapter)
           self.class.send(:include, adapter_module) unless self.class.include?(adapter_module)
 
-          if "#{::ActiveRecord::VERSION::MAJOR}.#{::ActiveRecord::VERSION::MINOR}".to_r >= "4.1".to_r
-            self.class.const_get(:SchemaCreation).send(:include, adapter_module.const_get(:AddColumnOptions))
-          else
-            self.class.send(:include, adapter_module.const_get(:AddColumnOptions))
-          end
+          self.class.const_get(:SchemaCreation).send(:include, adapter_module.const_get(:AddColumnOptions))
 
           extend(SchemaPlus::ActiveRecord::ForeignKeys)
         end
@@ -92,11 +88,7 @@ module SchemaPlus
         end
 
         def self.proper_table_name(name)
-           if ::ActiveRecord::Migration.instance_methods(false).include? :proper_table_name
-           proper_name = ::ActiveRecord::Migration.new.proper_table_name(name) # Rails >= 4.1
-         else
-           proper_name = ::ActiveRecord::Migrator.proper_table_name(name) # Rails <= 4.0 ; Deprecated in 4.1
-         end
+          proper_name = ::ActiveRecord::Migration.new.proper_table_name(name)
         end
 
         # Remove a foreign key constraint

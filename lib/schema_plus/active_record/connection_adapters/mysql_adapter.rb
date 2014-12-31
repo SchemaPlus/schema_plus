@@ -31,11 +31,7 @@ module SchemaPlus
           foreign_keys(table_name).select { |foreign_key| foreign_key.column_names.include?(column_name.to_s) }.each do |foreign_key|
             remove_foreign_key(table_name, foreign_key.name)
           end
-          if ::ActiveRecord::VERSION::MAJOR.to_i >= 4
-            remove_column_without_schema_plus(table_name, column_name, type, options)
-          else
-            remove_column_without_schema_plus(table_name, column_name)
-          end
+          remove_column_without_schema_plus(table_name, column_name, type, options)
         end
 
         def rename_table_with_schema_plus(oldname, newname)

@@ -46,21 +46,17 @@ module SchemaPlus
           self
         end
 
-        if ::ActiveRecord::VERSION::MAJOR >= 4
-          def revertable_schema_plus_handle_column_options(table_name, name, options, config)
-            length = commands.length
-            schema_plus_handle_column_options(table_name, name, options, config)
-            if reverting
-              rev = []
-              while commands.length > length
-                cmd = commands.pop
-                rev.unshift cmd unless cmd[0].to_s =~ /^add_/
-              end
-              commands.concat rev
+        def revertable_schema_plus_handle_column_options(table_name, name, options, config)
+          length = commands.length
+          schema_plus_handle_column_options(table_name, name, options, config)
+          if reverting
+            rev = []
+            while commands.length > length
+              cmd = commands.pop
+              rev.unshift cmd unless cmd[0].to_s =~ /^add_/
             end
+            commands.concat rev
           end
-        else
-          alias :revertable_schema_plus_handle_column_options :schema_plus_handle_column_options
         end
 
         def add_foreign_key(*args)

@@ -33,23 +33,9 @@ module SchemaPlus::ActiveRecord::ConnectionAdapters
       # override rails' :force to cascade
       drop_table(table, if_exists: true, cascade: true) if options.delete(:force)
 
-      if ::ActiveRecord::VERSION::MAJOR.to_i < 4
-        indexes = []
-      end
       create_table_without_schema_plus(table, options) do |table_definition|
         table_definition.schema_plus_config = SchemaPlus.config.merge(config_options)
-        if ::ActiveRecord::VERSION::MAJOR.to_i < 4
-          table_definition.name = table
-        end
         yield table_definition if block_given?
-        if ::ActiveRecord::VERSION::MAJOR.to_i < 4
-          indexes = table_definition.indexes
-        end
-      end
-      if ::ActiveRecord::VERSION::MAJOR.to_i < 4
-        indexes.each do |index|
-          add_index(table, index.columns, index.opts)
-        end
       end
     end
 

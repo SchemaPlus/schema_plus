@@ -76,31 +76,16 @@ module SchemaPlus::ActiveRecord::ConnectionAdapters
         alias_method_chain :references, :schema_plus
         alias_method_chain :belongs_to, :schema_plus
         alias_method_chain :primary_key, :schema_plus
-
-        if ::ActiveRecord::VERSION::MAJOR.to_i < 4
-          attr_accessor :name
-          attr_accessor :indexes
-          alias_method_chain :to_sql, :schema_plus
-        end
       end
     end
 
     def initialize_with_schema_plus(*args) #:nodoc:
       initialize_without_schema_plus(*args)
       @foreign_keys = []
-      if ::ActiveRecord::VERSION::MAJOR.to_i < 4
-        @indexes = []
-      end
     end
 
-    if ::ActiveRecord::VERSION::MAJOR.to_i < 4
-      def primary_key_with_schema_plus(name, options = {}) #:nodoc:
-        column(name, :primary_key, options)
-      end
-    else
-      def primary_key_with_schema_plus(name, type = :primary_key, options = {}) #:nodoc:
-        column(name, type, options.merge(:primary_key => true))
-      end
+    def primary_key_with_schema_plus(name, type = :primary_key, options = {}) #:nodoc:
+      column(name, type, options.merge(:primary_key => true))
     end
 
 
@@ -142,13 +127,6 @@ module SchemaPlus::ActiveRecord::ConnectionAdapters
       sql = to_sql_without_schema_plus
       sql << ', ' << @foreign_keys.map(&:to_sql) * ', ' unless @foreign_keys.empty?
       sql
-    end
-
-    # Define an index for the current 
-    if ::ActiveRecord::VERSION::MAJOR.to_i < 4
-      def index(column_name, options={})
-        @indexes << ::ActiveRecord::ConnectionAdapters::IndexDefinition.new(self.name, column_name, options)
-      end
     end
 
     def foreign_key(column_names, references_table_name, references_column_names, options = {})

@@ -1,42 +1,4 @@
-if "#{::ActiveRecord::VERSION::MAJOR}.#{::ActiveRecord::VERSION::MINOR}".to_r < "4.2".to_r
-  class ActiveRecord::ConnectionAdapters::ForeignKeyDefinition < Struct.new(:from_table, :to_table, :options) #:nodoc:
-    # The name of the foreign key constraint
-    def name
-      options[:name]
-    end
-
-    def column
-      options[:column]
-    end
-
-    def primary_key
-      options[:primary_key] || default_primary_key
-    end
-
-    # The ON_DELETE behavior for the constraint.  See above for the
-    # possible values.
-    def on_delete
-      options[:on_delete]
-    end
-
-    # The ON_UPDATE behavior for the constraint.  See above for the
-    # possible values.
-    def on_update
-      options[:on_update]
-    end
-
-    def custom_primary_key?
-      options[:primary_key] != default_primary_key
-    end
-
-    private
-    def default_primary_key
-      "id"
-    end
-  end
-else
-  require 'active_record/connection_adapters/abstract/schema_definitions'
-end
+require 'active_record/connection_adapters/abstract/schema_definitions'
 
 module SchemaPlus
   module ActiveRecord

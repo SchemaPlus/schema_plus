@@ -33,13 +33,7 @@ module SchemaPlus
             alias_method_chain :tables, :schema_plus
           end
 
-          if ::ActiveRecord::VERSION::MAJOR.to_i < 4
-            ::ActiveRecord::ConnectionAdapters::SQLiteColumn.send(:include, SQLiteColumn) unless ::ActiveRecord::ConnectionAdapters::SQLiteColumn.include?(SQLiteColumn)
-          elsif defined? ::ActiveRecord::ConnectionAdapters::SQLite3Column
-            ::ActiveRecord::ConnectionAdapters::SQLite3Column.send(:include, SQLiteColumn) unless ::ActiveRecord::ConnectionAdapters::SQLite3Column.include?(SQLiteColumn)
-          else # in ActiveRecord::VERSION 4.2 there's no SQLite3Column
-            ::ActiveRecord::ConnectionAdapters::Column.send(:include, SQLiteColumn) unless ::ActiveRecord::ConnectionAdapters::Column.include?(SQLiteColumn)
-          end
+          ::ActiveRecord::ConnectionAdapters::Column.send(:include, SQLiteColumn) unless ::ActiveRecord::ConnectionAdapters::Column.include?(SQLiteColumn)
         end
 
         def initialize(*args)
