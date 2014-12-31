@@ -259,7 +259,7 @@ describe "Schema dump" do
   end
 
   context "with cyclic foreign key constraints", :sqlite3 => :skip do
-    before (:all) do
+    before(:all) do
       ActiveRecord::Base.connection.add_foreign_key(Comment.table_name, :commenter_id, User.table_name, :id)
       ActiveRecord::Base.connection.add_foreign_key(Comment.table_name, :post_id, Post.table_name, :id)
       ActiveRecord::Base.connection.add_foreign_key(Post.table_name, :first_comment_id, Comment.table_name, :id)
