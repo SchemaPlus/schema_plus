@@ -21,7 +21,7 @@ For added rails DRYness see also the gems
 [schema_associations](http://rubygems.org/gems/schema_associations) and
 [schema_validations](http://rubygems.org/gems/schema_validations)
 
-> **NOTE/TODO** The documentation in this README is leftover from Rails < 4.2; the functionality is the same, but some of the core features of schema_plus (foreign keys & inline views) are now provided by ActiveRecord 4.2.  schema_plus still provides extra functionality beyond AR 4.2, but the documentation needs to be updated to be clear what's an enhancement of AR 4.2 capabilities rather than completely new features.  (And the code likewise needs investigation to find out what's duplicating things now in AR 4.2 and leave those core capabilities to AR)
+> **NOTE/TODO** The documentation in this README is leftover from Rails < 4.2; the functionality is the same, but some of the core features of schema_plus (foreign keys & inline index definition) are now provided by ActiveRecord 4.2.  schema_plus still provides extra functionality beyond AR 4.2, but the documentation needs to be updated to be clear what's an enhancement of AR 4.2 capabilities rather than completely new features.  (And the code likewise needs investigation to find out what's duplicating things now in AR 4.2 and leave those core capabilities to AR)
 
 ## Compatibility
 
