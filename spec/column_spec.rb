@@ -15,8 +15,6 @@ describe "Column" do
     end
     it "works properly" do
       type = case
-             when "#{::ActiveRecord::VERSION::MAJOR}.#{::ActiveRecord::VERSION::MINOR}".to_r <= "4.1".to_r
-               { "type" => "string" }
              when SchemaDev::Rspec::Helpers.mysql?
                { "sql_type" => "varchar(255)" }
              when SchemaDev::Rspec::Helpers.postgresql?

@@ -4,8 +4,8 @@ module SchemaPlus::ActiveRecord::ConnectionAdapters
     def self.included(base) #:nodoc:
       base.class_eval do
         alias_method_chain :create_table, :schema_plus
-        alias_method_chain :add_reference, :schema_plus unless ::ActiveRecord::VERSION::MAJOR.to_i < 4
-        alias_method_chain :add_index_options, :schema_plus if "#{::ActiveRecord::VERSION::MAJOR}.#{::ActiveRecord::VERSION::MINOR}".to_r >= "4.2".to_r
+        alias_method_chain :add_reference, :schema_plus
+        alias_method_chain :add_index_options, :schema_plus
         include AddIndex
       end
     end

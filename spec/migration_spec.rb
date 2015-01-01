@@ -204,7 +204,7 @@ describe ActiveRecord::Migration do
         it "should create a two-column index if polymophic and index requested" do
           create_reference(reftype, :post, :polymorphic => true, :index => true)
           expect(@model).to have_index.on([:post_id, :post_type])
-        end unless ::ActiveRecord::VERSION::MAJOR.to_i < 4
+        end
 
         protected
 
@@ -473,7 +473,7 @@ describe ActiveRecord::Migration do
           Comment.reset_column_information
           expect(Comment).not_to reference(:users, :id).on(:user_id)
         end
-      end if ActiveRecord::VERSION::MAJOR >= 4
+      end
 
       it "should create a foreign key constraint using :references"+suffix, :sqlite3 => :skip do
         change_table(@model, :bulk => bulk) do |t|

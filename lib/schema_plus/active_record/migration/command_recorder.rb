@@ -9,9 +9,9 @@ module SchemaPlus
         def self.included(base) #:nodoc:
           base.class_eval do
             alias_method_chain :add_column, :schema_plus
-            alias_method_chain :add_reference, :schema_plus unless ::ActiveRecord::VERSION::MAJOR.to_i < 4
+            alias_method_chain :add_reference, :schema_plus
             alias_method_chain :invert_add_index, :schema_plus
-            alias_method_chain :invert_add_foreign_key, :schema_plus if "#{::ActiveRecord::VERSION::MAJOR}.#{::ActiveRecord::VERSION::MINOR}".to_r >= "4.2".to_r
+            alias_method_chain :invert_add_foreign_key, :schema_plus
           end
         end
 

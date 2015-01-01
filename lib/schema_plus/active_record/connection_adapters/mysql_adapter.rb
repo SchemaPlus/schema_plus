@@ -15,10 +15,8 @@ module SchemaPlus
             alias_method_chain :rename_table, :schema_plus
           end
 
-          if ::ActiveRecord::VERSION::MAJOR.to_i >= 4
-            base.class_eval do
-              include ::ActiveRecord::ConnectionAdapters::SchemaStatements::AddIndex
-            end
+          base.class_eval do
+            include ::ActiveRecord::ConnectionAdapters::SchemaStatements::AddIndex
           end
         end
 
