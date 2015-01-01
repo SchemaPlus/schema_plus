@@ -73,6 +73,10 @@ describe "Foreign Key" do
           t.integer :post_id
           t.foreign_key :post_id, :posts, :id
         end
+
+        change_table :comments do |t|
+          t.references :user, :index => true
+        end
       end
       class User < ::ActiveRecord::Base ; end
       class Post < ::ActiveRecord::Base ; end
