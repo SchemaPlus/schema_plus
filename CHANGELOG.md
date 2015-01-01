@@ -2,6 +2,10 @@
 
 ## Change Log
 
+## 1.8.2
+
+* Bug fix when using t.references in change_table (#194).  Thanks to [@boone](https://github.com/boone)
+
 ## 1.8.1
 
 * Bug fix for AR 4.2, spurious add_foreign_key statements at the top of schema dump.  Thanks to [@tovodeverett](https://github.com/tovodeverett) for doing better testing than me!
