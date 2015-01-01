@@ -2,17 +2,19 @@ module SchemaPlus::ActiveRecord
   module ColumnOptionsHandler
     def schema_plus_normalize_column_options(options)
       # replace some shortcuts with full versions
-      case options[:index]
-      when true then options[:index] = {}
-      when :unique then options[:index] = { :unique => true }
-      when Hash
-        if options[:index][:length].is_a? Hash
-          normalize = if "#{::ActiveRecord::VERSION::MAJOR}.#{::ActiveRecord::VERSION::MINOR}".to_r >= "4.2".to_r
-                        :stringify_keys!
-                      else
-                        :symbolize_keys!
-                      end
-          options[:index][:length].send normalize
+      [:index, :_index].each do |key|
+        case options[key]
+        when true then options[key] = {}
+        when :unique then options[key] = { :unique => true }
+        when Hash
+          if options[key][:length].is_a? Hash
+            normalize = if "#{::ActiveRecord::VERSION::MAJOR}.#{::ActiveRecord::VERSION::MINOR}".to_r >= "4.2".to_r
+                          :stringify_keys!
+                        else
+                          :symbolize_keys!
+                        end
+            options[key][:length].send normalize
+          end
         end
       end
     end
