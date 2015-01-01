@@ -126,13 +126,6 @@ describe ActiveRecord::Migration do
       expect(@model).to reference(:users, :id).on(:user_id)
     end
 
-    it "should respect index options when using t.references" do
-      recreate_table(@model) do |t|
-        t.references :user, :index => :unique
-      end
-      expect(@model).to have_unique_index.on(:user)
-    end
-
     it "should not create foreign key using t.references with :foreign_key => false" do
       recreate_table(@model) do |t|
         t.references :user, :foreign_key => false
