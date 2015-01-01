@@ -2,12 +2,14 @@ module SchemaPlus::ActiveRecord
   module ColumnOptionsHandler
     def schema_plus_normalize_column_options(options)
       # replace some shortcuts with full versions
-      case options[:index]
-      when true then options[:index] = {}
-      when :unique then options[:index] = { :unique => true }
-      when Hash
-        if options[:index][:length].is_a? Hash
-          options[:index][:length].stringify_keys!
+      [:index, :_index].each do |key|
+        case options[key]
+        when true then options[key] = {}
+        when :unique then options[key] = { :unique => true }
+        when Hash
+          if options[key][:length].is_a? Hash
+            options[key][:length].stringify_keys!
+          end
         end
       end
     end
