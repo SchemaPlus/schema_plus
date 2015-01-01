@@ -482,6 +482,16 @@ describe ActiveRecord::Migration do
         expect(@model).to reference(:users, :id).on(:user_id)
       end
 
+      it "should accept index shorthand when using :references"+suffix, :sqlite3 => :skip do
+        with_fk_config(:auto_index => false) do
+          change_table(@model, :bulk => bulk) do |t|
+            t.references :user, :index => true
+          end
+        end
+        expect(@model).to have_index.on(:user_id)
+      end
+
+
       it "should create a foreign key constraint using :belongs_to"+suffix, :sqlite3 => :skip do
         change_table(@model, :bulk => bulk) do |t|
           t.belongs_to :user
