@@ -49,6 +49,7 @@ module SchemaPlus::ActiveRecord
 
       if column_options.has_key?(:foreign_key)
         args = column_options[:foreign_key]
+        args = args.dup if args.is_a?(Hash)
         return :none unless args
         args = {} if args == true
         return :none if args.has_key?(:references) and not args[:references]
@@ -93,6 +94,7 @@ module SchemaPlus::ActiveRecord
 
 
     def column_index(table_name, column_name, options) #:nodoc:
+      options = options.dup
       column_name = [column_name] + Array.wrap(options.delete(:with)).compact
       add_index(table_name, column_name, options)
     end

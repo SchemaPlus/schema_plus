@@ -70,6 +70,24 @@ describe ActiveRecord::Migration do
       expect(@model).to reference(:users, :id).on(:author_id)
     end
 
+    it "should create foreign key without modifying input hash" do
+      hash = { :references => :users }
+      hash_original = hash.dup
+      recreate_table(@model) do |t|
+        t.integer :author_id, :foreign_key => hash
+      end
+      expect(hash).to eq(hash_original)
+    end
+
+    it "should create foreign key without modifying input hash" do
+      hash = { :references => :users }
+      hash_original = hash.dup
+      recreate_table(@model) do |t|
+        t.references :author, :foreign_key => hash
+      end
+      expect(hash).to eq(hash_original)
+    end
+
     it "should create foreign key with different reference using shortcut" do
       recreate_table(@model) do |t|
         t.integer :author_id, :references => :users
@@ -248,6 +266,16 @@ describe ActiveRecord::Migration do
         t.integer :state,       :index => { :with => :city }
       end
       expect(@model).to have_index.on([:state, :city])
+    end
+
+    it "should create the index without modifying the input hash" do
+      hash = { :with => :foo, :length => { :foo => 8, :bar => 12 }}
+      hash_original = hash.dup
+      recreate_table(@model) do |t|
+        t.string :foo
+        t.string :bar, :index => hash
+      end
+      expect(hash).to eq(hash_original)
     end
 
     it "should auto-index foreign keys only" do
