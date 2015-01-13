@@ -59,23 +59,14 @@ module SchemaPlus
           end
         end
 
-        def add_foreign_key(*args)
-          record(:add_foreign_key, args)
-        end
-        
-        def invert_add_foreign_key(args)
+        def invert_add_foreign_key_with_schema_plus(args)
           table_name, column_names, references_table_name, references_column_names, options = args
           [:remove_foreign_key, [table_name, column_names, references_table_name, references_column_names, (options||{}).merge(if_exists: true)]]
         end
-        alias :invert_add_foreign_key_with_schema_plus :invert_add_foreign_key
 
         def invert_add_index_with_schema_plus(args)
           table, columns, options = *args
           [:remove_index, [table, (options||{}).merge(column: columns, if_exists: true)]]
-        end
-
-        def remove_foreign_key(*args)
-          record(:remove_foreign_key, args)
         end
 
         def invert_remove_foreign_key(args)
