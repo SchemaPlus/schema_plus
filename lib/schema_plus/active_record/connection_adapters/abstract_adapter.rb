@@ -102,8 +102,8 @@ module SchemaPlus
         # foreign-key constraints.  If you're using Sqlite3, this method will
         # raise an error.)
         def remove_foreign_key(table_name, *args)
-          case sql = remove_foreign_key_sql(table_name, *args)
-          when String then execute "ALTER TABLE #{quote_table_name(table_name)} #{sql}"
+          if sql = remove_foreign_key_sql(table_name, *args)
+            execute "ALTER TABLE #{quote_table_name(table_name)} #{sql}"
           end
         end
 
@@ -125,7 +125,7 @@ module SchemaPlus
                                  nil
                                end
                              end
-          foreign_key_name ? "DROP CONSTRAINT #{foreign_key_name}" : []  # hack -- return empty array rather than nil, so that result will disappear when caller flattens but doesn't compact
+          foreign_key_name ? "DROP CONSTRAINT #{foreign_key_name}" : nil
         end
 
         # Extends rails' drop_table to include these options:

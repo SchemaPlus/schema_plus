@@ -59,16 +59,9 @@ module SchemaPlus
         end
 
         def remove_foreign_key_sql(table_name, *args)
-          case ret = super
-          when String then ret.sub(/DROP CONSTRAINT/, 'DROP FOREIGN KEY')
-          else ret
-          end
-        end
-
-        def remove_foreign_key(table_name, *args)
-          case sql = remove_foreign_key_sql(table_name, *args)
-          when String then execute "ALTER TABLE #{quote_table_name(table_name)} #{sql}"
-          end
+          super.tap { |ret|
+            ret.sub!(/DROP CONSTRAINT/, 'DROP FOREIGN KEY') if ret
+          }
         end
 
         def foreign_keys(table_name, name = nil)
