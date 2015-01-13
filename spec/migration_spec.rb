@@ -807,16 +807,6 @@ describe ActiveRecord::Migration do
       end
     end
 
-    around(:each) do |example|
-      begin
-        example.run
-      ensure
-        ActiveRecord::Migration.suppress_messages do
-          ActiveRecord::Migration.rename_table :newname, :comments
-        end
-      end
-    end
-
     it "should rename rails-named indexes" do
       index = ActiveRecord::Base.connection.indexes(:newname).find(&its.columns == ['xyz'])
       expect(index.name).to match(/^index_newname_on/)
@@ -847,15 +837,6 @@ describe ActiveRecord::Migration do
       end
     end
 
-    around(:each) do |example|
-      begin
-        example.run
-      ensure
-        ActiveRecord::Migration.suppress_messages do
-          ActiveRecord::Migration.rename_table :newname, :comments
-        end
-      end
-    end
     it "should rename foreign key constraints" do
       names = ActiveRecord::Base.connection.foreign_keys(:newname).map(&:name)
       expect(names.grep(/newname/)).to eq(names)
