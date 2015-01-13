@@ -29,19 +29,13 @@ module SchemaPlus
         # should track it down separately and submit a patch/fix to rails
         #
         def add_reference_with_schema_plus(table_name, ref_name, options = {}) #:nodoc:
-          options[:references] = nil if options[:polymorphic]
-          # which is the worse hack...?
-          if RUBY_VERSION >= "2.0.0" and self.delegate.respond_to? :add_reference_sql
-            # .. rebinding a method from a different module?  (can't do this in ruby 1.9.3)
-            ::ActiveRecord::ConnectionAdapters::SchemaStatements.instance_method(:add_reference).bind(self).call(table_name, ref_name, options)
-          else
-            # .. or copying and pasting the code?
-            polymorphic = options.delete(:polymorphic)
-            index_options = options.delete(:index)
-            add_column(table_name, "#{ref_name}_id", :integer, options)
-            add_column(table_name, "#{ref_name}_type", :string, polymorphic.is_a?(Hash) ? polymorphic : options) if polymorphic
-            add_index(table_name, polymorphic ? %w[id type].map{ |t| "#{ref_name}_#{t}" } : "#{ref_name}_id", index_options.is_a?(Hash) ? index_options : {}) if index_options
-          end
+          polymorphic = options.delete(:polymorphic)
+          options[:references] = nil if polymorphic
+          # ugh.  copying and pasting code from ::ActiveRecord::ConnectionAdapters::SchemaStatements#add_reference
+          index_options = options.delete(:index)
+          add_column(table_name, "#{ref_name}_id", :integer, options)
+          add_column(table_name, "#{ref_name}_type", :string, polymorphic.is_a?(Hash) ? polymorphic : options) if polymorphic
+          add_index(table_name, polymorphic ? %w[id type].map{ |t| "#{ref_name}_#{t}" } : "#{ref_name}_id", index_options.is_a?(Hash) ? index_options : {}) if index_options
 
           self
         end
