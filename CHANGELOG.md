@@ -2,6 +2,10 @@
 
 ## Change Log
 
+## 1.8.3
+
+* Don't modifiy migration column options hashes (#191).  Thanks to [@lowjoel](https://github.com/lowjoel)
+
 ## 1.8.2
 
 * Bug fix when using t.references in change_table (#194).  Thanks to [@boone](https://github.com/boone)
