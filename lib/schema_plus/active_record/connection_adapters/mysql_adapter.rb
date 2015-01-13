@@ -54,7 +54,7 @@ module SchemaPlus
         end
 
         def remove_index_sql(table_name, options)
-          return [] if options.delete(:if_exists) and not index_exists?(table_name, options)
+          return [] if options.delete(:if_exists) and not index_exists?(table_name, options[:column], options)
           super
         end
 
