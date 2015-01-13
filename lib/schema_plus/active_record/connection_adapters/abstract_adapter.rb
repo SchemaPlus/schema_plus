@@ -154,10 +154,7 @@ module SchemaPlus
 
         # called from individual adpaters, after renaming table from old
         # name to
-        def rename_indexes_and_foreign_keys(oldname, newname) #:nodoc:
-          indexes(newname).select{|index| index.name == index_name(oldname, index.columns)}.each do |index|
-            rename_index(newname, index.name, index_name(newname, index.columns))
-          end
+        def rename_foreign_keys(oldname, newname) #:nodoc:
           foreign_keys(newname).each do |fk|
             index = indexes(newname).find{|index| index.name == ForeignKeyDefinition.auto_index_name(oldname, fk.column_names)}
             begin

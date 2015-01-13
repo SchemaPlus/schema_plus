@@ -33,7 +33,7 @@ module SchemaPlus
 
         def rename_table_with_schema_plus(oldname, newname)
           rename_table_without_schema_plus(oldname, newname)
-          rename_indexes_and_foreign_keys(oldname, newname)
+          rename_foreign_keys(oldname, newname)
         end
 
         # implement cascade by removing foreign keys
