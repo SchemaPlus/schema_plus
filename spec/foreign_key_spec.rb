@@ -53,7 +53,7 @@ describe "Foreign Key" do
 
   context "modification" do
 
-    before(:all) do
+    before(:each) do
       define_schema(:auto_create => false) do
         create_table :users, :force => true do |t|
           t.string :login
@@ -75,6 +75,7 @@ describe "Foreign Key" do
       class User < ::ActiveRecord::Base ; end
       class Post < ::ActiveRecord::Base ; end
       class Comment < ::ActiveRecord::Base ; end
+      Comment.reset_column_information
     end
 
 
@@ -84,11 +85,6 @@ describe "Foreign Key" do
 
         before(:each) do
           add_foreign_key(:posts, :author_id, :users, :id, :on_update => :cascade, :on_delete => :restrict)
-        end
-
-        after(:each) do
-          fk = Post.foreign_keys.detect(&its.column_names == %w[author_id])
-          remove_foreign_key(:posts, fk.name)
         end
 
         it "references users(id)" do
@@ -121,10 +117,6 @@ describe "Foreign Key" do
           remove_foreign_key(:comments, foreign_key_name)
         end
 
-        after(:each) do
-          add_foreign_key(:comments, :post_id, :posts, :id)
-        end
-
         it "doesn't reference posts(id)" do
           expect(Comment).not_to reference(:posts).on(:post_id)
         end
@@ -137,6 +129,31 @@ describe "Foreign Key" do
           expect(Post.reverse_foreign_keys.collect(&:column_names)).not_to include(%w[post_id])
         end
 
+      end
+
+      context "when drop using hash", "comments(post_id)" do
+
+        let(:foreign_key_name) { fk = Comment.foreign_keys.detect(&its.column_names == %w[post_id]) and fk.name }
+
+        it "finds by name" do
+          remove_foreign_key(:comments, name: foreign_key_name)
+          expect(Comment).not_to reference(:posts).on(:post_id)
+        end
+
+        it "finds by column_names" do
+          remove_foreign_key(:comments, column_names: "post_id", references_table_name: "posts")
+          expect(Comment).not_to reference(:posts).on(:post_id)
+        end
+      end
+
+      context "when attempt to drop nonexistent foreign key" do
+        it "raises error" do
+          expect{remove_foreign_key(:comments, "posts", "nonesuch")}.to raise_error(/no foreign key/i)
+        end
+
+        it "does not error with :if_exists" do
+          expect{remove_foreign_key(:comments, "posts", "nonesuch", :if_exists => true)}.to_not raise_error
+        end
       end
 
       context "when referencing column and column is removed" do

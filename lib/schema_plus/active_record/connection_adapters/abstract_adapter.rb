@@ -76,9 +76,11 @@ module SchemaPlus
         end
 
         def _build_foreign_key(table_name, column_names, references_table_name, references_column_names, options = {}) #:nodoc:
-          options.merge!(:column_names => column_names, :references_column_names => references_column_names)
+          options = options.dup
+          options.reverse_merge!(:column_names => column_names, :references_column_names => references_column_names || "id")
           options.reverse_merge!(:name => ForeignKeyDefinition.default_name(table_name, column_names))
-          ForeignKeyDefinition.new(table_name, AbstractAdapter.proper_table_name(references_table_name), options)
+          options.reverse_merge!(:references_table_name => references_table_name)
+          ForeignKeyDefinition.new(table_name, AbstractAdapter.proper_table_name(options.delete(:references_table_name)), options)
         end
 
         def self.proper_table_name(name)
@@ -101,25 +103,31 @@ module SchemaPlus
           end
         end
 
+        def get_foreign_key_name(table_name, *args)
+          args = args.dup
+          options = args.extract_options!
+          return options[:name] if options[:name]
+
+          case
+          when args.length == 1
+            args[0]
+          else
+            column_names, references_table_name, references_column_names = args
+            test_fk = _build_foreign_key(table_name, column_names, references_table_name, references_column_names, options)
+            if fk = foreign_keys(table_name).detect { |fk| fk == test_fk }
+              fk.name
+            else
+              raise "SchemaPlus: no foreign key constraint found on #{table_name.inspect} matching #{(args + [options]).inspect}" unless options[:if_exists]
+              nil
+            end
+          end
+        end
+
         def remove_foreign_key_sql(table_name, *args)
-          column_names, references_table_name, references_column_names, options = args
-          options ||= {}
-          foreign_key_name = case
-                             when args.length == 1
-                               case args[0]
-                               when Hash then   args[0][:name]
-                               else args[0]
-                               end
-                             else
-                               test_fk = _build_foreign_key(table_name, column_names, references_table_name, references_column_names, options)
-                               if foreign_keys(table_name).detect { |fk| fk == test_fk }
-                                 test_fk.name
-                               else
-                                 raise "SchemaPlus: no foreign key constraint found on #{table_name.inspect} matching #{args.inspect}" unless options[:if_exists]
-                                 nil
-                               end
-                             end
-          foreign_key_name ? "DROP CONSTRAINT #{foreign_key_name}" : nil
+          options = args.dup.extract_options!
+          if foreign_key_name = get_foreign_key_name(table_name, *args)
+            "DROP CONSTRAINT #{options[:if_exists] ? "IF EXISTS" : ""} #{foreign_key_name}"
+          end
         end
 
         # Extends rails' drop_table to include these options:

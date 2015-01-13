@@ -58,6 +58,18 @@ module SchemaPlus
           super
         end
 
+        def remove_foreign_key(table_name, *args)
+          args = args.dup
+          options = args.extract_options!
+          args += [options]
+          if options[:if_exists]
+            foreign_key_name = get_foreign_key_name(table_name, *args)
+            return if !foreign_key_name or not foreign_keys(table_name).detect{|fk| fk.name == foreign_key_name}
+          end
+          options.delete(:if_exists)
+          super table_name, *args
+        end
+
         def remove_foreign_key_sql(table_name, *args)
           super.tap { |ret|
             ret.sub!(/DROP CONSTRAINT/, 'DROP FOREIGN KEY') if ret
