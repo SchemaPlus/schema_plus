@@ -2,10 +2,8 @@ require 'active_record'
 require 'valuable'
 
 require 'schema_plus/version'
-require 'schema_plus/active_record/attribute'
 require 'schema_plus/active_record/base'
 require 'schema_plus/active_record/column_options_handler'
-require 'schema_plus/active_record/db_default'
 require 'schema_plus/active_record/foreign_keys'
 require 'schema_plus/active_record/connection_adapters/table_definition'
 require 'schema_plus/active_record/connection_adapters/schema_statements'
@@ -18,6 +16,7 @@ require 'schema_plus/active_record/connection_adapters/index_definition'
 require 'schema_plus/active_record/migration/command_recorder'
 require 'schema_plus/railtie' if defined?(Rails::Railtie)
 require 'schema_plus/schema_monkey'
+require 'schema_plus/schema_default'
 
 module SchemaPlus
   module ActiveRecord
@@ -145,8 +144,6 @@ module SchemaPlus
     ::ActiveRecord::Base.send(:include, SchemaPlus::ActiveRecord::Base)
     ::ActiveRecord::Schema.send(:include, SchemaPlus::ActiveRecord::Schema)
     ::ActiveRecord::SchemaDumper.send(:include, SchemaPlus::ActiveRecord::SchemaDumper)
-    ::ActiveRecord.const_set(:DB_DEFAULT, SchemaPlus::ActiveRecord::DB_DEFAULT)
-    ::ActiveRecord::Attribute.send(:include, SchemaPlus::ActiveRecord::Attribute) if defined? ::ActiveRecord::Attribute
   end
 
 end

@@ -9,9 +9,9 @@ module SchemaPlus
         def self.included(base) #:nodoc:
           base.class_eval do
             alias_method_chain :rename_table, :schema_plus
-            alias_method_chain :exec_cache, :schema_plus
           end
         end
+
 
         # SchemaPlus provides the following extra options for PostgreSQL
         # indexes:
@@ -180,29 +180,6 @@ module SchemaPlus
           rename_foreign_keys(oldname, newname)
         end
 
-        # Prepass to replace each ActiveRecord::DB_DEFAULT with a literal
-        # DEFAULT in the sql string.  (The underlying pg gem provides no
-        # way to bind a value that will replace $n with DEFAULT)
-        def exec_cache_with_schema_plus(sql, *args)
-          name_passed = (2 == args.size)
-          binds, name = args.reverse
-
-          if binds.any?{ |col, val| val.equal? ::ActiveRecord::DB_DEFAULT}
-            j = 0
-            binds.each_with_index do |(col, val), i|
-            if val.equal? ::ActiveRecord::DB_DEFAULT
-              sql = sql.sub(/\$#{i+1}/, 'DEFAULT')
-            else
-              sql = sql.sub(/\$#{i+1}/, "$#{j+1}") if i != j
-              j += 1
-            end
-            end
-            binds = binds.reject{|col, val| val.equal? ::ActiveRecord::DB_DEFAULT}
-          end
-
-          args = name_passed ? [name, binds] : [binds]
-          exec_cache_without_schema_plus(sql, *args)
-        end
 
         def foreign_keys(table_name, name = nil) #:nodoc:
           load_foreign_keys(<<-SQL, name)

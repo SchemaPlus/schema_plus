@@ -1,4 +1,4 @@
-module SchemaPlus
+module SchemaDefault
   module ActiveRecord
     module Attribute
       def self.included(base)
