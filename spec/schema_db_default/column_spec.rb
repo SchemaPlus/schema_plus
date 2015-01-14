@@ -1,4 +1,4 @@
-describe SchemaDefault do
+describe SchemaDbDefault do
 
   let(:migration) { ::ActiveRecord::Migration }
 

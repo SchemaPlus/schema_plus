@@ -1,4 +1,4 @@
-module SchemaDefault
+module SchemaDbDefault
   
   # Middleware to replace each ActiveRecord::DB_DEFAULT with a literal
   # DEFAULT in the sql string.  (The underlying pg gem provides no

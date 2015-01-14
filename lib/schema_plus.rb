@@ -15,7 +15,7 @@ require 'schema_plus/active_record/connection_adapters/foreign_key_definition'
 require 'schema_plus/active_record/connection_adapters/index_definition'
 require 'schema_plus/active_record/migration/command_recorder'
 require 'schema_plus/schema_monkey'
-require 'schema_plus/schema_default'
+require 'schema_plus/schema_db_default'
 
 module SchemaPlus
   module ActiveRecord
