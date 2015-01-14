@@ -199,7 +199,7 @@ module SchemaPlus
             if options_include_default?(options)
               default = options[:default]
 
-              if default.is_a? Hash
+              if default.is_a? Hash and [[:expr], [:value]].include?(default.keys)
                 value = default[:value]
                 expr = sql_for_function(default[:expr]) || default[:expr] if default[:expr]
               else
