@@ -37,9 +37,19 @@ module SchemaMonkey
   end
 
   def self.include_if_defined(base, mod, subname)
-    if mod.const_defined?(subname)
-      submodule = mod.const_get(subname)
+    if submodule = get_const(mod, subname)
       base.send(:include, submodule) unless base.include?(submodule)
     end
   end
+
+  # ruby 2.* supports mod.const_get("Component::Path") but ruby 1.9.3
+  # doesn't
+  def self.get_const(mod, name)
+    name.to_s.split('::').map(&:to_sym).each do |component|
+      return nil unless mod.const_defined?(component)
+      mod = mod.const_get(component)
+    end
+    mod
+  end
+
 end
