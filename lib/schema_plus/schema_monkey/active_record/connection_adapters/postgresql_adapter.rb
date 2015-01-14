@@ -5,11 +5,11 @@ module SchemaMonkey
         def self.included(base)
           base.class_eval do
             alias_method_chain :exec_cache, :schema_monkey
-            SchemaMonkey::Middleware::ExecCache.use ExecCache
+            Middleware::ExecCache.use ExecCache
           end
         end
 
-        class ExecCache < SchemaMonkey::Middleware::Base
+        class ExecCache < Middleware::Base
           def call(env)
             env.adapter.send :exec_cache_without_schema_monkey, env.sql, env.name, env.binds
           end
@@ -18,7 +18,6 @@ module SchemaMonkey
         def exec_cache_with_schema_monkey(sql, name, binds)
           Middleware::ExecCache.call Middleware::ExecCache::Env.new(self, sql, name, binds)
         end
-
       end
     end
   end

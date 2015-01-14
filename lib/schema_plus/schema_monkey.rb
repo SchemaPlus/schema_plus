@@ -1,6 +1,6 @@
 require 'middleware'
-require_relative "schema_monkey/active_record/connection_adapters/abstract_adapter"
 require_relative "schema_monkey/middleware"
+require_relative "schema_monkey/active_record/connection_adapters/abstract_adapter"
 require_relative 'schema_monkey/railtie' if defined?(Rails::Railtie)
 
 module SchemaMonkey
@@ -38,8 +38,12 @@ module SchemaMonkey
 
   def self.include_if_defined(base, mod, subname)
     if submodule = get_const(mod, subname)
-      base.send(:include, submodule) unless base.include?(submodule)
+      include_once(base, submodule)
     end
+  end
+
+  def self.include_once(base, mod)
+    base.send(:include, mod) unless base.include? mod
   end
 
   # ruby 2.* supports mod.const_get("Component::Path") but ruby 1.9.3

@@ -33,5 +33,14 @@ module SchemaMonkey
       Env = Struct.new(:adapter, :sql, :name, :binds)
     end
 
+    module AddColumnOptions
+      extend Stack
+      Env = Struct.new(:adapter, :sql, :options, :schema_creation) do
+        def options_include_default?
+          @include_default ||= schema_creation.send :options_include_default?, options
+        end
+      end
+    end
+
   end
 end

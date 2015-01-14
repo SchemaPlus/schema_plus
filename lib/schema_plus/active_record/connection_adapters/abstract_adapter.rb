@@ -171,55 +171,6 @@ module SchemaPlus
           false
         end
 
-        module AddColumnOptions
-          def self.included(base) #:nodoc:
-            base.alias_method_chain :add_column_options!, :schema_plus
-          end
-
-          def add_column_options_with_schema_plus!(sql, options)
-            if options_include_default?(options)
-              default = options[:default]
-
-              if default.is_a? Hash and [[:expr], [:value]].include?(default.keys)
-                value = default[:value]
-                expr = sql_for_function(default[:expr]) || default[:expr] if default[:expr]
-              else
-                value = default
-                expr = sql_for_function(default)
-              end
-
-              if expr
-                raise ArgumentError, "Invalid default expression" unless default_expr_valid?(expr)
-                sql << " DEFAULT #{expr}"
-                # must explicitly check for :null to allow change_column to work on migrations
-                if options[:null] == false
-                  sql << " NOT NULL"
-                end
-              else
-                add_column_options_without_schema_plus!(sql, options.merge(default: value))
-              end
-            else
-              add_column_options_without_schema_plus!(sql, options)
-            end
-          end
-
-          #####################################################################
-          #
-          # The functions below here are abstract; each subclass should
-          # define them all. Defining them here only for reference.
-
-          # (abstract) Return true if the passed expression can be used as a column
-          # default value.  (For most databases the specific expression
-          # doesn't matter, and the adapter's function would return a
-          # constant true if default expressions are supported or false if
-          # they're not.)
-          def default_expr_valid?(expr) raise "Internal Error: Connection adapter didn't override abstract function"; end
-
-          # (abstract) Return SQL definition for a given canonical function_name symbol.
-          # Currently, the only function to support is :now, which should
-          # return a DATETIME object for the current time.
-          def sql_for_function(function_name) raise "Internal Error: Connection adapter didn't override abstract function"; end
-        end
 
         module VisitTableDefinition
           def self.included(base) #:nodoc:

@@ -16,6 +16,7 @@ require 'schema_plus/active_record/connection_adapters/index_definition'
 require 'schema_plus/active_record/migration/command_recorder'
 require 'schema_plus/schema_monkey'
 require 'schema_plus/schema_db_default'
+require 'schema_plus/schema_default_expr'
 
 module SchemaPlus
   module ActiveRecord
@@ -127,7 +128,6 @@ module SchemaPlus
     ::ActiveRecord::ConnectionAdapters::TableDefinition.send(:include, SchemaPlus::ActiveRecord::ConnectionAdapters::TableDefinition)
     ::ActiveRecord::Migration::CommandRecorder.send(:include, SchemaPlus::ActiveRecord::Migration::CommandRecorder)
 
-    ::ActiveRecord::ConnectionAdapters::AbstractAdapter::SchemaCreation.send(:include, SchemaPlus::ActiveRecord::ConnectionAdapters::AbstractAdapter::AddColumnOptions)
     ::ActiveRecord::ConnectionAdapters::AbstractAdapter::SchemaCreation.send(:include, SchemaPlus::ActiveRecord::ConnectionAdapters::AbstractAdapter::VisitTableDefinition)
 
     require 'active_record/connection_adapters/abstract_mysql_adapter'
