@@ -23,6 +23,7 @@ Gem::Specification.new do |s|
 
   s.add_dependency("activerecord", ">= 3.2", "< 4.3")
   s.add_dependency("valuable")
+  s.add_dependency("middleware")
 
   s.add_development_dependency("schema_dev", "~> 1.4")
   s.add_development_dependency("rake")
