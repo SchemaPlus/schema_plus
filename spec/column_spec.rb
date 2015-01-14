@@ -103,38 +103,6 @@ describe "Column" do
 
   end
 
-  context "using DB_DEFAULT" do
-
-    before(:each) do
-      create_table(User, :alpha => { :default => "gabba" }, :beta => {})
-    end
-
-    it "creating a record should respect default expression", :sqlite3 => :skip do
-      User.create!(:alpha => ActiveRecord::DB_DEFAULT, :beta => "hello")
-      expect(User.last.alpha).to eq("gabba")
-      expect(User.last.beta).to eq("hello")
-    end
-
-    it "creating a record should raise an error", :sqlite3 => :only do
-      expect { User.create!(:alpha => ActiveRecord::DB_DEFAULT, :beta => "hello") }.to raise_error ActiveRecord::StatementInvalid
-    end
-
-    it "updating a record should respect default expression", :sqlite3 => :skip do
-      u = User.create!(:alpha => "hey", :beta => "hello")
-      u.reload
-      expect(u.alpha).to eq("hey")
-      expect(u.beta).to eq("hello")
-      u.update_attributes(:alpha => ActiveRecord::DB_DEFAULT, :beta => "goodbye")
-      u.reload
-      expect(u.alpha).to eq("gabba")
-      expect(u.beta).to eq("goodbye")
-    end
-
-    it "updating a record should raise an error", :sqlite3 => :only do
-      u = User.create!(:alpha => "hey", :beta => "hello")
-      expect { u.update_attributes(:alpha => ActiveRecord::DB_DEFAULT, :beta => "goodbye") }.to raise_error ActiveRecord::StatementInvalid
-    end
-  end
 
   protected
 
