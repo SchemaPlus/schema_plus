@@ -49,6 +49,13 @@ describe ActiveRecord::Migration do
       expect(@model.create.reload.bool).to be true
     end
 
+    it "should properly handle default values for json (#195)", :postgresql => :only do
+      recreate_table(@model) do |t|
+        t.json :json, :default => {}
+      end
+      expect(@model.create.reload.json).to eq({})
+    end if ActiveRecord::VERSION::MAJOR >= 4
+
     it "should create auto foreign keys" do
       recreate_table(@model) do |t|
         t.integer :user_id

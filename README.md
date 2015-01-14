@@ -256,6 +256,12 @@ resolves to:
     NOW()                 # PostgreSQL
     (DATETIME('now'))     # SQLite3
     invalid               # MySQL
+    
+If you are using Postgresql with a `json` column, the default value may be an unadorned hash.  A hash having just one key `:expr` or `:value` will be taken as schema_plus syntax; i.e, these two are equivalent:
+
+	t.json :fields, default: { field1: 'a', field2: 'b' }
+	t.json :fields, default: { value: { field1: 'a', field2: 'b' } }
+	
 
 ### Column Defaults: Using
 
