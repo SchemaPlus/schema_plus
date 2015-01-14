@@ -2,6 +2,10 @@
 
 ## Change Log
 
+## 1.8.4
+
+* Bug fix: Allow default value as hash for json columns (#195)
+
 ## 1.8.3
 
 * Don't modifiy migration column options hashes (#191).  Thanks to [@lowjoel](https://github.com/lowjoel)
