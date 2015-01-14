@@ -13,6 +13,7 @@ require 'schema_plus'
 require 'schema_dev/rspec'
 require 'its-it'
 
+SchemaMonkey.insert
 SchemaDev::Rspec.setup_db
 
 Dir[File.dirname(__FILE__) + "/support/**/*.rb"].each {|f| require f}
@@ -60,3 +61,4 @@ def remove_all_models
   end
 
 SimpleCov.command_name "[ruby #{RUBY_VERSION} - ActiveRecord #{::ActiveRecord::VERSION::STRING} - #{ActiveRecord::Base.connection.adapter_name}]"
+

@@ -1,9 +1,9 @@
-module SchemaPlus
+module SchemaMonkey
   class Railtie < Rails::Railtie #:nodoc:
 
-    initializer 'schema_plus.insert', :before => "active_record.initialize_database" do
+    initializer 'schema_monkey.insert', :before => "active_record.initialize_database" do
       ActiveSupport.on_load(:active_record) do
-        SchemaPlus.insert
+        SchemaMonkey.insert
       end
     end
 
@@ -11,7 +11,7 @@ module SchemaPlus
       load 'rails/tasks/database.rake'
       ['db:schema:dump', 'db:schema:load'].each do |name|
         if task = Rake.application.tasks.find { |task| task.name == name }
-          task.enhance(["schema_plus:load"])
+          task.enhance(["schema_monkey:load"])
         end
       end
     end

@@ -18,19 +18,10 @@ module SchemaPlus
 
         def initialize_with_schema_plus(*args) #:nodoc:
           initialize_without_schema_plus(*args)
-          adapter = case adapter_name
-                      # name of MySQL adapter depends on mysql gem
-                      # * with mysql gem adapter is named MySQL
-                      # * with mysql2 gem adapter is named Mysql2
-                      # Here we handle this and hopefully futher adapter names
-                    when /^MySQL/i                 then 'MysqlAdapter'
-                    when 'PostgreSQL', 'PostGIS'   then 'PostgresqlAdapter'
-                    when 'SQLite'                  then 'Sqlite3Adapter'
-                    end
-          adapter_module = SchemaPlus::ActiveRecord::ConnectionAdapters.const_get(adapter)
-          self.class.send(:include, adapter_module) unless self.class.include?(adapter_module)
 
-          self.class.const_get(:SchemaCreation).send(:include, adapter_module.const_get(:AddColumnOptions))
+          self.class.ancestors.select{|mod| mod.parents.include? SchemaPlus}.each do |mod|
+            SchemaMonkey.include_if_defined(self.class.const_get(:SchemaCreation), mod, :AddColumnOptions)
+          end
 
           extend(SchemaPlus::ActiveRecord::ForeignKeys)
         end

@@ -5,16 +5,15 @@ require 'schema_plus/version'
 require 'schema_plus/active_record/base'
 require 'schema_plus/active_record/column_options_handler'
 require 'schema_plus/active_record/foreign_keys'
+require 'schema_plus/active_record/connection_adapters/abstract_adapter'
 require 'schema_plus/active_record/connection_adapters/table_definition'
 require 'schema_plus/active_record/connection_adapters/schema_statements'
 require 'schema_plus/active_record/schema'
 require 'schema_plus/active_record/schema_dumper'
-require 'schema_plus/active_record/connection_adapters/abstract_adapter'
 require 'schema_plus/active_record/connection_adapters/column'
 require 'schema_plus/active_record/connection_adapters/foreign_key_definition'
 require 'schema_plus/active_record/connection_adapters/index_definition'
 require 'schema_plus/active_record/migration/command_recorder'
-require 'schema_plus/railtie' if defined?(Rails::Railtie)
 require 'schema_plus/schema_monkey'
 require 'schema_plus/schema_default'
 
@@ -122,7 +121,6 @@ module SchemaPlus
   def self.insert_connection_adapters #:nodoc:
     return if @inserted_connection_adapters
     @inserted_connection_adapters = true
-    ::ActiveRecord::ConnectionAdapters::AbstractAdapter.send(:include, SchemaPlus::ActiveRecord::ConnectionAdapters::AbstractAdapter)
     ::ActiveRecord::ConnectionAdapters::Column.send(:include, SchemaPlus::ActiveRecord::ConnectionAdapters::Column)
     ::ActiveRecord::ConnectionAdapters::IndexDefinition.send(:include, SchemaPlus::ActiveRecord::ConnectionAdapters::IndexDefinition)
     ::ActiveRecord::ConnectionAdapters::SchemaStatements.send(:include, SchemaPlus::ActiveRecord::ConnectionAdapters::SchemaStatements)
@@ -139,7 +137,6 @@ module SchemaPlus
   def self.insert #:nodoc:
     return if @inserted
     @inserted = true
-    SchemaMonkey.insert
     insert_connection_adapters
     ::ActiveRecord::Base.send(:include, SchemaPlus::ActiveRecord::Base)
     ::ActiveRecord::Schema.send(:include, SchemaPlus::ActiveRecord::Schema)
@@ -148,4 +145,4 @@ module SchemaPlus
 
 end
 
-SchemaPlus.insert unless defined? Rails::Railtie
+SchemaMonkey.register(SchemaPlus)
