@@ -1,10 +1,12 @@
+require 'spec_helper'
+
 describe SchemaDbDefault do
 
   let(:migration) { ::ActiveRecord::Migration }
 
   before(:each) do
-    create_table(User, :alpha => { :default => "gabba" }, :beta => {})
     class User < ::ActiveRecord::Base ; end
+    create_table(User, :alpha => { :default => "gabba" }, :beta => {})
   end
 
   context "uses db default value", :sqlite3 => :skip do
