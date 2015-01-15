@@ -1,4 +1,4 @@
-require_relative 'schema_monkey'
+require 'schema_monkey'
 
 require_relative 'schema_db_default/active_record/attribute'
 require_relative 'schema_db_default/db_default'

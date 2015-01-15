@@ -10,7 +10,7 @@ module SchemaMonkey
 
   module ActiveRecord
     module ConnectionAdapters
-      autoload :PostgresqlAdapter, 'schema_plus/schema_monkey/active_record/connection_adapters/postgresql_adapter'
+      autoload :PostgresqlAdapter, 'schema_monkey/active_record/connection_adapters/postgresql_adapter'
     end
   end
 

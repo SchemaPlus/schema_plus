@@ -1,7 +1,7 @@
 require 'active_record'
 require 'valuable'
 
-require 'schema_plus/schema_monkey'
+require 'schema_monkey'
 
 require 'schema_plus/version'
 require 'schema_plus/active_record/base'

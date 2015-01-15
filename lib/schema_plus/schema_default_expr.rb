@@ -1,4 +1,4 @@
-require_relative 'schema_monkey'
+require 'schema_monkey'
 
 module SchemaDefaultExpr
   module ActiveRecord
