@@ -1,4 +1,4 @@
-require File.expand_path(File.dirname(__FILE__) + '/spec_helper')
+require 'spec_helper'
 
 def enum_fields(name, schema = 'public')
   sql = <<-SQL

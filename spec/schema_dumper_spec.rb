@@ -1,4 +1,4 @@
-require File.expand_path(File.dirname(__FILE__) + '/spec_helper')
+require 'spec_helper'
 require 'stringio'
 
 describe "Schema dump" do
@@ -228,28 +228,6 @@ describe "Schema dump" do
       expect(dump_schema).to match(%r{create_table "posts".*foreign_key.*\["post_id"\], "posts", \["id"\]}m)
       expect(dump_schema).to match(%r{create_table "users".*foreign_key.*\["commenter_id"\], "users", \["id"\]}m)
       expect(dump_schema).to match(%r{create_table "users".*foreign_key.*\["user_id"\], "users", \["id"\]}m)
-    end
-  end
-
-  context 'with enum', :postgresql => :only do
-    let(:connection) { ActiveRecord::Base.connection }
-
-    it 'should include enum' do
-      begin
-        connection.execute "CREATE TYPE color AS ENUM ('red', 'green', 'blue')"
-        expect(dump_schema).to match(%r{create_enum "color", "red", "green", "blue"})
-      ensure
-        connection.execute "DROP TYPE color"
-      end
-    end
-
-    it 'should include enum with schema' do
-      begin
-        connection.execute "CREATE SCHEMA cmyk; CREATE TYPE cmyk.color AS ENUM ('cyan', 'magenta', 'yellow', 'black')"
-        expect(dump_schema).to match(%r{create_enum "color", "cyan", "magenta", "yellow", "black", :schema => "cmyk"})
-      ensure
-        connection.execute "DROP SCHEMA cmyk CASCADE"
-      end
     end
   end
 

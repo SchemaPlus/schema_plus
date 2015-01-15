@@ -13,30 +13,10 @@ module SchemaPlus
       attr_accessor :inline_fks, :backref_fks
 
       def self.included(base) #:nodoc:
-        SchemaMonkey::Middleware::Dumper::Extensions.use CreateEnums
         SchemaMonkey::Middleware::Dumper::Tables.insert 0, FkDependencies
         SchemaMonkey::Middleware::Dumper::Tables.use IgnoreActiveRecordFkDumps
         SchemaMonkey::Middleware::Dumper::Table.use ForeignKeys
         SchemaMonkey::Middleware::Dumper::Table.use Indexes
-      end
-
-      #
-      # Middleware for the extensions
-      #
-      class CreateEnums < SchemaMonkey::Middleware::Base
-        def call(env)
-          @app.call env
-
-          if env.connection.respond_to?(:enums)
-            env.connection.enums.each do |schema, name, values|
-              params = [name.inspect]
-              params << values.map(&:inspect).join(', ')
-              params << ":schema => #{schema.inspect}" if schema != 'public'
-
-              env.extensions << "create_enum #{params.join(', ')}"
-            end
-          end
-        end
       end
 
       #
