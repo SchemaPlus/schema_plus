@@ -16,7 +16,7 @@ module SchemaMonkey
 
   def self.insert
     include_adapters(::ActiveRecord::ConnectionAdapters::AbstractAdapter, :AbstractAdapter)
-    include_once(::ActiveRecord::SchemaDumper, SchemaMonkey::ActiveRecord::SchemaDumper)
+    patch ::ActiveRecord::SchemaDumper, self
     insert_modules
     insert_middleware
   end
@@ -58,6 +58,12 @@ module SchemaMonkey
 
   def self.include_once(base, mod)
     base.send(:include, mod) unless base.include? mod
+  end
+
+  def self.patch(base, mod)
+    patch = get_const(mod, base)
+    raise "#{mod} does not contain a definition of #{base}" unless patch
+    include_once(base, patch)
   end
 
   # ruby 2.* supports mod.const_get("Component::Path") but ruby 1.9.3
