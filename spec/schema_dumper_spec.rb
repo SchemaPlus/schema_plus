@@ -94,55 +94,6 @@ describe "Schema dump" do
 
   end
 
-  context "with date default", :postgresql => :only do
-    it "should dump the default hash expr as now()" do
-      with_additional_column Post, :posted_at, :datetime, :default => :now do
-        expect(dump_posts).to match(%r{t\.datetime\s+"posted_at",\s*(?:default:|:default =>)\s*\{\s*(?:expr:|:expr\s*=>)\s*"now\(\)"\s*\}})
-      end
-    end
-
-    it "should dump the default hash expr as CURRENT_TIMESTAMP" do
-      with_additional_column Post, :posted_at, :datetime, :default => {:expr => 'date \'2001-09-28\''} do
-        expect(dump_posts).to match(%r{t\.datetime\s+"posted_at",\s*(?:default:|:default =>).*2001-09-28.*})
-      end
-    end
-
-    it "can dump a complex default expression" do
-      with_additional_column Post, :name, :string, :default => {:expr => 'substring(random()::text from 3 for 6)'} do
-        expect(dump_posts).to match(%r{t\.string\s+"name",\s*(?:default:|:default\s*=>)\s*{\s*(?:expr:|:expr\s*=>)\s*"\\"substring\\"\(\(random\(\)\)::text, 3, 6\)"\s*}})
-      end
-    end
-  end
-
-  context "with date default", :sqlite3 => :only do
-    it "should dump the default hash expr as now" do
-      with_additional_column Post, :posted_at, :datetime, :default => :now do
-        expect(dump_posts).to match(%r{t\.datetime\s+"posted_at",\s*(?:default:|:default =>)\s*\{\s*(?:expr:|:expr =>)\s*"\(DATETIME\('now'\)\)"\s*\}})
-      end
-    end
-
-    it "should dump the default hash expr string as now" do
-      with_additional_column Post, :posted_at, :datetime, :default => { :expr => "(DATETIME('now'))" } do
-        expect(dump_posts).to match(%r{t\.datetime\s+"posted_at",\s*(?:default:|:default =>)\s*\{\s*(?:expr:|:expr =>)\s*"\(DATETIME\('now'\)\)"\s*\}})
-      end
-    end
-
-    it "should dump the default value normally" do
-      with_additional_column Post, :posted_at, :string, :default => "now" do
-        expect(dump_posts).to match(%r{t\.string\s*"posted_at",\s*(?:default:|:default =>)\s*"now"})
-      end
-    end
-  end
-
-  it "should leave out :default when default was changed to null" do
-    ActiveRecord::Migration.suppress_messages do
-      ActiveRecord::Migration.change_column_default :posts, :string_no_default, nil
-    end
-    # mysql2 includes 'limit: 255' in the output.  that's OK, just want to
-    # make sure the full line doesn't have 'default' in it.
-    expect(dump_posts).to match(%r{t\.string\s+"string_no_default"\s*(,\s*limit:\s*\d+)?$})
-  end
-
   it "should include foreign_key options" do
     with_foreign_key Post, :user_id, :users, :id, :on_update => :cascade, :on_delete => :set_null do
       expect(dump_posts).to match(to_regexp(%q{t.foreign_key ["user_id"], "users", ["id"], :on_update => :cascade, :on_delete => :set_null}))
