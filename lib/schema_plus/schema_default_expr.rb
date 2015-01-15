@@ -11,7 +11,6 @@ module SchemaDefaultExpr
 
         class AddColumnOptions < ::SchemaMonkey::Middleware::Base
           def call(env)
-            # require 'byebug' ; byebug
             if env.options_include_default?
               env.options = options = env.options.dup
               default = options[:default]
