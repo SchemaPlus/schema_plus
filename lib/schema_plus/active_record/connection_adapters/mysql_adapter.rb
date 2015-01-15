@@ -2,15 +2,13 @@ module SchemaPlus
   module ActiveRecord
     module ConnectionAdapters
       # SchemaPlus includes a MySQL implementation of the AbstractAdapter
-      # extensions.  (This works with both the <tt>mysql</t> and
-      # <tt>mysql2</tt> gems.)
+      # extensions.
       module MysqlAdapter
 
         #:enddoc:
         
         def self.included(base)
           base.class_eval do
-            alias_method_chain :tables, :schema_plus
             alias_method_chain :remove_column, :schema_plus
             alias_method_chain :rename_table, :schema_plus
           end
@@ -18,10 +16,6 @@ module SchemaPlus
           base.class_eval do
             include ::ActiveRecord::ConnectionAdapters::SchemaStatements::AddIndex
           end
-        end
-
-        def tables_with_schema_plus(name=nil, *args)
-          tables_without_schema_plus(name, *args) - views(name)
         end
 
         def remove_column_with_schema_plus(table_name, column_name, type=nil, options={})
@@ -149,27 +143,6 @@ module SchemaPlus
 
             ForeignKeyDefinition.new(from_table, to_table, options)
           end
-        end
-
-        def views(name = nil)
-          views = []
-          select_all("SELECT table_name FROM information_schema.views WHERE table_schema = SCHEMA()", name).each do |row|
-            views << row["table_name"]
-          end
-          views
-        end
-
-        def view_definition(view_name, name = nil)
-          results = select_all("SELECT view_definition, check_option FROM information_schema.views WHERE table_schema = SCHEMA() AND table_name = #{quote(view_name)}", name)
-          return nil unless results.any?
-          row = results.first
-          sql = row["view_definition"]
-          sql.gsub!(%r{#{quote_table_name(current_database)}[.]}, '')
-          case row["check_option"]
-          when "CASCADED" then sql += " WITH CASCADED CHECK OPTION"
-          when "LOCAL" then sql += " WITH LOCAL CHECK OPTION"
-          end
-          sql
         end
 
         private

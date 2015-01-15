@@ -3,18 +3,10 @@ require 'tsort'
 module SchemaPlus
   module ActiveRecord
 
-    # SchemaPlus modifies ActiveRecord's schema dumper to include foreign
-    # key constraints and views.
-    #
     # Additionally, index and foreign key constraint definitions are dumped
     # inline in the create_table block.  (This is done for elegance, but
     # also because Sqlite3 does not allow foreign key constraints to be
     # added to a table after it has been defined.)
-    #
-    # The tables and views are dumped in alphabetical order, subject to
-    # topological sort constraints that a table must be dumped before any
-    # view that references it or table that has a foreign key constaint to
-    # it.
     #
     module SchemaDumper
 
@@ -22,7 +14,6 @@ module SchemaPlus
 
       def self.included(base) #:nodoc:
         SchemaMonkey::Middleware::Dumper::Extensions.use CreateEnums
-        SchemaMonkey::Middleware::Dumper::Tables.insert 0, DumpViews
         SchemaMonkey::Middleware::Dumper::Tables.insert 0, FkDependencies
         SchemaMonkey::Middleware::Dumper::Tables.use IgnoreActiveRecordFkDumps
         SchemaMonkey::Middleware::Dumper::Table.use ForeignKeys
@@ -51,28 +42,6 @@ module SchemaPlus
       #
       # Middleware for the collection of tables
       #
-      class DumpViews < SchemaMonkey::Middleware::Base
-
-        # quacks like a SchemaMonkey Dump::Table
-        class View < KeyStruct[:name, :definition]
-          def assemble(stream)
-            stream.puts("  create_view #{name.inspect}, #{definition.inspect}, :force => true\n")
-          end
-        end
-
-        def call(env)
-          @app.call env
-
-          re_view_referent = %r{(?:(?i)FROM|JOIN) \S*\b(\S+)\b}
-          env.connection.views.each do |view_name|
-            next if env.dumper.ignored?(view_name)
-            view = View.new(name: view_name, definition: env.connection.view_definition(view_name))
-            env.dump.tables[view.name] = view
-            env.dump.depends(view.name, view.definition.scan(re_view_referent).flatten)
-          end
-        end
-
-      end
 
       class FkDependencies < SchemaMonkey::Middleware::Base
 

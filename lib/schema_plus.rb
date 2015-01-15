@@ -4,6 +4,7 @@ require 'valuable'
 require 'schema_monkey'
 require 'schema_db_default'
 require 'schema_default_expr'
+require 'schema_views'
 
 require 'schema_plus/version'
 require 'schema_plus/active_record/base'

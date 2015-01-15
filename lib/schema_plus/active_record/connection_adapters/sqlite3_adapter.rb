@@ -23,7 +23,6 @@ module SchemaPlus
           base.class_eval do
             alias_method_chain :indexes, :schema_plus
             alias_method_chain :rename_table, :schema_plus
-            alias_method_chain :tables, :schema_plus
           end
 
           ::ActiveRecord::ConnectionAdapters::Column.send(:include, SQLiteColumn) unless ::ActiveRecord::ConnectionAdapters::Column.include?(SQLiteColumn)
@@ -82,20 +81,6 @@ module SchemaPlus
 
         def reverse_foreign_keys(table_name, name = nil)
           get_foreign_keys(nil, name).select{|definition| definition.references_table_name == table_name}
-        end
-
-        def tables_with_schema_plus(*args)
-          # AR 4.2 explicitly looks for views or tables, but only for sqlite3.  so take away the tables.
-          tables_without_schema_plus(*args) - views
-        end
-
-        def views(name = nil)
-          execute("SELECT name FROM sqlite_master WHERE type='view'", name).collect{|row| row["name"]}
-        end
-
-        def view_definition(view_name, name = nil)
-          sql = execute("SELECT sql FROM sqlite_master WHERE type='view' AND name=#{quote(view_name)}", name).collect{|row| row["sql"]}.first
-          sql.sub(/^CREATE VIEW \S* AS\s+/im, '') unless sql.nil?
         end
 
         protected
