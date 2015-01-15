@@ -1,13 +1,6 @@
 module SchemaPlus
   module ActiveRecord
     module ConnectionAdapters
-      # PostgreSQL-specific extensions to column definitions in a table.
-      module PostgreSQLColumn
-        def initialize(name, default, cast_type, sql_type = nil, null = true, default_function = nil)
-          super(name, default, cast_type, sql_type, null)
-          @default_function = default_function
-        end
-      end
 
       # The Postgresql adapter implements the SchemaPlus extensions and
       # enhancements
@@ -18,7 +11,6 @@ module SchemaPlus
             alias_method_chain :rename_table, :schema_plus
             alias_method_chain :exec_cache, :schema_plus
           end
-          ::ActiveRecord::ConnectionAdapters::PostgreSQLColumn.send(:include, PostgreSQLColumn) unless ::ActiveRecord::ConnectionAdapters::PostgreSQLColumn.include?(PostgreSQLColumn)
         end
 
         # SchemaPlus provides the following extra options for PostgreSQL
