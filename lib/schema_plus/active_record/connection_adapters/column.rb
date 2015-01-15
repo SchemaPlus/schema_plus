@@ -7,7 +7,6 @@ module SchemaPlus
       #
       module Column
 
-        attr_reader :default_expr
         attr_writer :model # model gets set by SchemaPlus::ActiveRecord::Base::columns_with_schema_plus
 
         # Returns the list of IndexDefinition instances for each index that
