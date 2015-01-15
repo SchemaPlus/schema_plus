@@ -3,10 +3,38 @@ require 'tsort'
 module SchemaPlus
   module Middleware
     def self.insert
+      Migration.insert
       Dumper.insert
     end
 
     module Migration
+      def self.insert
+        SchemaMonkey::Middleware::Migration::Column.insert 0, HandleColumn
+      end
+      class HandleColumn < SchemaMonkey::Middleware::Base
+        include SchemaPlus::ActiveRecord::ColumnOptionsHandler
+        def call(env)
+          options = env.options
+
+          schema_plus_normalize_column_options(options)
+          options[:references] = nil if options[:polymorphic]
+
+          # prevent AR from seeing :index => false as a request for an index
+          if noindex = options[:index] == false
+            options.delete(:index)
+          end
+
+          if [:references, :belongs_to].include?(env.type)
+            # usurp index creation from AR
+            options[:_index] = options.delete(:index) unless options[:polymorphic]
+            @app.call env
+          else
+            @app.call env
+            options[:index] = false if noindex
+            env.table_definition.schema_plus_handle_column_options(env.table_definition.name, env.name, env.options, :config => env.table_definition.schema_plus_config)
+          end
+        end
+      end
     end
 
     module Dumper

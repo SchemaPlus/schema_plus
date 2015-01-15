@@ -36,6 +36,12 @@ module SchemaMonkey
     end
 
     module Migration
+
+      module Column
+        extend Stack
+        Env = KeyStruct[:table_definition, :name, :type, :options]
+      end
+
       module ColumnOptionsSql
         extend Stack
         class Env < KeyStruct[:adapter, :sql, :options, :schema_creation]

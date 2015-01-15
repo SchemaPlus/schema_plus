@@ -72,9 +72,6 @@ module SchemaPlus::ActiveRecord::ConnectionAdapters
     def self.included(base) #:nodoc:
       base.class_eval do
         alias_method_chain :initialize, :schema_plus
-        alias_method_chain :column, :schema_plus
-        alias_method_chain :references, :schema_plus
-        alias_method_chain :belongs_to, :schema_plus
         alias_method_chain :primary_key, :schema_plus
       end
     end
@@ -88,40 +85,6 @@ module SchemaPlus::ActiveRecord::ConnectionAdapters
       column(name, type, options.merge(:primary_key => true))
     end
 
-
-    # need detect :polymorphic at this level, because rails strips it out
-    # before calling #column (twice, once for _id and once for _type)
-    def references_with_schema_plus(*args) #:nodoc:
-      options = args.extract_options!
-      options[:references] = nil if options[:polymorphic]
-      schema_plus_normalize_column_options(options)
-      options[:_index] = options.delete(:index) unless options[:polymorphic] # usurp index creation from AR
-      args << options
-      references_without_schema_plus(*args)
-    end
-
-    # need detect :polymorphic at this level, because rails strips it out
-    # before calling #column (twice, once for _id and once for _type)
-    def belongs_to_with_schema_plus(*args) #:nodoc:
-      options = args.extract_options!
-      options[:references] = nil if options[:polymorphic]
-      schema_plus_normalize_column_options(options)
-      options[:_index] = options.delete(:index) unless options[:polymorphic] # usurp index creation from AR
-      args << options
-      belongs_to_without_schema_plus(*args)
-    end
-
-    def column_with_schema_plus(name, type, options = {}) #:nodoc:
-      schema_plus_normalize_column_options(options)
-      # prevent AR from seeing :index => false as a request for an index
-      if noindex = options[:index] == false
-        options.delete(:index)
-      end
-      column_without_schema_plus(name, type, options)
-      options[:index] = false if noindex
-      schema_plus_handle_column_options(self.name, name, options, :config => schema_plus_config)
-      self
-    end
 
     def foreign_key(column_names, references_table_name, references_column_names, options = {})
       options.merge!(:column_names => column_names, :references_column_names => references_column_names)
