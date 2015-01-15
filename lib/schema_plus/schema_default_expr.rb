@@ -100,6 +100,25 @@ module SchemaDefaultExpr
     end
   end
 
+  class DumpDefaultExpressions < SchemaMonkey::Middleware::Base
+    def call(env)
+      @app.call env
+      env.connection.columns(env.table.name).each do |column|
+        if !column.default_function.nil?
+          if col = env.table.columns.find{|col| col.name == column.name}
+            options = "default: { expr: #{column.default_function.inspect} }"
+            options += ", #{col.options}" unless col.options.blank?
+            col.options = options
+          end
+        end
+      end
+    end
+  end
+
+  def self.insert
+    SchemaMonkey::Middleware::Dumper::Table.use DumpDefaultExpressions
+  end
+
 end
 
 SchemaMonkey.register(SchemaDefaultExpr)
