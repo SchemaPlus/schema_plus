@@ -5,7 +5,7 @@ require_relative 'schema_db_default/db_default'
 
 module SchemaDbDefault
 
-  autoload :PostgreqlExecCache, 'schema_plus/schema_db_default/postgresql_exec_cache'
+  autoload :PostgreqlExecCache, 'schema_db_default/postgresql_exec_cache'
 
   module ActiveRecord
     module ConnectionAdapters

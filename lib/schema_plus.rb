@@ -2,6 +2,7 @@ require 'active_record'
 require 'valuable'
 
 require 'schema_monkey'
+require 'schema_db_default'
 
 require 'schema_plus/version'
 require 'schema_plus/active_record/base'
@@ -16,7 +17,6 @@ require 'schema_plus/active_record/connection_adapters/column'
 require 'schema_plus/active_record/connection_adapters/foreign_key_definition'
 require 'schema_plus/active_record/connection_adapters/index_definition'
 require 'schema_plus/active_record/migration/command_recorder'
-require 'schema_plus/schema_db_default'
 require 'schema_plus/schema_default_expr'
 
 module SchemaPlus
@@ -25,7 +25,6 @@ module SchemaPlus
     module ConnectionAdapters
       autoload :MysqlAdapter, 'schema_plus/active_record/connection_adapters/mysql_adapter'
       autoload :PostgresqlAdapter, 'schema_plus/active_record/connection_adapters/postgresql_adapter'
-      autoload :PostgreSQLColumn, 'schema_plus/active_record/connection_adapters/postgresql_adapter'
       autoload :Sqlite3Adapter, 'schema_plus/active_record/connection_adapters/sqlite3_adapter'
     end
   end
