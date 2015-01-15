@@ -1,11 +1,11 @@
 module SchemaDefaultExpr
   module Middleware
     def self.insert
-      SchemaMonkey::Middleware::AddColumnOptions.insert(0, AddColumnOptions)
+      SchemaMonkey::Middleware::Migration::ColumnOptionsSql.insert(0, DefaultExprOptions)
       SchemaMonkey::Middleware::Dumper::Table.use DumpDefaultExpressions
     end
 
-    class AddColumnOptions < ::SchemaMonkey::Middleware::Base
+    class DefaultExprOptions < ::SchemaMonkey::Middleware::Base
       def call(env)
         if env.options_include_default?
           env.options = options = env.options.dup

@@ -5,7 +5,7 @@ module SchemaMonkey
         def self.included(base)
           base.class_eval do
             alias_method_chain :exec_cache, :schema_monkey
-            Middleware::ExecCache.use ExecCache
+            Middleware::Query::ExecCache.use ExecCache
           end
         end
 
@@ -16,7 +16,7 @@ module SchemaMonkey
         end
 
         def exec_cache_with_schema_monkey(sql, name, binds)
-          Middleware::ExecCache.call Middleware::ExecCache::Env.new(adapter: self, sql: sql, name: name, binds: binds)
+          Middleware::Query::ExecCache.call Middleware::Query::ExecCache::Env.new(adapter: self, sql: sql, name: name, binds: binds)
         end
       end
     end

@@ -28,16 +28,20 @@ module SchemaMonkey
       end
     end
 
-    module ExecCache
-      extend Stack
-      Env = KeyStruct[:adapter, :sql, :name, :binds]
+    module Query
+      module ExecCache
+        extend Stack
+        Env = KeyStruct[:adapter, :sql, :name, :binds]
+      end
     end
 
-    module AddColumnOptions
-      extend Stack
-      class Env < KeyStruct[:adapter, :sql, :options, :schema_creation]
-        def options_include_default?
-          @include_default ||= schema_creation.send :options_include_default?, options
+    module Migration
+      module ColumnOptionsSql
+        extend Stack
+        class Env < KeyStruct[:adapter, :sql, :options, :schema_creation]
+          def options_include_default?
+            @include_default ||= schema_creation.send :options_include_default?, options
+          end
         end
       end
     end

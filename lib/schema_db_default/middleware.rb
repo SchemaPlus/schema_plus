@@ -2,7 +2,7 @@ module SchemaDbDefault
   module Middleware
     module PostgresqlAdapter
       def self.insert
-        SchemaMonkey::Middleware::ExecCache.insert(0, BindDbDefault)
+        SchemaMonkey::Middleware::Query::ExecCache.insert(0, BindDbDefault)
       end
     end
 
