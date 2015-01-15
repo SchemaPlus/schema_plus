@@ -20,6 +20,7 @@ module SchemaMonkey
     patch ::ActiveRecord::SchemaDumper, self
     patch ::ActiveRecord::ConnectionAdapters::TableDefinition, self
     patch ::ActiveRecord::ConnectionAdapters::AbstractAdapter::SchemaCreation, self
+    # patch ::ActiveRecord::ConnectionAdapters::AbstractAdapter::SchemaStatements, self
     insert_modules
     insert_middleware
   end

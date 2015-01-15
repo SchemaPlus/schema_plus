@@ -24,17 +24,12 @@ module SchemaMonkey
             base.class_eval do
               alias_method_chain :add_column_options!, :schema_monkey
             end
-            Middleware::Migration::ColumnOptionsSql.use AddColumnOptions
-          end
-
-          class AddColumnOptions < SchemaMonkey::Middleware::Base
-            def call(env)
-              env.schema_creation.send :add_column_options_without_schema_monkey!, env.sql, env.options
-            end
           end
 
           def add_column_options_with_schema_monkey!(sql, options)
-            Middleware::Migration::ColumnOptionsSql.call Middleware::Migration::ColumnOptionsSql::Env.new(adapter: self.instance_variable_get('@conn'), sql: sql, options: options, schema_creation: self)
+            Middleware::Migration::ColumnOptionsSql.start adapter: self.instance_variable_get('@conn'), sql: sql, options: options, schema_creation: self do |app, env|
+              env.schema_creation.send :add_column_options_without_schema_monkey!, env.sql, env.options
+            end
           end
         end
 

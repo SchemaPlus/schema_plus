@@ -9,22 +9,36 @@ module SchemaMonkey
 
     module Stack
       def stack
-        @stack ||= ::Middleware::Builder.new
+        @stack ||= ::Middleware::Builder.new do
+          use Root
+        end
       end
       def insert(*args)
         stack.insert(*args)
       end
+
       def insert_before(*args)
         stack.insert_before(*args)
       end
+
       def insert_after(*args)
         stack.insert_after(*args)
       end
+
       def use(*args)
         stack.use(*args)
       end
-      def call(env)
+
+      def start(*args, &block)
+        env = self.const_get(:Env).new(*args)
+        env.instance_variable_set('@root', block)
         stack.call(env)
+      end
+
+      class Root < Base
+        def call(env)
+          env.instance_variable_get('@root').call(@app, env)
+        end
       end
     end
 
@@ -39,7 +53,7 @@ module SchemaMonkey
 
       module Column
         extend Stack
-        Env = KeyStruct[:table_definition, :name, :type, :options]
+        Env = KeyStruct[:operation, :caller, :name, :type, :options]
       end
 
       module ColumnOptionsSql

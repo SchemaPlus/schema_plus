@@ -95,9 +95,6 @@ module SchemaMonkey
           alias_method_chain :trailer, :schema_monkey
           public :ignored?
         end
-        Middleware::Dumper::Extensions.use Extensions
-        Middleware::Dumper::Tables.use Tables
-        Middleware::Dumper::Table.use Table
       end
 
       def dump_with_schema_monkey(stream)
@@ -118,68 +115,55 @@ module SchemaMonkey
         @dump.trailer = stream.string
       end
 
-      class Extensions < Middleware::Base
-        def call(env)
-          stream = StringIO.new
-          env.dumper.send :extensions_without_schema_monkey, stream
-          env.extensions << stream.string unless stream.string.blank?
-          @app.call env
-        end
-      end
-
       def extensions_with_schema_monkey(_)
-        Middleware::Dumper::Extensions.call Middleware::Dumper::Extensions::Env.new(dumper: self, connection: @connection, extensions: @dump.extensions)
-      end
-
-      class Tables < Middleware::Base
-        def call(env)
-          env.dumper.send :tables_without_schema_monkey, nil
-          @app.call env
+        Middleware::Dumper::Extensions.start dumper: self, connection: @connection, extensions: @dump.extensions do |app, env|
+          stream = StringIO.new
+          extensions_without_schema_monkey(stream)
+          env.extensions << stream.string unless stream.string.blank?
+          app.call env
         end
       end
 
       def tables_with_schema_monkey(_)
-        Middleware::Dumper::Tables.call Middleware::Dumper::Tables::Env.new(dumper: self, connection: @connection, dump: @dump)
+        Middleware::Dumper::Tables.start dumper: self, connection: @connection, dump: @dump do |app, env|
+          tables_without_schema_monkey(nil)
+          app.call env
+        end
       end
 
-      class Table < Middleware::Base
-        def call(env)
+      def table_with_schema_monkey(table, _)
+        Middleware::Dumper::Table.start dumper: self, connection: @connection, dump: @dump, table: @dump.tables[table] = Dump::Table.new(name: table) do |app, env|
           stream = StringIO.new
-          env.dumper.send :table_without_schema_monkey, env.table.name, stream
+          table_without_schema_monkey(env.table.name, stream)
           m = stream.string.match %r{
-            \A \s*
+          \A \s*
             create_table \s*
             [:'"](?<name>[^'"\s]+)['"]? \s*
             ,? \s*
             (?<options>.*) \s+
             do \s* \|t\| \s* $
-            (?<columns>.*)
-            ^\s*end\s*$
-            (?<trailer>.*)
-            \Z
+          (?<columns>.*)
+          ^\s*end\s*$
+          (?<trailer>.*)
+          \Z
           }xm
           env.table.pname = m[:name]
           env.table.options = m[:options].strip
           env.table.trailer = m[:trailer].split("\n").map(&:strip).reject{|s| s.blank?}
           env.table.columns = m[:columns].strip.split("\n").map { |col|
             m = col.strip.match %r{
-              ^
-              t\.(?<type>\S+) \s*
+            ^
+            t\.(?<type>\S+) \s*
               [:'"](?<name>[^"\s]+)[,"]? \s*
               ,? \s*
               (?<options>.*)
-              $
+            $
             }x
             Dump::Table::Column.new(name: m[:name], type: m[:type], options: m[:options])
           }
-          @app.call env
+          app.call env
         end
       end
-
-      def table_with_schema_monkey(table, _)
-        Middleware::Dumper::Table.call Middleware::Dumper::Table::Env.new(dumper: self, connection: @connection, dump: @dump, table: @dump.tables[table] = Dump::Table.new(name: table))
-      end
-
     end
   end
 end
