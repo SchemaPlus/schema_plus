@@ -21,7 +21,16 @@ For added rails DRYness see also the gems
 [schema_associations](http://rubygems.org/gems/schema_associations) and
 [schema_validations](http://rubygems.org/gems/schema_validations)
 
-> **NOTE/TODO** The documentation in this README is leftover from Rails < 4.2; the functionality is the same, but some of the core features of schema_plus (foreign keys & inline index definition) are now provided by ActiveRecord 4.2.  schema_plus still provides extra functionality beyond AR 4.2, but the documentation needs to be updated to be clear what's an enhancement of AR 4.2 capabilities rather than completely new features.  (And the code likewise needs investigation to find out what's duplicating things now in AR 4.2 and leave those core capabilities to AR)
+> **IN PROGRESS:** Refactoring to replace the single bloated grab-bag of monkey-patched features with a collection of small single-purpose gems in the SchemaPlus family.  Key is a core `schema_monkey` gem that monkey-patches ActiveRecord in order to create an internal extension API; the feature gems use it as much as possible to minimize their own monkey-patches.  See discussion in [issue #168](https://github.com/SchemaPlus/schema_plus/issues/168).
+
+> &nbsp;
+
+> Currently those "gems" are being developed simultaneously as subdirectories in this repo.  Once things (especially `schema_monkey`) are seeming stable, will pull them out to be independent repos and gems.
+
+&nbsp;
+
+
+> **NOTE/TODO** The documentation in this README is leftover from Rails < 4.2; the functionality is the same, but some of the core features of schema_plus (such as foreign keys & inline index definition) are now provided by ActiveRecord 4.2.  schema_plus still provides extra functionality beyond AR 4.2, but the documentation needs to be updated to be clear what's an enhancement of AR 4.2 capabilities rather than completely new features.  (And the code likewise needs investigation to find out what's duplicating things now in AR 4.2 and leave those core capabilities to AR)
 
 ## Compatibility
 
