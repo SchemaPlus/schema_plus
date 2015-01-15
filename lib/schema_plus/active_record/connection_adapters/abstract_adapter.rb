@@ -26,6 +26,7 @@ module SchemaPlus
                     when /^MySQL/i                 then 'MysqlAdapter'
                     when 'PostgreSQL', 'PostGIS'   then 'PostgresqlAdapter'
                     when 'SQLite'                  then 'Sqlite3Adapter'
+                    when 'MSSQL','jbdcmssql'       then 'MssqlAdapter'
                     end
           adapter_module = SchemaPlus::ActiveRecord::ConnectionAdapters.const_get(adapter)
           self.class.send(:include, adapter_module) unless self.class.include?(adapter_module)
