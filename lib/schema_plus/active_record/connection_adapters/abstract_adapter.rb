@@ -19,10 +19,6 @@ module SchemaPlus
         def initialize_with_schema_plus(*args) #:nodoc:
           initialize_without_schema_plus(*args)
 
-          self.class.ancestors.select{|mod| mod.parents.include? SchemaPlus}.each do |mod|
-            SchemaMonkey.include_if_defined(self.class.const_get(:SchemaCreation), mod, :AddColumnOptions)
-          end
-
           extend(SchemaPlus::ActiveRecord::ForeignKeys)
         end
 
