@@ -67,29 +67,15 @@ module SchemaPlus::ActiveRecord::ConnectionAdapters
     include SchemaPlus::ActiveRecord::ColumnOptionsHandler
 
     attr_accessor :schema_plus_config #:nodoc:
-    attr_reader :foreign_keys #:nodoc:
 
-    def self.included(base) #:nodoc:
-      base.class_eval do
-        alias_method_chain :initialize, :schema_plus
-        alias_method_chain :primary_key, :schema_plus
-      end
+    def foreign_keys
+      @foreign_keys ||= []
     end
-
-    def initialize_with_schema_plus(*args) #:nodoc:
-      initialize_without_schema_plus(*args)
-      @foreign_keys = []
-    end
-
-    def primary_key_with_schema_plus(name, type = :primary_key, options = {}) #:nodoc:
-      column(name, type, options.merge(:primary_key => true))
-    end
-
 
     def foreign_key(column_names, references_table_name, references_column_names, options = {})
       options.merge!(:column_names => column_names, :references_column_names => references_column_names)
       options.reverse_merge!(:name => ForeignKeyDefinition.default_name(self.name, column_names))
-      @foreign_keys << ForeignKeyDefinition.new(self.name, AbstractAdapter.proper_table_name(references_table_name), options)
+      foreign_keys << ForeignKeyDefinition.new(self.name, AbstractAdapter.proper_table_name(references_table_name), options)
       self
     end
 
