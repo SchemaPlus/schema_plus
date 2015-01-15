@@ -1,3 +1,6 @@
+require 'ostruct'
+require 'tsort'
+
 module SchemaMonkey
   module ActiveRecord
     module SchemaDumper
@@ -5,20 +8,20 @@ module SchemaMonkey
       class Dump
         include TSort
 
-        attr_reader :extensions, :tables, :dependencies
+        attr_reader :extensions, :tables, :dependencies, :data
         attr_accessor :foreign_keys, :trailer
 
         def initialize(dumper)
           @dumper = dumper
-          @dependencies = {}
+          @dependencies = Hash.new { |h, k| h[k] = [] }
           @extensions = []
           @tables = {}
           @foreign_keys = []
+          @data = OpenStruct.new # a place for middleware to leave data
         end
 
         def depends(tablename, dependents)
           @tables[tablename] ||= false # placeholder for dependencies applied before defining the table
-          @dependencies[tablename] ||= []
           @dependencies[tablename] += Array.wrap(dependents)
         end
 
@@ -106,7 +109,7 @@ module SchemaMonkey
       def foreign_keys_with_schema_monkey(table, _)
         stream = StringIO.new
         foreign_keys_without_schema_monkey(table, stream)
-        @dump.foreign_keys += stream.string.split.map(&:strip)
+        @dump.foreign_keys += stream.string.split("\n").map(&:strip)
       end
 
       def trailer_with_schema_monkey(_)
