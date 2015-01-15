@@ -1,5 +1,3 @@
-require 'tsort'
-
 module SchemaPlus
   module Middleware
     def self.insert

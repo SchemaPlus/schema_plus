@@ -20,7 +20,7 @@ module SchemaMonkey
         end
 
         module SchemaCreation
-          def self.included(base) #:nodoc:
+          def self.included(base)
             base.class_eval do
               alias_method_chain :add_column_options!, :schema_monkey
             end
