@@ -18,6 +18,7 @@ module SchemaMonkey
     include_adapters(::ActiveRecord::ConnectionAdapters::AbstractAdapter, :AbstractAdapter)
     include_once(::ActiveRecord::SchemaDumper, SchemaMonkey::ActiveRecord::SchemaDumper)
     insert_modules
+    insert_middleware
   end
 
   def self.register(mod)
@@ -40,6 +41,15 @@ module SchemaMonkey
     end
   end
 
+  def self.insert_middleware(submodules=nil)
+    modname = ['Middleware', *Array.wrap(submodules)].join('::')
+    modules.each do |mod|
+      if middleware = get_const(mod, modname) and middleware.respond_to? :insert
+        middleware.insert
+      end
+    end
+  end
+
   def self.include_if_defined(base, mod, subname)
     if submodule = get_const(mod, subname)
       include_once(base, submodule)
@@ -51,11 +61,15 @@ module SchemaMonkey
   end
 
   # ruby 2.* supports mod.const_get("Component::Path") but ruby 1.9.3
-  # doesn't
+  # doesn't.  And neither has a version that can return nil rather than
+  # raising a NameError
   def self.get_const(mod, name)
     name.to_s.split('::').map(&:to_sym).each do |component|
-      return nil unless mod.const_defined?(component)
-      mod = mod.const_get(component)
+      begin
+        mod = mod.const_get(component)
+      rescue NameError
+        return nil
+      end
     end
     mod
   end

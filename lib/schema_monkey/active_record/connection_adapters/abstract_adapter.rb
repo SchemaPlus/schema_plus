@@ -17,6 +17,7 @@ module SchemaMonkey
 
           SchemaMonkey.include_adapters(self.class, adapter)
           SchemaMonkey.include_once(self.class.const_get(:SchemaCreation), SchemaCreation)
+          SchemaMonkey.insert_middleware(adapter)
         end
 
         module SchemaCreation
