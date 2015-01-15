@@ -66,7 +66,7 @@ module SchemaMonkey
   def self.get_const(mod, name)
     name.to_s.split('::').map(&:to_sym).each do |component|
       begin
-        mod = mod.const_get(component)
+        mod = mod.const_get(component, false)
       rescue NameError
         return nil
       end
