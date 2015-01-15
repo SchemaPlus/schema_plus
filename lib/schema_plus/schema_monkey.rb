@@ -1,6 +1,9 @@
 require 'middleware'
+require 'key_struct'
+
 require_relative "schema_monkey/middleware"
 require_relative "schema_monkey/active_record/connection_adapters/abstract_adapter"
+require_relative 'schema_monkey/active_record/schema_dumper'
 require_relative 'schema_monkey/railtie' if defined?(Rails::Railtie)
 
 module SchemaMonkey
@@ -13,6 +16,7 @@ module SchemaMonkey
 
   def self.insert
     include_adapters(::ActiveRecord::ConnectionAdapters::AbstractAdapter, :AbstractAdapter)
+    include_once(::ActiveRecord::SchemaDumper, SchemaMonkey::ActiveRecord::SchemaDumper)
     insert_modules
   end
 

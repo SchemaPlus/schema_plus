@@ -34,7 +34,7 @@ module SchemaMonkey
           end
 
           def add_column_options_with_schema_monkey!(sql, options)
-            Middleware::AddColumnOptions.call Middleware::AddColumnOptions::Env.new(self.instance_variable_get('@conn'), sql, options, self)
+            Middleware::AddColumnOptions.call Middleware::AddColumnOptions::Env.new(adapter: self.instance_variable_get('@conn'), sql: sql, options: options, schema_creation: self)
           end
         end
 

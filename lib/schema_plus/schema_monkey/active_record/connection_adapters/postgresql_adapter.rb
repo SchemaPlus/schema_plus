@@ -16,7 +16,7 @@ module SchemaMonkey
         end
 
         def exec_cache_with_schema_monkey(sql, name, binds)
-          Middleware::ExecCache.call Middleware::ExecCache::Env.new(self, sql, name, binds)
+          Middleware::ExecCache.call Middleware::ExecCache::Env.new(adapter: self, sql: sql, name: name, binds: binds)
         end
       end
     end

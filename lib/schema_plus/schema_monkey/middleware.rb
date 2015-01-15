@@ -30,15 +30,30 @@ module SchemaMonkey
 
     module ExecCache
       extend Stack
-      Env = Struct.new(:adapter, :sql, :name, :binds)
+      Env = KeyStruct[:adapter, :sql, :name, :binds]
     end
 
     module AddColumnOptions
       extend Stack
-      Env = Struct.new(:adapter, :sql, :options, :schema_creation) do
+      class Env < KeyStruct[:adapter, :sql, :options, :schema_creation]
         def options_include_default?
           @include_default ||= schema_creation.send :options_include_default?, options
         end
+      end
+    end
+
+    module Dumper
+      module Extensions
+        extend Stack
+        Env = KeyStruct[:dumper, :connection, :extensions]
+      end
+      module Tables
+        extend Stack
+        Env = KeyStruct[:dumper, :connection, :dump]
+      end
+      module Table
+        extend Stack
+        Env = KeyStruct[:dumper, :connection, :dump, :table]
       end
     end
 

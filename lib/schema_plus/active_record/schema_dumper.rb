@@ -18,143 +18,166 @@ module SchemaPlus
     #
     module SchemaDumper
 
-      include TSort
+      attr_accessor :inline_fks, :backref_fks
 
       def self.included(base) #:nodoc:
-        base.class_eval do
-          private
-          alias_method_chain :table, :schema_plus
-          alias_method_chain :tables, :schema_plus
-          alias_method_chain :indexes, :schema_plus
-          alias_method_chain :foreign_keys, :schema_plus if private_method_defined? :foreign_keys
-        end
+        SchemaMonkey::Middleware::Dumper::Extensions.use CreateEnums
+        SchemaMonkey::Middleware::Dumper::Tables.insert 0, DumpViews
+        SchemaMonkey::Middleware::Dumper::Tables.insert 0, FkDependencies
+        SchemaMonkey::Middleware::Dumper::Tables.use IgnoreActiveRecordFkDumps
+        SchemaMonkey::Middleware::Dumper::Table.use ColumnDefaultExpressions
+        SchemaMonkey::Middleware::Dumper::Table.use ForeignKeys
+        SchemaMonkey::Middleware::Dumper::Table.use Indexes
       end
 
-      private
+      #
+      # Middleware for the extensions
+      #
+      class CreateEnums < SchemaMonkey::Middleware::Base
+        def call(env)
+          @app.call env
 
-      def foreign_keys_with_schema_plus(*)
-        # do nothing.  this overrides AR 4.2's foreign key dumping method, which isn't needed
-        # because we're dong them inline
-      end
+          if env.connection.respond_to?(:enums)
+            env.connection.enums.each do |schema, name, values|
+              params = [name.inspect]
+              params << values.map(&:inspect).join(', ')
+              params << ":schema => #{schema.inspect}" if schema != 'public'
 
-      def break_fk_cycles #:nodoc:
-        strongly_connected_components.select{|component| component.size > 1}.each do |tables|
-          table = tables.sort.first
-          backref_fks = @inline_fks[table].select{|fk| tables.include?(fk.references_table_name)}
-          @inline_fks[table] -= backref_fks
-          @dump_dependencies[table] -= backref_fks.collect(&:references_table_name)
-          backref_fks.each do |fk|
-            @backref_fks[fk.references_table_name] << fk
+              env.extensions << "create_enum #{params.join(', ')}"
+            end
           end
         end
       end
 
-      def tables_with_schema_plus(stream) #:nodoc:
-        @table_dumps = {}
-        @inline_fks = Hash.new{ |h, k| h[k] = [] }
-        @backref_fks = Hash.new{ |h, k| h[k] = [] }
-        @dump_dependencies = {}
+      #
+      # Middleware for the collection of tables
+      #
+      class DumpViews < SchemaMonkey::Middleware::Base
 
-        if @connection.respond_to?(:enums)
-          @connection.enums.each do |schema, name, values|
-            params = [name.inspect]
-            params << values.map(&:inspect).join(', ')
-            params << ":schema => #{schema.inspect}" if schema != 'public'
-
-            stream.puts "  create_enum #{params.join(', ')}"
+        # quacks like a SchemaMonkey Dump::Table
+        class View < KeyStruct[:name, :definition]
+          def assemble(stream)
+            stream.puts("  create_view #{name.inspect}, #{definition.inspect}, :force => true\n")
           end
         end
 
-        tables_without_schema_plus(stream)
+        def call(env)
+          @app.call env
 
-        @connection.views.each do |view_name|
-          next if Array.wrap(::ActiveRecord::SchemaDumper.ignore_tables).any? {|pattern| view_name.match pattern}
-          definition = @connection.view_definition(view_name)
-          @table_dumps[view_name] = "  create_view #{view_name.inspect}, #{definition.inspect}, :force => true\n"
-        end
-
-        re_view_referent = %r{(?:(?i)FROM|JOIN) \S*\b(#{(@table_dumps.keys).join('|')})\b}
-        @table_dumps.keys.each do |table|
-          if @connection.views.include?(table)
-            dependencies = @connection.view_definition(table).scan(re_view_referent).flatten
-          else
-            @inline_fks[table] = @connection.foreign_keys(table)
-            dependencies = @inline_fks[table].collect(&:references_table_name)
-          end
-          # select against @table_dumps keys to respect filtering based on
-          # SchemaDumper.ignore_tables (which was taken into account
-          # increate @table_dumps)
-          @dump_dependencies[table] = dependencies.sort.uniq.select {|name| @table_dumps.has_key? name}
-        end
-
-        # Normally we dump foreign key constraints inline in the table
-        # definitions, both for visual cleanliness and because sqlite3
-        # doesn't allow foreign key constraints to be added afterwards.
-        # But in case there's a cycle in the constraint references, some
-        # constraints will need to be broken out then added later.  (Adding
-        # constraints later won't work with sqlite3, but that means sqlite3
-        # won't let you create cycles in the first place.)
-        break_fk_cycles while strongly_connected_components.any?{|component| component.size > 1}
-
-        tsort().each do |table|
-          table_dump = @table_dumps[table]
-          if i = (table_dump =~ /^\s*[e]nd\s*$/)
-            table_dump.insert i, dump_indexes(table) + dump_foreign_keys(@inline_fks[table], :inline => true)
-          end
-          stream.print table_dump
-          stream.puts dump_foreign_keys(@backref_fks[table], :inline => false)+"\n" if @backref_fks[table].any?
-        end
-
-      end
-
-      def tsort_each_node(&block) #:nodoc:
-        @table_dumps.keys.sort.each(&block)
-      end
-
-      def tsort_each_child(table, &block) #:nodoc:
-        @dump_dependencies[table].each(&block)
-      end
-
-      def table_with_schema_plus(table, ignore) #:nodoc:
-        stream = StringIO.new
-        table_without_schema_plus(table, stream)
-        stream_string = stream.string
-        @connection.columns(table).each do |column|
-          if !column.default_function.nil?
-            stream_string.gsub!("\"#{column.name}\"", "\"#{column.name}\", :default => { :expr => #{column.default_function.inspect} }")
+          re_view_referent = %r{(?:(?i)FROM|JOIN) \S*\b(\S+)\b}
+          env.connection.views.each do |view_name|
+            next if env.dumper.ignored?(view_name)
+            view = View.new(name: view_name, definition: env.connection.view_definition(view_name))
+            env.dump.tables[view.name] = view
+            env.dump.depends(view.name, view.definition.scan(re_view_referent).flatten)
           end
         end
-        @table_dumps[table] = stream_string
+
       end
 
-      def indexes_with_schema_plus(table, stream) #:nodoc:
-        # do nothing.  we've already taken care of indexes as part of
-        # dumping the tables
-      end
+      class FkDependencies < SchemaMonkey::Middleware::Base
 
-      def dump_indexes(table) #:nodoc:
-        @connection.indexes(table).collect{ |index|
-          dump = "    t.index"
-          dump << " #{index.columns.inspect}," unless index.columns.blank?
-          dump << " :name => #{index.name.inspect}"
-          dump << ", :unique => true" if index.unique
-          dump << ", :kind => \"#{index.kind}\"" unless index.kind.blank?
-          unless index.columns.blank? 
-            dump << ", :case_sensitive => false" unless index.case_sensitive?
-            dump << ", :conditions => #{index.conditions.inspect}" unless index.conditions.blank?
-            index_lengths = index.lengths.compact if index.lengths.is_a?(Array)
-            dump << ", :length => #{Hash[*index.columns.zip(index.lengths).flatten].inspect}" if index_lengths.present?
-            dump << ", :order => {" + index.orders.map{|column, val| "#{column.inspect} => #{val.inspect}"}.join(", ") + "}" unless index.orders.blank?
-            dump << ", :operator_class => {" + index.operator_classes.map{|column, val| "#{column.inspect} => #{val.inspect}"}.join(", ") + "}" unless index.operator_classes.blank?
-          else
-            dump << ", :expression => #{index.expression.inspect}"
+        def call(env)
+          @inline_fks = Hash.new{ |h, k| h[k] = [] }
+          @backref_fks = Hash.new{ |h, k| h[k] = [] }
+
+          env.connection.tables.each do |table|
+            @inline_fks[table] = env.connection.foreign_keys(table)
+            env.dump.depends(table, @inline_fks[table].collect(&:references_table_name))
           end
-          dump << "\n"
-        }.sort.join
+          
+          # Normally we dump foreign key constraints inline in the table
+          # definitions, both for visual cleanliness and because sqlite3
+          # doesn't allow foreign key constraints to be added afterwards.
+          # But in case there's a cycle in the constraint references, some
+          # constraints will need to be broken out then added later.  (Adding
+          # constraints later won't work with sqlite3, but that means sqlite3
+          # won't let you create cycles in the first place.)
+          break_fk_cycles(env) while env.dump.strongly_connected_components.any?{|component| component.size > 1}
+
+          env.dumper.inline_fks = @inline_fks
+          env.dumper.backref_fks = @backref_fks
+
+          @app.call env
+        end
+
+        def break_fk_cycles(env) #:nodoc:
+          env.dump.strongly_connected_components.select{|component| component.size > 1}.each do |tables|
+            table = tables.sort.first
+            backref_fks = @inline_fks[table].select{|fk| tables.include?(fk.references_table_name)}
+            @inline_fks[table] -= backref_fks
+            env.dump.dependencies[table] -= backref_fks.collect(&:references_table_name)
+            backref_fks.each do |fk|
+              @backref_fks[fk.references_table_name] << fk
+            end
+          end
+        end
       end
 
-      def dump_foreign_keys(foreign_keys, opts={}) #:nodoc:
-        foreign_keys.collect{ |foreign_key| "  " + foreign_key.to_dump(:inline => opts[:inline]) }.sort.join
+      class IgnoreActiveRecordFkDumps < SchemaMonkey::Middleware::Base
+        # Ignore the foreign key dumps at the end of the schema; we'll put them in/near their tables
+        def call(env)
+          @app.call env
+          env.dump.foreign_keys = []
+        end
+      end
+
+      #
+      # Middleware for individual tables
+      #
+      class ColumnDefaultExpressions < SchemaMonkey::Middleware::Base
+        def call(env)
+          @app.call env
+          env.connection.columns(env.table.name).each do |column|
+            if !column.default_function.nil?
+              if col = env.table.columns.find{|col| col.name == column.name}
+                options = "default: { expr: #{column.default_function.inspect} }"
+                options += ", #{col.options}" unless col.options.blank?
+                col.options = options
+              end
+            end
+          end
+        end
+      end
+
+
+      class ForeignKeys < SchemaMonkey::Middleware::Base
+        def call(env)
+          @app.call env
+          env.table.statements += env.dumper.inline_fks[env.table.name].map { |foreign_key|
+            foreign_key.to_dump(inline: true)
+          }.sort
+          env.table.trailer += env.dumper.backref_fks[env.table.name].map { |foreign_key|
+            foreign_key.to_dump(inline: false)
+          }.sort
+        end
+      end
+
+      class Indexes < SchemaMonkey::Middleware::Base
+        def call(env)
+          @app.call env
+          # we'll put the index definitions inline
+          env.table.trailer.reject!{ |s| s =~ /^\s*add_index\b/ }
+
+          env.table.statements += env.connection.indexes(env.table.name).collect{ |index|
+            dump = "t.index"
+            dump << " #{index.columns.inspect}," unless index.columns.blank?
+            dump << " :name => #{index.name.inspect}"
+            dump << ", :unique => true" if index.unique
+            dump << ", :kind => \"#{index.kind}\"" unless index.kind.blank?
+            unless index.columns.blank? 
+              dump << ", :case_sensitive => false" unless index.case_sensitive?
+              dump << ", :conditions => #{index.conditions.inspect}" unless index.conditions.blank?
+              index_lengths = index.lengths.compact if index.lengths.is_a?(Array)
+              dump << ", :length => #{Hash[*index.columns.zip(index.lengths).flatten].inspect}" if index_lengths.present?
+              dump << ", :order => {" + index.orders.map{|column, val| "#{column.inspect} => #{val.inspect}"}.join(", ") + "}" unless index.orders.blank?
+              dump << ", :operator_class => {" + index.operator_classes.map{|column, val| "#{column.inspect} => #{val.inspect}"}.join(", ") + "}" unless index.operator_classes.blank?
+            else
+              dump << ", :expression => #{index.expression.inspect}"
+            end
+            dump << "\n"
+          }.sort
+        end
       end
     end
   end

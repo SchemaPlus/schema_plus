@@ -57,7 +57,7 @@ module SchemaPlus
 
         # Dumps a definition of foreign key.
         def to_dump(opts={})
-          dump = (opts[:inline] ? "  t.foreign_key" : "add_foreign_key #{table_name.inspect},")
+          dump = (opts[:inline] ? "t.foreign_key" : "add_foreign_key #{table_name.inspect},")
           dump << " [#{Array(column_names).collect{ |name| name.inspect }.join(', ')}]"
           dump << ", #{references_table_name.inspect}, [#{Array(references_column_names).collect{ |name| name.inspect }.join(', ')}]"
           dump << ", :on_update => #{on_update.inspect}" if on_update
