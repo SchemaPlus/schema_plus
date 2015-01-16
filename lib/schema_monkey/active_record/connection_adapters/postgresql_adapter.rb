@@ -7,7 +7,8 @@ module SchemaMonkey
           base.class_eval do
             alias_method_chain :exec_cache, :schema_monkey
           end
-          SchemaMonkey.include_once ::ActiveRecord::ConnectionAdapters::PostgreSQL::SchemaStatements, SchemaMonkey::ActiveRecord::ConnectionAdapters::SchemaStatements
+          SchemaMonkey.include_once ::ActiveRecord::ConnectionAdapters::SchemaStatements, SchemaMonkey::ActiveRecord::ConnectionAdapters::SchemaStatements::Reference
+          SchemaMonkey.include_once ::ActiveRecord::ConnectionAdapters::PostgreSQL::SchemaStatements, SchemaMonkey::ActiveRecord::ConnectionAdapters::SchemaStatements::Column
         end
 
         def exec_cache_with_schema_monkey(sql, name, binds)

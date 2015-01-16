@@ -4,16 +4,9 @@ module SchemaPlus::ActiveRecord::ConnectionAdapters
     def self.included(base) #:nodoc:
       base.class_eval do
         alias_method_chain :create_table, :schema_plus
-        alias_method_chain :add_reference, :schema_plus
         alias_method_chain :add_index_options, :schema_plus
         include AddIndex
       end
-    end
-
-    def add_reference_with_schema_plus(table_name, ref_name, options = {}) #:nodoc:
-      options[:references] = nil if options[:polymorphic]
-      options[:_index] = options.delete(:index) unless options[:polymorphic] # usurp index creation from AR
-      add_reference_without_schema_plus(table_name, ref_name, options)
     end
 
     ##
