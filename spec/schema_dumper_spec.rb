@@ -279,7 +279,9 @@ describe "Schema dump" do
     end
   end
 
-  def with_index(model, columns, options = {})
+  def with_index(*args)
+    options = args.extract_options!
+    model, columns = args
     ActiveRecord::Migration.suppress_messages do
       ActiveRecord::Migration.add_index(model.table_name, columns, options)
     end

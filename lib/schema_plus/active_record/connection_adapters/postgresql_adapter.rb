@@ -10,6 +10,7 @@ module SchemaPlus
           base.class_eval do
             alias_method_chain :rename_table, :schema_plus
           end
+          SchemaMonkey::Middleware::Migration::Index.precede Middleware::Migration::PostgresqlIndex
         end
 
 
@@ -28,11 +29,7 @@ module SchemaPlus
         # using <tt>:expression</tt>, this raises an ArgumentError if both
         # are specified simultaneously.
         #
-        def add_index(table_name, column_name, options = {})
-          options = {} if options.nil?  # some callers explicitly pass options=nil
-          column_name, options = [], column_name if column_name.is_a?(Hash)
-          column_names = Array(column_name).compact
-          column_names += Array(options[:with] || [])
+        def add_index_enhanced(table_name, column_names, options = {})
           if column_names.empty?
             raise ArgumentError, "No columns and :expression missing from options - cannot create index" unless options[:expression]
             raise ArgumentError, "Index name not given. Pass :name option" unless options[:name]
@@ -57,7 +54,7 @@ module SchemaPlus
             sql = "CREATE #{index_type} INDEX #{quote_column_name(index_name)} ON #{quote_table_name(table_name)} #{expression}"
           else
             option_strings = Hash[column_names.map {|name| [name, '']}]
-            (operator_classes||{}).each do |column, opclass|
+            (operator_classes||{}).stringify_keys.each do |column, opclass|
               option_strings[column] += " #{opclass}" if opclass
             end
             option_strings = add_index_sort_order(option_strings, column_names, options)
@@ -78,8 +75,8 @@ module SchemaPlus
             sql += " WHERE (#{ ::ActiveRecord::Base.send(:sanitize_sql, conditions, quote_table_name(table_name)) })" if conditions
           end
           execute sql
-        rescue => e
-          SchemaStatements.add_index_exception_handler(self, table_name, column_names, options, e)
+        #rescue => e
+        #  SchemaStatements.add_index_exception_handler(self, table_name, column_names, options, e)
         end
 
         def supports_partial_indexes? #:nodoc:

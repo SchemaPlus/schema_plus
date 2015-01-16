@@ -79,10 +79,9 @@ module SchemaPlus::ActiveRecord
       remove_foreign_key(table_name, fk.column_names, fk.references_table_name, fk.references_column_names) if fk
     end
 
-
     def column_index(table_name, column_name, options) #:nodoc:
-      options = options.dup
-      column_name = [column_name] + Array.wrap(options.delete(:with)).compact
+      # options = options.dup
+      # column_name = [column_name] + Array.wrap(options.delete(:with)).compact
       add_index(table_name, column_name, options)
     end
 

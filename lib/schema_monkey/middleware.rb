@@ -36,6 +36,10 @@ module SchemaMonkey
         stack.insert(0, *args)
       end
 
+      def precede(*args)
+        stack.insert_before(Root, *args)
+      end
+
       def start(*args, &block)
         env = self.const_get(:Env).new(*args)
         env.instance_variable_set('@root', block)
@@ -60,7 +64,12 @@ module SchemaMonkey
 
       module Column
         extend Stack
-        Env = KeyStruct[:operation, :caller, :table_name, :name, :type, :options]
+        Env = KeyStruct[:caller, :operation, :table_name, :name, :type, :options]
+      end
+
+      module Index
+        extend Stack
+        Env = KeyStruct[:caller, :operation, :table_name, :column_names, :options]
       end
 
       module ColumnOptionsSql

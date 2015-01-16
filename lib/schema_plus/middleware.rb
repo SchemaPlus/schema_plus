@@ -7,31 +7,43 @@ module SchemaPlus
 
     module Migration
       def self.insert
-        SchemaMonkey::Middleware::Migration::Column.prepend HandleColumn
+        SchemaMonkey::Middleware::Migration::Column.precede HandleColumn
       end
       class HandleColumn < SchemaMonkey::Middleware::Base
         def call(env)
           options = env.options
+          original_options = options.dup
 
-          options[:references] = nil if options[:polymorphic]
+          is_reference = (env.type == :reference)
+          is_polymorphic = is_reference && options[:polymorphic]
 
-          # prevent AR from seeing :index => false as a request for an index
-          if noindex = options[:index] == false
-            options.delete(:index)
-          end
+          # usurp index creation from AR.  That's necessary to make
+          # auto_index work properly
+          index = options.delete(:index) unless is_polymorphic
+          options[:foreign_key] = false if is_reference
 
-          if [:references, :belongs_to].include?(env.type)
-            # usurp index creation from AR
-            options[:_index] = options.delete(:index) unless options[:polymorphic]
-            continue env
+          continue env
+
+          return if is_polymorphic
+
+          handler = case env.operation
+                    when :record then :revertable_schema_plus_handle_column_options
+                    else :schema_plus_handle_column_options
+                    end
+
+          column_name = env.name.to_s
+          column_name += "_id" if env.type == :reference
+          env.caller.send handler, env.table_name, column_name, original_options, :config => env.caller.try(:schema_plus_config)
+        end
+      end
+
+      class PostgresqlIndex < SchemaMonkey::Middleware::Base
+        def call(env)
+          if env.caller.respond_to? :add_index_enhanced
+            env.caller.add_index_enhanced env.table_name, env.column_names, env.options
+            # do NOT continue, we've added the index ourselves
           else
             continue env
-            options[:index] = false if noindex
-            handler = case env.operation
-                      when :record then :revertable_schema_plus_handle_column_options
-                      else :schema_plus_handle_column_options
-                      end
-            env.caller.send handler, env.table_name, env.name, env.options, :config => env.caller.try(:schema_plus_config)
           end
         end
       end

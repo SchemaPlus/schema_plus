@@ -4,8 +4,6 @@ module SchemaPlus::ActiveRecord::ConnectionAdapters
     def self.included(base) #:nodoc:
       base.class_eval do
         alias_method_chain :create_table, :schema_plus
-        alias_method_chain :add_index_options, :schema_plus
-        include AddIndex
       end
     end
 
@@ -31,49 +29,6 @@ module SchemaPlus::ActiveRecord::ConnectionAdapters
         yield table_definition if block_given?
       end
     end
-
-    def add_index_options_with_schema_plus(table_name, column_name, options = {})
-      options = options.dup
-      columns = options.delete(:with) { |_| [] }
-      add_index_options_without_schema_plus(table_name, Array(column_name).concat(Array(columns).map(&:to_s)), options)
-    end
-
-    def self.add_index_exception_handler(connection, table, columns, options, e) #:nodoc:
-      raise unless e.message.match(/["']([^"']+)["'].*already exists/)
-      name = $1
-      existing = connection.indexes(table).find{|i| i.name == name}
-      attempted = ::ActiveRecord::ConnectionAdapters::IndexDefinition.new(table, columns, options.merge(:name => name)) 
-      raise if attempted != existing
-      ::ActiveRecord::Base.logger.warn "[schema_plus] Index name #{name.inspect}' on table #{table.inspect} already exists. Skipping."
-    end
-
-    module AddIndex
-      def self.included(base) #:nodoc:
-        base.class_eval do
-          alias_method_chain :add_index, :schema_plus
-        end
-      end
-
-      ##
-      # :method: add_index
-      #
-      # SchemaPlus modifies SchemaStatements::add_index so that it ignores
-      # errors raised about add an index that already exists -- i.e. that has
-      # the same index name, same columns, and same options -- and writes a
-      # warning to the log. Some combinations of rails & DB adapter versions
-      # would log such a warning, others would raise an error; with
-      # SchemaPlus all versions log the warning and do not raise the error.
-      #
-      # (This avoids collisions between SchemaPlus's auto index behavior and
-      # legacy explicit add_index statements, for platforms that would raise
-      # an error.)
-      #
-      def add_index_with_schema_plus(table, columns, options={})
-        options.delete(:if_exists) if options # some callers explcitly pass options=nil
-        add_index_without_schema_plus(table, columns, options)
-      rescue => e
-        SchemaStatements.add_index_exception_handler(self, table, columns, options, e)
-      end
-    end
   end
+
 end
