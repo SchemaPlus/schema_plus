@@ -11,13 +11,13 @@ module SchemaMonkey
           end
 
           def add_column_with_schema_monkey(table_name, name, type, options = {})
-            Middleware::Migration::Column.start caller: self, operation: :add, table_name: table_name, name: name, type: type, options: options.dup do |app, env|
+            Middleware::Migration::Column.start caller: self, operation: :add, table_name: table_name, name: name, type: type, options: options.dup do |env|
               add_column_without_schema_monkey env.table_name, env.name, env.type, env.options
             end
           end
 
           def change_column_with_schema_monkey(table_name, name, type, options = {})
-            Middleware::Migration::Column.start caller: self, operation: :change, table_name: table_name, name: name, type: type, options: options.dup do |app, env|
+            Middleware::Migration::Column.start caller: self, operation: :change, table_name: table_name, name: name, type: type, options: options.dup do |env|
               change_column_without_schema_monkey env.table_name, env.name, env.type, env.options
             end
           end
@@ -29,7 +29,7 @@ module SchemaMonkey
             end
           end
           def add_reference_with_schema_monkey(table_name, name, options = {})
-            Middleware::Migration::Column.start caller: self, operation: :add, table_name: table_name, name: name, type: :reference, options: options.dup do |app, env|
+            Middleware::Migration::Column.start caller: self, operation: :add, table_name: table_name, name: name, type: :reference, options: options.dup do |env|
               add_reference_without_schema_monkey env.table_name, env.name, env.options
             end
           end
@@ -45,7 +45,7 @@ module SchemaMonkey
                 options = column_names
                 column_names = nil
             end
-            Middleware::Migration::Index.start caller: self, operation: :add, table_name: table_name, column_names: column_names, options: options.dup do |app, env|
+            Middleware::Migration::Index.start caller: self, operation: :add, table_name: table_name, column_names: column_names, options: options.dup do |env|
               add_index_without_schema_monkey env.table_name, env.column_names, env.options
             end
           end

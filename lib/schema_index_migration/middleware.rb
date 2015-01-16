@@ -3,7 +3,7 @@ module SchemaIndexMigration
     def self.insert
       SchemaMonkey::Middleware::Migration::Column.prepend Migration::IndexShortcuts
       SchemaMonkey::Middleware::Migration::Index.prepend Migration::NormalizeArgs
-      SchemaMonkey::Middleware::Migration::Index.precede Migration::IgnoreDuplicates
+      SchemaMonkey::Middleware::Migration::Index.append Migration::IgnoreDuplicates
       SchemaMonkey::Middleware::Dumper::Table.append Dumper::InlineIndexes
     end
   end

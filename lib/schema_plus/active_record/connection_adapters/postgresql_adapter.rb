@@ -10,7 +10,7 @@ module SchemaPlus
           base.class_eval do
             alias_method_chain :rename_table, :schema_plus
           end
-          SchemaMonkey::Middleware::Migration::Index.precede Middleware::Migration::PostgresqlIndex
+          SchemaMonkey::Middleware::Migration::Index.append Middleware::Migration::PostgresqlIndex
         end
 
 

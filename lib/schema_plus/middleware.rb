@@ -7,7 +7,7 @@ module SchemaPlus
 
     module Migration
       def self.insert
-        SchemaMonkey::Middleware::Migration::Column.precede HandleColumn
+        SchemaMonkey::Middleware::Migration::Column.append HandleColumn
       end
       class HandleColumn < SchemaMonkey::Middleware::Base
         def call(env)

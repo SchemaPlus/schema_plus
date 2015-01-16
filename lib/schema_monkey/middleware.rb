@@ -16,9 +16,6 @@ module SchemaMonkey
           use Root
         end
       end
-      def insert(*args)
-        stack.insert(*args)
-      end
 
       def insert_before(*args)
         stack.insert_before(*args)
@@ -29,15 +26,11 @@ module SchemaMonkey
       end
 
       def append(*args)
-        stack.use(*args)
+        stack.insert_before(Root, *args)
       end
 
       def prepend(*args)
         stack.insert(0, *args)
-      end
-
-      def precede(*args)
-        stack.insert_before(Root, *args)
       end
 
       def start(*args, &block)
@@ -48,7 +41,7 @@ module SchemaMonkey
 
       class Root < Base
         def call(env)
-          env.instance_variable_get('@root').call(@app, env)
+          env.instance_variable_get('@root').call(env)
         end
       end
     end

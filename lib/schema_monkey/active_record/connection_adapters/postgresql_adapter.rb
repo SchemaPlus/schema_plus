@@ -13,7 +13,7 @@ module SchemaMonkey
         end
 
         def exec_cache_with_schema_monkey(sql, name, binds)
-          Middleware::Query::ExecCache.start adapter: self, sql: sql, name: name, binds: binds do |app, env|
+          Middleware::Query::ExecCache.start adapter: self, sql: sql, name: name, binds: binds do |env|
             exec_cache_without_schema_monkey(env.sql, env.name, env.binds)
           end
         end

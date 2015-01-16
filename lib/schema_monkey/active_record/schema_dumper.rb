@@ -116,23 +116,21 @@ module SchemaMonkey
       end
 
       def extensions_with_schema_monkey(_)
-        Middleware::Dumper::Extensions.start dumper: self, connection: @connection, extensions: @dump.extensions do |app, env|
+        Middleware::Dumper::Extensions.start dumper: self, connection: @connection, extensions: @dump.extensions do |env|
           stream = StringIO.new
           extensions_without_schema_monkey(stream)
-          env.extensions << stream.string unless stream.string.blank?
-          app.call env
+          @dump.extensions << stream.string unless stream.string.blank?
         end
       end
 
       def tables_with_schema_monkey(_)
-        Middleware::Dumper::Tables.start dumper: self, connection: @connection, dump: @dump do |app, env|
+        Middleware::Dumper::Tables.start dumper: self, connection: @connection, dump: @dump do |env|
           tables_without_schema_monkey(nil)
-          app.call env
         end
       end
 
       def table_with_schema_monkey(table, _)
-        Middleware::Dumper::Table.start dumper: self, connection: @connection, dump: @dump, table: @dump.tables[table] = Dump::Table.new(name: table) do |app, env|
+        Middleware::Dumper::Table.start dumper: self, connection: @connection, dump: @dump, table: @dump.tables[table] = Dump::Table.new(name: table) do |env|
           stream = StringIO.new
           table_without_schema_monkey(env.table.name, stream)
           m = stream.string.match %r{
@@ -161,7 +159,6 @@ module SchemaMonkey
             }x
             Dump::Table::Column.new(name: m[:name], type: m[:type], options: m[:options])
           }
-          app.call env
         end
       end
     end
