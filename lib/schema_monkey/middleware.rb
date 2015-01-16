@@ -53,7 +53,7 @@ module SchemaMonkey
 
       module Column
         extend Stack
-        Env = KeyStruct[:operation, :caller, :name, :type, :options]
+        Env = KeyStruct[:operation, :caller, :table_name, :name, :type, :options]
       end
 
       module ColumnOptionsSql

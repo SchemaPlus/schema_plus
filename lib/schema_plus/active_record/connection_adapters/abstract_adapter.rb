@@ -12,14 +12,7 @@ module SchemaPlus
       #
       module AbstractAdapter
         def self.included(base) #:nodoc:
-          base.alias_method_chain :initialize, :schema_plus
           base.alias_method_chain :remove_index, :schema_plus
-        end
-
-        def initialize_with_schema_plus(*args) #:nodoc:
-          initialize_without_schema_plus(*args)
-
-          extend(SchemaPlus::ActiveRecord::ForeignKeys)
         end
 
         # Define a foreign key constraint.  Valid options are :on_update,

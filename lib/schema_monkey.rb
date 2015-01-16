@@ -4,6 +4,7 @@ require 'key_struct'
 require_relative "schema_monkey/middleware"
 require_relative "schema_monkey/active_record/connection_adapters/abstract_adapter"
 require_relative "schema_monkey/active_record/connection_adapters/table_definition"
+require_relative 'schema_monkey/active_record/connection_adapters/schema_statements'
 require_relative 'schema_monkey/active_record/schema_dumper'
 require_relative 'schema_monkey/railtie' if defined?(Rails::Railtie)
 
@@ -12,15 +13,16 @@ module SchemaMonkey
   module ActiveRecord
     module ConnectionAdapters
       autoload :PostgresqlAdapter, 'schema_monkey/active_record/connection_adapters/postgresql_adapter'
+      autoload :MysqlAdapter, 'schema_monkey/active_record/connection_adapters/mysql_adapter'
+      autoload :Sqlite3Adapter, 'schema_monkey/active_record/connection_adapters/sqlite3_adapter'
     end
   end
 
   def self.insert
     include_adapters(::ActiveRecord::ConnectionAdapters::AbstractAdapter, :AbstractAdapter)
-    patch ::ActiveRecord::SchemaDumper, self
-    patch ::ActiveRecord::ConnectionAdapters::TableDefinition, self
-    patch ::ActiveRecord::ConnectionAdapters::AbstractAdapter::SchemaCreation, self
-    # patch ::ActiveRecord::ConnectionAdapters::AbstractAdapter::SchemaStatements, self
+    patch ::ActiveRecord::SchemaDumper
+    patch ::ActiveRecord::ConnectionAdapters::TableDefinition
+    patch ::ActiveRecord::ConnectionAdapters::AbstractAdapter::SchemaCreation
     insert_modules
     insert_middleware
   end
@@ -64,7 +66,7 @@ module SchemaMonkey
     base.send(:include, mod) unless base.include? mod
   end
 
-  def self.patch(base, mod)
+  def self.patch(base, mod = SchemaMonkey)
     patch = get_const(mod, base)
     raise "#{mod} does not contain a definition of #{base}" unless patch
     include_once(base, patch)

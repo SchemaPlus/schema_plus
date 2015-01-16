@@ -2,10 +2,12 @@ module SchemaMonkey
   module ActiveRecord
     module ConnectionAdapters
       module PostgresqlAdapter
+
         def self.included(base)
           base.class_eval do
             alias_method_chain :exec_cache, :schema_monkey
           end
+          SchemaMonkey.include_once ::ActiveRecord::ConnectionAdapters::PostgreSQL::SchemaStatements, SchemaMonkey::ActiveRecord::ConnectionAdapters::SchemaStatements
         end
 
         def exec_cache_with_schema_monkey(sql, name, binds)

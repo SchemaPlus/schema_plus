@@ -28,11 +28,10 @@ module SchemaMonkey
 
           def add_column_options_with_schema_monkey!(sql, options)
             Middleware::Migration::ColumnOptionsSql.start adapter: self.instance_variable_get('@conn'), sql: sql, options: options, schema_creation: self do |app, env|
-              env.schema_creation.send :add_column_options_without_schema_monkey!, env.sql, env.options
+              add_column_options_without_schema_monkey! env.sql, env.options
             end
           end
         end
-
       end
     end
   end

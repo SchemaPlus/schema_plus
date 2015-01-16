@@ -11,7 +11,6 @@ require 'schema_views'
 require 'schema_plus/version'
 require 'schema_plus/active_record/base'
 require 'schema_plus/active_record/column_options_handler'
-require 'schema_plus/active_record/foreign_keys'
 require 'schema_plus/active_record/connection_adapters/abstract_adapter'
 require 'schema_plus/active_record/connection_adapters/table_definition'
 require 'schema_plus/active_record/connection_adapters/schema_statements'
@@ -132,6 +131,7 @@ module SchemaPlus
     ::ActiveRecord::Migration::CommandRecorder.send(:include, SchemaPlus::ActiveRecord::Migration::CommandRecorder)
 
     ::ActiveRecord::ConnectionAdapters::AbstractAdapter::SchemaCreation.send(:include, SchemaPlus::ActiveRecord::ConnectionAdapters::AbstractAdapter::VisitTableDefinition)
+    ::ActiveRecord::ConnectionAdapters::AbstractAdapter.send(:include, SchemaPlus::ActiveRecord::ColumnOptionsHandler)
 
     require 'active_record/connection_adapters/abstract_mysql_adapter'
     ::ActiveRecord::ConnectionAdapters::AbstractMysqlAdapter::SchemaCreation.send(:include, SchemaPlus::ActiveRecord::ConnectionAdapters::AbstractAdapter::VisitTableDefinition)
