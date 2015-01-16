@@ -1,4 +1,4 @@
-module SchemaIndexMigration
+module SchemaIndexPlus
   module Middleware
     def self.insert
       SchemaMonkey::Middleware::Migration::Column.prepend Migration::IndexShortcuts

@@ -4,7 +4,7 @@ require 'valuable'
 require 'schema_monkey'
 require 'schema_db_default'
 require 'schema_default_expr'
-require 'schema_index_migration'
+require 'schema_index_plus'
 require 'schema_pg_enums'
 require 'schema_views'
 
