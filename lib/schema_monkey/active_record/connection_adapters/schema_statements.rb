@@ -2,6 +2,33 @@ module SchemaMonkey
   module ActiveRecord
     module ConnectionAdapters
       module SchemaStatements
+
+        #
+        # The hooks at the top level of this module are for the base class, which are not overriden by
+        # any specific adapters in AR.
+        #
+        def self.included(base)
+          base.class_eval do
+            alias_method_chain :add_index_options, :schema_monkey
+          end
+        end
+
+        def add_index_options_with_schema_monkey(table_name, column_names, options={})
+          cache = []
+          Middleware::Migration::IndexComponentsSql.start adapter: self, table_name: table_name, column_names: Array.wrap(column_names), options: options.dup do |env|
+            cache << env
+            env.sql.name, env.sql.type, env.sql.columns, env.sql.options, env.sql.algorithm, env.sql.using = add_index_options_without_schema_monkey(env.table_name, env.column_names, env.options)
+          end
+          env = cache[0]
+          [env.sql.name, env.sql.type, env.sql.columns, env.sql.options, env.sql.algorithm, env.sql.using]
+        end
+
+        #
+        # The hooks below here are grouped into modules.  Different
+        # connection adapters define this methods in different places, so
+        # each will include the hooks into the appropriate class
+        #
+
         module Column
           def self.included(base)
             base.class_eval do
@@ -22,6 +49,7 @@ module SchemaMonkey
             end
           end
         end
+
         module Reference
           def self.included(base)
             base.class_eval do
@@ -34,6 +62,7 @@ module SchemaMonkey
             end
           end
         end
+
         module Index
           def self.included(base)
             base.class_eval do
@@ -50,6 +79,7 @@ module SchemaMonkey
             end
           end
         end
+
       end
     end
   end

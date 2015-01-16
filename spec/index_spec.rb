@@ -80,29 +80,29 @@ describe "index" do
     context "extra features", :postgresql => :only do
 
       it "should assign conditions" do
-        add_index(:users, :login, :conditions => 'deleted_at IS NULL')
-        expect(index_for(:login).conditions).to eq('(deleted_at IS NULL)')
+        add_index(:users, :login, :where => 'deleted_at IS NULL')
+        expect(index_for(:login).where).to eq('(deleted_at IS NULL)')
       end
 
-      it "should assign expression, conditions and kind" do
+      it "should assign expression, conditions and using" do
         add_index(:users, :expression => "USING hash (upper(login)) WHERE deleted_at IS NULL", :name => 'users_login_index')
         @index = User.indexes.detect { |i| i.expression.present? }
         expect(@index.expression).to eq("upper((login)::text)")
-        expect(@index.conditions).to eq("(deleted_at IS NULL)")
-        expect(@index.kind).to       eq("hash")
+        expect(@index.where).to eq("(deleted_at IS NULL)")
+        expect(@index.using).to       eq("hash")
       end
 
-      it "should allow to specify expression, conditions and kind separately" do
-        add_index(:users, :kind => "hash", :expression => "upper(login)", :conditions => "deleted_at IS NULL", :name => 'users_login_index')
+      it "should allow to specify expression, conditions and using separately" do
+        add_index(:users, :using => "hash", :expression => "upper(login)", :where => "deleted_at IS NULL", :name => 'users_login_index')
         @index = User.indexes.detect { |i| i.expression.present? }
         expect(@index.expression).to eq("upper((login)::text)")
-        expect(@index.conditions).to eq("(deleted_at IS NULL)")
-        expect(@index.kind).to       eq("hash")
+        expect(@index.where).to eq("(deleted_at IS NULL)")
+        expect(@index.using).to eq("hash")
       end
 
-      it "should allow to specify kind" do
-        add_index(:users, :login, :kind => "hash")
-        expect(index_for(:login).kind).to eq('hash')
+      it "should allow to specify using" do
+        add_index(:users, :login, :using => "hash")
+        expect(index_for(:login).using).to eq('hash')
       end
 
       it "should assign operator_class" do
@@ -126,11 +126,11 @@ describe "index" do
       end
 
       it "should raise if expression without name is given" do
-        expect { add_index(:users, :expression => "USING btree (login)") }.to raise_error(ArgumentError, /name/)
+        expect { add_index(:users, :expression => "upper(login)") }.to raise_error(ArgumentError, /name/)
       end
 
       it "should raise if expression is given and case_sensitive is false" do
-        expect { add_index(:users, :name => 'users_login_index', :expression => "USING btree (login)", :case_sensitive => false) }.to raise_error(ArgumentError, /use LOWER/i)
+        expect { add_index(:users, :name => 'users_login_index', :expression => "upper(login)", :case_sensitive => false) }.to raise_error(ArgumentError, /use LOWER/i)
       end
 
     end

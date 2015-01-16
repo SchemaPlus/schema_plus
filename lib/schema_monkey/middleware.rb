@@ -60,11 +60,6 @@ module SchemaMonkey
         Env = KeyStruct[:caller, :operation, :table_name, :name, :type, :options]
       end
 
-      module Index
-        extend Stack
-        Env = KeyStruct[:caller, :operation, :table_name, :column_names, :options]
-      end
-
       module ColumnOptionsSql
         extend Stack
         class Env < KeyStruct[:adapter, :sql, :options, :schema_creation]
@@ -73,6 +68,18 @@ module SchemaMonkey
           end
         end
       end
+
+      module Index
+        extend Stack
+        Env = KeyStruct[:caller, :operation, :table_name, :column_names, :options]
+      end
+
+      module IndexComponentsSql
+        extend Stack
+        Sql = KeyStruct[:name, :type, :columns, :options, :algorithm, :using]
+        Env = KeyStruct[:adapter, :table_name, :column_names, :options, sql: Sql.new]
+      end
+
     end
 
     module Dumper

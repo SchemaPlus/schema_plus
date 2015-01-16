@@ -162,15 +162,15 @@ describe "Schema dump" do
       end
     end
 
-    it "should define conditions" do
-      with_index Post, :user_id, :name => "posts_user_id_index", :conditions => "user_id IS NOT NULL" do
-        expect(dump_posts).to match(to_regexp(%q{t.index ["user_id"], :name => "posts_user_id_index", :conditions => "(user_id IS NOT NULL)"}))
+    it "should define where" do
+      with_index Post, :user_id, :name => "posts_user_id_index", :where => "user_id IS NOT NULL" do
+        expect(dump_posts).to match(to_regexp(%q{t.index ["user_id"], :name => "posts_user_id_index", :where => "(user_id IS NOT NULL)"}))
       end
     end
 
     it "should define expression" do
       with_index Post, :name => "posts_freaky_index", :expression => "USING hash (least(id, user_id))" do
-        expect(dump_posts).to match(to_regexp(%q{t.index :name => "posts_freaky_index", :kind => "hash", :expression => "LEAST(id, user_id)"}))
+        expect(dump_posts).to match(to_regexp(%q{t.index :name => "posts_freaky_index", :using => "hash", :expression => "LEAST(id, user_id)"}))
       end
     end
 
@@ -193,16 +193,15 @@ describe "Schema dump" do
       end
     end
 
-
-    it "should define kind" do
+    it "should define using" do
       with_index Post, :name => "posts_body_index", :expression => "USING hash (body)" do
-        expect(dump_posts).to match(to_regexp(%q{t.index ["body"], :name => "posts_body_index", :kind => "hash"}))
+        expect(dump_posts).to match(to_regexp(%q{t.index ["body"], :name => "posts_body_index", :using => "hash"}))
       end
     end
 
     it "should not include index order for non-ordered index types" do
-      with_index Post, :user_id, :kind => :hash do
-        expect(dump_posts).to match(to_regexp(%q{t.index ["user_id"], :name => "index_posts_on_user_id", :kind => "hash"}))
+      with_index Post, :user_id, :using => :hash do
+        expect(dump_posts).to match(to_regexp(%q{t.index ["user_id"], :name => "index_posts_on_user_id", :using => "hash"}))
         expect(dump_posts).not_to match(%r{:order})
       end
     end

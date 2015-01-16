@@ -52,15 +52,6 @@ describe "Index definition" do
 
   end
 
-  it "should correctly report supports_partial_indexes?" do
-    query = lambda { migration.execute "CREATE INDEX users_login_index ON users(login) WHERE deleted_at IS NULL" }
-    if migration.supports_partial_indexes?
-      expect(query).not_to raise_error
-    else
-      expect(query).to raise_error
-    end
-  end
-
   it "should not crash on equality test with nil" do
     index = ActiveRecord::ConnectionAdapters::IndexDefinition.new(:table, :column)
     expect{index == nil}.to_not raise_error
@@ -115,14 +106,14 @@ describe "Index definition" do
       expect(@index.expression).to eq("lower((login)::text)")
     end
 
-    it "doesn't define conditions" do
-      expect(@index.conditions).to be_nil
+    it "doesn't define where" do
+      expect(@index.where).to be_nil
     end
 
   end
 
 
-  context "when index is partial" do
+  context "when index is partial", :mysql => :skip do
     before(:each) do
       migration.execute "CREATE INDEX users_login_index ON users(login) WHERE deleted_at IS NULL"
       User.reset_column_information
@@ -141,11 +132,11 @@ describe "Index definition" do
       expect(@index.expression).to be_nil
     end
 
-    it "defines conditions" do
-      expect(@index.conditions).to match %r{[(]?deleted_at IS NULL[)]?}
+    it "defines where" do
+      expect(@index.where).to match %r{[(]?deleted_at IS NULL[)]?}
     end
 
-  end if ::ActiveRecord::Migration.supports_partial_indexes?
+  end
 
   context "when index contains expression", :postgresql => :only do
     before(:each) do
@@ -170,8 +161,8 @@ describe "Index definition" do
       expect(@index.expression).to eq("date_part('epoch'::text, deleted_at)")
     end
 
-    it "defines conditions" do
-      expect(@index.conditions).to eq("(deleted_at IS NULL)")
+    it "defines where" do
+      expect(@index.where).to eq("(deleted_at IS NULL)")
     end
 
   end
@@ -187,8 +178,8 @@ describe "Index definition" do
       expect(@index).not_to be_nil
     end
 
-    it "defines kind" do
-      expect(@index.kind).to eq("hash")
+    it "defines using" do
+      expect(@index.using).to eq("hash")
     end
 
     it "does not define expression" do

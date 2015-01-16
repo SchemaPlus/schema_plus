@@ -2,74 +2,6 @@ module SchemaIndexPlus
   module ActiveRecord
     module ConnectionAdapters
       module PostgresqlAdapter
-
-        def supports_partial_indexes? #:nodoc:
-          true
-        end
-
-        
-        # SchemaPlus provides the following extra options for PostgreSQL
-        # indexes:
-        # * +:conditions+ - SQL conditions for the WHERE clause of the index
-        # * +:expression+ - SQL expression to index.  column_name can be nil or ommitted, in which case :name must be provided
-        # * +:kind+ - index method for Postgresql to use
-        # * +:operator_class+ - an operator class name or a hash mapping column name to operator class name
-        # * +:case_sensitive - setting to +false+ is a shorthand for :expression => 'LOWER(column_name)'
-        #
-        # The <tt>:case_sensitive => false</tt> option ties in with Rails built-in support for case-insensitive searching:
-        #    validates_uniqueness_of :name, :case_sensitive => false
-        #
-        # Since since <tt>:case_sensitive => false</tt> is implemented by
-        # using <tt>:expression</tt>, this raises an ArgumentError if both
-        # are specified simultaneously.
-        #
-        def add_index_plus(table_name, column_names, options = {})
-          if column_names.empty?
-            raise ArgumentError, "No columns and :expression missing from options - cannot create index" unless options[:expression]
-            raise ArgumentError, "Index name not given. Pass :name option" unless options[:name]
-          end
-
-          index_type = options[:unique] ? "UNIQUE" : ""
-          index_name = options[:name] || index_name(table_name, column_names)
-          conditions = options[:conditions]
-          kind       = options[:kind]
-          operator_classes = options[:operator_class]
-          if operator_classes and not operator_classes.is_a? Hash
-            operator_classes = Hash[column_names.map {|name| [name, operator_classes]}]
-          end
-
-          if expression = options[:expression] then
-            raise ArgumentError, "Cannot specify :case_sensitive => false with an expression.  Use LOWER(column_name)" if options[:case_sensitive] == false
-            # Wrap expression in parentheses if necessary
-            expression = "(#{expression})" if expression !~ /(using|with|tablespace|where)/i
-            expression = "USING #{kind} #{expression}" if kind
-            expression = "#{expression} WHERE #{conditions}" if conditions
-
-            sql = "CREATE #{index_type} INDEX #{quote_column_name(index_name)} ON #{quote_table_name(table_name)} #{expression}"
-          else
-            option_strings = Hash[column_names.map {|name| [name, '']}]
-            (operator_classes||{}).stringify_keys.each do |column, opclass|
-              option_strings[column] += " #{opclass}" if opclass
-            end
-            option_strings = add_index_sort_order(option_strings, column_names, options)
-
-            if options[:case_sensitive] == false
-              caseable_columns = columns(table_name).select { |col| [:string, :text].include?(col.type) }.map(&:name)
-              quoted_column_names = column_names.map do |col_name|
-                (caseable_columns.include?(col_name.to_s) ? "LOWER(#{quote_column_name(col_name)})" : quote_column_name(col_name)) + option_strings[col_name]
-              end
-            else
-              quoted_column_names = column_names.map { |col_name| quote_column_name(col_name) + option_strings[col_name] }
-            end
-
-            expression = "(#{quoted_column_names.join(', ')})"
-            expression = "USING #{kind} #{expression}" if kind
-
-            sql = "CREATE #{index_type} INDEX #{quote_column_name(index_name)} ON #{quote_table_name(table_name)} #{expression}"
-            sql += " WHERE (#{ ::ActiveRecord::Base.send(:sanitize_sql, conditions, quote_table_name(table_name)) })" if conditions
-          end
-          execute sql
-        end
         
         # This method entirely duplicated from AR's postgresql_adapter.c,
         # but includes the extra bit to determine the column name for a
@@ -152,9 +84,9 @@ module SchemaIndexPlus
                                                                     :name => index_name,
                                                                     :unique => unique,
                                                                     :orders => orders,
-                                                                    :conditions => conditions,
+                                                                    :where => conditions,
                                                                     :case_sensitive => case_sensitive,
-                                                                    :kind => kind.downcase == "btree" ? nil : kind,
+                                                                    :using => kind.downcase == "btree" ? nil : kind,
                                                                     :operator_classes => operator_classes,
                                                                     :expression => expression)
           end

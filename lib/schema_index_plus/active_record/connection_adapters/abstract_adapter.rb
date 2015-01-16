@@ -7,12 +7,6 @@ module SchemaIndexPlus
           base.alias_method_chain :remove_index, :schema_plus
         end
         
-        # Returns true if the database supports parital indexes (abstract; only
-        # Postgresql returns true)
-        def supports_partial_indexes?
-          false
-        end
-        
         # Extends rails' remove_index to include this options:
         #   :if_exists
         def remove_index_with_schema_plus(table_name, *args)

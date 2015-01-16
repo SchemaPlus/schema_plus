@@ -20,10 +20,11 @@ module SchemaMonkey
   end
 
   def self.insert
-    patch ::ActiveRecord::SchemaDumper
-    patch ::ActiveRecord::ConnectionAdapters::TableDefinition
     patch ::ActiveRecord::ConnectionAdapters::AbstractAdapter::SchemaCreation
+    patch ::ActiveRecord::ConnectionAdapters::SchemaStatements
+    patch ::ActiveRecord::ConnectionAdapters::TableDefinition
     patch ::ActiveRecord::Migration::CommandRecorder
+    patch ::ActiveRecord::SchemaDumper
     include_adapters(::ActiveRecord::ConnectionAdapters::AbstractAdapter, :AbstractAdapter)
     insert_modules
     insert_middleware
