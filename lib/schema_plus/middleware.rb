@@ -10,11 +10,9 @@ module SchemaPlus
         SchemaMonkey::Middleware::Migration::Column.insert 0, HandleColumn
       end
       class HandleColumn < SchemaMonkey::Middleware::Base
-        include SchemaPlus::ActiveRecord::ColumnOptionsHandler
         def call(env)
           options = env.options
 
-          schema_plus_normalize_column_options(options)
           options[:references] = nil if options[:polymorphic]
 
           # prevent AR from seeing :index => false as a request for an index
