@@ -8,18 +8,10 @@ module SchemaPlus
 
         def self.included(base) #:nodoc:
           base.class_eval do
-            alias_method_chain :add_column, :schema_plus
             alias_method_chain :add_reference, :schema_plus
             alias_method_chain :invert_add_index, :schema_plus
             alias_method_chain :invert_add_foreign_key, :schema_plus
           end
-        end
-
-        def add_column_with_schema_plus(table_name, name, type, options = {}) #:nodoc:
-          schema_plus_normalize_column_options(options)
-          add_column_without_schema_plus(table_name, name, type, options)
-          revertable_schema_plus_handle_column_options(table_name, name, options, :config => schema_plus_config)
-          self
         end
 
         # seems like this is fixing a rails bug:

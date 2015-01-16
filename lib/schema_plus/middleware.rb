@@ -29,7 +29,11 @@ module SchemaPlus
           else
             @app.call env
             options[:index] = false if noindex
-            env.caller.schema_plus_handle_column_options(env.table_name, env.name, env.options, :config => env.caller.try(:schema_plus_config))
+            handler = case env.operation
+                      when :record then :revertable_schema_plus_handle_column_options
+                      else :schema_plus_handle_column_options
+                      end
+            env.caller.send handler, env.table_name, env.name, env.options, :config => env.caller.try(:schema_plus_config)
           end
         end
       end

@@ -5,6 +5,7 @@ require_relative "schema_monkey/middleware"
 require_relative "schema_monkey/active_record/connection_adapters/abstract_adapter"
 require_relative "schema_monkey/active_record/connection_adapters/table_definition"
 require_relative 'schema_monkey/active_record/connection_adapters/schema_statements'
+require_relative 'schema_monkey/active_record/migration/command_recorder'
 require_relative 'schema_monkey/active_record/schema_dumper'
 require_relative 'schema_monkey/railtie' if defined?(Rails::Railtie)
 
@@ -19,10 +20,11 @@ module SchemaMonkey
   end
 
   def self.insert
-    include_adapters(::ActiveRecord::ConnectionAdapters::AbstractAdapter, :AbstractAdapter)
     patch ::ActiveRecord::SchemaDumper
     patch ::ActiveRecord::ConnectionAdapters::TableDefinition
     patch ::ActiveRecord::ConnectionAdapters::AbstractAdapter::SchemaCreation
+    patch ::ActiveRecord::Migration::CommandRecorder
+    include_adapters(::ActiveRecord::ConnectionAdapters::AbstractAdapter, :AbstractAdapter)
     insert_modules
     insert_middleware
   end
