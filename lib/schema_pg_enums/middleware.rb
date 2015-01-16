@@ -2,13 +2,13 @@ module SchemaPgEnums
   module Middleware
     module PostgresqlAdapter
       def self.insert
-        SchemaMonkey::Middleware::Dumper::Extensions.use CreateEnums
+        SchemaMonkey::Middleware::Dumper::Extensions.append CreateEnums
       end
     end
 
     class CreateEnums < SchemaMonkey::Middleware::Base
       def call(env)
-        @app.call env
+        continue env
 
         env.connection.enums.each do |schema, name, values|
           params = [name.inspect]

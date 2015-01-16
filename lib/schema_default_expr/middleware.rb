@@ -1,8 +1,8 @@
 module SchemaDefaultExpr
   module Middleware
     def self.insert
-      SchemaMonkey::Middleware::Migration::ColumnOptionsSql.insert(0, DefaultExprOptions)
-      SchemaMonkey::Middleware::Dumper::Table.use DumpDefaultExpressions
+      SchemaMonkey::Middleware::Migration::ColumnOptionsSql.prepend DefaultExprOptions
+      SchemaMonkey::Middleware::Dumper::Table.append DumpDefaultExpressions
     end
 
     class DefaultExprOptions < ::SchemaMonkey::Middleware::Base
@@ -32,13 +32,13 @@ module SchemaDefaultExpr
             options[:default] = value
           end
         end
-        @app.call env
+        continue env
       end
     end
 
     class DumpDefaultExpressions < SchemaMonkey::Middleware::Base
       def call(env)
-        @app.call env
+        continue env
         env.connection.columns(env.table.name).each do |column|
           if !column.default_function.nil?
             if col = env.table.columns.find{|col| col.name == column.name}

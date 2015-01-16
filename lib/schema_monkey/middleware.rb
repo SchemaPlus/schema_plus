@@ -5,6 +5,9 @@ module SchemaMonkey
       def initialize(app)
         @app = app
       end
+      def continue(env)
+        @app.call env
+      end
     end
 
     module Stack
@@ -25,8 +28,12 @@ module SchemaMonkey
         stack.insert_after(*args)
       end
 
-      def use(*args)
+      def append(*args)
         stack.use(*args)
+      end
+
+      def prepend(*args)
+        stack.insert(0, *args)
       end
 
       def start(*args, &block)

@@ -1,7 +1,7 @@
 module SchemaViews
   module Middleware
     def self.insert
-        SchemaMonkey::Middleware::Dumper::Tables.insert 0, DumpViews
+        SchemaMonkey::Middleware::Dumper::Tables.prepend DumpViews
     end
   end
 
@@ -15,7 +15,7 @@ module SchemaViews
     end
 
     def call(env)
-      @app.call env
+      continue env
 
       re_view_referent = %r{(?:(?i)FROM|JOIN) \S*\b(\S+)\b}
       env.connection.views.each do |view_name|

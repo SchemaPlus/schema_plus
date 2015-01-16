@@ -7,7 +7,7 @@ module SchemaPlus
 
     module Migration
       def self.insert
-        SchemaMonkey::Middleware::Migration::Column.insert 0, HandleColumn
+        SchemaMonkey::Middleware::Migration::Column.prepend HandleColumn
       end
       class HandleColumn < SchemaMonkey::Middleware::Base
         def call(env)
@@ -23,9 +23,9 @@ module SchemaPlus
           if [:references, :belongs_to].include?(env.type)
             # usurp index creation from AR
             options[:_index] = options.delete(:index) unless options[:polymorphic]
-            @app.call env
+            continue env
           else
-            @app.call env
+            continue env
             options[:index] = false if noindex
             handler = case env.operation
                       when :record then :revertable_schema_plus_handle_column_options
@@ -39,9 +39,9 @@ module SchemaPlus
 
     module Dumper
       def self.insert
-        SchemaMonkey::Middleware::Dumper::Tables.insert 0, FkDependencies
-        SchemaMonkey::Middleware::Dumper::Tables.use IgnoreActiveRecordFkDumps
-        SchemaMonkey::Middleware::Dumper::Table.use ForeignKeys
+        SchemaMonkey::Middleware::Dumper::Tables.prepend FkDependencies
+        SchemaMonkey::Middleware::Dumper::Tables.append IgnoreActiveRecordFkDumps
+        SchemaMonkey::Middleware::Dumper::Table.append ForeignKeys
       end
 
       # index and foreign key constraint definitions are dumped
@@ -76,7 +76,7 @@ module SchemaPlus
           env.dump.data.inline_fks = @inline_fks
           env.dump.data.backref_fks = @backref_fks
 
-          @app.call env
+          continue env
         end
 
         def break_fk_cycles(env) #:nodoc:
@@ -95,7 +95,7 @@ module SchemaPlus
       class IgnoreActiveRecordFkDumps < SchemaMonkey::Middleware::Base
         # Ignore the foreign key dumps at the end of the schema; we'll put them in/near their tables
         def call(env)
-          @app.call env
+          continue env
           env.dump.foreign_keys = []
         end
       end
@@ -105,7 +105,7 @@ module SchemaPlus
       #
       class ForeignKeys < SchemaMonkey::Middleware::Base
         def call(env)
-          @app.call env
+          continue env
           env.table.statements += env.dump.data.inline_fks[env.table.name].map { |foreign_key|
             foreign_key.to_dump(inline: true)
           }.sort

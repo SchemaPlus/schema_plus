@@ -1,8 +1,8 @@
 module SchemaIndexMigration
   module Middleware
     def self.insert
-      SchemaMonkey::Middleware::Migration::Column.insert 0, Migration::IndexShortcuts
-      SchemaMonkey::Middleware::Dumper::Table.use Dumper::InlineIndexes
+      SchemaMonkey::Middleware::Migration::Column.prepend Migration::IndexShortcuts
+      SchemaMonkey::Middleware::Dumper::Table.append Dumper::InlineIndexes
     end
   end
 
@@ -20,7 +20,7 @@ module SchemaIndexMigration
             end
           end
         end
-        @app.call env
+        continue env
       end
     end
   end
@@ -28,7 +28,7 @@ module SchemaIndexMigration
   module Dumper
     class InlineIndexes < SchemaMonkey::Middleware::Base
       def call(env)
-        @app.call env
+        continue env
         # we'll put the index definitions inline
         env.table.trailer.reject!{ |s| s =~ /^\s*add_index\b/ }
 

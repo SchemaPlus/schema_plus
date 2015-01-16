@@ -2,7 +2,7 @@ module SchemaDbDefault
   module Middleware
     module PostgresqlAdapter
       def self.insert
-        SchemaMonkey::Middleware::Query::ExecCache.insert(0, BindDbDefault)
+        SchemaMonkey::Middleware::Query::ExecCache.prepend BindDbDefault
       end
     end
 
@@ -23,7 +23,7 @@ module SchemaDbDefault
           end
           env.binds = env.binds.reject{|col, val| val.equal? ::ActiveRecord::DB_DEFAULT}
         end
-        @app.call(env)
+        continue env
       end
     end
   end
