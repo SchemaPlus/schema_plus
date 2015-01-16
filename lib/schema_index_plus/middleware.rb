@@ -3,7 +3,8 @@ module SchemaIndexPlus
     def self.insert
       SchemaMonkey::Middleware::Migration::Column.prepend Migration::IndexShortcuts
       SchemaMonkey::Middleware::Migration::Index.prepend Migration::NormalizeArgs
-      SchemaMonkey::Middleware::Migration::Index.append Migration::IgnoreDuplicates
+      SchemaMonkey::Middleware::Migration::Index.prepend Migration::IgnoreDuplicates
+      SchemaMonkey::Middleware::Migration::Index.append Migration::EnhancedFeatures
       SchemaMonkey::Middleware::Dumper::Table.append Dumper::InlineIndexes
     end
   end
@@ -53,6 +54,17 @@ module SchemaIndexPlus
         attempted = ::ActiveRecord::ConnectionAdapters::IndexDefinition.new(env.table_name, env.column_names, env.options.merge(:name => name))
         raise if attempted != existing
         ::ActiveRecord::Base.logger.warn "[schema_plus] Index name #{name.inspect}' on table #{env.table_name.inspect} already exists. Skipping."
+      end
+    end
+
+    class EnhancedFeatures < SchemaMonkey::Middleware::Base
+      def call(env)
+        if env.caller.respond_to? :add_index_plus
+          env.caller.add_index_plus env.table_name, env.column_names, env.options
+          # do NOT continue, we've added the index ourselves
+        else
+          continue env
+        end
       end
     end
   end

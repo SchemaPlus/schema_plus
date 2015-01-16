@@ -37,16 +37,6 @@ module SchemaPlus
         end
       end
 
-      class PostgresqlIndex < SchemaMonkey::Middleware::Base
-        def call(env)
-          if env.caller.respond_to? :add_index_enhanced
-            env.caller.add_index_enhanced env.table_name, env.column_names, env.options
-            # do NOT continue, we've added the index ourselves
-          else
-            continue env
-          end
-        end
-      end
     end
 
     module Dumper
