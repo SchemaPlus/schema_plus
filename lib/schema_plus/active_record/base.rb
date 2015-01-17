@@ -27,13 +27,7 @@ module SchemaPlus
 
         def reset_column_information_with_schema_plus #:nodoc:
           reset_column_information_without_schema_plus
-          @indexes = @foreign_keys = @schema_plus_extended_columns = nil
-        end
-
-        # Returns a list of IndexDefinition objects, for each index
-        # defind on this model's table.
-        def indexes
-          @indexes ||= connection.indexes(table_name, "#{name} Indexes")
+          @foreign_keys = @schema_plus_extended_columns = nil
         end
 
         # Returns a list of ForeignKeyDefinition objects, for each foreign
