@@ -17,7 +17,6 @@ require 'schema_plus/active_record/connection_adapters/schema_statements'
 require 'schema_plus/active_record/schema'
 require 'schema_plus/active_record/connection_adapters/column'
 require 'schema_plus/active_record/connection_adapters/foreign_key_definition'
-require 'schema_plus/active_record/connection_adapters/index_definition'
 require 'schema_plus/active_record/migration/command_recorder'
 require 'schema_plus/middleware'
 
@@ -125,7 +124,6 @@ module SchemaPlus
     return if @inserted_connection_adapters
     @inserted_connection_adapters = true
     ::ActiveRecord::ConnectionAdapters::Column.send(:include, SchemaPlus::ActiveRecord::ConnectionAdapters::Column)
-    ::ActiveRecord::ConnectionAdapters::IndexDefinition.send(:include, SchemaPlus::ActiveRecord::ConnectionAdapters::IndexDefinition)
     ::ActiveRecord::ConnectionAdapters::SchemaStatements.send(:include, SchemaPlus::ActiveRecord::ConnectionAdapters::SchemaStatements)
     ::ActiveRecord::ConnectionAdapters::TableDefinition.send(:include, SchemaPlus::ActiveRecord::ConnectionAdapters::TableDefinition)
     ::ActiveRecord::Migration::CommandRecorder.send(:include, SchemaPlus::ActiveRecord::Migration::CommandRecorder)
