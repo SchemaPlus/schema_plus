@@ -1,9 +1,5 @@
 module SchemaPlus
   module Middleware
-    def self.insert
-      Migration.insert
-      Dumper.insert
-    end
 
     module Migration
       def self.insert

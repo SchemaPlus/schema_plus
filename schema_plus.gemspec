@@ -25,6 +25,8 @@ Gem::Specification.new do |s|
   s.add_dependency("valuable")
   s.add_dependency("middleware") # for schema_monkey
   s.add_dependency("key_struct") # for schema_monkey
+  s.add_dependency("its-it") # for schema_monkey
+  s.add_dependency("hash_keyword_args") # for schema_monkey
 
   s.add_development_dependency("schema_dev", "~> 1.4")
   s.add_development_dependency("rake")
@@ -32,6 +34,5 @@ Gem::Specification.new do |s|
   s.add_development_dependency("rdoc")
   s.add_development_dependency("simplecov")
   s.add_development_dependency("simplecov-gem-profile")
-  s.add_development_dependency("its-it")
 end
 

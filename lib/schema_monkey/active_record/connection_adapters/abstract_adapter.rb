@@ -10,9 +10,9 @@ module SchemaMonkey
           initialize_without_schema_monkey(*args)
 
           adapter = case adapter_name
-                    when /^MySQL/i                 then 'MysqlAdapter'
-                    when 'PostgreSQL', 'PostGIS'   then 'PostgresqlAdapter'
-                    when 'SQLite'                  then 'Sqlite3Adapter'
+                    when /^MySQL/i                 then :MysqlAdapter
+                    when 'PostgreSQL', 'PostGIS'   then :PostgresqlAdapter
+                    when 'SQLite'                  then :Sqlite3Adapter
                     end
 
           SchemaMonkey.include_adapters(self.class, adapter)
