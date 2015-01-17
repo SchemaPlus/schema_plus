@@ -35,27 +35,6 @@ describe "with multiple schemas" do
           end + ", login varchar(255))"
   end
 
-  context "with indexes in each schema" do
-    before(:each) do
-      connection.execute 'CREATE INDEX ' + case connection.adapter_name
-      when /^mysql/i then      "index_users_on_login ON schema_plus_test2.users"
-      when /^postgresql/i then "index_users_on_login ON schema_plus_test2.users"
-      when /^sqlite/i then     "schema_plus_test2.index_users_on_login ON users"
-      end + " (login)"
-    end
-
-    it "should not find indexes in other schema" do
-      User.reset_column_information
-      expect(User.indexes).to be_empty
-    end
-
-    it "should find index in current schema" do
-      connection.execute 'CREATE INDEX index_users_on_login ON users (login)'
-      User.reset_column_information
-      expect(User.indexes.map(&:name)).to eq(['index_users_on_login'])
-    end
-  end
-
   context "with foreign key in each schema" do
     before(:each) do
       class Comment < ::ActiveRecord::Base ; end
