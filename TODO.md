@@ -21,6 +21,7 @@
 * make middleware for defining a table
 * make a way to insert middleware for just a specific adapter
 * specs for schema_monkey
+* README to document it -- the conventions and internal API
 * (try it on AR 4.1?  nah)
 
 ## general
