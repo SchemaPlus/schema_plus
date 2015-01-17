@@ -19,10 +19,6 @@ module SchemaIndexPlus
               getindex.call()
               index.orders = Hash[index.columns.map {|column| [column, desc_columns.include?(column) ? :desc : :asc]}]
             end
-            #if (conditions = sql.match(/\bWHERE\s+(.*)/i))
-            #  getindex.call()
-            #  index.where = conditions[1]
-            #end
           end
           indexes
         end

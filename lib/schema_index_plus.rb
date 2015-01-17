@@ -2,6 +2,7 @@ require 'schema_monkey'
 
 require_relative 'schema_index_plus/middleware'
 require_relative 'schema_index_plus/active_record/connection_adapters/abstract_adapter'
+require_relative 'schema_index_plus/active_record/base'
 
 module SchemaIndexPlus
   module ActiveRecord
@@ -11,6 +12,11 @@ module SchemaIndexPlus
       autoload :Sqlite3Adapter, 'schema_index_plus/active_record/connection_adapters/sqlite3_adapter'
     end
   end
+
+  def self.insert
+    SchemaMonkey.patch ::ActiveRecord::Base, self
+  end
+
 end
 
 SchemaMonkey.register(SchemaIndexPlus)
