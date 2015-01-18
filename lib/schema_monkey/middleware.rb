@@ -17,20 +17,12 @@ module SchemaMonkey
         end
       end
 
-      def insert_before(*args)
-        stack.insert_before(*args)
+      def append(middleware)
+        stack.insert_before(Root, middleware)
       end
 
-      def insert_after(*args)
-        stack.insert_after(*args)
-      end
-
-      def append(*args)
-        stack.insert_before(Root, *args)
-      end
-
-      def prepend(*args)
-        stack.insert(0, *args)
+      def prepend(middleware)
+        stack.insert(0, middleware)
       end
 
       def start(*args, &block)
