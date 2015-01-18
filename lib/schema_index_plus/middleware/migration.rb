@@ -20,17 +20,14 @@ module SchemaIndexPlus
 
       class NormalizeArgs < SchemaMonkey::Middleware::Base
         def call(env)
-          {:conditions => :warn, :kind => :using}.each do |deprecated, proper|
+          {:conditions => :where, :kind => :using}.each do |deprecated, proper|
             if env.options[deprecated]
               ActiveSupport::Deprecation.warn "ActiveRecord index option #{deprecated.inspect} is deprecated, use #{proper.inspect} instead"
               env.options[proper] = env.options.delete(deprecated)
             end
           end
           [:length, :order].each do |key|
-            case env.options[key]
-            when Symbol then env.options[key] = env.options[key].to_s
-            when Hash then env.options[key].stringify_keys!
-            end
+            env.options[key].stringify_keys! if env.options[key].is_a? Hash
           end
           env.column_names = Array.wrap(env.column_names).map(&:to_s) + Array.wrap(env.options.delete(:with)).map(&:to_s)
           continue env
