@@ -37,7 +37,7 @@ module SchemaMonkey
       return [] unless parent && parent.is_a?(Module)
       modules = []
       modules << parent if opts.and_self
-      modules += parent.constants.map{|c| parent.const_get(c)}.select(&it.is_a?(Module))
+      modules += parent.constants.reject{|c| parent.autoload? c}.map{|c| parent.const_get(c)}.select(&it.is_a?(Module))
       modules.reject! &it.to_s =~ opts.reject if opts.reject
       modules.select! &it.to_s =~ opts.match if opts.match
       modules.select! &it.respond_to?(opts.respond_to) if opts.respond_to
