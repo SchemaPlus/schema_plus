@@ -64,7 +64,6 @@ module SchemaPlus::ActiveRecord::ConnectionAdapters
   #      end
   #
   module TableDefinition
-    include SchemaPlus::ActiveRecord::ColumnOptionsHandler
 
     attr_accessor :schema_plus_config #:nodoc:
 
@@ -77,40 +76,6 @@ module SchemaPlus::ActiveRecord::ConnectionAdapters
       options.reverse_merge!(:name => ForeignKeyDefinition.default_name(self.name, column_names))
       foreign_keys << ForeignKeyDefinition.new(self.name, AbstractAdapter.proper_table_name(references_table_name), options)
       self
-    end
-
-    protected
-    # The only purpose of that method is to provide a consistent intefrace
-    # for ColumnOptionsHandler. First argument (table name) is ignored.
-    def add_index(_, *args) #:nodoc:
-      index(*args)
-    end
-
-    # The only purpose of that method is to provide a consistent intefrace
-    # for ColumnOptionsHandler. First argument (table name) is ignored.
-    def add_foreign_key(_, *args) #:nodoc:
-      foreign_key(*args)
-    end
-
-    # This is a deliberately empty stub.  The reason for it is that
-    # ColumnOptionsHandler is used for changes as well as for table
-    # definitions, and in the case of changes, previously existing foreign
-    # keys sometimes need to be removed.  but in the case here, that of
-    # table definitions, the only reason a foreign key would exist is
-    # because we're redefining a table that already exists (via :force =>
-    # true).  in which case the foreign key will get dropped when the
-    # drop_table gets emitted, so no need to do it immediately.  (and for
-    # sqlite3, attempting to do it immediately would raise an error).
-    def remove_foreign_key(_, *args) #:nodoc:
-    end
-
-    # This is a deliberately empty stub.  The reason for it is that
-    # ColumnOptionsHandler will remove a previous index when changing a
-    # column.  But we don't do column changes within table definitions.
-    # Presumably will be called with :if_exists true.  If not, will raise
-    # an error.
-    def remove_index(_, options)
-      raise "InternalError: remove_index called in a table definition" unless options[:if_exists]
     end
 
   end

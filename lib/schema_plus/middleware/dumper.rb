@@ -1,41 +1,7 @@
 module SchemaPlus
   module Middleware
-
-    module Migration
-      def self.insert
-        SchemaMonkey::Middleware::Migration::Column.append HandleColumn
-      end
-      class HandleColumn < SchemaMonkey::Middleware::Base
-        def call(env)
-          options = env.options
-          original_options = options.dup
-
-          is_reference = (env.type == :reference)
-          is_polymorphic = is_reference && options[:polymorphic]
-
-          # usurp index creation from AR.  That's necessary to make
-          # auto_index work properly
-          index = options.delete(:index) unless is_polymorphic
-          options[:foreign_key] = false if is_reference
-
-          continue env
-
-          return if is_polymorphic
-
-          handler = case env.operation
-                    when :record then :revertable_schema_plus_handle_column_options
-                    else :schema_plus_handle_column_options
-                    end
-
-          column_name = env.name.to_s
-          column_name += "_id" if env.type == :reference
-          env.caller.send handler, env.table_name, column_name, original_options, :config => env.caller.try(:schema_plus_config)
-        end
-      end
-
-    end
-
     module Dumper
+
       def self.insert
         SchemaMonkey::Middleware::Dumper::Tables.prepend FkDependencies
         SchemaMonkey::Middleware::Dumper::Tables.append IgnoreActiveRecordFkDumps

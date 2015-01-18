@@ -9,18 +9,22 @@ module SchemaPlus
 
       class Shortcuts < SchemaMonkey::Middleware::Base
         def call(env)
+          fk_options = env.options[:foreign_key]
 
-          case options = env.options[:foreign_key]
+          case fk_options
           when false then ;
-          when true then env.options[:foreign_key] = {}
+          when true then fk_options = {}
           end
 
-          if env.options[:foreign_key]
+          if fk_options != false # may be nil
             [:references, :on_update, :on_delete, :deferrable].each do |key|
-              env.options[:foreign_key].reverse_merge!(env.options[key]) if env.options.has_key? key
+              (fk_options||={}).reverse_merge!(key => env.options[key]) if env.options.has_key? key
             end
-            env.options[:foreign_key] = false if options.has_key?(:references) and not options[:references]
           end
+
+          fk_options = false if fk_options and fk_options.has_key?(:references) and not fk_options[:references]
+
+          env.options[:foreign_key] = fk_options
 
           continue env
 
@@ -45,25 +49,24 @@ module SchemaPlus
           return if is_polymorphic
 
           env.options = original_options
-          env.name = "#{env.name}_id" if is_reference
 
-          config = (env.caller.try(:schema_plus_config) || SchemaPlus.config).foreign_keys
-
-          case env.operation
-          when :record then revertable_add_foreign_keys_and_auto_index(env, config)
-          else add_foreign_keys_and_auto_index(env, config)
-          end
+          add_foreign_keys_and_auto_index(env)
 
         end
 
-        def add_foreign_keys_and_auto_index(env, config)
+        def add_foreign_keys_and_auto_index(env)
 
+          if (reverting = env.caller.is_a?(::ActiveRecord::Migration::CommandRecorder) && env.caller.reverting)
+            commands_length = env.caller.commands.length
+          end
+
+          config = (env.caller.try(:schema_plus_config) || SchemaPlus.config).foreign_keys
           fk_args = get_fk_args(env, config)
 
-          # remove existing fk and auto-generated index in case of change to existing column
-          if fk_args # includes :none for explicitly off
-            remove_foreign_key_if_exists(table_name, column_name)
-            remove_auto_index_if_exists(table_name, column_name)
+          # remove existing fk and auto-generated index in case of change of fk on existing column
+          if env.operation == :change and fk_args # includes :none for explicitly off
+            remove_foreign_key_if_exists(env)
+            remove_auto_index_if_exists(env)
           end
 
           fk_args = nil if fk_args == :none
@@ -71,42 +74,48 @@ module SchemaPlus
           create_index(env, fk_args, config)
           create_fk(env, fk_args) if fk_args
 
-          if fk_args
-            references = fk_args.delete(:references)
-            add_foreign_key(table_name, column_name, references.first, references.last, fk_args)
+          if reverting
+            rev = []
+            while env.caller.commands.length > commands_length
+              cmd = env.caller.commands.pop
+              rev.unshift cmd unless cmd[0].to_s =~ /^add_/
+            end
+            env.caller.commands.concat rev
           end
 
+        end
+
+        def auto_index_name(env)
+          ActiveRecord::ConnectionAdapters::ForeignKeyDefinition.auto_index_name(env.table_name, env.column_name)
         end
 
         def create_index(env, fk_args, config)
           # create index if requested explicity or implicitly due to auto_index
           index = env.options[:index]
-          if index.nil? and fk_args && config.auto_index?
-            index = { :name => ActiveRecord::ConnectionAdapters::ForeignKeyDefinition.auto_index_name(table_name, column_name) }
-          end
-          case env.operation
-          when :define
-            env.caller.index(env.name, env.options)
+          index = { :name => auto_index_name(env) } if index.nil? and fk_args && config.auto_index?
+          return unless index
+          case env.caller
+          when ::ActiveRecord::ConnectionAdapters::TableDefinition
+            env.caller.index(env.column_name, index)
           else
-            env.caller.add_index(env.table_name, env.name, env.options)
+            env.caller.add_index(env.table_name, env.column_name, index)
           end
         end
 
         def create_fk(env, fk_args)
           references = fk_args.delete(:references)
-          case env.operation
-          when :define
-            env.caller.foreign_key(env.name, reference.first, reference.last, fk_args)
+          case env.caller
+          when ::ActiveRecord::ConnectionAdapters::TableDefinition
+            env.caller.foreign_key(env.column_name, references.first, references.last, fk_args)
           else
-            env.caller.add_foreign_key(env.table_name, env.name, reference.first, reference.last, fk_args)
+            env.caller.add_foreign_key(env.table_name, env.column_name, references.first, references.last, fk_args)
           end
         end
 
 
-        def get_fk_args(env, config) #:nodoc:
-
+        def get_fk_args(env, config)
           args = nil
-          column_name = env.name.to_s
+          column_name = env.column_name.to_s
           options = env.options
 
           return :none if options[:foreign_key] == false
@@ -120,7 +129,7 @@ module SchemaPlus
 
           args[:references] ||= begin
                                   table_name = column_name.sub(/_id$/, '')
-                                  table_name = table_name.pluralize if ActiveRecord::Base.pluralize_table_names
+                                  table_name = table_name.pluralize if ::ActiveRecord::Base.pluralize_table_names
                                   table_name
                                 end
 
@@ -132,41 +141,19 @@ module SchemaPlus
           args
         end
 
+        def remove_foreign_key_if_exists(env) #:nodoc:
+          table_name = env.table_name.to_s
+          foreign_keys = env.caller.foreign_keys(table_name)
+          fk = foreign_keys.detect { |fk| fk.table_name == table_name && fk.column_names == Array(env.column_name).collect(&:to_s) }
+          env.caller.remove_foreign_key(table_name, fk.column_names, fk.references_table_name, fk.references_column_names) if fk
+        end
+
+        def remove_auto_index_if_exists(env)
+          env.caller.remove_index(env.table_name, :name => auto_index_name(env), :column => env.column_name, :if_exists => true)
+        end
+
       end
 
-      protected
-      # The only purpose of that method is to provide a consistent intefrace
-      # for ColumnOptionsHandler. First argument (table name) is ignored.
-      def add_index(_, *args) #:nodoc:
-        index(*args)
-      end
-
-      # The only purpose of that method is to provide a consistent intefrace
-      # for ColumnOptionsHandler. First argument (table name) is ignored.
-      def add_foreign_key(_, *args) #:nodoc:
-        foreign_key(*args)
-      end
-
-      # This is a deliberately empty stub.  The reason for it is that
-      # ColumnOptionsHandler is used for changes as well as for table
-      # definitions, and in the case of changes, previously existing foreign
-      # keys sometimes need to be removed.  but in the case here, that of
-      # table definitions, the only reason a foreign key would exist is
-      # because we're redefining a table that already exists (via :force =>
-      # true).  in which case the foreign key will get dropped when the
-      # drop_table gets emitted, so no need to do it immediately.  (and for
-      # sqlite3, attempting to do it immediately would raise an error).
-      def remove_foreign_key(_, *args) #:nodoc:
-      end
-
-      # This is a deliberately empty stub.  The reason for it is that
-      # ColumnOptionsHandler will remove a previous index when changing a
-      # column.  But we don't do column changes within table definitions.
-      # Presumably will be called with :if_exists true.  If not, will raise
-      # an error.
-      def remove_index(_, options)
-        raise "InternalError: remove_index called in a table definition" unless options[:if_exists]
-      end
     end
   end
 end

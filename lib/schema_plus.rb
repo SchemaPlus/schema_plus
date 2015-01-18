@@ -10,7 +10,6 @@ require 'schema_views'
 
 require 'schema_plus/version'
 require 'schema_plus/active_record/base'
-require 'schema_plus/active_record/column_options_handler'
 require 'schema_plus/active_record/connection_adapters/abstract_adapter'
 require 'schema_plus/active_record/connection_adapters/table_definition'
 require 'schema_plus/active_record/connection_adapters/schema_statements'
@@ -123,7 +122,6 @@ module SchemaPlus
 
   def self.insert #:nodoc:
     SchemaMonkey.include_once ::ActiveRecord::ConnectionAdapters::AbstractAdapter::SchemaCreation, SchemaPlus::ActiveRecord::ConnectionAdapters::AbstractAdapter::VisitTableDefinition
-    SchemaMonkey.include_once ::ActiveRecord::ConnectionAdapters::AbstractAdapter, SchemaPlus::ActiveRecord::ColumnOptionsHandler
   end
 
 end

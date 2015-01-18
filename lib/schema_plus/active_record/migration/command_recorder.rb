@@ -2,7 +2,6 @@ module SchemaPlus
   module ActiveRecord
     module Migration
       module CommandRecorder
-        include SchemaPlus::ActiveRecord::ColumnOptionsHandler
 
         attr_accessor :schema_plus_config #:nodoc:
 
