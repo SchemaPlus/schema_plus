@@ -14,13 +14,13 @@ module SchemaMonkey
         end
 
         def exec_cache_with_schema_monkey(sql, name, binds)
-          Middleware::Query::ExecCache.start adapter: self, sql: sql, name: name, binds: binds do |env|
+          Middleware::Query::ExecCache.start connection: self, sql: sql, name: name, binds: binds do |env|
             exec_cache_without_schema_monkey(env.sql, env.name, env.binds)
           end
         end
 
         def indexes_with_schema_monkey(table_name, query_name=nil)
-          Middleware::Query::Indexes.start adapter: self, table_name: table_name, query_name: query_name do |env|
+          Middleware::Query::Indexes.start connection: self, table_name: table_name, query_name: query_name do |env|
             env.index_definitions += indexes_without_schema_monkey env.table_name, env.query_name
           end
         end

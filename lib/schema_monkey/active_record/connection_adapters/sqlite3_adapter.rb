@@ -13,7 +13,7 @@ module SchemaMonkey
         end
 
         def indexes_with_schema_monkey(table_name, query_name=nil)
-          Middleware::Query::Indexes.start adapter: self, table_name: table_name, query_name: query_name do |env|
+          Middleware::Query::Indexes.start connection: self, table_name: table_name, query_name: query_name do |env|
             env.index_definitions += indexes_without_schema_monkey env.table_name, env.query_name
           end
         end

@@ -49,12 +49,12 @@ module SchemaMonkey
     module Query
       module ExecCache
         extend Stack
-        Env = KeyStruct[:adapter, :sql, :name, :binds]
+        Env = KeyStruct[:connection, :sql, :name, :binds]
       end
 
       module Indexes
         extend Stack
-        Env = KeyStruct[:adapter, :table_name, :query_name, index_definitions: []]
+        Env = KeyStruct[:connection, :table_name, :query_name, index_definitions: []]
       end
     end
 
@@ -67,7 +67,7 @@ module SchemaMonkey
 
       module ColumnOptionsSql
         extend Stack
-        class Env < KeyStruct[:adapter, :sql, :options, :schema_creation]
+        class Env < KeyStruct[:connection, :sql, :options, :schema_creation]
           def options_include_default?
             @include_default ||= schema_creation.send :options_include_default?, options
           end
@@ -82,7 +82,7 @@ module SchemaMonkey
       module IndexComponentsSql
         extend Stack
         Sql = KeyStruct[:name, :type, :columns, :options, :algorithm, :using]
-        Env = KeyStruct[:adapter, :table_name, :column_names, :options, sql: Sql.new]
+        Env = KeyStruct[:connection, :table_name, :column_names, :options, sql: Sql.new]
       end
 
     end

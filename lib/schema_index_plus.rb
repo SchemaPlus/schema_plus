@@ -1,7 +1,7 @@
 require 'schema_monkey'
 
 require_relative 'schema_index_plus/middleware'
-require_relative 'schema_index_plus/middleware/postgresql_adapter'
+require_relative 'schema_index_plus/middleware/postgresql'
 require_relative 'schema_index_plus/active_record/connection_adapters/abstract_adapter'
 require_relative 'schema_index_plus/active_record/connection_adapters/column'
 require_relative 'schema_index_plus/active_record/connection_adapters/index_definition'

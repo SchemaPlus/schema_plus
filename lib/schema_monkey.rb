@@ -15,7 +15,7 @@ module SchemaMonkey
 
   extend SchemaMonkey::ModuleSupport
 
-  ADAPTERS = [:PostgresqlAdapter, :MysqlAdapter, :Sqlite3Adapter]
+  DBMS = [:Postgresql, :Mysql, :Sqlite3]
 
   module ActiveRecord
     module ConnectionAdapters
@@ -31,7 +31,7 @@ module SchemaMonkey
     patch ::ActiveRecord::ConnectionAdapters::TableDefinition
     patch ::ActiveRecord::Migration::CommandRecorder
     patch ::ActiveRecord::SchemaDumper
-    include_adapters(::ActiveRecord::ConnectionAdapters::AbstractAdapter, :AbstractAdapter)
+    include_adapters(::ActiveRecord::ConnectionAdapters::AbstractAdapter, :Abstract)
     insert_modules
     insert_middleware
   end
@@ -44,9 +44,9 @@ module SchemaMonkey
     @registered_modules ||= [self]
   end
 
-  def self.include_adapters(base, name)
+  def self.include_adapters(base, dbm)
     registered_modules.each do |mod|
-      include_if_defined(base, mod, "ActiveRecord::ConnectionAdapters::#{name}")
+      include_if_defined(base, mod, "ActiveRecord::ConnectionAdapters::#{dbm}Adapter")
     end
   end
 
@@ -56,15 +56,15 @@ module SchemaMonkey
     end
   end
 
-  def self.insert_middleware(adapter=nil)
+  def self.insert_middleware(dbm=nil)
     @inserted ||= {}
 
-    if adapter
-      match = /\b#{adapter}\b/
+    if dbm
+      match = /\b#{dbm}\b/
       reject = nil
     else
       match = nil
-      reject = /\b(#{ADAPTERS.join('|')})\b/
+      reject = /\b(#{DBMS.join('|')})\b/
     end
 
     registered_modules.each do |mod|

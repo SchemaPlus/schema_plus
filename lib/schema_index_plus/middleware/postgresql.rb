@@ -1,6 +1,6 @@
 module SchemaIndexPlus
   module Middleware
-    module PostgresqlAdapter
+    module Postgresql
       def self.insert
         SchemaMonkey::Middleware::Migration::IndexComponentsSql.append DefineExtensions
         SchemaMonkey::Middleware::Query::Indexes.append LookupExtensions
@@ -24,7 +24,7 @@ module SchemaIndexPlus
           options = env.options
           column_names = env.column_names
           table_name = env.table_name
-          adapter = env.adapter
+          connection = env.connection
 
           if env.column_names.empty?
             raise ArgumentError, "No columns and :expression missing from options - cannot create index" unless options[:expression]
@@ -61,15 +61,15 @@ module SchemaIndexPlus
             (operator_classes||{}).stringify_keys.each do |column, opclass|
               option_strings[column] += " #{opclass}" if opclass
             end
-            option_strings = adapter.send :add_index_sort_order, option_strings, column_names, options
+            option_strings = connection.send :add_index_sort_order, option_strings, column_names, options
 
             if case_insensitive
-              caseable_columns = adapter.columns(table_name).select { |col| [:string, :text].include?(col.type) }.map(&:name)
+              caseable_columns = connection.columns(table_name).select { |col| [:string, :text].include?(col.type) }.map(&:name)
               quoted_column_names = column_names.map do |col_name|
-                (caseable_columns.include?(col_name.to_s) ? "LOWER(#{adapter.quote_column_name(col_name)})" : adapter.quote_column_name(col_name)) + option_strings[col_name]
+                (caseable_columns.include?(col_name.to_s) ? "LOWER(#{connection.quote_column_name(col_name)})" : connection.quote_column_name(col_name)) + option_strings[col_name]
               end
             else
-              quoted_column_names = column_names.map { |col_name| adapter.quote_column_name(col_name) + option_strings[col_name] }
+              quoted_column_names = column_names.map { |col_name| connection.quote_column_name(col_name) + option_strings[col_name] }
             end
 
             env.sql.columns = quoted_column_names.join(', ')
@@ -82,7 +82,7 @@ module SchemaIndexPlus
         def get_opclass_names(env, opclasses)
           @opclass_names ||= {}
           if (missing = opclasses - @opclass_names.keys).any?
-            result = env.adapter.query(<<-SQL, 'SCHEMA')
+            result = env.connection.query(<<-SQL, 'SCHEMA')
               SELECT oid, opcname FROM pg_opclass
               WHERE (NOT opcdefault) AND oid IN (#{opclasses.join(',')})
             SQL
@@ -113,7 +113,7 @@ module SchemaIndexPlus
           #
           #      continue env
           #
-          result = env.adapter.query(<<-SQL, 'SCHEMA')
+          result = env.connection.query(<<-SQL, 'SCHEMA')
 
            SELECT distinct i.relname, d.indisunique, d.indkey, pg_get_indexdef(d.indexrelid), t.oid,
                   m.amname, pg_get_expr(d.indpred, t.oid) as conditions, pg_get_expr(d.indexprs, t.oid) as expression,
@@ -133,7 +133,7 @@ module SchemaIndexPlus
             index_keys = indkey.split(" ")
             opclasses = indclass.split(" ")
 
-            rows = env.adapter.query(<<-SQL, 'SCHEMA')
+            rows = env.connection.query(<<-SQL, 'SCHEMA')
               SELECT CAST(a.attnum as VARCHAR), a.attname, t.typname
               FROM pg_attribute a
               INNER JOIN pg_type t ON a.atttypid = t.oid

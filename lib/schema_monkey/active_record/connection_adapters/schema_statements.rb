@@ -15,7 +15,7 @@ module SchemaMonkey
 
         def add_index_options_with_schema_monkey(table_name, column_names, options={})
           cache = []
-          Middleware::Migration::IndexComponentsSql.start adapter: self, table_name: table_name, column_names: Array.wrap(column_names), options: options.dup do |env|
+          Middleware::Migration::IndexComponentsSql.start connection: self, table_name: table_name, column_names: Array.wrap(column_names), options: options.dup do |env|
             cache << env
             env.sql.name, env.sql.type, env.sql.columns, env.sql.options, env.sql.algorithm, env.sql.using = add_index_options_without_schema_monkey(env.table_name, env.column_names, env.options)
           end

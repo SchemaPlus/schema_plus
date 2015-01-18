@@ -9,14 +9,14 @@ module SchemaMonkey
         def initialize_with_schema_monkey(*args) #:nodoc:
           initialize_without_schema_monkey(*args)
 
-          adapter = case adapter_name
-                    when /^MySQL/i                 then :MysqlAdapter
-                    when 'PostgreSQL', 'PostGIS'   then :PostgresqlAdapter
-                    when 'SQLite'                  then :Sqlite3Adapter
-                    end
+          dbm = case adapter_name
+                when /^MySQL/i                 then :Mysql
+                when 'PostgreSQL', 'PostGIS'   then :Postgresql
+                when 'SQLite'                  then :Sqlite3
+                end
 
-          SchemaMonkey.include_adapters(self.class, adapter)
-          SchemaMonkey.insert_middleware(adapter)
+          SchemaMonkey.include_adapters(self.class, dbm)
+          SchemaMonkey.insert_middleware(dbm)
         end
 
         module SchemaCreation
@@ -27,7 +27,7 @@ module SchemaMonkey
           end
 
           def add_column_options_with_schema_monkey!(sql, options)
-            Middleware::Migration::ColumnOptionsSql.start adapter: self.instance_variable_get('@conn'), sql: sql, options: options, schema_creation: self do |env|
+            Middleware::Migration::ColumnOptionsSql.start connection: self.instance_variable_get('@conn'), sql: sql, options: options, schema_creation: self do |env|
               add_column_options_without_schema_monkey! env.sql, env.options
             end
           end
