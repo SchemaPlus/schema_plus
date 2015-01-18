@@ -31,19 +31,6 @@ module SchemaPlus
           self
         end
 
-        def revertable_schema_plus_handle_column_options(table_name, name, options, config)
-          length = commands.length
-          schema_plus_handle_column_options(table_name, name, options, config)
-          if reverting
-            rev = []
-            while commands.length > length
-              cmd = commands.pop
-              rev.unshift cmd unless cmd[0].to_s =~ /^add_/
-            end
-            commands.concat rev
-          end
-        end
-
         def invert_add_foreign_key_with_schema_plus(args)
           table_name, column_names, references_table_name, references_column_names, options = args
           [:remove_foreign_key, [table_name, column_names, references_table_name, references_column_names, (options||{}).merge(if_exists: true)]]
@@ -52,10 +39,6 @@ module SchemaPlus
         def invert_add_index_with_schema_plus(args)
           table, columns, options = *args
           [:remove_index, [table, (options||{}).merge(column: columns, if_exists: true)]]
-        end
-
-        def invert_remove_foreign_key(args)
-          [:add_foreign_key, args]
         end
 
       end
