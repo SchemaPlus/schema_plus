@@ -23,11 +23,12 @@ module SchemaMonkey
           def self.included(base)
             base.class_eval do
               alias_method_chain :add_column_options!, :schema_monkey
+              public :options_include_default?
             end
           end
 
           def add_column_options_with_schema_monkey!(sql, options)
-            Middleware::Migration::ColumnOptionsSql.start connection: self.instance_variable_get('@conn'), sql: sql, options: options, schema_creation: self do |env|
+            Middleware::Migration::ColumnOptionsSql.start caller: self, connection: self.instance_variable_get('@conn'), sql: sql, options: options do |env|
               add_column_options_without_schema_monkey! env.sql, env.options
             end
           end

@@ -7,8 +7,8 @@ module SchemaDefaultExpr
 
     class DefaultExprOptions < ::SchemaMonkey::Middleware::Base
       def call(env)
-        if env.options_include_default?
-          env.options = options = env.options.dup
+        options = env.options
+        if env.caller.options_include_default?(options)
           default = options[:default]
 
           if default.is_a? Hash and [[:expr], [:value]].include?(default.keys)

@@ -59,11 +59,7 @@ module SchemaMonkey
 
       module ColumnOptionsSql
         extend Stack
-        class Env < KeyStruct[:connection, :sql, :options, :schema_creation]
-          def options_include_default?
-            @include_default ||= schema_creation.send :options_include_default?, options
-          end
-        end
+        Env = KeyStruct[:caller, :connection, :sql, :options]
       end
 
       module Index
