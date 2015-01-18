@@ -7,9 +7,9 @@ describe "with multiple schemas" do
 
   before(:all) do
     newdb = case connection.adapter_name
-            when /^mysql/i then      "CREATE SCHEMA IF NOT EXISTS schema_plus_test2"
-            when /^postgresql/i then "CREATE SCHEMA schema_plus_test2"
-            when /^sqlite/i then     "ATTACH ':memory:' AS schema_plus_test2"
+            when /^mysql/i then      "CREATE SCHEMA IF NOT EXISTS schema_index_plus_test2"
+            when /^postgresql/i then "CREATE SCHEMA schema_index_plus_test2"
+            when /^sqlite/i then     "ATTACH ':memory:' AS schema_index_plus_test2"
             end
     begin
       ActiveRecord::Base.connection.execute newdb
@@ -27,8 +27,8 @@ describe "with multiple schemas" do
       end
     end
 
-    connection.execute 'DROP TABLE IF EXISTS schema_plus_test2.users'
-    connection.execute 'CREATE TABLE schema_plus_test2.users (id ' + case connection.adapter_name
+    connection.execute 'DROP TABLE IF EXISTS schema_index_plus_test2.users'
+    connection.execute 'CREATE TABLE schema_index_plus_test2.users (id ' + case connection.adapter_name
           when /^mysql/i then      "integer primary key auto_increment"
           when /^postgresql/i then "serial primary key"
           when /^sqlite/i then     "integer primary key autoincrement"
@@ -38,9 +38,9 @@ describe "with multiple schemas" do
   context "with indexes in each schema" do
     before(:each) do
       connection.execute 'CREATE INDEX ' + case connection.adapter_name
-      when /^mysql/i then      "index_users_on_login ON schema_plus_test2.users"
-      when /^postgresql/i then "index_users_on_login ON schema_plus_test2.users"
-      when /^sqlite/i then     "schema_plus_test2.index_users_on_login ON users"
+      when /^mysql/i then      "index_users_on_login ON schema_index_plus_test2.users"
+      when /^postgresql/i then "index_users_on_login ON schema_index_plus_test2.users"
+      when /^sqlite/i then     "schema_index_plus_test2.index_users_on_login ON users"
       end + " (login)"
     end
 

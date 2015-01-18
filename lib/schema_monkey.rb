@@ -57,6 +57,7 @@ module SchemaMonkey
   end
 
   def self.insert_middleware(adapter=nil)
+    @inserted ||= {}
 
     if adapter
       match = /\b#{adapter}\b/
@@ -68,7 +69,9 @@ module SchemaMonkey
 
     registered_modules.each do |mod|
       get_modules(mod, prefix: :Middleware, match: match, reject: reject, recursive: true, respond_to: :insert).each do |middleware|
+        next if @inserted[middleware]
         middleware.insert
+        @inserted[middleware] = true
       end
     end
   end

@@ -51,6 +51,11 @@ module SchemaMonkey
         extend Stack
         Env = KeyStruct[:adapter, :sql, :name, :binds]
       end
+
+      module Indexes
+        extend Stack
+        Env = KeyStruct[:adapter, :table_name, :query_name, index_definitions: []]
+      end
     end
 
     module Migration

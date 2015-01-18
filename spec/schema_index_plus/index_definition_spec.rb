@@ -179,7 +179,7 @@ describe "Index definition" do
     end
 
     it "defines using" do
-      expect(@index.using).to eq("hash")
+      expect(@index.using).to eq(:hash)
     end
 
     it "does not define expression" do

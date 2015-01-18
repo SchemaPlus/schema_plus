@@ -89,7 +89,7 @@ describe "index" do
         @index = User.indexes.detect { |i| i.expression.present? }
         expect(@index.expression).to eq("upper((login)::text)")
         expect(@index.where).to eq("(deleted_at IS NULL)")
-        expect(@index.using).to       eq("hash")
+        expect(@index.using).to       eq(:hash)
       end
 
       it "should allow to specify expression, conditions and using separately" do
@@ -97,12 +97,12 @@ describe "index" do
         @index = User.indexes.detect { |i| i.expression.present? }
         expect(@index.expression).to eq("upper((login)::text)")
         expect(@index.where).to eq("(deleted_at IS NULL)")
-        expect(@index.using).to eq("hash")
+        expect(@index.using).to eq(:hash)
       end
 
       it "should allow to specify using" do
         add_index(:users, :login, :using => "hash")
-        expect(index_for(:login).using).to eq('hash')
+        expect(index_for(:login).using).to eq(:hash)
       end
 
       it "should assign operator_class" do

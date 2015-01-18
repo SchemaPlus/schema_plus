@@ -10,8 +10,8 @@ module SchemaIndexPlus
           base.alias_method_chain :initialize, :schema_plus
         end
         
-        attr_reader :expression
-        attr_reader :operator_classes
+        attr_accessor :expression
+        attr_accessor :operator_classes
 
         def case_sensitive?
           @case_sensitive
