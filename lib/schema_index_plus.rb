@@ -9,18 +9,11 @@ require_relative 'schema_index_plus/active_record/connection_adapters/index_defi
 require_relative 'schema_index_plus/active_record/base'
 
 module SchemaIndexPlus
-  module ActiveRecord
-    module ConnectionAdapters
-      autoload :MysqlAdapter, 'schema_index_plus/active_record/connection_adapters/mysql_adapter'
-    end
-  end
-
   def self.insert
     SchemaMonkey.patch ::ActiveRecord::Base, self
     SchemaMonkey.patch ::ActiveRecord::ConnectionAdapters::Column, self
     SchemaMonkey.patch ::ActiveRecord::ConnectionAdapters::IndexDefinition, self
   end
-
 end
 
 SchemaMonkey.register(SchemaIndexPlus)
