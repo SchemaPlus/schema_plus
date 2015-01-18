@@ -1,12 +1,12 @@
 ## schema_index_plus
-* use middleware to look up enhanced postgresql index options
 * remove index specs that are testing things now handled by AR.  (then see if coverage is still 100%)
 * shift pg enahancement to a separate schema_pg_index(?)
 * dumper: don't output multiple t.index for the same column
+* add specs to cover the deprecations
 
 ## schema_foreign_keys
 * move ColumnOptionsHandler entirely into middleware (no need to include it elsewhere)
-* move fk stuff into schema_plus_fk
+* move fk stuff into schema_foreign_keys
 
 ## schema_plus
 * deprecate config => SchemaForeignKeys config
@@ -17,6 +17,7 @@
 * consider automating the autoloads
 * make middleware for loading a schema
 * make middleware for defining a table
+* make ExecCache middleware work for all three adapters.
 * specs for schema_monkey
 * README to document it -- the conventions and internal API
 * (try it on AR 4.1?  nah)
