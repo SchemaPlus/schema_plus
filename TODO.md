@@ -35,3 +35,4 @@
 * rename 'refresh' to 'freshen'; get rid of the individual travis & gem commands
 * have a .schema_dev file with current settings (make it obvious and easy
 * to override) (auto update .gitignore to ignore it?)
+* log files should go in log/ not in tmp/ (auto update .gitignore to ignore it?)
