@@ -120,27 +120,9 @@ module SchemaPlus
     yield config
   end
 
-  def self.insert_connection_adapters #:nodoc:
-    return if @inserted_connection_adapters
-    @inserted_connection_adapters = true
-    ::ActiveRecord::ConnectionAdapters::Column.send(:include, SchemaPlus::ActiveRecord::ConnectionAdapters::Column)
-    ::ActiveRecord::ConnectionAdapters::SchemaStatements.send(:include, SchemaPlus::ActiveRecord::ConnectionAdapters::SchemaStatements)
-    ::ActiveRecord::ConnectionAdapters::TableDefinition.send(:include, SchemaPlus::ActiveRecord::ConnectionAdapters::TableDefinition)
-    ::ActiveRecord::Migration::CommandRecorder.send(:include, SchemaPlus::ActiveRecord::Migration::CommandRecorder)
-
-    ::ActiveRecord::ConnectionAdapters::AbstractAdapter::SchemaCreation.send(:include, SchemaPlus::ActiveRecord::ConnectionAdapters::AbstractAdapter::VisitTableDefinition)
-    ::ActiveRecord::ConnectionAdapters::AbstractAdapter.send(:include, SchemaPlus::ActiveRecord::ColumnOptionsHandler)
-
-    require 'active_record/connection_adapters/abstract_mysql_adapter'
-    ::ActiveRecord::ConnectionAdapters::AbstractMysqlAdapter::SchemaCreation.send(:include, SchemaPlus::ActiveRecord::ConnectionAdapters::AbstractAdapter::VisitTableDefinition)
-  end
-
   def self.insert #:nodoc:
-    return if @inserted
-    @inserted = true
-    insert_connection_adapters
-    ::ActiveRecord::Base.send(:include, SchemaPlus::ActiveRecord::Base)
-    ::ActiveRecord::Schema.send(:include, SchemaPlus::ActiveRecord::Schema)
+    SchemaMonkey.include_once ::ActiveRecord::ConnectionAdapters::AbstractAdapter::SchemaCreation, SchemaPlus::ActiveRecord::ConnectionAdapters::AbstractAdapter::VisitTableDefinition
+    SchemaMonkey.include_once ::ActiveRecord::ConnectionAdapters::AbstractAdapter, SchemaPlus::ActiveRecord::ColumnOptionsHandler
   end
 
 end

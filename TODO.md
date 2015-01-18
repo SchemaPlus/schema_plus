@@ -13,7 +13,6 @@
 
 
 ## schema_monkey
-* automate inserting all ActiveRecord modules
 * consider automating the autoloads
 * make middleware for loading a schema
 * make middleware for defining a table

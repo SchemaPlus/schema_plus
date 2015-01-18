@@ -12,6 +12,7 @@ module SchemaPlus
             alias_method_chain :remove_column, :schema_plus
             alias_method_chain :rename_table, :schema_plus
           end
+          ::ActiveRecord::ConnectionAdapters::AbstractMysqlAdapter::SchemaCreation.send(:include, SchemaPlus::ActiveRecord::ConnectionAdapters::AbstractAdapter::VisitTableDefinition)
         end
 
         def remove_column_with_schema_plus(table_name, column_name, type=nil, options={})

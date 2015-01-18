@@ -26,13 +26,8 @@ module SchemaMonkey
   end
 
   def self.insert
-    patch ::ActiveRecord::ConnectionAdapters::AbstractAdapter::SchemaCreation
-    patch ::ActiveRecord::ConnectionAdapters::SchemaStatements
-    patch ::ActiveRecord::ConnectionAdapters::TableDefinition
-    patch ::ActiveRecord::Migration::CommandRecorder
-    patch ::ActiveRecord::SchemaDumper
-    include_adapters(::ActiveRecord::ConnectionAdapters::AbstractAdapter, :Abstract)
     insert_modules
+    include_adapters(::ActiveRecord::ConnectionAdapters::AbstractAdapter, :Abstract)
     insert_middleware
   end
 
@@ -52,6 +47,12 @@ module SchemaMonkey
 
   def self.insert_modules
     registered_modules.each do |mod|
+      get_modules(mod, prefix: 'ActiveRecord', match: /\bActiveRecord\b/, recursive: true).each do |candidate|
+        next if candidate.is_a?(Class)
+        if (base = get_const(::ActiveRecord, candidate.to_s.sub(/^#{mod}::ActiveRecord::/, '')))
+          patch base, mod
+        end
+      end
       mod.insert if mod.respond_to?(:insert) and mod != self
     end
   end
@@ -68,7 +69,7 @@ module SchemaMonkey
     end
 
     registered_modules.each do |mod|
-      get_modules(mod, prefix: :Middleware, match: match, reject: reject, recursive: true, respond_to: :insert).each do |middleware|
+      get_modules(mod, prefix: 'Middleware', and_self: true, match: match, reject: reject, recursive: true, respond_to: :insert).each do |middleware|
         next if @inserted[middleware]
         middleware.insert
         @inserted[middleware] = true

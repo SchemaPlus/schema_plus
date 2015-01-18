@@ -32,16 +32,16 @@ module SchemaMonkey
     end
 
     def get_modules(parent, opts={})
-      opts = opts.keyword_args(:prefix, :match, :reject, :recursive, :respond_to)
-      parent = get_const(parent, Array.wrap(opts.prefix).map(&:to_s).join('::')) if opts.prefix
+      opts = opts.keyword_args(:prefix, :match, :reject, :recursive, :respond_to, :and_self)
+      parent = get_const(parent, opts.prefix) if opts.prefix
       return [] unless parent && parent.is_a?(Module)
       modules = []
-      modules << parent if opts.prefix
+      modules << parent if opts.and_self
       modules += parent.constants.map{|c| parent.const_get(c)}.select(&it.is_a?(Module))
       modules.reject! &it.to_s =~ opts.reject if opts.reject
       modules.select! &it.to_s =~ opts.match if opts.match
       modules.select! &it.respond_to?(opts.respond_to) if opts.respond_to
-      modules += modules.flat_map { |mod| get_modules(mod, opts.merge(:prefix => nil)) } if opts.recursive
+      modules += modules.flat_map { |mod| get_modules(mod, opts.except(:prefix, :and_self)) } if opts.recursive
       modules
     end
   end

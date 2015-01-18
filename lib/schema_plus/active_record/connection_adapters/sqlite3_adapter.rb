@@ -24,7 +24,7 @@ module SchemaPlus
             alias_method_chain :rename_table, :schema_plus
           end
 
-          ::ActiveRecord::ConnectionAdapters::Column.send(:include, SQLiteColumn) unless ::ActiveRecord::ConnectionAdapters::Column.include?(SQLiteColumn)
+          SchemaMonkey.include_once ::ActiveRecord::ConnectionAdapters::Column, SQLiteColumn
         end
 
         def initialize(*args)
