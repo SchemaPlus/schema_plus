@@ -82,6 +82,35 @@ describe "Column" do
       end
     end
 
+    context "with case insensitive index" do
+
+      it "reports column as case insensitive" do
+        create_table(User, :login => { :index => {}})
+        User.reset_column_information
+        expect(User.indexes.first).to receive(:case_sensitive?).and_return(false);
+        expect(User.columns.find(&its.name == "login")).not_to be_case_sensitive
+      end
+    end
+
+  end
+
+  context "regarding when it requires a value" do
+
+    it "not required if the column can be null" do
+      create_table(User, :login => { :null => true})
+      expect(User.columns.find{|column| column.name == "login"}.required_on).to be_nil
+    end
+
+    it "must have a value on :save if there's no default" do
+      create_table(User, :login => { :null => false })
+      expect(User.columns.find{|column| column.name == "login"}.required_on).to eq(:save)
+    end
+
+    it "must have a value on :update if there's default" do
+      create_table(User, :login => { :null => false, :default => "foo" })
+      expect(User.columns.find{|column| column.name == "login"}.required_on).to eq(:update)
+    end
+
   end
 
   protected

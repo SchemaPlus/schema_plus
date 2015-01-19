@@ -13,9 +13,13 @@ module SchemaIndexPlus
         # Returns a list of IndexDefinition objects, for each index
         # defind on this model's table.
         #
-        # (memoized result gets reset in Middleware::Model::ResetColumnInformation)
         def indexes
           @indexes ||= connection.indexes(table_name, "#{name} Indexes")
+        end
+
+        # (reset_index_information gets called by by Middleware::Model::ResetColumnInformation)
+        def reset_index_information
+          @indexes = nil
         end
 
       end

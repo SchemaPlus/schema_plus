@@ -1,4 +1,4 @@
-module SchemaIndexPlus
+module SchemaColumnPlus
   module ActiveRecord
     module ConnectionAdapters
 
@@ -7,7 +7,7 @@ module SchemaIndexPlus
       #
       module Column
 
-        attr_writer :model # model gets set by SchemaIndexPlus::ActiveRecord::Base::columns_with_schema_index_plus
+        attr_writer :model # model assigned set by Middleware::Model::Columns
 
         # Returns the list of IndexDefinition instances for each index that
         # refers to this column.  Returns an empty list if there are no
@@ -32,7 +32,9 @@ module SchemaIndexPlus
         end
 
         # Returns true if the column is in one or more indexes that are
-        # case sensitive
+        # case sensitive.  Will raise exception if
+        # IndexDefinition#case_sensitive? isn't defined, i.e. if
+        # schema_index_plus hasn't been loaded.
         def case_sensitive?
           indexes.any?{|i| i.case_sensitive?}
         end
@@ -41,6 +43,20 @@ module SchemaIndexPlus
         # @model can't be dumped (it contains circular references)
         def as_json(options=nil)
           instance_values.except "model", "adapter"
+        end
+
+        # Returns the circumstance in which the column must have a value:
+        #   nil     if the column may be null
+        #   :save   if the column has no default value
+        #   :update otherwise
+        def required_on
+          if null
+            nil
+          elsif default.nil?
+            :save
+          else
+            :update
+          end
         end
       end
     end

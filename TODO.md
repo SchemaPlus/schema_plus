@@ -14,10 +14,6 @@
 ## schema_plus
 * deprecate config => SchemaForeignKeys config
 
-## schema_plus_column
-* pull out of schema_plus
-
-
 ## schema_monkey
 * consider automating the autoloads
 * make middleware for remove_index

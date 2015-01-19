@@ -98,10 +98,6 @@ describe "Index definition" do
       expect(@index).not_to be_case_sensitive
     end
 
-    it "its column should not be case sensitive" do
-      expect(User.columns.find{|column| column.name == "login"}).not_to be_case_sensitive
-    end
-
     it "defines expression" do
       expect(@index.expression).to eq("lower((login)::text)")
     end
