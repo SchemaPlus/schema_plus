@@ -3,7 +3,7 @@ module SchemaIndexPlus
     module Dumper
 
       def self.insert
-        SchemaMonkey::Middleware::Dumper::Table.append Dumper::InlineIndexes
+        SchemaMonkey::Middleware::Dumper::Table.append InlineIndexes
       end
 
       class InlineIndexes < SchemaMonkey::Middleware::Base
@@ -15,6 +15,8 @@ module SchemaIndexPlus
           # be left in the table.   (Because Rails' implementation of t.index
           # stores the index data indexed by column name, so you only get
           # one.)
+          # TODO: maybe define the inline indexes using column options
+          # rather than t.index
 
           # we'll put the index definitions inline
           env.table.trailer.reject!{ |s| s =~ /^\s*add_index\b/ }
