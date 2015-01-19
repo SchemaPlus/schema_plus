@@ -6,6 +6,7 @@ require_relative 'schema_index_plus/active_record/connection_adapters/column'
 require_relative 'schema_index_plus/active_record/connection_adapters/index_definition'
 require_relative 'schema_index_plus/middleware/dumper'
 require_relative 'schema_index_plus/middleware/migration'
+require_relative 'schema_index_plus/middleware/model'
 require_relative 'schema_index_plus/middleware/postgresql'
 require_relative 'schema_index_plus/middleware/sqlite3'
 

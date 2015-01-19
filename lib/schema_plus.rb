@@ -19,6 +19,7 @@ require 'schema_plus/active_record/connection_adapters/foreign_key_definition'
 require 'schema_plus/active_record/migration/command_recorder'
 require 'schema_plus/middleware/dumper'
 require 'schema_plus/middleware/migration'
+require 'schema_plus/middleware/model'
 
 module SchemaPlus
   module ActiveRecord

@@ -4,6 +4,7 @@ require 'middleware'
 
 require_relative "schema_monkey/middleware"
 require_relative "schema_monkey/module_support"
+require_relative "schema_monkey/active_record/base"
 require_relative "schema_monkey/active_record/connection_adapters/abstract_adapter"
 require_relative "schema_monkey/active_record/connection_adapters/table_definition"
 require_relative 'schema_monkey/active_record/connection_adapters/schema_statements'

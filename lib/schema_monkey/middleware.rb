@@ -90,5 +90,17 @@ module SchemaMonkey
       end
     end
 
+    module Model
+      module Columns
+        extend Stack
+        Env = KeyStruct[:model, :columns]
+      end
+      module ResetColumnInformation
+        extend Stack
+        Env = KeyStruct[:model]
+      end
+    end
+
+
   end
 end

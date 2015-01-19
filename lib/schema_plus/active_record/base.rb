@@ -10,21 +10,13 @@ module SchemaPlus
       end
 
       module ClassMethods #:nodoc:
-        def self.extended(base) #:nodoc:
-          class << base
-            alias_method_chain :reset_column_information, :schema_plus
-          end
-        end
 
         public
 
-        def reset_column_information_with_schema_plus #:nodoc:
-          reset_column_information_without_schema_plus
-          @foreign_keys = nil
-        end
-
         # Returns a list of ForeignKeyDefinition objects, for each foreign
         # key constraint defined in this model's table
+        #
+        # (memoized result gets reset in Middleware::Model::ResetColumnInformation)
         def foreign_keys
           @foreign_keys ||= connection.foreign_keys(table_name, "#{name} Foreign Keys")
         end
