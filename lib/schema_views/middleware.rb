@@ -3,6 +3,23 @@ module SchemaViews
     def self.insert
         SchemaMonkey::Middleware::Dumper::Tables.prepend DumpViews
     end
+    module Mysql
+      def self.insert
+        SchemaMonkey::Middleware::Query::Tables.append FilterOutViews
+      end
+    end
+    module Sqlite3
+      def self.insert
+        SchemaMonkey::Middleware::Query::Tables.append FilterOutViews
+      end
+    end
+  end
+
+  class FilterOutViews < SchemaMonkey::Middleware::Base
+    def call(env)
+      continue env
+      env.tables -= env.connection.views(env.query_name)
+    end
   end
 
   class DumpViews < SchemaMonkey::Middleware::Base

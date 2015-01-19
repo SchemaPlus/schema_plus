@@ -2,15 +2,6 @@ module SchemaViews
   module ActiveRecord
     module ConnectionAdapters
       module MysqlAdapter
-        def self.included(base)
-          base.class_eval do
-            alias_method_chain :tables, :schema_views
-          end
-        end
-
-        def tables_with_schema_views(name=nil, *args)
-          tables_without_schema_views(name, *args) - views(name)
-        end
 
         def views(name = nil)
           views = []

@@ -20,7 +20,6 @@
 
 ## schema_monkey
 * consider automating the autoloads
-* make middleware for loading tables
 * make middleware for remove_index
 * make middleware for remove_column
 * make middleware for rename_table
