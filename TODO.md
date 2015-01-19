@@ -1,11 +1,12 @@
 ## ALL
 
-* get rid of all uses of alias_method_chain outside schema_monkey (create middleware)
+* ideally get rid of all uses of alias_method_chain outside schema_monkey (create middleware)
 
 ## schema_index_plus
 * remove index specs that are testing things now handled by AR.  (then see if coverage is still 100%)
 * shift pg enahancement to a separate schema_pg_index(?)
 * dumper: don't output multiple t.index for the same column
+* rename this to schema_plus_index?
 
 ## schema_foreign_keys
 * move fk stuff into schema_foreign_keys
@@ -13,9 +14,18 @@
 ## schema_plus
 * deprecate config => SchemaForeignKeys config
 
+## schema_plus_column
+* pull out of schema_plus
+
 
 ## schema_monkey
 * consider automating the autoloads
+* make middleware for loading tables
+* make middleware for remove_index
+* make middleware for remove_column
+* make middleware for rename_table
+* make middleware for create_table
+* make middleware for visit_TableDefinition
 * make middleware for loading a schema
 * make middleware for defining a table
 * make ExecCache middleware work for all three adapters.
