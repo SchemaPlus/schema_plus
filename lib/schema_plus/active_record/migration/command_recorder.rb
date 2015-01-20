@@ -9,7 +9,6 @@ module SchemaPlus
           base.class_eval do
             alias_method_chain :add_reference, :schema_plus
             alias_method_chain :invert_add_index, :schema_plus
-            #alias_method_chain :invert_add_foreign_key, :schema_plus
           end
         end
 
@@ -29,11 +28,6 @@ module SchemaPlus
           add_index(table_name, polymorphic ? %w[id type].map{ |t| "#{ref_name}_#{t}" } : "#{ref_name}_id", index_options.is_a?(Hash) ? index_options : {}) if index_options
 
           self
-        end
-
-        def invert_add_foreign_key_with_schema_plus(args)
-          table_name, column, to_table, primary_key, options = args
-          [:remove_foreign_key, [table_name, column, to_table, primary_key, (options||{}).merge(if_exists: true)]]
         end
 
         def invert_add_index_with_schema_plus(args)

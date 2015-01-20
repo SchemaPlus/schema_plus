@@ -114,14 +114,6 @@ module SchemaPlus
           table_name.to_s.gsub(/[.]/, '_')
         end
 
-        def ==(other) # note equality test ignores :name and options
-          [:from_table,
-           :column,
-           :to_table,
-           :primary_key
-           ].all? { |attr| self.send(attr) == other.send(attr) }
-        end
-
         def match(test)
           return false unless from_table == test.from_table
           [:to_table, :column].reject{ |attr| test.send(attr).blank? }.all? { |attr|
