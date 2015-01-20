@@ -6,7 +6,7 @@ module SchemaIndexPlus
         def self.included(base) #:nodoc:
           base.alias_method_chain :remove_index, :schema_plus
         end
-        
+
         # Extends rails' remove_index to include this options:
         #   :if_exists
         def remove_index_with_schema_plus(table_name, *args)

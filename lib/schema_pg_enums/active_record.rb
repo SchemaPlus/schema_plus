@@ -48,7 +48,7 @@ module SchemaPgEnums
           execute "DROP TYPE #{enum_name(name, options[:schema])}"
         end
 
-        private 
+        private
 
         def enum_name(name, schema)
           [schema || 'public', name].map { |s|

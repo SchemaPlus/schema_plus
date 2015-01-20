@@ -6,7 +6,7 @@ module SchemaPlus
       module MysqlAdapter
 
         #:enddoc:
-        
+
         def self.included(base)
           base.class_eval do
             alias_method_chain :remove_column, :schema_plus

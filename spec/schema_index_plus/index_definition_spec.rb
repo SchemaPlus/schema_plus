@@ -4,7 +4,7 @@ require 'spec_helper'
 describe "Index definition" do
 
   let(:migration) { ::ActiveRecord::Migration }
-  
+
   before(:all) do
     define_schema(:auto_create => false) do
       create_table :users, :force => true do |t|

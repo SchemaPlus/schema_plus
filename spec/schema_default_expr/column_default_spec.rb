@@ -134,7 +134,7 @@ describe "Column definition" do
     end
   end
 
-  private 
+  private
 
   def define_test_column(type, *args)
     ActiveRecord::Migration.suppress_messages do

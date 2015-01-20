@@ -5,7 +5,7 @@ describe "Column" do
   before(:all) do
       class User < ::ActiveRecord::Base ; end
   end
-    
+
   let(:migration) { ::ActiveRecord::Migration }
 
   context "JSON serialization" do
@@ -30,7 +30,7 @@ describe "Column" do
 
     context "if not unique" do
 
-      before(:each) do 
+      before(:each) do
         create_table(User, :login => { :index => true})
         @login = User.columns.find{|column| column.name == "login"}
       end
@@ -46,7 +46,7 @@ describe "Column" do
     end
 
     context "if unique single column" do
-      before(:each) do 
+      before(:each) do
         create_table(User, :login => { :index => :unique})
         @login = User.columns.find{|column| column.name == "login"}
       end
@@ -62,7 +62,7 @@ describe "Column" do
 
     context "if unique multicolumn" do
 
-      before(:each) do 
+      before(:each) do
         create_table(User, :first => {}, :middle => {}, :last => { :index => {:with => [:first, :middle], :unique => true}})
         @first = User.columns.find{|column| column.name == "first"}
         @middle = User.columns.find{|column| column.name == "middle"}

@@ -12,8 +12,8 @@ module SchemaPlusMatchers
       @model = model
       if @to_table
         @result = @model.foreign_keys.select do |fk|
-          fk.to_table == @to_table && 
-            @primary_key.blank? ? true : fk.primary_key == @primary_key 
+          fk.to_table == @to_table &&
+            @primary_key.blank? ? true : fk.primary_key == @primary_key
         end
       else
         @result = @model.foreign_keys
@@ -27,7 +27,7 @@ module SchemaPlusMatchers
     end
 
     def failure_message(should_not = false)
-      target_column = @column.present? ? "(#{Array.wrap(@column).join(', ')})" : "" 
+      target_column = @column.present? ? "(#{Array.wrap(@column).join(', ')})" : ""
       destinantion_column = @to_table ? "#{@to_table}(#{Array.wrap(@primary_key).join(', ')})" : "anything"
       invert = should_not ? 'not' : ''
       msg = "Expected #{@model.table_name}#{target_column} to #{invert} reference #{destinantion_column}"
@@ -43,7 +43,7 @@ module SchemaPlusMatchers
     def failure_message_when_negated
       failure_message(true)
     end
-  
+
     def on(*column)
       @column = column.collect(&:to_s)
       self

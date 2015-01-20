@@ -58,7 +58,7 @@ describe "Schema dump" do
       expect(dump_posts).to match(to_regexp(%q{t.index ["user_id"], :name => "custom_name"}))
     end
   end
-  
+
   it "should define unique index" do
     with_index Post, :user_id, :name => "posts_user_id_index", :unique => true do
       expect(dump_posts).to match(to_regexp(%q{t.index ["user_id"], :name => "posts_user_id_index", :unique => true}))

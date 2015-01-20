@@ -6,7 +6,7 @@ module SchemaDefaultExpr
       # Each adapter needs to define these two functions:
       # define them all. Defining them here only for reference.
 
-      # default_expr_valid?(expr) 
+      # default_expr_valid?(expr)
       #
       # Return true if the passed expression can be used as a column
       # default value.  (For most databases the specific expression

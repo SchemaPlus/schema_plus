@@ -5,7 +5,7 @@ describe 'Deprecations', :postgresql => :only do
   before(:all) do
       class User < ::ActiveRecord::Base ; end
   end
-    
+
   let(:migration) { ::ActiveRecord::Migration }
 
   context "on table creation" do

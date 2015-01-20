@@ -49,7 +49,7 @@ describe ActiveRecord do
     end
 
     it "should be included in schema dump in dependency order" do
-      expect(dump).to match(%r{create_table "items".*create_view "a_ones".*create_view "ab_ones"}m) 
+      expect(dump).to match(%r{create_table "items".*create_view "a_ones".*create_view "ab_ones"}m)
     end
 
     it "should not be included in schema if listed in ignore_tables" do

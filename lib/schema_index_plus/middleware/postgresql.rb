@@ -93,7 +93,7 @@ module SchemaIndexPlus
         end
 
         def call(env)
-          # Ideally we'd let AR do its stuff and then add the extras.  
+          # Ideally we'd let AR do its stuff and then add the extras.
           #
           # But one of the extras is expressions.  AR completely strips out
           # indexes with expressions, so to handle them we need to

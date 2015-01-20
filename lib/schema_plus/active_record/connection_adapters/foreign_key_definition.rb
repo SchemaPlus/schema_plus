@@ -45,7 +45,7 @@ module SchemaPlus
 
         ACTIONS = { :cascade => "CASCADE", :restrict => "RESTRICT", :set_null => "SET NULL", :set_default => "SET DEFAULT", :no_action => "NO ACTION" }.freeze
 
-        def initialize_with_schema_plus(from_table, to_table, options={}) 
+        def initialize_with_schema_plus(from_table, to_table, options={})
           initialize_without_schema_plus(from_table, to_table, options)
           if column.is_a?(Array) and column.length == 1
             options[:column] = column[0]

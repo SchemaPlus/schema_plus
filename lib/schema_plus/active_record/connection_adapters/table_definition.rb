@@ -34,7 +34,7 @@ module SchemaPlus::ActiveRecord::ConnectionAdapters
   # SchemaPlus also supports creation of foreign key constraints analogously, using Migration::ClassMethods#add_foreign_key or TableDefinition#foreign_key or as part of the column definition, for example:
   #
   #    create_table :posts do |t|  # not DRY
-  #       t.integer :author_id    
+  #       t.integer :author_id
   #    end
   #    add_foreign_key :posts, :author_id, :references => :authors
   #

@@ -158,7 +158,7 @@ describe "Schema dump" do
   end
 
   def determine_foreign_key_name(model, columns, options)
-    name = options[:name] 
+    name = options[:name]
     name ||= model.foreign_keys.detect { |fk| fk.from_table == model.table_name.to_s && Array.wrap(fk.column) == Array.wrap(columns).collect(&:to_s) }.name
   end
 

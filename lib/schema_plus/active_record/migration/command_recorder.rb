@@ -13,7 +13,7 @@ module SchemaPlus
         end
 
         # seems like this is fixing a rails bug:
-        #   change_table foo, :bulk => true { |t| t.references :bar } 
+        #   change_table foo, :bulk => true { |t| t.references :bar }
         # results in an 'unknown method :add_reference_sql' (with mysql2)
         #
         # should track it down separately and submit a patch/fix to rails

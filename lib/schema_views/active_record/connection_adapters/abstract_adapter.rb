@@ -20,7 +20,7 @@ module SchemaViews
           sql += " #{quote_table_name(view_name)}"
           execute sql
         end
-        
+
         #####################################################################
         #
         # The functions below here are abstract; each subclass should

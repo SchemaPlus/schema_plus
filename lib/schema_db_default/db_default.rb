@@ -1,7 +1,7 @@
 require 'singleton'
 
 module SchemaDbDefault
-  class DbDefault 
+  class DbDefault
     include Singleton
     def to_s
       'DEFAULT'
