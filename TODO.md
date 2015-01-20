@@ -8,11 +8,12 @@
 * dumper: don't output multiple t.index for the same column
 * rename this to schema_plus_index?
 
-## schema_foreign_keys
-* move fk stuff into schema_foreign_keys
-
 ## schema_plus
 * deprecate config => SchemaForeignKeys config
+* move fk stuff into schema_foreign_keys
+* dumper is dumping the deprecated syntax!
+* add specs to cover the deprecations
+* just do fk enhancements rather than replace AR's add_foreign_key and remove_foreign_key methods and foreign key lookups
 
 ## schema_monkey
 * consider automating the autoloads
