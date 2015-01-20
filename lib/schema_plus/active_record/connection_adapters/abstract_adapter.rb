@@ -32,6 +32,7 @@ module SchemaPlus
           end
 
           options = options.dup
+          options[:column] ||= foreign_key_column_for(to_table)
 
           foreign_key_sql = add_foreign_key_sql(from_table, to_table, options)
           execute "ALTER TABLE #{quote_table_name(from_table)} #{foreign_key_sql}"
@@ -44,10 +45,7 @@ module SchemaPlus
           "ADD #{foreign_key.to_sql}"
         end
 
-        def _build_foreign_key(from_table, column, to_table, primary_key, options = {}) #:nodoc:
-          options = options.dup
-          options.reverse_merge!(:column => column, :primary_key => primary_key || "id")
-          options.reverse_merge!(:name => ForeignKeyDefinition.default_name(from_table, column))
+        def _build_foreign_key(from_table, to_table, options = {}) #:nodoc:
           ::ActiveRecord::ConnectionAdapters::ForeignKeyDefinition.new(from_table, AbstractAdapter.proper_table_name(to_table), options)
         end
 
@@ -67,6 +65,7 @@ module SchemaPlus
         # raise an error.)
         def remove_foreign_key(*args)
           from_table, to_table, options = normalize_remove_foreign_key_args(*args)
+          options[:column] ||= foreign_key_column_for(to_table)
           if sql = remove_foreign_key_sql(from_table, to_table, options)
             execute "ALTER TABLE #{quote_table_name(from_table)} #{sql}"
           end
@@ -92,7 +91,7 @@ module SchemaPlus
           when 2
             from_table, to_table = args
           when 3, 4
-            ActiveSupport::Deprecation.warn "3- and 4-argument forms of add_foreign_key are deprecated.  use add_foreign_key(from_table, to_table, options)"
+            ActiveSupport::Deprecation.warn "3- and 4-argument forms of remove_foreign_key are deprecated.  use add_foreign_key(from_table, to_table, options)"
             (from_table, column, to_table, primary_key) = args
             options.merge!(column: column, primary_key: primary_key)
           else
@@ -110,7 +109,7 @@ module SchemaPlus
             ActiveSupport::Deprecation.warn "remove_foreign_key(table, name) is deprecated.  use remove_foreign_key(table, name: name)"
             return to_table
           end
-          test_fk = _build_foreign_key(from_table, options.delete(:column), to_table, options.delete(:primary_key), options)
+          test_fk = _build_foreign_key(from_table, to_table, options)
           if fk = fks.detect { |fk| fk.match(test_fk) }
             fk.name
           else
@@ -143,7 +142,7 @@ module SchemaPlus
           foreign_keys(newname).each do |fk|
             index = indexes(newname).find{|index| index.name == ForeignKeyDefinition.auto_index_name(oldname, fk.column)}
             begin
-              remove_foreign_key(newname, fk.name)
+              remove_foreign_key(newname, name: fk.name)
             rescue NotImplementedError
               # sqlite3 can't remove foreign keys, so just skip it
             end

@@ -102,11 +102,11 @@ describe "Schema dump" do
 
   context "with cyclic foreign key constraints", :sqlite3 => :skip do
     before(:all) do
-      ActiveRecord::Base.connection.add_foreign_key(Comment.table_name, :commenter_id, User.table_name, :id)
-      ActiveRecord::Base.connection.add_foreign_key(Comment.table_name, :post_id, Post.table_name, :id)
-      ActiveRecord::Base.connection.add_foreign_key(Post.table_name, :first_comment_id, Comment.table_name, :id)
-      ActiveRecord::Base.connection.add_foreign_key(Post.table_name, :user_id, User.table_name, :id)
-      ActiveRecord::Base.connection.add_foreign_key(User.table_name, :first_post_id, Post.table_name, :id)
+      ActiveRecord::Base.connection.add_foreign_key(Comment.table_name, User.table_name, column: :commenter_id)
+      ActiveRecord::Base.connection.add_foreign_key(Comment.table_name, Post.table_name, column: :post_id)
+      ActiveRecord::Base.connection.add_foreign_key(Post.table_name, Comment.table_name, column: :first_comment_id)
+      ActiveRecord::Base.connection.add_foreign_key(Post.table_name, User.table_name, column: :user_id)
+      ActiveRecord::Base.connection.add_foreign_key(User.table_name, Post.table_name, column: :first_post_id)
     end
 
     it "should not raise an error" do
@@ -139,7 +139,7 @@ describe "Schema dump" do
           t.column column.name, column.type
         end
         columnsets.each do |columns, referenced_table_name, referenced_columns, options|
-          t.foreign_key columns, referenced_table_name, referenced_columns, options || {}
+          t.foreign_key columns, referenced_table_name, (options||{}).merge(column: referenced_columns)
         end
       end
     end

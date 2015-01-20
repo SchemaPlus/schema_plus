@@ -151,11 +151,8 @@ module SchemaPlus
           args
         end
 
-        def remove_foreign_key_if_exists(env) #:nodoc:
-          table_name = env.table_name.to_s
-          foreign_keys = env.caller.foreign_keys(table_name)
-          fk = foreign_keys.detect { |fk| fk.from_table == table_name && fk.column == env.column_name.to_s }
-          env.caller.remove_foreign_key(table_name, fk.column, fk.to_table, fk.primary_key) if fk
+        def remove_foreign_key_if_exists(env)
+          env.caller.remove_foreign_key(env.table_name.to_s, column: env.column_name.to_s, :if_exists => true)
         end
 
         def remove_auto_index_if_exists(env)

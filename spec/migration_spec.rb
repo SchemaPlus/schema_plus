@@ -18,7 +18,7 @@ describe ActiveRecord::Migration do
         t.string :content
         t.integer :user
         t.integer :user_id
-        t.foreign_key :user_id, :users, :id
+        t.foreign_key :user_id, :users, :primary_key => :id
       end
 
       create_table :posts, :force => true do |t|

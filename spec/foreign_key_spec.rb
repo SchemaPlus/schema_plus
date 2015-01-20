@@ -12,7 +12,7 @@ describe "Foreign Key" do
         end
         create_table :comments, :force => true do |t|
           t.integer :user_id
-          t.foreign_key :user_id, :users, :id
+          t.foreign_key :user_id, :users
         end
       end
       class User < ::ActiveRecord::Base ; end
@@ -44,7 +44,7 @@ describe "Foreign Key" do
           end
           create_table :comments, :force => true do |t|
             t.integer :user_id
-            t.foreign_key :user_id, :users, :id
+            t.foreign_key :user_id, :users
           end
         end
       }.to raise_error(RuntimeError, /Internal Error: Can't find.*Rails internals have changed/)
@@ -69,7 +69,7 @@ describe "Foreign Key" do
         create_table :comments, :force => true do |t|
           t.text :body
           t.integer :post_id
-          t.foreign_key :post_id, :posts, :id
+          t.foreign_key :post_id, :posts
         end
       end
       class User < ::ActiveRecord::Base ; end
@@ -84,7 +84,7 @@ describe "Foreign Key" do
       context "when is added", "posts(author_id)" do
 
         before(:each) do
-          add_foreign_key(:posts, :author_id, :users, :id, :on_update => :cascade, :on_delete => :restrict)
+          add_foreign_key(:posts, :users, :column => :author_id, :on_update => :cascade, :on_delete => :restrict)
         end
 
         it "references users(id)" do
@@ -114,7 +114,7 @@ describe "Foreign Key" do
         let(:foreign_key_name) { fk = Comment.foreign_keys.detect(&its.column == 'post_id') and fk.name }
 
         before(:each) do
-          remove_foreign_key(:comments, foreign_key_name)
+          remove_foreign_key(:comments, name: foreign_key_name)
         end
 
         it "doesn't reference posts(id)" do
@@ -148,11 +148,11 @@ describe "Foreign Key" do
 
       context "when attempt to drop nonexistent foreign key" do
         it "raises error" do
-          expect{remove_foreign_key(:comments, "posts", "nonesuch")}.to raise_error(/no foreign key/i)
+          expect{remove_foreign_key(:comments, "posts", column: "nonesuch")}.to raise_error(/no foreign key/i)
         end
 
         it "does not error with :if_exists" do
-          expect{remove_foreign_key(:comments, "posts", "nonesuch", :if_exists => true)}.to_not raise_error
+          expect{remove_foreign_key(:comments, "posts", column: "nonesuch", :if_exists => true)}.to_not raise_error
         end
       end
 
@@ -161,7 +161,7 @@ describe "Foreign Key" do
         let(:foreign_key_name) { Comment.foreign_keys.detect { |definition| definition.column == 'post_id' }.name }
 
         it "should remove foreign keys" do
-          remove_foreign_key(:comments, foreign_key_name)
+          remove_foreign_key(:comments, name: foreign_key_name)
           expect(Post.reverse_foreign_keys.collect { |fk| fk.column == 'post_id' && fk.from_table == "comments" }).to be_empty
         end
 
@@ -179,9 +179,9 @@ describe "Foreign Key" do
         it "can add, detect, and remove a foreign key without error" do
           migration.suppress_messages do
             expect {
-              migration.add_foreign_key(:references, :post_id, :posts, :id)
+              migration.add_foreign_key(:references, :posts)
               foreign_key = migration.foreign_keys(:references).detect{|definition| definition.column == "post_id"}
-              migration.remove_foreign_key(:references, foreign_key.name)
+              migration.remove_foreign_key(:references, name: foreign_key.name)
             }.to_not raise_error
           end
         end
@@ -199,7 +199,7 @@ describe "Foreign Key" do
 
       it "when attempting to remove" do
         expect {
-          remove_foreign_key(:posts, "dummy")
+          remove_foreign_key(:posts, name: "dummy")
         }.to raise_error(NotImplementedError)
       end
 

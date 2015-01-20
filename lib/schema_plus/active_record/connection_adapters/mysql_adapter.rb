@@ -17,7 +17,7 @@ module SchemaPlus
 
         def remove_column_with_schema_plus(table_name, column_name, type=nil, options={})
           foreign_keys(table_name).select { |foreign_key| Array.wrap(foreign_key.column).include?(column_name.to_s) }.each do |foreign_key|
-            remove_foreign_key(table_name, foreign_key.name)
+            remove_foreign_key(table_name, name: foreign_key.name)
           end
           remove_column_without_schema_plus(table_name, column_name, type, options)
         end
@@ -31,7 +31,7 @@ module SchemaPlus
         def drop_table(name, options={})
           if options[:cascade]
             reverse_foreign_keys(name).each do |foreign_key|
-              remove_foreign_key(foreign_key.from_table, foreign_key.name)
+              remove_foreign_key(foreign_key.from_table, name: foreign_key.name)
             end
           end
 

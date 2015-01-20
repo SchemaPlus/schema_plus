@@ -81,7 +81,7 @@ module SchemaPlus::ActiveRecord::ConnectionAdapters
         column_names, to_table, primary_key = args
         options.merge(:primary_key => primary_key)
       else
-        raise ArgumentError, "wrong number of arguments (#{args.lengt}) for foreign_key(column_names, table_name, options)"
+        raise ArgumentError, "wrong number of arguments (#{args.length}) for foreign_key(column_names, table_name, options)"
       end
 
       options.merge!(:column => column_names)

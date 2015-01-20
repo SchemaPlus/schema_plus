@@ -18,15 +18,9 @@ describe "Index definition" do
         t.integer :author_id
       end
 
-      create_table :comments, :force => true do |t|
-        t.text :body
-        t.integer :post_id
-        t.foreign_key :post_id, :posts, :id
-      end
     end
     class User < ::ActiveRecord::Base ; end
     class Post < ::ActiveRecord::Base ; end
-    class Comment < ::ActiveRecord::Base ; end
   end
 
   around(:each) do |example|
