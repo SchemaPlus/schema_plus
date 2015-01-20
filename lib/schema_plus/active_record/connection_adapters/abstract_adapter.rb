@@ -20,24 +20,35 @@ module SchemaPlus
         # constraints; they must be included in the table specification when
         # it's created.  If you're using Sqlite3, this method will raise an
         # error.)
-        def add_foreign_key(table_name, column_names, references_table_name, references_column_names, options = {})
-          foreign_key_sql = add_foreign_key_sql(table_name, column_names, references_table_name, references_column_names, options)
-          execute "ALTER TABLE #{quote_table_name(table_name)} #{foreign_key_sql}"
+        def add_foreign_key(*args) # (table_name, column_names, to_table, primary_key, options = {})
+          options = args.extract_options!
+          case args.length
+          when 2
+            from_table, to_table = args
+          when 4
+            ActiveSupport::Deprecation.warn "4-argument form of add_foreign_key is deprecated.  use add_foreign_key(from_table, to_table, options)"
+            (from_table, column, to_table, primary_key) = args
+            options.merge!(column: column, primary_key: primary_key)
+          end
+
+          options = options.dup
+
+          foreign_key_sql = add_foreign_key_sql(from_table, to_table, options)
+          execute "ALTER TABLE #{quote_table_name(from_table)} #{foreign_key_sql}"
         end
 
         # called directly by AT's bulk_change_table, for migration
         # change_table :name, :bulk => true { ... }
-        def add_foreign_key_sql(table_name, column_names, references_table_name, references_column_names, options = {}) #:nodoc:
-          foreign_key = _build_foreign_key(table_name, column_names, references_table_name, references_column_names, options)
+        def add_foreign_key_sql(from_table, to_table, options = {}) #:nodoc:
+          foreign_key = ::ActiveRecord::ConnectionAdapters::ForeignKeyDefinition.new(from_table, AbstractAdapter.proper_table_name(to_table), options)
           "ADD #{foreign_key.to_sql}"
         end
 
-        def _build_foreign_key(table_name, column_names, references_table_name, references_column_names, options = {}) #:nodoc:
+        def _build_foreign_key(from_table, column_names, to_table, primary_key, options = {}) #:nodoc:
           options = options.dup
-          options.reverse_merge!(:column_names => column_names, :references_column_names => references_column_names || "id")
-          options.reverse_merge!(:name => ForeignKeyDefinition.default_name(table_name, column_names))
-          options.reverse_merge!(:references_table_name => references_table_name)
-          ForeignKeyDefinition.new(table_name, AbstractAdapter.proper_table_name(options.delete(:references_table_name)), options)
+          options.reverse_merge!(:column => column_names, :primary_key => primary_key || "id")
+          options.reverse_merge!(:name => ForeignKeyDefinition.default_name(from_table, column_names))
+          ::ActiveRecord::ConnectionAdapters::ForeignKeyDefinition.new(from_table, AbstractAdapter.proper_table_name(to_table), options)
         end
 
         def self.proper_table_name(name)
@@ -48,41 +59,68 @@ module SchemaPlus
         #
         # Arguments are the same as for add_foreign_key, or by name:
         #
-        #    remove_foreign_key table_name, column_names, references_table_name, references_column_names
-        #    remove_foreign_key name: constraint_name
+        #    remove_foreign_key table_name, to_table, options
+        #    remove_foreign_key table_name, name: constraint_name
         #
         # (NOTE: Sqlite3 does not support altering a table to remove
         # foreign-key constraints.  If you're using Sqlite3, this method will
         # raise an error.)
-        def remove_foreign_key(table_name, *args)
-          if sql = remove_foreign_key_sql(table_name, *args)
-            execute "ALTER TABLE #{quote_table_name(table_name)} #{sql}"
+        def remove_foreign_key(*args)
+          from_table, to_table, options = normalize_remove_foreign_key_args(*args)
+          if sql = remove_foreign_key_sql(from_table, to_table, options)
+            execute "ALTER TABLE #{quote_table_name(from_table)} #{sql}"
           end
         end
 
-        def get_foreign_key_name(table_name, *args)
-          args = args.dup
+        def normalize_remove_foreign_key_args(*args)
           options = args.extract_options!
+          if options.has_key? :column_names
+            ActiveSupport::Deprecation.warn ":column_names option is deprecated, use :column"
+            options[:column] = options.delete(:column_names)
+          end
+          if options.has_key? :references_column_names
+            ActiveSupport::Deprecation.warn ":references_column_names option is deprecated, use :primary_key"
+            options[:primary_key] = options.delete(:references_column_names)
+          end
+          if options.has_key? :references_table_name
+            ActiveSupport::Deprecation.warn ":references_table_name option is deprecated, use :to_table"
+            options[:to_table] = options.delete(:references_table_name)
+          end
+          case args.length
+          when 1
+            from_table = args[0]
+          when 2
+            from_table, to_table = args
+          when 3, 4
+            ActiveSupport::Deprecation.warn "3- and 4-argument forms of add_foreign_key are deprecated.  use add_foreign_key(from_table, to_table, options)"
+            (from_table, column, to_table, primary_key) = args
+            options.merge!(column: column, primary_key: primary_key)
+          else
+            raise ArgumentError, "Wrong number of arguments(args.length) to remove_foreign_key"
+          end
+          to_table ||= options.delete(:to_table)
+          [from_table, to_table, options]
+        end
+
+        def get_foreign_key_name(from_table, to_table, options)
           return options[:name] if options[:name]
 
-          case
-          when args.length == 1
-            args[0]
+          fks = foreign_keys(from_table)
+          if fks.detect(&its.name == to_table)
+            ActiveSupport::Deprecation.warn "remove_foreign_key(table, name) is deprecated.  use remove_foreign_key(table, name: name)"
+            return to_table
+          end
+          test_fk = _build_foreign_key(from_table, options.delete(:column), to_table, options.delete(:primary_key), options)
+          if fk = fks.detect { |fk| fk.match(test_fk) }
+            fk.name
           else
-            column_names, references_table_name, references_column_names = args
-            test_fk = _build_foreign_key(table_name, column_names, references_table_name, references_column_names, options)
-            if fk = foreign_keys(table_name).detect { |fk| fk == test_fk }
-              fk.name
-            else
-              raise "SchemaPlus: no foreign key constraint found on #{table_name.inspect} matching #{(args + [options]).inspect}" unless options[:if_exists]
-              nil
-            end
+            raise "SchemaPlus: no foreign key constraint found on #{from_table.inspect} matching #{[to_table, options].inspect}" unless options[:if_exists]
+            nil
           end
         end
 
-        def remove_foreign_key_sql(table_name, *args)
-          options = args.dup.extract_options!
-          if foreign_key_name = get_foreign_key_name(table_name, *args)
+        def remove_foreign_key_sql(from_table, to_table, options)
+          if foreign_key_name = get_foreign_key_name(from_table, to_table, options)
             "DROP CONSTRAINT #{options[:if_exists] ? "IF EXISTS" : ""} #{foreign_key_name}"
           end
         end
@@ -114,7 +152,7 @@ module SchemaPlus
             # if the index is on a foreign key constraint
             rename_index(newname, index.name, ForeignKeyDefinition.auto_index_name(newname, index.columns)) if index
             begin
-              add_foreign_key(newname, fk.column_names, fk.references_table_name, fk.references_column_names, :name => fk.name.sub(/#{oldname}/, newname), :on_update => fk.on_update, :on_delete => fk.on_delete, :deferrable => fk.deferrable)
+              add_foreign_key(newname, fk.column_names, fk.to_table, fk.primary_key, :name => fk.name.sub(/#{oldname}/, newname), :on_update => fk.on_update, :on_delete => fk.on_delete, :deferrable => fk.deferrable)
             rescue NotImplementedError
               # sqlite3 can't add foreign keys, so just skip it
             end

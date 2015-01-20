@@ -15,25 +15,48 @@ module SchemaPlus
       # The deferrable attribute can take on the following values:
       #   true
       #   :initially_deferred
-      class ForeignKeyDefinition < ::ActiveRecord::ConnectionAdapters::ForeignKeyDefinition
+      module ForeignKeyDefinition
 
-        # The list of column names that are constrained (as strings).
-        attr_reader :column_names
+        def self.included(base)
+          base.class_eval do
+            alias_method_chain :initialize, :schema_plus
+          end
+        end
 
-        # The list of column names (as strings) of the foreign table that are referenced
-        # by the constraint
-        attr_reader :references_column_names
-        # :enddoc:
+        def column_names
+          ActiveSupport::Deprecation.warn "ForeignKeyDefinition#column_names is depcreated, use Array.wrap(column)"
+          Array.wrap(column)
+        end
+
+        def references_column_names
+          ActiveSupport::Deprecation.warn "ForeignKeyDefinition#references_column_names is depcreated, use Array.wrap(primary_key)"
+          Array.wrap(primary_key)
+        end
+
+        def references_table_name
+          ActiveSupport::Deprecation.warn "ForeignKeyDefinition#references_table_name is depcreated, use #to_table"
+          to_table
+        end
+
+        def table_name
+          ActiveSupport::Deprecation.warn "ForeignKeyDefinition#table_name is depcreated, use #from_table"
+          from_table
+        end
 
         ACTIONS = { :cascade => "CASCADE", :restrict => "RESTRICT", :set_null => "SET NULL", :set_default => "SET DEFAULT", :no_action => "NO ACTION" }.freeze
 
-        def initialize(from_table, to_table, options) 
-          super
-          @from_table = unquote(from_table)
-          @to_table = unquote(to_table)
-          @column_names = unquote(Array.wrap(options.delete(:column_names)))
-          @references_column_names = unquote(Array.wrap(options.delete(:references_column_names)))
-
+        def initialize_with_schema_plus(from_table, to_table, options={}) 
+          fail if options.has_key? :column_names
+          fail if options.has_key? :references_column_names
+          fail if options.has_key? :references_table_name
+          fail if options.has_key? :table_name
+          initialize_without_schema_plus(from_table, to_table, options)
+          if column.is_a?(Array) and column.length == 1
+            options[:column] = column[0]
+          end
+          if primary_key.is_a?(Array) and primary_key.length == 1
+            options[:primary_key] = primary_key[0]
+          end
           ACTIONS.has_key?(on_update) or raise(ArgumentError, "invalid :on_update action: #{on_update.inspect}") if on_update
           ACTIONS.has_key?(on_delete) or raise(ArgumentError, "invalid :on_delete action: #{on_delete.inspect}") if on_delete
           if ::ActiveRecord::Base.connection.adapter_name =~ /^mysql/i
@@ -42,15 +65,7 @@ module SchemaPlus
           end
         end
 
-        def table_name
-          from_table
-        end
-
-        def references_table_name
-          to_table
-        end
-
-        # True if the constraint is deferrable
+        # Truthy if the constraint is deferrable
         def deferrable
           options[:deferrable]
         end
@@ -58,8 +73,8 @@ module SchemaPlus
         # Dumps a definition of foreign key.
         def to_dump(opts={})
           dump = (opts[:inline] ? "t.foreign_key" : "add_foreign_key #{table_name.inspect},")
-          dump << " [#{Array(column_names).collect{ |name| name.inspect }.join(', ')}]"
-          dump << ", #{references_table_name.inspect}, [#{Array(references_column_names).collect{ |name| name.inspect }.join(', ')}]"
+          dump << " [#{Array(column).collect{ |name| name.inspect }.join(', ')}]"
+          dump << ", #{to_table.inspect}, [#{Array(primary_key).collect{ |name| name.inspect }.join(', ')}]"
           dump << ", :on_update => #{on_update.inspect}" if on_update
           dump << ", :on_delete => #{on_delete.inspect}" if on_delete
           dump << ", :deferrable => #{deferrable.inspect}" if deferrable
@@ -70,7 +85,7 @@ module SchemaPlus
 
         def to_sql
           sql = name ? "CONSTRAINT #{name} " : ""
-          sql << "FOREIGN KEY (#{quoted_column_names.join(", ")}) REFERENCES #{quoted_references_table_name} (#{quoted_references_column_names.join(", ")})"
+          sql << "FOREIGN KEY (#{quoted_column_names.join(", ")}) REFERENCES #{quoted_to_table} (#{quoted_primary_keys.join(", ")})"
           sql << " ON UPDATE #{ACTIONS[on_update]}" if on_update
           sql << " ON DELETE #{ACTIONS[on_delete]}" if on_delete
           sql << " DEFERRABLE" if deferrable
@@ -79,27 +94,15 @@ module SchemaPlus
         end
 
         def quoted_column_names
-          Array(column_names).collect { |name| ::ActiveRecord::Base.connection.quote_column_name(name) }
+          Array(column).map { |name| ::ActiveRecord::Base.connection.quote_column_name(name) }
         end
 
-        def quoted_references_column_names
-          Array(references_column_names).collect { |name| ::ActiveRecord::Base.connection.quote_column_name(name) }
+        def quoted_primary_keys
+          Array(primary_key).map { |name| ::ActiveRecord::Base.connection.quote_column_name(name) }
         end
 
-        def quoted_references_table_name
-          ::ActiveRecord::Base.connection.quote_table_name(references_table_name)
-        end
-
-        def unquote(names)
-          if names.is_a?(Array)
-            names.collect { |name| __unquote(name) }
-          else
-            __unquote(names)
-          end
-        end
-
-        def __unquote(value)
-          value.to_s.sub(/^["`](.*)["`]$/, '\1')
+        def quoted_to_table
+          ::ActiveRecord::Base.connection.quote_table_name(to_table)
         end
 
         def self.default_name(table_name, column_names)
@@ -116,11 +119,18 @@ module SchemaPlus
         end
 
         def ==(other) # note equality test ignores :name and options
-          [:table_name,
-           :column_names,
-           :references_table_name,
-           :references_column_names
+          [:from_table,
+           :column,
+           :to_table,
+           :primary_key
            ].all? { |attr| self.send(attr) == other.send(attr) }
+        end
+
+        def match(test)
+          return false unless from_table == test.from_table
+          [:to_table, :column].reject{ |attr| test.send(attr).blank? }.all? { |attr|
+            test.send(attr).to_s == self.send(attr).to_s
+          }
         end
       end
     end

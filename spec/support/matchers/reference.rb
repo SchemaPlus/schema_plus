@@ -2,24 +2,23 @@ module SchemaPlusMatchers
 
   class Reference
     def initialize(expected)
-      @column_names = @on_update = @on_delete = @deferrable = @name = @references_table_name = @references_column_names = nil
+      @column = @on_update = @on_delete = @deferrable = @name = @to_table = @primary_key = nil
       unless expected.empty?
-        @references_column_names = Array(expected).collect(&:to_s)
-        @references_table_name = @references_column_names.shift 
+        @to_table, @primary_key = Array(expected).map(&:to_s)
       end
     end
 
     def matches?(model)
       @model = model
-      if @references_table_name
+      if @to_table
         @result = @model.foreign_keys.select do |fk|
-          fk.references_table_name == @references_table_name && 
-            @references_column_names.empty? ? true : fk.references_column_names == @references_column_names 
+          fk.to_table == @to_table && 
+            @primary_key.blank? ? true : fk.primary_key == @primary_key 
         end
       else
         @result = @model.foreign_keys
       end
-      @result.keep_if {|fk| fk.column_names == @column_names } if @column_names
+      @result.keep_if {|fk| Array.wrap(fk.column) == @column } if @column
       @result.keep_if {|fk| fk.on_update == @on_update } if @on_update
       @result.keep_if {|fk| fk.on_delete == @on_delete } if @on_delete
       @result.keep_if {|fk| fk.deferrable == @deferrable } if @deferrable
@@ -28,10 +27,10 @@ module SchemaPlusMatchers
     end
 
     def failure_message(should_not = false)
-      target_column_names = @column_names.present? ? "(#{@column_names.join(', ')})" : "" 
-      destinantion_column_names = @references_table_name ? "#{@references_table_name}(#{@references_column_names.join(', ')})" : "anything"
+      target_column = @column.present? ? "(#{Array.wrap(@column).join(', ')})" : "" 
+      destinantion_column = @to_table ? "#{@to_table}(#{Array.wrap(@primary_key).join(', ')})" : "anything"
       invert = should_not ? 'not' : ''
-      msg = "Expected #{@model.table_name}#{target_column_names} to #{invert} reference #{destinantion_column_names}"
+      msg = "Expected #{@model.table_name}#{target_column} to #{invert} reference #{destinantion_column}"
       with = []
       with << "on_update=#{@on_update.inspect}" if @on_update
       with << "on_delete=#{@on_delete.inspect}" if @on_delete
@@ -45,8 +44,8 @@ module SchemaPlusMatchers
       failure_message(true)
     end
   
-    def on(*column_names)
-      @column_names = column_names.collect(&:to_s)
+    def on(*column)
+      @column = column.collect(&:to_s)
       self
     end
 

@@ -48,6 +48,11 @@ module SchemaPlus
 
         private
 
+        def unquote(name)
+          return name.map { |name| unquote(name) } if name.is_a?(Array)
+          name.sub(/^["`](.*)["`]$/, '\1')
+        end
+
         def namespace_sql(table_name)
           (table_name.to_s =~ /(.*)[.]/) ?  "'#{$1}'" : "ANY (current_schemas(false))"
         end
@@ -62,10 +67,10 @@ module SchemaPlus
           query(sql, name).each do |row|
             if row[1] =~ /^FOREIGN KEY \((.+?)\) REFERENCES (.+?)\((.+?)\)( ON UPDATE (.+?))?( ON DELETE (.+?))?( (DEFERRABLE|NOT DEFERRABLE)( (INITIALLY DEFERRED|INITIALLY IMMEDIATE))?)?$/
               name = row[0]
-              from_table_name = row[2]
-              column_names = $1
-              references_table_name = $2
-              references_column_names = $3
+              from_table = unquote(row[2])
+              columns = unquote($1.split(', '))
+              to_table = unquote($2)
+              primary_keys = unquote($3.split(', '))
               on_update = $5
               on_delete = $7
               deferrable = $9 == "DEFERRABLE"
@@ -76,13 +81,14 @@ module SchemaPlus
               options = { :name => name,
                           :on_delete => on_delete,
                           :on_update => on_update,
-                          :column_names => column_names.split(', '),
-                          :references_column_names => references_column_names.split(', '),
+                          :column => columns,
+                          :primary_key => primary_keys,
                           :deferrable => deferrable }
 
-              foreign_keys << ForeignKeyDefinition.new(from_table_name,
-                                                       references_table_name.sub(/^"(.*)"$/, '\1'),
-                                                       options)
+              foreign_keys << ::ActiveRecord::ConnectionAdapters::ForeignKeyDefinition.new(
+                from_table,
+                to_table.sub(/^"(.*)"$/, '\1'),
+                options)
             end
           end
 

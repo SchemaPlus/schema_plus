@@ -44,19 +44,17 @@ module SchemaPlus
           execute sql
         end
 
-        def remove_foreign_key(table_name, *args)
-          args = args.dup
-          options = args.extract_options!
-          args += [options]
+        def remove_foreign_key(*args)
+          from_table, to_table, options = normalize_remove_foreign_key_args(*args)
           if options[:if_exists]
-            foreign_key_name = get_foreign_key_name(table_name, *args)
-            return if !foreign_key_name or not foreign_keys(table_name).detect{|fk| fk.name == foreign_key_name}
+            foreign_key_name = get_foreign_key_name(from_table, to_table, options)
+            return if !foreign_key_name or not foreign_keys(from_table).detect{|fk| fk.name == foreign_key_name}
           end
           options.delete(:if_exists)
-          super table_name, *args
+          super from_table, to_table, options
         end
 
-        def remove_foreign_key_sql(table_name, *args)
+        def remove_foreign_key_sql(*args)
           super.tap { |ret|
             ret.sub!(/DROP CONSTRAINT/, 'DROP FOREIGN KEY') if ret
           }
@@ -75,10 +73,10 @@ module SchemaPlus
             create_table_sql.lines.each do |line|
               if line =~ /^  CONSTRAINT [`"](.+?)[`"] FOREIGN KEY \([`"](.+?)[`"]\) REFERENCES [`"](.+?)[`"] \((.+?)\)( ON DELETE (.+?))?( ON UPDATE (.+?))?,?$/
                 name = $1
-                column_names = $2
-                references_table_name = $3
-                references_table_name = namespace_prefix + references_table_name if table_namespace_prefix(references_table_name).blank?
-                references_column_names = $4
+                columns = $2
+                to_table = $3
+                to_table = namespace_prefix + to_table if table_namespace_prefix(to_table).blank?
+                primary_keys = $4
                 on_update = $8
                 on_delete = $6
                 on_update = on_update ? on_update.downcase.gsub(' ', '_').to_sym : :restrict
@@ -87,12 +85,14 @@ module SchemaPlus
                 options = { :name => name,
                             :on_delete => on_delete,
                             :on_update => on_update,
-                            :column_names => column_names.gsub('`', '').split(', '),
-                            :references_column_names => references_column_names.gsub('`', '').split(', ') }
+                            :column => columns.gsub('`', '').split(', '),
+                            :primary_key => primary_keys.gsub('`', '').split(', ')
+                }
 
-                foreign_keys << ForeignKeyDefinition.new(namespace_prefix + table_name,
-                                                         references_table_name,
-                                                         options)
+                foreign_keys << ::ActiveRecord::ConnectionAdapters::ForeignKeyDefinition.new(
+                  namespace_prefix + table_name,
+                  to_table,
+                  options)
               end
             end
           end
@@ -123,11 +123,11 @@ module SchemaPlus
 
             options = {
               :name => constraint_name,
-              :column_names => columns.map { |row| row['column_name'] },
-              :references_column_names => columns.map { |row| row['referenced_column_name'] }
+              :column => columns.map { |row| row['column_name'] },
+              :primary_key => columns.map { |row| row['referenced_column_name'] }
             }
 
-            ForeignKeyDefinition.new(from_table, to_table, options)
+            ::ActiveRecord::ConnectionAdapters::ForeignKeyDefinition.new(from_table, to_table, options)
           end
         end
 

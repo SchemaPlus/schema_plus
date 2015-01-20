@@ -37,7 +37,7 @@ module SchemaPlus
           rename_foreign_keys(oldname, newname)
         end
 
-        def add_foreign_key(table_name, column_names, references_table_name, references_column_names, options = {})
+        def add_foreign_key(table_name, column_names, to_table, primary_key, options = {})
           raise NotImplementedError, "Sqlite3 does not support altering a table to add foreign key constraints (table #{table_name.inspect} column #{column_names.inspect})"
         end
 
@@ -54,7 +54,7 @@ module SchemaPlus
         end
 
         def reverse_foreign_keys(table_name, name = nil)
-          get_foreign_keys(nil, name).select{|definition| definition.references_table_name == table_name}
+          get_foreign_keys(nil, name).select{|definition| definition.to_table == table_name}
         end
 
         protected
@@ -77,11 +77,11 @@ module SchemaPlus
 
           foreign_keys = []
           results.each do |row|
-            table_name = row["name"]
-            row["sql"].scan(re).each do |d0, name, column_names, references_table_name, references_column_names, d1, on_update, d2, on_delete, deferrable, initially_deferred|
-              column_names = column_names.gsub('`', '').split(', ')
+            from_table = row["name"]
+            row["sql"].scan(re).each do |d0, name, columns, to_table, primary_keys, d1, on_update, d2, on_delete, deferrable, initially_deferred|
+              columns = columns.gsub(/`/, '').split(', ')
 
-              references_column_names = references_column_names.gsub('`"', '').split(', ')
+              primary_keys = primary_keys.gsub(/[`"]/, '').split(', ')
               on_update = on_update ? on_update.downcase.gsub(' ', '_').to_sym : :no_action
               on_delete = on_delete ? on_delete.downcase.gsub(' ', '_').to_sym : :no_action
               deferrable = deferrable ? (initially_deferred ? :initially_deferred : true) : false
@@ -89,13 +89,14 @@ module SchemaPlus
               options = { :name => name,
                           :on_update => on_update,
                           :on_delete => on_delete,
-                          :column_names => column_names,
-                          :references_column_names => references_column_names,
+                          :column => columns,
+                          :primary_key => primary_keys,
                           :deferrable => deferrable }
 
-              foreign_keys << ForeignKeyDefinition.new(table_name,
-                                                       references_table_name,
-                                                       options)
+              foreign_keys << ::ActiveRecord::ConnectionAdapters::ForeignKeyDefinition.new(
+                from_table,
+                to_table,
+                options)
             end
           end
 

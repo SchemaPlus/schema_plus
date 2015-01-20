@@ -9,7 +9,7 @@ module SchemaPlus
           base.class_eval do
             alias_method_chain :add_reference, :schema_plus
             alias_method_chain :invert_add_index, :schema_plus
-            alias_method_chain :invert_add_foreign_key, :schema_plus
+            #alias_method_chain :invert_add_foreign_key, :schema_plus
           end
         end
 

@@ -71,10 +71,22 @@ module SchemaPlus::ActiveRecord::ConnectionAdapters
       @foreign_keys ||= []
     end
 
-    def foreign_key(column_names, references_table_name, references_column_names, options = {})
-      options.merge!(:column_names => column_names, :references_column_names => references_column_names)
+    def foreign_key(*args) # (column_names, references_table_name, references_column_names=nil, options=nil)
+      options = args.extract_options!
+      case args.length
+      when 2
+        column_names, references_table_name = args
+      when 3
+        ActiveSupport::Deprecation.warn "t.foreign_key positional arg for foreign primary key is deprecated, use :primary_key option instead"
+        column_names, references_table_name, primary_key = args
+        options.merge(:primary_key => primary_key)
+      else
+        raise ArgumentError, "wrong number of arguments (#{args.lengt}) for foreign_key(column_names, table_name, options)"
+      end
+
+      options.merge!(:column => column_names)
       options.reverse_merge!(:name => ForeignKeyDefinition.default_name(self.name, column_names))
-      foreign_keys << ForeignKeyDefinition.new(self.name, AbstractAdapter.proper_table_name(references_table_name), options)
+      foreign_keys << ::ActiveRecord::ConnectionAdapters::ForeignKeyDefinition.new(self.name, AbstractAdapter.proper_table_name(references_table_name), options)
       self
     end
 

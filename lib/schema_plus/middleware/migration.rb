@@ -22,6 +22,18 @@ module SchemaPlus
             end
           end
 
+          if fk_options and fk_options.has_key?(:references)
+            case fk_options[:references]
+            when nil, false
+              fk_options = false
+            when Array then
+              table, primary_key = fk_options[:references]
+              fk_options[:references] = table
+              fk_options[:primary_key] ||= primary_key
+            end
+          end
+
+
           fk_options = false if fk_options and fk_options.has_key?(:references) and not fk_options[:references]
 
           env.options[:foreign_key] = fk_options
@@ -106,9 +118,9 @@ module SchemaPlus
           references = fk_args.delete(:references)
           case env.caller
           when ::ActiveRecord::ConnectionAdapters::TableDefinition
-            env.caller.foreign_key(env.column_name, references.first, references.last, fk_args)
+            env.caller.foreign_key(env.column_name, references, fk_args)
           else
-            env.caller.add_foreign_key(env.table_name, env.column_name, references.first, references.last, fk_args)
+            env.caller.add_foreign_key(env.table_name, references, fk_args.merge(:column => env.column_name))
           end
         end
 
@@ -132,8 +144,6 @@ module SchemaPlus
                                   table_name = table_name.pluralize if ::ActiveRecord::Base.pluralize_table_names
                                   table_name
                                 end
-
-          args[:references] = [args[:references], :id] unless args[:references].is_a? Array
 
           args[:on_update] ||= config.on_update
           args[:on_delete] ||= config.on_delete
