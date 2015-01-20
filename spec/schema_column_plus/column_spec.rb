@@ -82,13 +82,28 @@ describe "Column" do
       end
     end
 
-    context "with case insensitive index" do
-
-      it "reports column as case insensitive" do
+    context "with case insensitive" do
+      before(:each) do
         create_table(User, :login => { :index => {}})
         User.reset_column_information
-        expect(User.indexes.first).to receive(:case_sensitive?).and_return(false);
-        expect(User.columns.find(&its.name == "login")).not_to be_case_sensitive
+        @column = User.columns.find(&its.name == "login")
+      end
+
+      context "index", :mysql => :skip do
+
+        it "reports column as case insensitive" do
+          allow(User.indexes.first).to receive(:case_sensitive?).and_return(false);
+          expect(@column).not_to be_case_sensitive
+        end
+      end
+
+      context "database", :mysql => :only do
+
+        # make sure we haven't broken mysql's method
+        it "reports column as case insensitive" do
+          allow(migration).to receive(:collation).and_return("utf8_unicode_ci") # mysql determines case insensitivity its own way
+          expect(@column).not_to be_case_sensitive
+        end
       end
     end
 
