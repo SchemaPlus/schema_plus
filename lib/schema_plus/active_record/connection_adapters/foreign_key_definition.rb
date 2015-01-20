@@ -46,10 +46,6 @@ module SchemaPlus
         ACTIONS = { :cascade => "CASCADE", :restrict => "RESTRICT", :set_null => "SET NULL", :set_default => "SET DEFAULT", :no_action => "NO ACTION" }.freeze
 
         def initialize_with_schema_plus(from_table, to_table, options={}) 
-          fail if options.has_key? :column_names
-          fail if options.has_key? :references_column_names
-          fail if options.has_key? :references_table_name
-          fail if options.has_key? :table_name
           initialize_without_schema_plus(from_table, to_table, options)
           if column.is_a?(Array) and column.length == 1
             options[:column] = column[0]
@@ -72,7 +68,7 @@ module SchemaPlus
 
         # Dumps a definition of foreign key.
         def to_dump(opts={})
-          dump = (opts[:inline] ? "t.foreign_key" : "add_foreign_key #{table_name.inspect},")
+          dump = (opts[:inline] ? "t.foreign_key" : "add_foreign_key #{from_table.inspect},")
           dump << " [#{Array(column).collect{ |name| name.inspect }.join(', ')}]"
           dump << ", #{to_table.inspect}, [#{Array(primary_key).collect{ |name| name.inspect }.join(', ')}]"
           dump << ", :on_update => #{on_update.inspect}" if on_update
@@ -105,12 +101,12 @@ module SchemaPlus
           ::ActiveRecord::Base.connection.quote_table_name(to_table)
         end
 
-        def self.default_name(table_name, column_names)
-          "fk_#{fixup_schema_name(table_name)}_#{Array.wrap(column_names).join('_and_')}"
+        def self.default_name(from_table, column)
+          "fk_#{fixup_schema_name(from_table)}_#{Array.wrap(column).join('_and_')}"
         end
 
-        def self.auto_index_name(table_name, column_name)
-          "fk__#{fixup_schema_name(table_name)}_#{Array.wrap(column_name).join('_and_')}"
+        def self.auto_index_name(from_table, column_name)
+          "fk__#{fixup_schema_name(from_table)}_#{Array.wrap(column_name).join('_and_')}"
         end
 
         def self.fixup_schema_name(table_name)

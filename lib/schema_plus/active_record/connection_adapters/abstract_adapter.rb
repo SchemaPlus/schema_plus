@@ -20,7 +20,7 @@ module SchemaPlus
         # constraints; they must be included in the table specification when
         # it's created.  If you're using Sqlite3, this method will raise an
         # error.)
-        def add_foreign_key(*args) # (table_name, column_names, to_table, primary_key, options = {})
+        def add_foreign_key(*args) # (table_name, column, to_table, primary_key, options = {})
           options = args.extract_options!
           case args.length
           when 2
@@ -44,10 +44,10 @@ module SchemaPlus
           "ADD #{foreign_key.to_sql}"
         end
 
-        def _build_foreign_key(from_table, column_names, to_table, primary_key, options = {}) #:nodoc:
+        def _build_foreign_key(from_table, column, to_table, primary_key, options = {}) #:nodoc:
           options = options.dup
-          options.reverse_merge!(:column => column_names, :primary_key => primary_key || "id")
-          options.reverse_merge!(:name => ForeignKeyDefinition.default_name(from_table, column_names))
+          options.reverse_merge!(:column => column, :primary_key => primary_key || "id")
+          options.reverse_merge!(:name => ForeignKeyDefinition.default_name(from_table, column))
           ::ActiveRecord::ConnectionAdapters::ForeignKeyDefinition.new(from_table, AbstractAdapter.proper_table_name(to_table), options)
         end
 
@@ -141,7 +141,7 @@ module SchemaPlus
         # name to
         def rename_foreign_keys(oldname, newname) #:nodoc:
           foreign_keys(newname).each do |fk|
-            index = indexes(newname).find{|index| index.name == ForeignKeyDefinition.auto_index_name(oldname, fk.column_names)}
+            index = indexes(newname).find{|index| index.name == ForeignKeyDefinition.auto_index_name(oldname, fk.column)}
             begin
               remove_foreign_key(newname, fk.name)
             rescue NotImplementedError
@@ -152,7 +152,7 @@ module SchemaPlus
             # if the index is on a foreign key constraint
             rename_index(newname, index.name, ForeignKeyDefinition.auto_index_name(newname, index.columns)) if index
             begin
-              add_foreign_key(newname, fk.column_names, fk.to_table, fk.primary_key, :name => fk.name.sub(/#{oldname}/, newname), :on_update => fk.on_update, :on_delete => fk.on_delete, :deferrable => fk.deferrable)
+              add_foreign_key(newname, fk.to_table, :column => fk.column, :primary_key => fk.primary_key, :name => fk.name.sub(/#{oldname}/, newname), :on_update => fk.on_update, :on_delete => fk.on_delete, :deferrable => fk.deferrable)
             rescue NotImplementedError
               # sqlite3 can't add foreign keys, so just skip it
             end

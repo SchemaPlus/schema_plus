@@ -159,7 +159,7 @@ describe "Schema dump" do
 
   def determine_foreign_key_name(model, columns, options)
     name = options[:name] 
-    name ||= model.foreign_keys.detect { |fk| fk.table_name == model.table_name.to_s && fk.column_names == Array(columns).collect(&:to_s) }.name
+    name ||= model.foreign_keys.detect { |fk| fk.from_table == model.table_name.to_s && Array.wrap(fk.column) == Array.wrap(columns).collect(&:to_s) }.name
   end
 
   def dump_schema(opts={})

@@ -70,9 +70,9 @@ describe "with multiple schemas" do
         t.integer :user_id, :foreign_key => true
       end
       Comment.reset_column_information
-      expect(Comment.foreign_keys.map(&:column_names).flatten).to eq(["user_id"])
+      expect(Comment.foreign_keys.map(&:column).flatten).to eq(["user_id"])
       User.reset_column_information
-      expect(User.reverse_foreign_keys.map(&:column_names).flatten).to eq(["user_id"])
+      expect(User.reverse_foreign_keys.map(&:column).flatten).to eq(["user_id"])
     end
 
   end
@@ -119,11 +119,11 @@ describe "with multiple schemas" do
     end
 
     it "should reference table in same schema" do
-      expect(Member.foreign_keys.map(&:references_table_name)).to include "schema_plus_test2.groups"
+      expect(Member.foreign_keys.map(&:to_table)).to include "schema_plus_test2.groups"
     end
 
     it "should reference table in default schema", :mysql => :skip do
-      expect(Member.foreign_keys.map(&:references_table_name)).to include "items"
+      expect(Member.foreign_keys.map(&:to_table)).to include "items"
     end
 
     it "should include the schema in the constraint name" do

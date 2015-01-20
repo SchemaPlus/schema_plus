@@ -37,12 +37,12 @@ module SchemaPlus
           rename_foreign_keys(oldname, newname)
         end
 
-        def add_foreign_key(table_name, column_names, to_table, primary_key, options = {})
-          raise NotImplementedError, "Sqlite3 does not support altering a table to add foreign key constraints (table #{table_name.inspect} column #{column_names.inspect})"
+        def add_foreign_key(table_name, to_table, options = {})
+          raise NotImplementedError, "Sqlite3 does not support altering a table to add foreign key constraints (table #{table_name.inspect} to #{to_table.inspect})"
         end
 
-        def remove_foreign_key(table_name, foreign_key_name)
-          raise NotImplementedError, "Sqlite3 does not support altering a table to remove foreign key constraints (table #{table_name.inspect} constraint #{foreign_key_name.inspect})"
+        def remove_foreign_key(table_name, *args)
+          raise NotImplementedError, "Sqlite3 does not support altering a table to remove foreign key constraints (table #{table_name.inspect} constraint #{args.inspect})"
         end
 
         def drop_table(name, options={})

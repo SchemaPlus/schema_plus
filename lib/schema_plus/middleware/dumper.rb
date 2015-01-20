@@ -25,7 +25,7 @@ module SchemaPlus
 
           env.connection.tables.each do |table|
             @inline_fks[table] = env.connection.foreign_keys(table)
-            env.dump.depends(table, @inline_fks[table].collect(&:references_table_name))
+            env.dump.depends(table, @inline_fks[table].collect(&:to_table))
           end
 
           # Normally we dump foreign key constraints inline in the table
@@ -46,11 +46,11 @@ module SchemaPlus
         def break_fk_cycles(env) #:nodoc:
           env.dump.strongly_connected_components.select{|component| component.size > 1}.each do |tables|
             table = tables.sort.first
-            backref_fks = @inline_fks[table].select{|fk| tables.include?(fk.references_table_name)}
+            backref_fks = @inline_fks[table].select{|fk| tables.include?(fk.to_table)}
             @inline_fks[table] -= backref_fks
-            env.dump.dependencies[table] -= backref_fks.collect(&:references_table_name)
+            env.dump.dependencies[table] -= backref_fks.collect(&:to_table)
             backref_fks.each do |fk|
-              @backref_fks[fk.references_table_name] << fk
+              @backref_fks[fk.to_table] << fk
             end
           end
         end

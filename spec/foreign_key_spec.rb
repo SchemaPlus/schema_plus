@@ -20,11 +20,11 @@ describe "Foreign Key" do
     end
 
     it "should report foreign key constraints" do
-      expect(Comment.foreign_keys.collect(&:column_names).flatten).to eq([ "user_id" ])
+      expect(Comment.foreign_keys.collect(&:column).flatten).to eq([ "user_id" ])
     end
 
     it "should report reverse foreign key constraints" do
-      expect(User.reverse_foreign_keys.collect(&:column_names).flatten).to eq([ "user_id" ])
+      expect(User.reverse_foreign_keys.collect(&:column).flatten).to eq([ "user_id" ])
     end
 
   end
@@ -100,18 +100,18 @@ describe "Foreign Key" do
         end
 
         it "is available in Post.foreign_keys" do
-          expect(Post.foreign_keys.collect(&:column_names)).to include(%w[author_id])
+          expect(Post.foreign_keys.collect(&:column)).to include('author_id')
         end
 
         it "is available in User.reverse_foreign_keys" do
-          expect(User.reverse_foreign_keys.collect(&:column_names)).to include(%w[author_id])
+          expect(User.reverse_foreign_keys.collect(&:column)).to include('author_id')
         end
 
       end
 
       context "when is dropped", "comments(post_id)" do
 
-        let(:foreign_key_name) { fk = Comment.foreign_keys.detect(&its.column_names == %w[post_id]) and fk.name }
+        let(:foreign_key_name) { fk = Comment.foreign_keys.detect(&its.column == 'post_id') and fk.name }
 
         before(:each) do
           remove_foreign_key(:comments, foreign_key_name)
@@ -122,18 +122,18 @@ describe "Foreign Key" do
         end
 
         it "is no longer available in Post.foreign_keys" do
-          expect(Comment.foreign_keys.collect(&:column_names)).not_to include(%w[post_id])
+          expect(Comment.foreign_keys.collect(&:column)).not_to include('post_id')
         end
 
         it "is no longer available in User.reverse_foreign_keys" do
-          expect(Post.reverse_foreign_keys.collect(&:column_names)).not_to include(%w[post_id])
+          expect(Post.reverse_foreign_keys.collect(&:column)).not_to include('post_id')
         end
 
       end
 
       context "when drop using hash", "comments(post_id)" do
 
-        let(:foreign_key_name) { fk = Comment.foreign_keys.detect(&its.column_names == %w[post_id]) and fk.name }
+        let(:foreign_key_name) { fk = Comment.foreign_keys.detect(&its.column == 'post_id') and fk.name }
 
         it "finds by name" do
           remove_foreign_key(:comments, name: foreign_key_name)
@@ -141,7 +141,7 @@ describe "Foreign Key" do
         end
 
         it "finds by column_names" do
-          remove_foreign_key(:comments, column_names: "post_id", references_table_name: "posts")
+          remove_foreign_key(:comments, column: "post_id", to_table: "posts")
           expect(Comment).not_to reference(:posts).on(:post_id)
         end
       end
@@ -158,11 +158,11 @@ describe "Foreign Key" do
 
       context "when referencing column and column is removed" do
 
-        let(:foreign_key_name) { Comment.foreign_keys.detect { |definition| definition.column_names == %w[post_id] }.name }
+        let(:foreign_key_name) { Comment.foreign_keys.detect { |definition| definition.column == 'post_id' }.name }
 
         it "should remove foreign keys" do
           remove_foreign_key(:comments, foreign_key_name)
-          expect(Post.reverse_foreign_keys.collect { |fk| fk.column_names == %w[post_id] && fk.table_name == "comments" }).to be_empty
+          expect(Post.reverse_foreign_keys.collect { |fk| fk.column == 'post_id' && fk.from_table == "comments" }).to be_empty
         end
 
       end
@@ -180,7 +180,7 @@ describe "Foreign Key" do
           migration.suppress_messages do
             expect {
               migration.add_foreign_key(:references, :post_id, :posts, :id)
-              foreign_key = migration.foreign_keys(:references).detect{|definition| definition.column_names == ["post_id"]}
+              foreign_key = migration.foreign_keys(:references).detect{|definition| definition.column == "post_id"}
               migration.remove_foreign_key(:references, foreign_key.name)
             }.to_not raise_error
           end
@@ -193,7 +193,7 @@ describe "Foreign Key" do
 
       it "when attempting to add" do
         expect {
-          add_foreign_key(:posts, :author_id, :users, :id, :on_update => :cascade, :on_delete => :restrict)
+          add_foreign_key(:posts, :users, :column => :author_id, :on_update => :cascade, :on_delete => :restrict)
         }.to raise_error(NotImplementedError)
       end
 
