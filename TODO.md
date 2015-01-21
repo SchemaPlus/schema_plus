@@ -13,6 +13,7 @@
 * move fk stuff into schema_foreign_keys
 * add specs to cover the deprecations
 * just do fk enhancements rather than replace AR's add_foreign_key and remove_foreign_key methods and foreign key lookups
+* deprecate :set_null in favor of :nullify
 
 ## schema_monkey
 * consider automating the autoloads
