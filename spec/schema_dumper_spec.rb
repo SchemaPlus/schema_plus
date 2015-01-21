@@ -49,13 +49,13 @@ describe "Schema dump" do
 
   it "should include foreign_key definition" do
     with_foreign_key Post, :user_id, :users, :id do
-      expect(dump_posts).to match(to_regexp(%q{t.foreign_key ["user_id"], "users", ["id"]}))
+      expect(dump_posts).to match(%r{t.integer\s+"user_id".*foreign_key.*users})
     end
   end
 
   it "should include foreign_key name" do
     with_foreign_key Post, :user_id, :users, :id, :name => "yippee" do
-      expect(dump_posts).to match(/foreign_key.*user_id.*users.*id.*:name => "yippee"/)
+      expect(dump_posts).to match(/user_id.*foreign_key.*users.*name: "yippee"/)
     end
   end
 
@@ -66,7 +66,7 @@ describe "Schema dump" do
   end
 
 
-  it "should sort foreign_key definitions" do
+  xit "should sort foreign_key definitions" do
     with_foreign_keys Comment, [ [ :post_id, :posts, :id ], [ :commenter_id, :users, :id ]] do
       expect(dump_schema).to match(/foreign_key.+commenter_id.+foreign_key.+post_id/m)
     end
@@ -96,7 +96,7 @@ describe "Schema dump" do
 
   it "should include foreign_key options" do
     with_foreign_key Post, :user_id, :users, :id, :on_update => :cascade, :on_delete => :set_null do
-      expect(dump_posts).to match(to_regexp(%q{t.foreign_key ["user_id"], "users", ["id"], :on_update => :cascade, :on_delete => :set_null}))
+      expect(dump_posts).to match(%q[t.integer\s*"user_id",.*foreign_key: {references: "users", name: "fk_posts_user_id", on_update: :cascade, on_delete: :set_null}])
     end
   end
 
@@ -114,11 +114,17 @@ describe "Schema dump" do
     end
 
     it "should dump constraints after the tables they reference" do
-      expect(dump_schema).to match(%r{create_table "comments".*foreign_key.*\["first_comment_id"\], "comments", \["id"\]}m)
-      expect(dump_schema).to match(%r{create_table "posts".*foreign_key.*\["first_post_id"\], "posts", \["id"\]}m)
-      expect(dump_schema).to match(%r{create_table "posts".*foreign_key.*\["post_id"\], "posts", \["id"\]}m)
-      expect(dump_schema).to match(%r{create_table "users".*foreign_key.*\["commenter_id"\], "users", \["id"\]}m)
-      expect(dump_schema).to match(%r{create_table "users".*foreign_key.*\["user_id"\], "users", \["id"\]}m)
+      expect(dump_schema).to match(%r{create_table "comments"(.|\n)*first_comment_id.*foreign_key.*comments})
+      expect(dump_schema).to match(%r{create_table "posts"(.|\n)*first_post_id.*foreign_key.*posts})
+      expect(dump_schema).to match(%r{create_table "posts"(.|\n)*add_foreign_key.*posts.*post_id})
+      expect(dump_schema).to match(%r{create_table "users"(.|\n)*add_foreign_key.*users.*commenter_id})
+      expect(dump_schema).to match(%r{create_table "users"(.|\n)*foreign_key.*users.*user_id})
+    end
+
+    it "should dump comments for delayed constraint definitions" do
+      expect(dump_schema).to match(%r{"post_id".*# foreign key references "posts"})
+      expect(dump_schema).to match(%r{"commenter_id".*# foreign key references "users"})
+      expect(dump_schema).to match(%r{"user_id".*# foreign key references "users"})
     end
   end
 

@@ -70,11 +70,21 @@ module SchemaPlus
       class ForeignKeys < SchemaMonkey::Middleware::Base
         def call(env)
           continue env
+          dumped = {}
+          env.table.columns.each do |column|
+            if (foreign_key = env.dump.data.inline_fks[env.table.name].find(&its.column.to_s == column.name))
+              column.add_option foreign_key.to_dump(column: true)
+              dumped[foreign_key] = true
+            end
+            if (foreign_key = env.dump.data.backref_fks.values.flatten.find{|fk| fk.from_table.to_s == env.table.name && fk.column.to_s == column.name})
+              column.add_comment "foreign key references #{foreign_key.to_table.inspect} (below)"
+            end
+          end
           env.table.statements += env.dump.data.inline_fks[env.table.name].map { |foreign_key|
-            foreign_key.to_dump(inline: true)
-          }.sort
+            foreign_key.to_dump(inline: true) unless dumped[foreign_key]
+          }.compact.sort
           env.table.trailer += env.dump.data.backref_fks[env.table.name].map { |foreign_key|
-            foreign_key.to_dump(inline: false)
+            foreign_key.to_dump
           }.sort
         end
       end

@@ -11,7 +11,6 @@
 ## schema_plus
 * deprecate config => SchemaForeignKeys config
 * move fk stuff into schema_foreign_keys
-* dumper is dumping the deprecated syntax!
 * add specs to cover the deprecations
 * just do fk enhancements rather than replace AR's add_foreign_key and remove_foreign_key methods and foreign key lookups
 

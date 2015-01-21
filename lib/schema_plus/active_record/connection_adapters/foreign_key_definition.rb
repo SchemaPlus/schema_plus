@@ -68,14 +68,23 @@ module SchemaPlus
 
         # Dumps a definition of foreign key.
         def to_dump(opts={})
-          dump = (opts[:inline] ? "t.foreign_key" : "add_foreign_key #{from_table.inspect},")
-          dump << " [#{Array(column).collect{ |name| name.inspect }.join(', ')}]"
-          dump << ", #{to_table.inspect}, [#{Array(primary_key).collect{ |name| name.inspect }.join(', ')}]"
-          dump << ", :on_update => #{on_update.inspect}" if on_update
-          dump << ", :on_delete => #{on_delete.inspect}" if on_delete
-          dump << ", :deferrable => #{deferrable.inspect}" if deferrable
-          dump << ", :name => #{name.inspect}" if name
-          dump << "\n"
+          opts = opts.keyword_args(:column, :inline)
+          dump = case 
+                 when opts.column then "foreign_key: {references:"
+                 when opts.inline then "t.foreign_key"
+                 else "add_foreign_key #{from_table.inspect},"
+                 end
+          dump << " #{to_table.inspect}"
+
+          val_or_array = -> val { val.is_a?(Array) ? "[#{val.map(&:inspect).join(', ')}]" : val.inspect }
+
+          dump << ", column: #{val_or_array.call column}" unless opts.column
+          dump << ", primary_key: #{val_or_array.call column}" if custom_primary_key?
+          dump << ", name: #{name.inspect}" if name
+          dump << ", on_update: #{on_update.inspect}" if on_update
+          dump << ", on_delete: #{on_delete.inspect}" if on_delete
+          dump << ", deferrable: #{deferrable.inspect}" if deferrable
+          dump << "}" if opts.column
           dump
         end
 
