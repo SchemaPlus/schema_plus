@@ -71,15 +71,28 @@ module SchemaMonkey
             stream.puts ""
           end
 
-          class Column < KeyStruct[:name, :type, :options]
+          class Column < KeyStruct[:name, :type, :options, :comments]
+
+            def add_option(option)
+              self.options = [options, option].reject(&:blank?).join(', ')
+            end
+
+            def add_comment(comment)
+              self.comments = [comments, comment].reject(&:blank?).join('; ')
+            end
 
             def assemble(stream, typelen, namelen)
               stream.write "t.%-#{typelen}s " % type
-              if options.blank?
+              if options.blank? && comments.blank?
                 stream.write name.inspect
               else
-                stream.write "%-#{namelen+3}s %s" % ["#{name.inspect},", options]
+                pr = name.inspect
+                pr += "," unless options.blank?
+                stream.write "%-#{namelen+3}s " % pr
               end
+              stream.write "#{options}" unless options.blank?
+              stream.write " " unless options.blank? or comments.blank?
+              stream.write "# #{comments}" unless comments.blank?
             end
           end
         end
