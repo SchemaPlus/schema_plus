@@ -9,7 +9,7 @@ module SchemaPlus
       class ResetColumnInformation < SchemaMonkey::Middleware::Base
         def call(env)
           continue env
-          env.model.instance_variable_set :@foreign_keys, nil
+          env.model.reset_foreign_key_information
         end
       end
     end

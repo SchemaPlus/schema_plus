@@ -21,6 +21,10 @@ module SchemaPlus
           @foreign_keys ||= connection.foreign_keys(table_name, "#{name} Foreign Keys")
         end
 
+        def reset_foreign_key_information
+          @foreign_keys = nil
+        end
+
         # Returns a list of ForeignKeyDefinition objects, for each foreign
         # key constraint of other tables that refer to this model's table
         def reverse_foreign_keys
