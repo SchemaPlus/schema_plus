@@ -1,6 +1,15 @@
 ## ALL
 
 * ideally get rid of all uses of alias_method_chain outside schema_monkey (create middleware)
+* rename everything to schema_plus_* (except schema_monkey and schema_plus)
+
+## schema_plus_tables
+
+* adds :if_exists
+* depcrecate cascade: true in favor of force: cascade
+* (code in abstract adapter, mysql adapater)
+* use middleware
+
 
 ## schema_index_plus
 * remove index specs that are testing things now handled by AR.  (then see if coverage is still 100%)
