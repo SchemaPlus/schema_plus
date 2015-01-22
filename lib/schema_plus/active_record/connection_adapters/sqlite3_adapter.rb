@@ -82,8 +82,8 @@ module SchemaPlus
               columns = columns.gsub(/`/, '').split(', ')
 
               primary_keys = primary_keys.gsub(/[`"]/, '').split(', ')
-              on_update = on_update ? on_update.downcase.gsub(' ', '_').to_sym : :no_action
-              on_delete = on_delete ? on_delete.downcase.gsub(' ', '_').to_sym : :no_action
+              on_update = ForeignKeyDefinition::ACTION_LOOKUP[on_update] || :no_action
+              on_delete = ForeignKeyDefinition::ACTION_LOOKUP[on_delete] || :no_action
               deferrable = deferrable ? (initially_deferred ? :initially_deferred : true) : false
 
               options = { :name => name,

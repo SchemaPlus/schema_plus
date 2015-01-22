@@ -75,8 +75,8 @@ module SchemaPlus
               on_delete = $7
               deferrable = $9 == "DEFERRABLE"
               deferrable = :initially_deferred if ($11 == "INITIALLY DEFERRED" )
-              on_update = on_update ? on_update.downcase.gsub(' ', '_').to_sym : :no_action
-              on_delete = on_delete ? on_delete.downcase.gsub(' ', '_').to_sym : :no_action
+              on_update = ForeignKeyDefinition::ACTION_LOOKUP[on_update] || :no_action
+              on_delete = ForeignKeyDefinition::ACTION_LOOKUP[on_delete] || :no_action
 
               options = { :name => name,
                           :on_delete => on_delete,

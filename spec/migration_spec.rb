@@ -259,7 +259,7 @@ describe ActiveRecord::Migration do
       end
     end
 
-    actions = [:cascade, :restrict, :set_null, :set_default, :no_action]
+    actions = [:cascade, :restrict, :nullify, :set_default, :no_action]
 
     actions.each do |action|
       if action == :set_default
@@ -355,18 +355,18 @@ describe ActiveRecord::Migration do
     it "should override on_update action per column" do
       with_fk_config(:on_update => :cascade) do
         recreate_table @model, :foreign_keys => {:on_update => :restrict} do |t|
-          t.integer :user_id, :foreign_key => { :on_update => :set_null }
+          t.integer :user_id, :foreign_key => { :on_update => :nullify }
         end
-        expect(@model).to reference.on(:user_id).on_update(:set_null)
+        expect(@model).to reference.on(:user_id).on_update(:nullify)
       end
     end
 
     it "should override on_delete action per column" do
       with_fk_config(:on_delete => :cascade) do
         recreate_table @model, :foreign_keys => {:on_delete => :restrict} do |t|
-          t.integer :user_id, :foreign_key => { :on_delete => :set_null }
+          t.integer :user_id, :foreign_key => { :on_delete => :nullify }
         end
-        expect(@model).to reference.on(:user_id).on_delete(:set_null)
+        expect(@model).to reference.on(:user_id).on_delete(:nullify)
       end
     end
 
@@ -563,8 +563,8 @@ describe ActiveRecord::Migration do
     it "should allow to overwrite default actions" do
       SchemaPlus.config.foreign_keys.on_delete = :cascade
       SchemaPlus.config.foreign_keys.on_update = :restrict
-      add_column(:post_id, :integer, :foreign_key => { :on_update => :set_null, :on_delete => :set_null}) do
-        expect(@model).to reference.on(:post_id).on_delete(:set_null).on_update(:set_null)
+      add_column(:post_id, :integer, :foreign_key => { :on_update => :nullify, :on_delete => :nullify}) do
+        expect(@model).to reference.on(:post_id).on_delete(:nullify).on_update(:nullify)
       end
       SchemaPlus.config.foreign_keys.on_delete = nil
     end

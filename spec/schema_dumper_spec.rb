@@ -95,8 +95,8 @@ describe "Schema dump" do
   end
 
   it "should include foreign_key options" do
-    with_foreign_key Post, :user_id, :users, :id, :on_update => :cascade, :on_delete => :set_null do
-      expect(dump_posts).to match(%q[t.integer\s*"user_id",.*foreign_key: {references: "users", name: "fk_posts_user_id", on_update: :cascade, on_delete: :set_null}])
+    with_foreign_key Post, :user_id, :users, :id, :on_update => :cascade, :on_delete => :nullify do
+      expect(dump_posts).to match(%q[t.integer\s*"user_id",.*foreign_key: {references: "users", name: "fk_posts_user_id", on_update: :cascade, on_delete: :nullify}])
     end
   end
 

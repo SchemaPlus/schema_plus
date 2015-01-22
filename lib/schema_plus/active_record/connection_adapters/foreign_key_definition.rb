@@ -8,7 +8,7 @@ module SchemaPlus
       # The on_update and on_delete attributes can take on the following values:
       #   :cascade
       #   :restrict
-      #   :set_null
+      #   :nullify
       #   :set_default
       #   :no_action
       #
@@ -43,9 +43,18 @@ module SchemaPlus
           from_table
         end
 
-        ACTIONS = { :cascade => "CASCADE", :restrict => "RESTRICT", :set_null => "SET NULL", :set_default => "SET DEFAULT", :no_action => "NO ACTION" }.freeze
+        ACTIONS = { :cascade => "CASCADE", :restrict => "RESTRICT", :nullify => "SET NULL", :set_default => "SET DEFAULT", :no_action => "NO ACTION" }.freeze
+        ACTION_LOOKUP = ACTIONS.invert.freeze
 
         def initialize_with_schema_plus(from_table, to_table, options={})
+          [:on_update, :on_delete].each do |key|
+            if options[key] == :set_null
+              require 'byebug' ; byebug
+              ActiveSupport::Deprecation.warn ":set_null value for #{key} is deprecated.  use :nullify instead"
+              options[key] = :nullify
+            end
+          end
+
           initialize_without_schema_plus(from_table, to_table, options)
           if column.is_a?(Array) and column.length == 1
             options[:column] = column[0]
@@ -53,6 +62,7 @@ module SchemaPlus
           if primary_key.is_a?(Array) and primary_key.length == 1
             options[:primary_key] = primary_key[0]
           end
+
           ACTIONS.has_key?(on_update) or raise(ArgumentError, "invalid :on_update action: #{on_update.inspect}") if on_update
           ACTIONS.has_key?(on_delete) or raise(ArgumentError, "invalid :on_delete action: #{on_delete.inspect}") if on_delete
           if ::ActiveRecord::Base.connection.adapter_name =~ /^mysql/i

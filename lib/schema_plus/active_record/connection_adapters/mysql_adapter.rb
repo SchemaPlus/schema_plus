@@ -79,8 +79,8 @@ module SchemaPlus
                 primary_keys = $4
                 on_update = $8
                 on_delete = $6
-                on_update = on_update ? on_update.downcase.gsub(' ', '_').to_sym : :restrict
-                on_delete = on_delete ? on_delete.downcase.gsub(' ', '_').to_sym : :restrict
+                on_update = ForeignKeyDefinition::ACTION_LOOKUP[on_update] || :restrict
+                on_delete = ForeignKeyDefinition::ACTION_LOOKUP[on_delete] || :restrict
 
                 options = { :name => name,
                             :on_delete => on_delete,
