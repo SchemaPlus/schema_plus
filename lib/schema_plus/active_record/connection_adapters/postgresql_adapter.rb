@@ -40,12 +40,6 @@ module SchemaPlus
           SQL
         end
 
-        # pg gem defines a drop_table with fewer options than our Abstract
-        # one, so use the abstract one instead
-        def drop_table(name, options={})
-          SchemaPlus::ActiveRecord::ConnectionAdapters::AbstractAdapter.instance_method(:drop_table).bind(self).call(name, options)
-        end
-
         private
 
         def unquote(name)

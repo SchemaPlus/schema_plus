@@ -5,10 +5,9 @@
 
 ## schema_plus_tables
 
-* adds :if_exists
 * depcrecate cascade: true in favor of force: cascade
-* (code in abstract adapter, mysql adapater)
 * use middleware
+* move specs over
 
 
 ## schema_index_plus

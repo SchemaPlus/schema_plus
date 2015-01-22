@@ -8,6 +8,7 @@ require 'schema_default_expr'
 require 'schema_index_plus'
 require 'schema_pg_enums'
 require 'schema_views'
+require 'schema_plus_tables'
 
 require 'schema_plus/version'
 require 'schema_plus/active_record/base'
