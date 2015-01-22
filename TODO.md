@@ -45,11 +45,12 @@
 
 ## schema_dev things:
 
-* boilerplate in README regarding the schema_plus family
-* boilerplate in README regarding test matrix
+* boilerplate in README regarding the schema_plus family?
+* boilerplate in README regarding test matrix?
 * default 'rspec'
-* don't bother changing rails if it's the current version anyway.
+* don't bother changing ruby if it's the current version anyway.
 * rename 'refresh' to 'freshen'; get rid of the individual travis & gem commands
-* have a .schema_dev file with current settings (make it obvious and easy
-* to override) (auto update .gitignore to ignore it?)
+* have a .schema_dev file with current settings
+  * make it obvious and easy to override
+  * auto update .gitignore to ignore it?
 * log files should go in log/ not in tmp/ (auto update .gitignore to ignore it?)
