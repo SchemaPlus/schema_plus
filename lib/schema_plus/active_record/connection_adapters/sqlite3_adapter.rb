@@ -1,17 +1,6 @@
 module SchemaPlus
   module ActiveRecord
     module ConnectionAdapters
-      module SQLiteColumn
-
-        def self.included(base)
-          base.alias_method_chain :default_function, :sqlite3 if base.instance_methods.include? :default_function
-        end
-
-        def default_function_with_sqlite3
-          @default_function ||= "(#{default})" if default =~ /DATETIME/
-          default_function_without_sqlite3
-        end
-      end
 
       # SchemaPlus includes an Sqlite3 implementation of the AbstractAdapter
       # extensions.
@@ -23,8 +12,6 @@ module SchemaPlus
           base.class_eval do
             alias_method_chain :rename_table, :schema_plus
           end
-
-          SchemaMonkey.include_once ::ActiveRecord::ConnectionAdapters::Column, SQLiteColumn
         end
 
         def initialize(*args)
