@@ -2,6 +2,10 @@
 
 ## Change Log
 
+## 1.8.5
+
+* Bug fix: DB_DEFAULT shouldn't cause t.inet columns to fail. (#198)
+
 ## 1.8.4
 
 * Bug fix: Allow default value as hash for json columns (#195)
