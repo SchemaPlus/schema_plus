@@ -1,7 +1,6 @@
 require 'schema_monkey'
 
 require_relative 'schema_plus_tables/active_record/connection_adapters/abstract_adapter'
-#require_relative 'schema_plus_tables/middleware'
 
 module SchemaPlusTables
   module ActiveRecord
