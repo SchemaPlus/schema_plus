@@ -3,7 +3,7 @@ module SchemaColumnPlus
     module ConnectionAdapters
 
       #
-      # SchemaIndexPlus adds several methods to Column
+      # SchemaPlusIndex adds several methods to Column
       #
       module Column
 
@@ -34,7 +34,7 @@ module SchemaColumnPlus
         # Returns true if the column is in one or more indexes that are
         # case sensitive.  Will raise exception if
         # IndexDefinition#case_sensitive? isn't defined, i.e. if
-        # schema_index_plus hasn't been loaded.
+        # schema_plus_index hasn't been loaded.
         def case_sensitive?
           indexes.any?{|i| i.case_sensitive?}
         end

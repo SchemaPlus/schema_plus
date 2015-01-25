@@ -1,4 +1,4 @@
-module SchemaIndexPlus
+module SchemaPlusIndex
   module ActiveRecord
     module ConnectionAdapters
       #

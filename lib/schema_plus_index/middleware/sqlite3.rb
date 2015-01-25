@@ -1,4 +1,4 @@
-module SchemaIndexPlus
+module SchemaPlusIndex
   module Middleware
     module Sqlite3
       def self.insert
