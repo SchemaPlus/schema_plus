@@ -46,10 +46,11 @@ module SchemaPlus::ActiveRecord::ConnectionAdapters
     end
 
     def self.add_index_exception_handler(connection, table, columns, options, e) #:nodoc:
-      raise unless e.message.match(/["']([^"']+)["'].*already exists/)
+      raise unless e.message.match(/already exists|DuplicateTable/)
+      e.message.match(/["']([^"']+)["'].*/)
       name = $1
       existing = connection.indexes(table).find{|i| i.name == name}
-      attempted = ::ActiveRecord::ConnectionAdapters::IndexDefinition.new(table, columns, options.merge(:name => name)) 
+      attempted = ::ActiveRecord::ConnectionAdapters::IndexDefinition.new(table, columns, options.merge(:name => name))
       raise if attempted != existing
       ::ActiveRecord::Base.logger.warn "[schema_plus] Index name #{name.inspect}' on table #{table.inspect} already exists. Skipping."
     end
