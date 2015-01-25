@@ -96,15 +96,19 @@ module SchemaPlus
         # won't let you create cycles in the first place.)
         break_fk_cycles while strongly_connected_components.any?{|component| component.size > 1}
 
+        backref_fks = []
+
         tsort().each do |table|
           table_dump = @table_dumps[table]
           if i = (table_dump =~ /^\s*[e]nd\s*$/)
             table_dump.insert i, dump_indexes(table) + dump_foreign_keys(@inline_fks[table], :inline => true)
           end
           stream.print table_dump
-          stream.puts dump_foreign_keys(@backref_fks[table], :inline => false)+"\n" if @backref_fks[table].any?
+          backref_fks << dump_foreign_keys(@backref_fks[table], :inline => false) if @backref_fks[table].any?
         end
-
+        # print all backref foreign key definitions at the end of schema.rb,
+        # to avoid unexpected errors at schema load
+        stream.print backref_fks.join()
       end
 
       def tsort_each_node(&block) #:nodoc:
@@ -139,7 +143,7 @@ module SchemaPlus
           dump << " :name => #{index.name.inspect}"
           dump << ", :unique => true" if index.unique
           dump << ", :kind => \"#{index.kind}\"" unless index.kind.blank?
-          unless index.columns.blank? 
+          unless index.columns.blank?
             dump << ", :case_sensitive => false" unless index.case_sensitive?
             dump << ", :conditions => #{index.conditions.inspect}" unless index.conditions.blank?
             index_lengths = index.lengths.compact if index.lengths.is_a?(Array)

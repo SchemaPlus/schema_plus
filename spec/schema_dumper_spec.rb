@@ -160,7 +160,7 @@ describe "Schema dump" do
       expect(dump_posts).to match(to_regexp(%q{t.index ["user_id"], :name => "custom_name"}))
     end
   end
-  
+
   it "should define unique index" do
     with_index Post, :user_id, :name => "posts_user_id_index", :unique => true do
       expect(dump_posts).to match(to_regexp(%q{t.index ["user_id"], :name => "posts_user_id_index", :unique => true}))
@@ -277,6 +277,12 @@ describe "Schema dump" do
       expect(dump_schema).to match(%r{create_table "posts".*foreign_key.*\["post_id"\], "posts", \["id"\]}m)
       expect(dump_schema).to match(%r{create_table "users".*foreign_key.*\["commenter_id"\], "users", \["id"\]}m)
       expect(dump_schema).to match(%r{create_table "users".*foreign_key.*\["user_id"\], "users", \["id"\]}m)
+    end
+
+    it "should dump constraints after all table definitions" do
+      expect(dump_schema).to match(%r{create_table "users".*foreign_key.*\["post_id"\], "posts", \["id"\]}m)
+      expect(dump_schema).to match(%r{foreign_key.*\["post_id"\], "posts", \["id"\].*foreign_key.*\["commenter_id"\], "users", \["id"\]}m)
+      expect(dump_schema).to match(%r{foreign_key.*\["commenter_id"\], "users", \["id"\].*foreign_key.*\["user_id"\], "users", \["id"\]}m)
     end
   end
 
