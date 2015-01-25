@@ -60,53 +60,6 @@ This README lists the major features, with examples of use.  For full details se
 
 ### Indexes
 
-With standard Rails 3 migrations, you specify indexes separately from the
-table definition:
-
-    # Standard Rails approach...
-    create_table :parts do |t|
-      t.string :name
-      t.string :product_code
-    end
-
-    add_index :parts, :name     # index repeats table and column names and is defined separately
-    add_index :parts, :product_code, unique: true
-
-But with SchemaPlus you can specify your indexes when you define each column,
-with options as desired.  (Rails 4.2 introduced this same capability. Yay! But SchemaPlus still adds some shorthands that aren't in Rails 4.2.)
-
-    # More DRY way...
-    create_table :parts do |t|
-      t.string :name,           index: true
-      t.string :product_code,   index: { unique: true }
-    end
-
-The options hash can include an index name:
-
-    t.string :product_code,     index: { unique: true, name: "my_index_name" }
-
-You can also create multi-column indexes, for example:
-
-    t.string :first_name
-    t.string :last_name,        index: { with: :first_name }
-
-    t.string :country_code
-    t.string :area_code
-    t.string :local_number,      index: { with: [:country_code, :area_code], unique: true }
-
-And you can specify index orders:
-
-    t.string :first_name
-    t.string :last_name,        index: { with: :first_name, order: { first_name: :desc, last_name: :asc}}
-
-As a convenient shorthand, the :unique option can be specified as
-
-    t.string :product_code,   index: :unique
-
-which is equivalent to
-
-    t.string :product_code,   index: { unique: true }
-
 If you're using PostgreSQL, SchemaPlus provides support for conditions,
 expressions, index methods, operator classes, and case-insensitive indexes:
 
@@ -118,27 +71,11 @@ expressions, index methods, operator classes, and case-insensitive indexes:
     t.string :last_name,  index: { case_sensitive: false } # shorthand for expression: 'lower(last_name)'
 
 
-These features are available also in `ActiveRecord::Migration.add_index`.  See
-doc for [SchemaPlus::ActiveRecord::ConnectionAdapters::PostgresqlAdapter](http://rubydoc.info/gems/schema_plus/SchemaPlus/ActiveRecord/ConnectionAdapters/PostgresqlAdapter) and
-[SchemaPlus::ActiveRecord::ConnectionAdapters::IndexDefinition](http://rubydoc.info/gems/schema_plus/SchemaPlus/ActiveRecord/ConnectionAdapters/IndexDefinition)
 
 When you query column information using ActiveRecord::Base#columns, SchemaPlus
 analogously provides index information relevant to each column: which indexes
 reference the column, whether the column must be unique, etc.  See doc for
 [SchemaPlus::ActiveRecord::ConnectionAdapters::Column](http://rubydoc.info/gems/schema_plus/SchemaPlus/ActiveRecord/ConnectionAdapters/Column).
-
-SchemaPlus also tidies some index-related behavior:
-
-*   Rails' various db adapters have inconsistent behavior regarding an attempt
-    to create a duplicate index: some quietly ignore the attempt, some raise
-    an error.   SchemaPlus regularizes the behavor to ignore the attempt for
-    all db adapters.
-
-*   If you rename a table, indexes named using rails' automatic naming
-    convention will be renamed correspondingly.
-
-*   `remove_index` now accepts an `:if_exists` option to prevent errors from attempting to remove non-existent indexes.
-
 
 ### Foreign Key Constraints
 
