@@ -13,8 +13,7 @@ require 'schema_plus'
 require 'schema_dev/rspec'
 require 'its-it'
 
-SchemaMonkey.insert
-SchemaDev::Rspec.setup_db
+SchemaDev::Rspec.setup
 
 Dir[File.dirname(__FILE__) + "/support/**/*.rb"].each {|f| require f}
 

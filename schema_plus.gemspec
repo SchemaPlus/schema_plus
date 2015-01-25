@@ -28,7 +28,7 @@ Gem::Specification.new do |s|
   s.add_dependency("its-it") # for schema_monkey
   s.add_dependency("hash_keyword_args") # for schema_monkey
 
-  s.add_development_dependency("schema_dev", "~> 1.4")
+  s.add_development_dependency("schema_dev", "~> 2.0")
   s.add_development_dependency("rake")
   s.add_development_dependency("rspec", "~> 3.0.0")
   s.add_development_dependency("rdoc")
