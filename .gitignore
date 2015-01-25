@@ -24,8 +24,8 @@ tmp
 
 ## PROJECT::SPECIFIC
 .rvmrc
+*.lock
 *.log
-spec/*/*/*.sqlite3
-Gemfile.lock
-gemfiles/*.lock
-gemfiles/**/*.lock
+*.sqlite3
+!gemfiles/**/*.sqlite3
+Gemfile.local
