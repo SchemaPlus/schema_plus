@@ -23,10 +23,7 @@ Gem::Specification.new do |s|
 
   s.add_dependency("activerecord", ">= 3.2", "< 4.3")
   s.add_dependency("valuable")
-  s.add_dependency("middleware") # for schema_monkey
-  s.add_dependency("key_struct") # for schema_monkey
-  s.add_dependency("its-it") # for schema_monkey
-  s.add_dependency("hash_keyword_args") # for schema_monkey
+  s.add_dependency "schema_monkey", "~> 0.1"
 
   s.add_development_dependency("schema_dev", "~> 2.0")
   s.add_development_dependency("rake")
