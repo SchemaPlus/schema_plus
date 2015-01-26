@@ -31,14 +31,7 @@ module SchemaPlus
           end
         else
           def initialize(name, default, cast_type, sql_type = nil, null = true, default_function = nil)
-            if sql_type =~ /\[\]$/
-              @array = true
-              super(name, default, cast_type, sql_type[0..sql_type.length - 3], null)
-            else
-              @array = false
-              super(name, default, cast_type, sql_type, null)
-            end
-
+            super(name, default, cast_type, sql_type, null)
             @default_function = @default_expr = default_function
           end
         end

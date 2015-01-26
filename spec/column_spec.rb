@@ -138,6 +138,18 @@ describe "Column" do
     end
   end
 
+  context "Postgresql array", :postgresql => :only do
+
+    before(:each) do
+      create_table(User, :alpha => { :default => [], :array => true })
+    end
+
+    it "respects array: true" do
+      column = User.columns.find(&its.name == "alpha")
+      expect(column.array).to be_truthy
+    end
+  end if "#{::ActiveRecord::VERSION::MAJOR}.#{::ActiveRecord::VERSION::MINOR}".to_r >= "4.0".to_r
+
   protected
 
   def create_table(model, columns_with_options)
