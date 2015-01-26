@@ -2,10 +2,12 @@ require 'active_record'
 require 'valuable'
 
 require 'schema_monkey'
+require 'schema_plus_indexes'
+require 'schema_plus_pg_indexes'
+
 require 'schema_column_plus'
 require 'schema_db_default'
 require 'schema_default_expr'
-require 'schema_plus_index'
 require 'schema_pg_enums'
 require 'schema_views'
 require 'schema_plus_tables'

@@ -24,6 +24,8 @@ Gem::Specification.new do |s|
   s.add_dependency("activerecord", ">= 3.2", "< 4.3")
   s.add_dependency("valuable")
   s.add_dependency "schema_monkey", "~> 0.1"
+  s.add_dependency "schema_plus_indexes", "~> 0.1"
+  s.add_dependency "schema_plus_pg_indexes", "~> 0.1"
 
   s.add_development_dependency("schema_dev", "~> 2.0")
   s.add_development_dependency("rake")
