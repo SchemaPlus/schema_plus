@@ -9,12 +9,8 @@
 * use middleware
 * move specs over
 
-
 ## schema_plus_index
 * remove index specs that are testing things now handled by AR.  (then see if coverage is still 100%)
-* shift pg enahancement to a separate schema_pg_index(?)
-* dumper: don't output multiple t.index for the same column
-* rename this to schema_plus_index?
 
 ## schema_plus
 * deprecate config => SchemaForeignKeys config
