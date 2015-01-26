@@ -33,7 +33,9 @@ See detailed documentation in each feature gem's README.  You can of course just
 
 ## Upgrading from SchemaPlus 1.8.x
 
-SchemaPlus 2.0.x intends to be completely backwards-compatible with SchemaPlus 1.8.x (though SchemaPlus 2.0.x only supports rails >= 4.2)
+SchemaPlus 2.0.x intends to be a completely backwards-compatible drop-in replacement for SchemaPlus 1.8.x, for projects using rails 4.2.
+
+If you find any incompatibilities, please report an issue!
 
 ### Deprecations
 In cases where rails 4.2 has introduced features previously supported only by SchemaPlus, but using different names, SchemaPlus 2.0 now issues deprecation warnings in favor of the rails form.  The complete list of deprecations:
@@ -57,11 +59,6 @@ In cases where rails 4.2 has introduced features previously supported only by Sc
 * `IndexDefinition` deprecates accessors: 
   * `#conditions` in favor of `#where`
   * `#kind` in favor of `#using`
-
-### Incompatibility
-
-The only known backwards-incompatibility is that `IndexDefinition#kind`, now deprecated to `IndexDefinition#using`, now returns a symbol rather than a string.
-
 
 ## Compatibility
 
