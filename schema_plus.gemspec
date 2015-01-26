@@ -21,17 +21,17 @@ Gem::Specification.new do |s|
   s.executables   = `git ls-files -- bin/*`.split("\n").map{ |f| File.basename(f) }
   s.require_paths = ["lib"]
 
-  s.add_dependency("activerecord", ">= 3.2", "< 4.3")
-  s.add_dependency("valuable")
+  s.add_dependency "activerecord", ">= 3.2", "< 4.3"
+  s.add_dependency "valuable"
   s.add_dependency "schema_monkey", "~> 0.1"
   s.add_dependency "schema_plus_indexes", "~> 0.1"
   s.add_dependency "schema_plus_pg_indexes", "~> 0.1"
 
-  s.add_development_dependency("schema_dev", "~> 2.0")
-  s.add_development_dependency("rake")
-  s.add_development_dependency("rspec", "~> 3.0.0")
-  s.add_development_dependency("rdoc")
-  s.add_development_dependency("simplecov")
-  s.add_development_dependency("simplecov-gem-profile")
+  s.add_development_dependency "schema_dev", "~> 2.0", ">= 2.0.3"
+  s.add_development_dependency "rake"
+  s.add_development_dependency "rspec", "~> 3.0.0"
+  s.add_development_dependency "rdoc"
+  s.add_development_dependency "simplecov"
+  s.add_development_dependency "simplecov-gem-profile"
 end
 
