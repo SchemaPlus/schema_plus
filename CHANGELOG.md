@@ -2,6 +2,10 @@
 
 ## Change Log
 
+## 1.8.6
+
+* Bug fix: Don't drop column `array: true` for ActiveRecord 4.2. (#199)
+
 ## 1.8.5
 
 * Bug fix: DB_DEFAULT shouldn't cause t.inet columns to fail. (#198)
