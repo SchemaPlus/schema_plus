@@ -128,6 +128,18 @@ describe "Column" do
 
   end
 
+  context "Postgresql array", :postgresql => :only do
+
+    before(:each) do
+      create_table(User, :alpha => { :default => [], :array => true })
+    end
+
+    it "respects array: true" do
+      column = User.columns.find(&its.name == "alpha")
+      expect(column.array).to be_truthy
+    end
+  end
+
   protected
 
   def create_table(model, columns_with_options)
