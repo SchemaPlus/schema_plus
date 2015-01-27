@@ -13,12 +13,12 @@
 
 Starting with version 2.0.0, schema_plus is a wrapper that pulls in a collection of individual feature gems:
 
-* [schema_plus_indexes](https://github.com/SchemaPlus/schema_plus_indexes) -- Convenience and consistency in defining and manipulting indexes
+* [schema_plus_indexes](https://github.com/SchemaPlus/schema_plus_indexes) -- Convenience and consistency in defining and manipulating indexes
 * [schema_plus_pg_indexes](https://github.com/SchemaPlus/schema_plus_pg_indexes) -- Support for PostgreSQL index features: `case_insenstive`, `expression` and `operator_class`
 
 See detailed documentation in each feature gem's README.  You can of course just use whichever of those gems you want individually, rather than this wrapper.
 
-> **IN PROGRESS:** In the prerelease versions of SchemaPlus 2.0, more feature gems have yet to be stripped out, and the code is still in the body of schema_plus.  Anticipated features gems include:
+> **IN PROGRESS:** In the prerelease versions of SchemaPlus 2.0, more feature gems have yet to be cleaned up and stripped out, and their code is still in the body of schema_plus.  Anticipated features gems include:
 > 
 > * schema_plus_columns -- Extra Column features, including `column.indexes` and `column.unique?`
 > * schema_plus_db_default -- Supports `update_attributes!(my_attr: ActiveRecord::DB_DEFAULT)` to set a column back to the default in the database schema. 
@@ -29,6 +29,8 @@ See detailed documentation in each feature gem's README.  You can of course just
 > * schema_plus_views -- Adds support for creating and manipulating views
 >
 > The documentation for these features is at the end of this README
+>
+> If you'd like to follow or contribute to the discussion of this refactoring, take a look at issue SchemaPlus/schema_plus/197
 
 
 ## Upgrading from SchemaPlus 1.8.x
@@ -90,7 +92,7 @@ or in a Gemfile
 
 *   SchemaPlus was created in 2011 by [@mlomnicki](https://github.com/mlomnicki) and [@ronen](https://github.com/ronen)
 
-*   And [lots of contributors](https://github.com/SchemaPlus/schema_plus/graphs/contributors) since then
+*   And [lots of contributors](https://github.com/SchemaPlus/schema_plus/graphs/contributors) since then.
 
 ## Development & Testing
 
