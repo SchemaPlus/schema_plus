@@ -6,7 +6,7 @@ require_relative 'schema_views/middleware'
 module SchemaViews
   module ActiveRecord
     module ConnectionAdapters
-      autoload :MysqlAdapter, 'schema_views/active_record/connection_adapters/mysql_adapter'
+      autoload :Mysql2Adapter, 'schema_views/active_record/connection_adapters/mysql2_adapter'
       autoload :PostgresqlAdapter, 'schema_views/active_record/connection_adapters/postgresql_adapter'
       autoload :Sqlite3Adapter, 'schema_views/active_record/connection_adapters/sqlite3_adapter'
     end

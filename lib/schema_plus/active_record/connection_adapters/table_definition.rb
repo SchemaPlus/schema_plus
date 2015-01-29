@@ -74,6 +74,9 @@ module SchemaPlus::ActiveRecord::ConnectionAdapters
     def foreign_key(*args) # (column_names, to_table, primary_key=nil, options=nil)
       options = args.extract_options!
       case args.length
+      when 1
+        to_table = args[0]
+        column_names = "#{to_table.to_s.singularize}_id"
       when 2
         column_names, to_table = args
       when 3

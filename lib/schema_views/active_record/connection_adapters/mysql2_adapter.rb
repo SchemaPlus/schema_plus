@@ -1,7 +1,7 @@
 module SchemaViews
   module ActiveRecord
     module ConnectionAdapters
-      module MysqlAdapter
+      module Mysql2Adapter
 
         def views(name = nil)
           views = []

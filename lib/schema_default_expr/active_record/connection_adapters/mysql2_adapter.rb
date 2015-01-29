@@ -1,7 +1,7 @@
 module SchemaDefaultExpr
   module ActiveRecord
     module ConnectionAdapters
-      module MysqlAdapter
+      module Mysql2Adapter
         def default_expr_valid?(expr)
           false # only the TIMESTAMP column accepts SQL column defaults and rails uses DATETIME
         end

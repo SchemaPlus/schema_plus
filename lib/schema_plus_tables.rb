@@ -5,7 +5,7 @@ require_relative 'schema_plus_tables/active_record/connection_adapters/abstract_
 module SchemaPlusTables
   module ActiveRecord
     module ConnectionAdapters
-      autoload :MysqlAdapter, 'schema_plus_tables/active_record/connection_adapters/mysql_adapter'
+      autoload :Mysql2Adapter, 'schema_plus_tables/active_record/connection_adapters/mysql2_adapter'
       autoload :PostgresqlAdapter, 'schema_plus_tables/active_record/connection_adapters/postgresql_adapter'
       autoload :Sqlite3Adapter, 'schema_plus_tables/active_record/connection_adapters/sqlite3_adapter'
     end

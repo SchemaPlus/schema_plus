@@ -22,7 +22,7 @@ module SchemaDefaultExpr
       # Currently, the only function to support is :now, which should
       # return a DATETIME object for the current time.
       #
-      autoload :MysqlAdapter, 'schema_default_expr/active_record/connection_adapters/mysql_adapter'
+      autoload :Mysql2Adapter, 'schema_default_expr/active_record/connection_adapters/mysql2_adapter'
       autoload :PostgresqlAdapter, 'schema_default_expr/active_record/connection_adapters/postgresql_adapter'
       autoload :Sqlite3Adapter, 'schema_default_expr/active_record/connection_adapters/sqlite3_adapter'
     end

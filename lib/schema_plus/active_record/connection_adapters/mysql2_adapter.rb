@@ -3,7 +3,7 @@ module SchemaPlus
     module ConnectionAdapters
       # SchemaPlus includes a MySQL implementation of the AbstractAdapter
       # extensions.
-      module MysqlAdapter
+      module Mysql2Adapter
 
         #:enddoc:
 

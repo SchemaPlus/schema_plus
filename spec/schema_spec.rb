@@ -31,9 +31,8 @@ describe ActiveRecord::Schema do
       expect(connection.tables.collect { |table| connection.foreign_keys(table) }.flatten.size).to eq(2)
     end
 
-  end
-
   protected
+
   def do_schema
     define_schema do
 
@@ -53,6 +52,29 @@ describe ActiveRecord::Schema do
       end
     end
   end
+
+  end
+
+  it "handles explicit foreign keys" do
+    expect {
+      with_auto_create(false) do
+        define_schema do
+          create_table :users, :force => :cascade do
+          end
+
+          create_table :posts, :force => :cascade do |t|
+            t.integer :user_id
+            t.foreign_key :users
+          end
+        end
+      end
+    }.not_to raise_error
+    expect(connection.foreign_keys("posts").first.to_table).to eq "users"
+  end
+
+
+  protected
+
 
   def with_auto_index(value = true)
     old_value = SchemaPlus.config.foreign_keys.auto_index
