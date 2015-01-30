@@ -1,4 +1,4 @@
-module SchemaPgEnums
+module SchemaPlusEnums
   module Middleware
     module Postgresql
       def self.insert

@@ -1,7 +1,7 @@
-require 'schema_pg_enums'
 require 'schema_plus_columns'
 require 'schema_plus_db_default'
 require 'schema_plus_default_expr'
+require 'schema_plus_enums'
 require 'schema_plus_foreign_keys'
 require 'schema_plus_indexes'
 require 'schema_plus_pg_indexes'
