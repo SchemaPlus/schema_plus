@@ -1,4 +1,4 @@
-module SchemaDefaultExpr
+module SchemaPlusDefaultExpr
   module ActiveRecord
     module ConnectionAdapters
       module PostgresqlAdapter

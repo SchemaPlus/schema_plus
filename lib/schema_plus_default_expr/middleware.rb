@@ -1,4 +1,4 @@
-module SchemaDefaultExpr
+module SchemaPlusDefaultExpr
   module Middleware
     def self.insert
       SchemaMonkey::Middleware::Migration::ColumnOptionsSql.prepend DefaultExprOptions
