@@ -7,9 +7,9 @@ describe "with multiple schemas" do
 
   before(:all) do
     newdb = case connection.adapter_name
-            when /^mysql/i then      "CREATE SCHEMA IF NOT EXISTS schema_views_test2"
-            when /^postgresql/i then "CREATE SCHEMA schema_views_test2"
-            when /^sqlite/i then     "ATTACH ':memory:' AS schema_views_test2"
+            when /^mysql/i then      "CREATE SCHEMA IF NOT EXISTS schema_plus_views_test2"
+            when /^postgresql/i then "CREATE SCHEMA schema_plus_views_test2"
+            when /^sqlite/i then     "ATTACH ':memory:' AS schema_plus_views_test2"
             end
     begin
       ActiveRecord::Base.connection.execute newdb
@@ -27,8 +27,8 @@ describe "with multiple schemas" do
       end
     end
 
-    connection.execute 'DROP TABLE IF EXISTS schema_views_test2.users'
-    connection.execute 'CREATE TABLE schema_views_test2.users (id ' + case connection.adapter_name
+    connection.execute 'DROP TABLE IF EXISTS schema_plus_views_test2.users'
+    connection.execute 'CREATE TABLE schema_plus_views_test2.users (id ' + case connection.adapter_name
           when /^mysql/i then      "integer primary key auto_increment"
           when /^postgresql/i then "serial primary key"
           when /^sqlite/i then     "integer primary key autoincrement"
@@ -40,14 +40,14 @@ describe "with multiple schemas" do
       begin
         example.run
       ensure
-        connection.execute 'DROP VIEW schema_views_test2.myview' rescue nil
+        connection.execute 'DROP VIEW schema_plus_views_test2.myview' rescue nil
         connection.execute 'DROP VIEW myview' rescue nil
       end
     end
 
     before(:each) do
       connection.views.each { |view| connection.drop_view view }
-      connection.execute 'CREATE VIEW schema_views_test2.myview AS SELECT * FROM users'
+      connection.execute 'CREATE VIEW schema_plus_views_test2.myview AS SELECT * FROM users'
     end
 
     it "should not find views in other schema" do

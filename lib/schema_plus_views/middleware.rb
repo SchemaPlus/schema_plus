@@ -1,4 +1,4 @@
-module SchemaViews
+module SchemaPlusViews
   module Middleware
     def self.insert
         SchemaMonkey::Middleware::Dumper::Tables.prepend DumpViews

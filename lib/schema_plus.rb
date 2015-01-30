@@ -9,7 +9,7 @@ require 'schema_plus_columns'
 require 'schema_plus_db_default'
 require 'schema_plus_default_expr'
 require 'schema_pg_enums'
-require 'schema_views'
+require 'schema_plus_views'
 require 'schema_plus_tables'
 
 require 'schema_plus/version'

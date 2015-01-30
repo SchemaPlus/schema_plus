@@ -1,4 +1,4 @@
-module SchemaViews
+module SchemaPlusViews
   module ActiveRecord
     module ConnectionAdapters
       module AbstractAdapter
