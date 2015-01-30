@@ -1,6 +1,6 @@
 require 'spec_helper'
 
-describe SchemaDbDefault do
+describe SchemaPlusDbDefault do
 
   let(:migration) { ::ActiveRecord::Migration }
 

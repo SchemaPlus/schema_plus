@@ -1,4 +1,4 @@
-module SchemaDbDefault
+module SchemaPlusDbDefault
   module Middleware
     module PostgresqlAdapter
       def self.insert

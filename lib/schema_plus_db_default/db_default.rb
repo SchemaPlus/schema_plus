@@ -1,6 +1,6 @@
 require 'singleton'
 
-module SchemaDbDefault
+module SchemaPlusDbDefault
   class DbDefault
     include Singleton
     def to_s
