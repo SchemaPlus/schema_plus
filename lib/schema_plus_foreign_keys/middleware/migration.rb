@@ -1,4 +1,4 @@
-module SchemaPlus
+module SchemaPlusForeignKeys
   module Middleware
     module Migration
 
@@ -72,7 +72,7 @@ module SchemaPlus
             commands_length = env.caller.commands.length
           end
 
-          config = (env.caller.try(:schema_plus_config) || SchemaPlus.config).foreign_keys
+          config = (env.caller.try(:schema_plus_config) || SchemaPlusForeignKeys.config)
           fk_args = get_fk_args(env, config)
 
           # remove existing fk and auto-generated index in case of change of fk on existing column

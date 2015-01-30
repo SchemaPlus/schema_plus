@@ -1,10 +1,10 @@
-module SchemaPlus
+module SchemaPlusForeignKeys
   module ActiveRecord
-    # SchemaPlus adds several methods to the connection adapter (as returned by ActiveRecordBase#connection).  See AbstractAdapter for details.
+    # SchemaPlusForeignKeys adds several methods to the connection adapter (as returned by ActiveRecordBase#connection).  See AbstractAdapter for details.
     module ConnectionAdapters
 
       #
-      # SchemaPlus adds several methods to
+      # SchemaPlusForeignKeys adds several methods to
       # ActiveRecord::ConnectionAdapters::AbstractAdapter.  In most cases
       # you don't call these directly, but rather the methods that define
       # things are called by schema statements, and methods that query
@@ -113,7 +113,7 @@ module SchemaPlus
           if fk = fks.detect { |fk| fk.match(test_fk) }
             fk.name
           else
-            raise "SchemaPlus: no foreign key constraint found on #{from_table.inspect} matching #{[to_table, options].inspect}" unless options[:if_exists]
+            raise "SchemaPlusForeignKeys: no foreign key constraint found on #{from_table.inspect} matching #{[to_table, options].inspect}" unless options[:if_exists]
             nil
           end
         end
@@ -149,11 +149,11 @@ module SchemaPlus
 
         module VisitTableDefinition
           def self.included(base) #:nodoc:
-            base.alias_method_chain :visit_TableDefinition, :schema_plus
+            base.alias_method_chain :visit_TableDefinition, :schema_plus_foreign_keys
           end
 
-          def visit_TableDefinition_with_schema_plus(o) #:nodoc:
-            create_sql = visit_TableDefinition_without_schema_plus(o)
+          def visit_TableDefinition_with_schema_plus_foreign_keys(o) #:nodoc:
+            create_sql = visit_TableDefinition_without_schema_plus_foreign_keys(o)
             last_chunk = ") #{o.options}"
 
             unless create_sql.end_with?(last_chunk)

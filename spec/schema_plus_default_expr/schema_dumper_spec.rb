@@ -4,8 +4,8 @@ require 'stringio'
 describe "Schema dump" do
 
   before(:all) do
-    SchemaPlus.setup do |config|
-      config.foreign_keys.auto_create = false
+    SchemaPlusForeignKeys.setup do |config|
+      config.auto_create = false
     end
     ActiveRecord::Migration.suppress_messages do
       ActiveRecord::Schema.define do

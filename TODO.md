@@ -12,9 +12,7 @@
 ## schema_plus_index
 * remove index specs that are testing things now handled by AR.  (then see if coverage is still 100%)
 
-## schema_plus
-* deprecate config => SchemaForeignKeys config
-* move fk stuff into schema_foreign_keys
+## schema_plus_foreign_keys
 * add specs to cover the deprecations
 * just do fk enhancements rather than replace AR's add_foreign_key and remove_foreign_key methods and foreign key lookups
 

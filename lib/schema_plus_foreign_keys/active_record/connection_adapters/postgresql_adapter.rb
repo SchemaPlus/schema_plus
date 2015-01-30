@@ -1,19 +1,19 @@
-module SchemaPlus
+module SchemaPlusForeignKeys
   module ActiveRecord
     module ConnectionAdapters
 
-      # The Postgresql adapter implements the SchemaPlus extensions and
+      # The Postgresql adapter implements the SchemaPlusForeignKeys extensions and
       # enhancements
       module PostgresqlAdapter
 
         def self.included(base) #:nodoc:
           base.class_eval do
-            alias_method_chain :rename_table, :schema_plus
+            alias_method_chain :rename_table, :schema_plus_foreign_keys
           end
         end
 
-        def rename_table_with_schema_plus(oldname, newname) #:nodoc:
-          rename_table_without_schema_plus(oldname, newname)
+        def rename_table_with_schema_plus_foreign_keys(oldname, newname) #:nodoc:
+          rename_table_without_schema_plus_foreign_keys(oldname, newname)
           rename_foreign_keys(oldname, newname)
         end
 

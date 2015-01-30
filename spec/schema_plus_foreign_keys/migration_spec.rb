@@ -40,22 +40,6 @@ describe ActiveRecord::Migration do
       @model = Post
     end
 
-    it "should properly handle default values for booleans" do
-      expect {
-        recreate_table(@model) do |t|
-          t.boolean :bool, :default => true
-        end
-      }.to_not raise_error
-      expect(@model.create.reload.bool).to be true
-    end
-
-    it "should properly handle default values for json (#195)", :postgresql => :only do
-      recreate_table(@model) do |t|
-        t.json :json, :default => {}
-      end
-      expect(@model.create.reload.json).to eq({})
-    end if ActiveRecord::VERSION::MAJOR >= 4
-
     it "should create auto foreign keys" do
       recreate_table(@model) do |t|
         t.integer :user_id
@@ -520,53 +504,53 @@ describe ActiveRecord::Migration do
     end
 
     it "should auto-index if specified in global options" do
-      SchemaPlus.config.foreign_keys.auto_index = true
+      SchemaPlusForeignKeys.config.auto_index = true
       add_column(:post_id, :integer) do
         expect(@model).to have_index.on(:post_id)
       end
-      SchemaPlus.config.foreign_keys.auto_index = false
+      SchemaPlusForeignKeys.config.auto_index = false
     end
 
     it "should auto-index foreign keys only" do
-      SchemaPlus.config.foreign_keys.auto_index = true
+      SchemaPlusForeignKeys.config.auto_index = true
       add_column(:state, :integer) do
         expect(@model).not_to have_index.on(:state)
       end
-      SchemaPlus.config.foreign_keys.auto_index = false
+      SchemaPlusForeignKeys.config.auto_index = false
     end
 
     # MySQL creates an index on foreign key and we can't override that
     it "should allow to overwrite auto_index options in column definition", :mysql => :skip do
-      SchemaPlus.config.foreign_keys.auto_index = true
+      SchemaPlusForeignKeys.config.auto_index = true
       add_column(:post_id, :integer, :index => false) do
         expect(@model).not_to have_index.on(:post_id)
       end
-      SchemaPlus.config.foreign_keys.auto_index = false
+      SchemaPlusForeignKeys.config.auto_index = false
     end
 
     it "should use default on_update action" do
-      SchemaPlus.config.foreign_keys.on_update = :cascade
+      SchemaPlusForeignKeys.config.on_update = :cascade
       add_column(:post_id, :integer) do
         expect(@model).to reference.on(:post_id).on_update(:cascade)
       end
-      SchemaPlus.config.foreign_keys.on_update = nil
+      SchemaPlusForeignKeys.config.on_update = nil
     end
 
     it "should use default on_delete action" do
-      SchemaPlus.config.foreign_keys.on_delete = :cascade
+      SchemaPlusForeignKeys.config.on_delete = :cascade
       add_column(:post_id, :integer) do
         expect(@model).to reference.on(:post_id).on_delete(:cascade)
       end
-      SchemaPlus.config.foreign_keys.on_delete = nil
+      SchemaPlusForeignKeys.config.on_delete = nil
     end
 
     it "should allow to overwrite default actions" do
-      SchemaPlus.config.foreign_keys.on_delete = :cascade
-      SchemaPlus.config.foreign_keys.on_update = :restrict
+      SchemaPlusForeignKeys.config.on_delete = :cascade
+      SchemaPlusForeignKeys.config.on_update = :restrict
       add_column(:post_id, :integer, :foreign_key => { :on_update => :nullify, :on_delete => :nullify}) do
         expect(@model).to reference.on(:post_id).on_delete(:nullify).on_update(:nullify)
       end
-      SchemaPlus.config.foreign_keys.on_delete = nil
+      SchemaPlusForeignKeys.config.on_delete = nil
     end
 
     protected

@@ -1,8 +1,8 @@
-module SchemaPlus
+module SchemaPlusForeignKeys
   module ActiveRecord
     module ConnectionAdapters
 
-      # SchemaPlus includes an Sqlite3 implementation of the AbstractAdapter
+      # SchemaPlusForeignKeys includes an Sqlite3 implementation of the AbstractAdapter
       # extensions.
       module Sqlite3Adapter
 
@@ -10,7 +10,7 @@ module SchemaPlus
 
         def self.included(base)
           base.class_eval do
-            alias_method_chain :rename_table, :schema_plus
+            alias_method_chain :rename_table, :schema_plus_foreign_keys
           end
         end
 
@@ -19,8 +19,8 @@ module SchemaPlus
           execute('PRAGMA FOREIGN_KEYS = ON')
         end
 
-        def rename_table_with_schema_plus(oldname, newname) #:nodoc:
-          rename_table_without_schema_plus(oldname, newname)
+        def rename_table_with_schema_plus_foreign_keys(oldname, newname) #:nodoc:
+          rename_table_without_schema_plus_foreign_keys(oldname, newname)
           rename_foreign_keys(oldname, newname)
         end
 

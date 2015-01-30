@@ -1,4 +1,4 @@
-require File.expand_path(File.dirname(__FILE__) + '/spec_helper')
+require 'spec_helper'
 
 describe ActiveRecord::Schema do
 
@@ -77,22 +77,22 @@ describe ActiveRecord::Schema do
 
 
   def with_auto_index(value = true)
-    old_value = SchemaPlus.config.foreign_keys.auto_index
-    SchemaPlus.config.foreign_keys.auto_index = value
+    old_value = SchemaPlusForeignKeys.config.auto_index
+    SchemaPlusForeignKeys.config.auto_index = value
     begin
       yield
     ensure
-      SchemaPlus.config.foreign_keys.auto_index = old_value
+      SchemaPlusForeignKeys.config.auto_index = old_value
     end
   end
 
   def with_auto_create(value = true)
-    old_value = SchemaPlus.config.foreign_keys.auto_create
-    SchemaPlus.config.foreign_keys.auto_create = value
+    old_value = SchemaPlusForeignKeys.config.auto_create
+    SchemaPlusForeignKeys.config.auto_create = value
     begin
       yield
     ensure
-      SchemaPlus.config.foreign_keys.auto_create = old_value
+      SchemaPlusForeignKeys.config.auto_create = old_value
     end
   end
 

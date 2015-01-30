@@ -24,12 +24,12 @@ RSpec.configure do |config|
 end
 
 def with_fk_config(opts, &block)
-  save = Hash[opts.keys.collect{|key| [key, SchemaPlus.config.foreign_keys.send(key)]}]
+  save = Hash[opts.keys.collect{|key| [key, SchemaPlusForeignKeys.config.send(key)]}]
   begin
-    SchemaPlus.config.foreign_keys.update_attributes(opts)
+    SchemaPlusForeignKeys.config.update_attributes(opts)
     yield
   ensure
-    SchemaPlus.config.foreign_keys.update_attributes(save)
+    SchemaPlusForeignKeys.config.update_attributes(save)
   end
 end
 

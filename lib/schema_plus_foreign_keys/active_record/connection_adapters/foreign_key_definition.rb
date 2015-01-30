@@ -1,6 +1,6 @@
 require 'active_record/connection_adapters/abstract/schema_definitions'
 
-module SchemaPlus
+module SchemaPlusForeignKeys
   module ActiveRecord
     module ConnectionAdapters
       # Instances of this class are returned by the queries ActiveRecord::Base#foreign_keys and ActiveRecord::Base#reverse_foreign_keys (via AbstractAdapter#foreign_keys and AbstractAdapter#reverse_foreign_keys)
@@ -19,7 +19,7 @@ module SchemaPlus
 
         def self.included(base)
           base.class_eval do
-            alias_method_chain :initialize, :schema_plus
+            alias_method_chain :initialize, :schema_plus_foreign_keys
           end
         end
 
@@ -46,7 +46,7 @@ module SchemaPlus
         ACTIONS = { :cascade => "CASCADE", :restrict => "RESTRICT", :nullify => "SET NULL", :set_default => "SET DEFAULT", :no_action => "NO ACTION" }.freeze
         ACTION_LOOKUP = ACTIONS.invert.freeze
 
-        def initialize_with_schema_plus(from_table, to_table, options={})
+        def initialize_with_schema_plus_foreign_keys(from_table, to_table, options={})
           [:on_update, :on_delete].each do |key|
             if options[key] == :set_null
               require 'byebug' ; byebug
@@ -55,7 +55,7 @@ module SchemaPlus
             end
           end
 
-          initialize_without_schema_plus(from_table, to_table, options)
+          initialize_without_schema_plus_foreign_keys(from_table, to_table, options)
           if column.is_a?(Array) and column.length == 1
             options[:column] = column[0]
           end

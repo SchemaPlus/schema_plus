@@ -1,4 +1,4 @@
-module SchemaPlus
+module SchemaPlusForeignKeys
   module ActiveRecord
     module Migration
       module CommandRecorder
@@ -7,8 +7,8 @@ module SchemaPlus
 
         def self.included(base) #:nodoc:
           base.class_eval do
-            alias_method_chain :add_reference, :schema_plus
-            alias_method_chain :invert_add_index, :schema_plus
+            alias_method_chain :add_reference, :schema_plus_foreign_keys
+            alias_method_chain :invert_add_index, :schema_plus_foreign_keys
           end
         end
 
@@ -18,7 +18,7 @@ module SchemaPlus
         #
         # should track it down separately and submit a patch/fix to rails
         #
-        def add_reference_with_schema_plus(table_name, ref_name, options = {}) #:nodoc:
+        def add_reference_with_schema_plus_foreign_keys(table_name, ref_name, options = {}) #:nodoc:
           polymorphic = options.delete(:polymorphic)
           options[:references] = nil if polymorphic
           # ugh.  copying and pasting code from ::ActiveRecord::ConnectionAdapters::SchemaStatements#add_reference
@@ -30,7 +30,7 @@ module SchemaPlus
           self
         end
 
-        def invert_add_index_with_schema_plus(args)
+        def invert_add_index_with_schema_plus_foreign_keys(args)
           table, columns, options = *args
           [:remove_index, [table, (options||{}).merge(column: columns, if_exists: true)]]
         end

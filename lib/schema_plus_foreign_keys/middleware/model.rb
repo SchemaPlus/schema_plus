@@ -1,4 +1,4 @@
-module SchemaPlus
+module SchemaPlusForeignKeys
   module Middleware
     module Model
 

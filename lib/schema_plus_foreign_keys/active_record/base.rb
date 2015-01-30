@@ -1,8 +1,8 @@
-module SchemaPlus
+module SchemaPlusForeignKeys
   module ActiveRecord
 
     #
-    # SchemaPlus adds several methods to ActiveRecord::Base
+    # SchemaPlusForeignKeys adds several methods to ActiveRecord::Base
     #
     module Base
       def self.included(base) #:nodoc:

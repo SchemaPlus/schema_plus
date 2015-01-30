@@ -1,7 +1,7 @@
-module SchemaPlus
+module SchemaPlusForeignKeys
   module ActiveRecord
     module ConnectionAdapters
-      # SchemaPlus includes a MySQL implementation of the AbstractAdapter
+      # SchemaPlusForeignKeys includes a MySQL implementation of the AbstractAdapter
       # extensions.
       module Mysql2Adapter
 
@@ -9,21 +9,21 @@ module SchemaPlus
 
         def self.included(base)
           base.class_eval do
-            alias_method_chain :remove_column, :schema_plus
-            alias_method_chain :rename_table, :schema_plus
+            alias_method_chain :remove_column, :schema_plus_foreign_keys
+            alias_method_chain :rename_table, :schema_plus_foreign_keys
           end
-          ::ActiveRecord::ConnectionAdapters::AbstractMysqlAdapter::SchemaCreation.send(:include, SchemaPlus::ActiveRecord::ConnectionAdapters::AbstractAdapter::VisitTableDefinition)
+          ::ActiveRecord::ConnectionAdapters::AbstractMysqlAdapter::SchemaCreation.send(:include, SchemaPlusForeignKeys::ActiveRecord::ConnectionAdapters::AbstractAdapter::VisitTableDefinition)
         end
 
-        def remove_column_with_schema_plus(table_name, column_name, type=nil, options={})
+        def remove_column_with_schema_plus_foreign_keys(table_name, column_name, type=nil, options={})
           foreign_keys(table_name).select { |foreign_key| Array.wrap(foreign_key.column).include?(column_name.to_s) }.each do |foreign_key|
             remove_foreign_key(table_name, name: foreign_key.name)
           end
-          remove_column_without_schema_plus(table_name, column_name, type, options)
+          remove_column_without_schema_plus_foreign_keys(table_name, column_name, type, options)
         end
 
-        def rename_table_with_schema_plus(oldname, newname)
-          rename_table_without_schema_plus(oldname, newname)
+        def rename_table_with_schema_plus_foreign_keys(oldname, newname)
+          rename_table_without_schema_plus_foreign_keys(oldname, newname)
           rename_foreign_keys(oldname, newname)
         end
 
