@@ -1,3 +1,4 @@
+require 'schema_monkey_rails'
 require 'schema_plus_columns'
 require 'schema_plus_db_default'
 require 'schema_plus_default_expr'

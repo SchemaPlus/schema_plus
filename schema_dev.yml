@@ -1,7 +1,7 @@
 ruby:
     - 1.9.3
     - 2.1.5
-rails:
+activerecord:
     - 4.2
 db:
     - mysql2

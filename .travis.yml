@@ -8,9 +8,9 @@ rvm:
 - 1.9.3
 - 2.1.5
 gemfile:
-- gemfiles/rails-4.2/Gemfile.mysql2
-- gemfiles/rails-4.2/Gemfile.postgresql
-- gemfiles/rails-4.2/Gemfile.sqlite3
+- gemfiles/activerecord-4.2/Gemfile.mysql2
+- gemfiles/activerecord-4.2/Gemfile.postgresql
+- gemfiles/activerecord-4.2/Gemfile.sqlite3
 env: POSTGRESQL_DB_USER=postgres MYSQL_DB_USER=travis
 addons:
   postgresql: '9.3'

@@ -1,7 +1,6 @@
 ## ALL
 
 * ideally get rid of all uses of alias_method_chain outside schema_monkey (create middleware)
-* rename everything to schema_plus_* (except schema_monkey and schema_plus)
 
 ## schema_plus_tables
 
@@ -29,7 +28,7 @@
 * @dump should include the header for consistency
 * specs for schema_monkey
 * README to document it -- the conventions and internal API
-* (try it on AR 4.1?  nah)
+* pull out schema_monkey_rails into its own gem
 
 ## general
 * rename schema_pg_enum to just schema_enum?
@@ -38,12 +37,8 @@
 
 ## schema_dev things:
 
-* boilerplate in README regarding the schema_plus family?
-* boilerplate in README regarding test matrix?
-* default 'rspec'
+* boilerplate in README regarding installation, especially if schema_monkey_rails gets pulled out
 * don't bother changing ruby if it's the current version anyway.
-* rename 'refresh' to 'freshen'; get rid of the individual travis & gem commands
 * have a .schema_dev file with current settings
   * make it obvious and easy to override
   * auto update .gitignore to ignore it?
-* log files should go in log/ not in tmp/ (auto update .gitignore to ignore it?)
