@@ -49,6 +49,13 @@ module SchemaPlus
         end
       end
 
+      def fix_backref_fks_for(table)
+        @backref_fks[table].each do |fk|
+          @dumped_tables.include?(fk.table_name) ||
+          @backref_fks[fk.table_name].push(@backref_fks[table].delete(fk))
+        end
+      end
+
       def tables_with_schema_plus(stream) #:nodoc:
         @table_dumps = {}
         @inline_fks = Hash.new{ |h, k| h[k] = [] }
@@ -100,12 +107,16 @@ module SchemaPlus
         # won't let you create cycles in the first place.)
         break_fk_cycles while strongly_connected_components.any?{|component| component.size > 1}
 
+        @dumped_tables = []
+
         tsort().each do |table|
           table_dump = @table_dumps[table]
           if i = (table_dump =~ /^\s*[e]nd\s*$/)
             table_dump.insert i, dump_indexes(table) + dump_foreign_keys(@inline_fks[table], :inline => true)
           end
           stream.print table_dump
+          @dumped_tables << table
+          fix_backref_fks_for(table)
           stream.puts dump_foreign_keys(@backref_fks[table], :inline => false)+"\n" if @backref_fks[table].any?
         end
 
@@ -149,7 +160,7 @@ module SchemaPlus
           dump << " :name => #{index.name.inspect}"
           dump << ", :unique => true" if index.unique
           dump << ", :kind => \"#{index.kind}\"" unless index.kind.blank?
-          unless index.columns.blank? 
+          unless index.columns.blank?
             dump << ", :case_sensitive => false" unless index.case_sensitive?
             dump << ", :conditions => #{index.conditions.inspect}" unless index.conditions.blank?
             index_lengths = index.lengths.compact if index.lengths.is_a?(Array)

@@ -65,7 +65,7 @@ module SchemaPlus
 
         ACTIONS = { :cascade => "CASCADE", :restrict => "RESTRICT", :set_null => "SET NULL", :set_default => "SET DEFAULT", :no_action => "NO ACTION" }.freeze
 
-        def initialize(from_table, to_table, options) 
+        def initialize(from_table, to_table, options)
           super
           @from_table = unquote(from_table)
           @to_table = unquote(to_table)

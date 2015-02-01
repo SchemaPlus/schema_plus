@@ -14,7 +14,7 @@ describe "with multiple schemas" do
     begin
       ActiveRecord::Base.connection.execute newdb
     rescue ActiveRecord::StatementInvalid => e
-      raise unless e.message =~ /already exists/
+      raise unless e.message =~ /already exists|DuplicateSchema|CREATE SCHEMA/
     end
 
     class User < ::ActiveRecord::Base ; end
@@ -184,7 +184,7 @@ describe "with multiple schemas" do
       begin
         connection.execute "CREATE SCHEMA postgis"
       rescue ActiveRecord::StatementInvalid => e
-        raise unless e.message =~ /already exists/
+        raise unless e.message =~ /already exists|DuplicateSchema|CREATE SCHEMA/
       end
     end
 
