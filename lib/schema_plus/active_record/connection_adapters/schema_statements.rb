@@ -63,7 +63,7 @@ module SchemaPlus::ActiveRecord::ConnectionAdapters
       raise unless e.message.match(/["']([^"']+)["'].*already exists/)
       name = $1
       existing = connection.indexes(table).find{|i| i.name == name}
-      attempted = ::ActiveRecord::ConnectionAdapters::IndexDefinition.new(table, columns, options.merge(:name => name)) 
+      attempted = ::ActiveRecord::ConnectionAdapters::IndexDefinition.new(table, columns, options.merge(:name => name))
       raise if attempted != existing
       ::ActiveRecord::Base.logger.warn "[schema_plus] Index name #{name.inspect}' on table #{table.inspect} already exists. Skipping."
     end
