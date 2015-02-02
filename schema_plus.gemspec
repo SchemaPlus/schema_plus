@@ -28,7 +28,7 @@ Gem::Specification.new do |s|
   s.add_dependency "schema_plus_indexes", "~> 0.1"
   s.add_dependency "schema_plus_pg_indexes", "~> 0.1"
 
-  s.add_development_dependency "schema_dev", "~> 2.0", ">= 2.0.3"
+  s.add_development_dependency "schema_dev", "~> 3.0"
   s.add_development_dependency "rake"
   s.add_development_dependency "rspec", "~> 3.0.0"
   s.add_development_dependency "rdoc"
