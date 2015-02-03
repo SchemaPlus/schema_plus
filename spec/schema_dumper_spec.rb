@@ -229,6 +229,12 @@ describe "Schema dump" do
       end
     end
 
+    it 'should dump proper operator_class with case_sensitive => false' do
+      with_index Post, :body, :operator_class => 'text_pattern_ops', :case_sensitive => false do
+        expect(dump_posts).to match(to_regexp(%q{t.index ["body"], :name => "index_posts_on_body", :case_sensitive => false, :operator_class => {"body" => "text_pattern_ops"}}))
+      end
+    end
+    
     it "should dump unique: true with expression (Issue #142)" do
       with_index Post, :name => "posts_user_body_index", :unique => true, :expression => "BTRIM(LOWER(body))" do
         expect(dump_posts).to match(%r{#{to_regexp(%q{t.index :name => "posts_user_body_index", :unique => true, :expression => "btrim(lower(body))"})}$})
