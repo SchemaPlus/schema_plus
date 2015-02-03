@@ -2,20 +2,14 @@ module SchemaPlusColumns
   module Middleware
     module Model
 
-      def self.insert
-        SchemaMonkey::Middleware::Model::Columns.append AddModels
-      end
+      module Columns
 
-      class AddModels < SchemaMonkey::Middleware::Base
-        def call(env)
-          continue env
-
+        def after(env)
           env.columns.each do |column|
             column.model = env.model
           end
-
-          env.columns
         end
+
       end
     end
   end

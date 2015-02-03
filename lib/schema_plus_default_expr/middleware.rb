@@ -1,14 +1,14 @@
 module SchemaPlusDefaultExpr
   module Middleware
-    def self.insert
-      SchemaMonkey::Middleware::Migration::ColumnOptionsSql.prepend DefaultExprOptions
-      SchemaMonkey::Middleware::Dumper::Table.append DumpDefaultExpressions
-    end
 
-    class DefaultExprOptions < ::SchemaMonkey::Middleware::Base
-      def call(env)
-        options = env.options
-        if env.caller.options_include_default?(options)
+    module Migration
+      module ColumnOptionsSql
+
+        # Add options for default expressions
+        def before(env)
+          options = env.options
+          return unless env.caller.options_include_default?(options)
+
           default = options[:default]
 
           if default.is_a? Hash and [[:expr], [:value]].include?(default.keys)
@@ -32,19 +32,21 @@ module SchemaPlusDefaultExpr
             options[:default] = value
           end
         end
-        continue env
       end
     end
 
-    class DumpDefaultExpressions < SchemaMonkey::Middleware::Base
-      def call(env)
-        continue env
-        env.connection.columns(env.table.name).each do |column|
-          if !column.default_function.nil?
-            if col = env.table.columns.find{|col| col.name == column.name}
-              options = "default: { expr: #{column.default_function.inspect} }"
-              options += ", #{col.options}" unless col.options.blank?
-              col.options = options
+    module Dumper
+      module Table
+
+        # Emit default expression options in dump
+        def after(env)
+          env.connection.columns(env.table.name).each do |column|
+            if !column.default_function.nil?
+              if col = env.table.columns.find{|col| col.name == column.name}
+                options = "default: { expr: #{column.default_function.inspect} }"
+                options += ", #{col.options}" unless col.options.blank?
+                col.options = options
+              end
             end
           end
         end

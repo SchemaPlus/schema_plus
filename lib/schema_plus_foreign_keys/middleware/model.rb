@@ -1,17 +1,15 @@
 module SchemaPlusForeignKeys
   module Middleware
+
     module Model
+      module ResetColumnInformation
 
-      def self.insert
-        SchemaMonkey::Middleware::Model::ResetColumnInformation.append ResetColumnInformation
-      end
-
-      class ResetColumnInformation < SchemaMonkey::Middleware::Base
-        def call(env)
-          continue env
+        def after(env)
           env.model.reset_foreign_key_information
         end
+
       end
     end
+
   end
 end

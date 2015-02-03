@@ -2,13 +2,12 @@ module SchemaPlusForeignKeys
   module Middleware
     module Migration
 
-      def self.insert
-        SchemaMonkey::Middleware::Migration::Column.prepend Shortcuts
-        SchemaMonkey::Middleware::Migration::Column.append AddForeignKeys
-      end
+      module Column
 
-      class Shortcuts < SchemaMonkey::Middleware::Base
-        def call(env)
+        #
+        # Column option shortcuts
+        #
+        def before(env)
           fk_options = env.options[:foreign_key]
 
           case fk_options
@@ -37,14 +36,12 @@ module SchemaPlusForeignKeys
           fk_options = false if fk_options and fk_options.has_key?(:references) and not fk_options[:references]
 
           env.options[:foreign_key] = fk_options
-
-          continue env
-
         end
-      end
 
-      class AddForeignKeys < SchemaMonkey::Middleware::Base
-        def call(env)
+        #
+        # Add the foreign keys
+        #
+        def around(env)
           options = env.options
           original_options = options.dup
 
@@ -56,7 +53,7 @@ module SchemaPlusForeignKeys
           index = options.delete(:index) unless is_polymorphic
           options[:foreign_key] = false if is_reference
 
-          continue env
+          yield env
 
           return if is_polymorphic
 
@@ -65,6 +62,8 @@ module SchemaPlusForeignKeys
           add_foreign_keys_and_auto_index(env)
 
         end
+
+        private
 
         def add_foreign_keys_and_auto_index(env)
 

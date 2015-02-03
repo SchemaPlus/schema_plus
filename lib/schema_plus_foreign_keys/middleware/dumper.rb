@@ -2,24 +2,15 @@ module SchemaPlusForeignKeys
   module Middleware
     module Dumper
 
-      def self.insert
-        SchemaMonkey::Middleware::Dumper::Tables.prepend FkDependencies
-        SchemaMonkey::Middleware::Dumper::Tables.append IgnoreActiveRecordFkDumps
-        SchemaMonkey::Middleware::Dumper::Table.append ForeignKeys
-      end
-
       # index and foreign key constraint definitions are dumped
       # inline in the create_table block.  (This is done for elegance, but
       # also because Sqlite3 does not allow foreign key constraints to be
       # added to a table after it has been defined.)
 
-      #
-      # Middleware for the collection of tables
-      #
+      module Tables
 
-      class FkDependencies < SchemaMonkey::Middleware::Base
+        def before(env)
 
-        def call(env)
           @inline_fks = Hash.new{ |h, k| h[k] = [] }
           @backref_fks = Hash.new{ |h, k| h[k] = [] }
 
@@ -39,9 +30,14 @@ module SchemaPlusForeignKeys
 
           env.dump.data.inline_fks = @inline_fks
           env.dump.data.backref_fks = @backref_fks
-
-          continue env
         end
+
+        # Ignore the foreign key dumps at the end of the schema; we'll put them in/near their tables
+        def after(env)
+          env.dump.foreign_keys = []
+        end
+
+        private
 
         def break_fk_cycles(env) #:nodoc:
           env.dump.strongly_connected_components.select{|component| component.size > 1}.each do |tables|
@@ -54,22 +50,11 @@ module SchemaPlusForeignKeys
             end
           end
         end
+
       end
 
-      class IgnoreActiveRecordFkDumps < SchemaMonkey::Middleware::Base
-        # Ignore the foreign key dumps at the end of the schema; we'll put them in/near their tables
-        def call(env)
-          continue env
-          env.dump.foreign_keys = []
-        end
-      end
-
-      #
-      # Middleware for individual tables
-      #
-      class ForeignKeys < SchemaMonkey::Middleware::Base
-        def call(env)
-          continue env
+      module Table
+        def after(env)
           dumped = {}
           env.table.columns.each do |column|
             if (foreign_key = env.dump.data.inline_fks[env.table.name].find(&its.column.to_s == column.name))
