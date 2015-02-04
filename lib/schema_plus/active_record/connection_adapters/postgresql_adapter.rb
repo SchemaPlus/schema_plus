@@ -218,8 +218,8 @@ module SchemaPlus
               opclass_name[oid.to_s] = opcname
             end
             operator_classes = {}
-            index_keys.zip(opclasses).each do |index_key, opclass|
-              operator_classes[columns[index_key]] = opclass_name[opclass]
+            column_names.zip(opclasses).each do |column_name, opclass|
+              operator_classes[column_name] = opclass_name[opclass]
             end
             operator_classes.delete_if{|k,v| v.nil?}
 
