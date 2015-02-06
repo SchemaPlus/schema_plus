@@ -8,19 +8,13 @@ module SchemaPlusForeignKeys
 
         # :enddoc:
 
-        def self.included(base)
-          base.class_eval do
-            alias_method_chain :rename_table, :schema_plus_foreign_keys
-          end
-        end
-
         def initialize(*args)
           super
           execute('PRAGMA FOREIGN_KEYS = ON')
         end
 
-        def rename_table_with_schema_plus_foreign_keys(oldname, newname) #:nodoc:
-          rename_table_without_schema_plus_foreign_keys(oldname, newname)
+        def rename_table(oldname, newname) #:nodoc:
+          super
           rename_foreign_keys(oldname, newname)
         end
 

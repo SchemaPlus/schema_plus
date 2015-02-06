@@ -17,12 +17,6 @@ module SchemaPlusForeignKeys
       #   :initially_deferred
       module ForeignKeyDefinition
 
-        def self.included(base)
-          base.class_eval do
-            alias_method_chain :initialize, :schema_plus_foreign_keys
-          end
-        end
-
         def column_names
           ActiveSupport::Deprecation.warn "ForeignKeyDefinition#column_names is depcreated, use Array.wrap(column)"
           Array.wrap(column)
@@ -46,7 +40,7 @@ module SchemaPlusForeignKeys
         ACTIONS = { :cascade => "CASCADE", :restrict => "RESTRICT", :nullify => "SET NULL", :set_default => "SET DEFAULT", :no_action => "NO ACTION" }.freeze
         ACTION_LOOKUP = ACTIONS.invert.freeze
 
-        def initialize_with_schema_plus_foreign_keys(from_table, to_table, options={})
+        def initialize(from_table, to_table, options={})
           [:on_update, :on_delete].each do |key|
             if options[key] == :set_null
               require 'byebug' ; byebug
@@ -55,7 +49,8 @@ module SchemaPlusForeignKeys
             end
           end
 
-          initialize_without_schema_plus_foreign_keys(from_table, to_table, options)
+          super from_table, to_table, options
+
           if column.is_a?(Array) and column.length == 1
             options[:column] = column[0]
           end

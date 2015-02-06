@@ -5,7 +5,6 @@
 ---
 sudo: false
 rvm:
-- 1.9.3
 - 2.1.5
 gemfile:
 - gemfiles/activerecord-4.2/Gemfile.mysql2

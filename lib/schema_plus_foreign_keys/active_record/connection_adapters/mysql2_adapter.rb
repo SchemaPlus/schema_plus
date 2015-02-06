@@ -7,23 +7,19 @@ module SchemaPlusForeignKeys
 
         #:enddoc:
 
-        def self.included(base)
-          base.class_eval do
-            alias_method_chain :remove_column, :schema_plus_foreign_keys
-            alias_method_chain :rename_table, :schema_plus_foreign_keys
-          end
+        def self.prepended(base)
           ::ActiveRecord::ConnectionAdapters::AbstractMysqlAdapter::SchemaCreation.send(:include, SchemaPlusForeignKeys::ActiveRecord::ConnectionAdapters::AbstractAdapter::VisitTableDefinition)
         end
 
-        def remove_column_with_schema_plus_foreign_keys(table_name, column_name, type=nil, options={})
+        def remove_column(table_name, column_name, type=nil, options={})
           foreign_keys(table_name).select { |foreign_key| Array.wrap(foreign_key.column).include?(column_name.to_s) }.each do |foreign_key|
             remove_foreign_key(table_name, name: foreign_key.name)
           end
-          remove_column_without_schema_plus_foreign_keys(table_name, column_name, type, options)
+          super table_name, column_name, type, options
         end
 
-        def rename_table_with_schema_plus_foreign_keys(oldname, newname)
-          rename_table_without_schema_plus_foreign_keys(oldname, newname)
+        def rename_table(oldname, newname)
+          super
           rename_foreign_keys(oldname, newname)
         end
 

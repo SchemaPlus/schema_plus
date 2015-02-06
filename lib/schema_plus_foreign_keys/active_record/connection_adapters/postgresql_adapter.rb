@@ -6,14 +6,8 @@ module SchemaPlusForeignKeys
       # enhancements
       module PostgresqlAdapter
 
-        def self.included(base) #:nodoc:
-          base.class_eval do
-            alias_method_chain :rename_table, :schema_plus_foreign_keys
-          end
-        end
-
-        def rename_table_with_schema_plus_foreign_keys(oldname, newname) #:nodoc:
-          rename_table_without_schema_plus_foreign_keys(oldname, newname)
+        def rename_table(oldname, newname) #:nodoc:
+          super
           rename_foreign_keys(oldname, newname)
         end
 

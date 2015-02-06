@@ -3,7 +3,7 @@ module SchemaPlusDefaultExpr
     module ConnectionAdapters
 
       module Sqlite3Adapter
-        def self.included(base)
+        def self.prepended(base)
           SchemaMonkey.include_once ::ActiveRecord::ConnectionAdapters::Column, SQLiteColumn
         end
 
@@ -21,13 +21,9 @@ module SchemaPlusDefaultExpr
 
       module SQLiteColumn
 
-        def self.included(base)
-          base.alias_method_chain :default_function, :sqlite3 if base.instance_methods.include? :default_function
-        end
-
-        def default_function_with_sqlite3
+        def default_function
           @default_function ||= "(#{default})" if default =~ /DATETIME/
-          default_function_without_sqlite3
+          super
         end
       end
     end
