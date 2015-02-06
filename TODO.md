@@ -11,9 +11,13 @@
 ## schema_plus_index
 * remove index specs that are testing things now handled by AR.  (then see if coverage is still 100%)
 
+## schema_plus_pg_index
+* pull over recent 1.8 fix for expression
+
 ## schema_plus_foreign_keys
 * add specs to cover the deprecations
 * just do fk enhancements rather than replace AR's add_foreign_key and remove_foreign_key methods and foreign key lookups
+* pull over knojoot's failing spec & solution for circular fk dumping problems from 1.x branch.
 
 ## schema_monkey
 * consider automating the autoloads
@@ -28,7 +32,6 @@
 * @dump should include the header for consistency
 * specs for schema_monkey
 * README to document it -- the conventions and internal API
-* pull out schema_monkey_rails into its own gem
 
 ## general
 * rename schema_pg_enum to just schema_enum?
@@ -37,7 +40,11 @@
 
 ## schema_dev things:
 
-* boilerplate in README regarding installation, especially if schema_monkey_rails gets pulled out
+* boilerplate in README regarding installation
+* initial schema_dev shouldn't include ruby 1.9.3
+* create initial Gemfile.local, move byebug into it
+* use 'gem' instead of 'spec' in gemfile
+* figure out why Gemfile.local is being read twice?
 * don't bother changing ruby if it's the current version anyway.
 * have a .schema_dev file with current settings
   * make it obvious and easy to override
