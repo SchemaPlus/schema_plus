@@ -5,10 +5,6 @@ module SchemaPlusForeignKeys
     # SchemaPlusForeignKeys adds several methods to ActiveRecord::Base
     #
     module Base
-      def self.prepended(base) #:nodoc:
-        base.singleton_class.prepend ClassMethods
-      end
-
       module ClassMethods #:nodoc:
 
         public
