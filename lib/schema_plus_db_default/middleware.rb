@@ -2,7 +2,7 @@ module SchemaPlusDbDefault
   module Middleware
 
     module Query
-      module ExecCache
+      module Exec
 
         module Postgresql
 
