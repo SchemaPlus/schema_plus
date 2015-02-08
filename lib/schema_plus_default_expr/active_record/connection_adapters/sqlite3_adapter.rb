@@ -4,7 +4,7 @@ module SchemaPlusDefaultExpr
 
       module Sqlite3Adapter
         def self.prepended(base)
-          SchemaMonkey.include_once ::ActiveRecord::ConnectionAdapters::Column, SQLiteColumn
+          SchemaMonkey.insert_module ::ActiveRecord::ConnectionAdapters::Column, SQLiteColumn
         end
 
         def default_expr_valid?(expr)

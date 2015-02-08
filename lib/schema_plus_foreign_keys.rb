@@ -87,8 +87,8 @@ module SchemaPlusForeignKeys
     yield config
   end
 
-  def self.insert #:nodoc:
-    SchemaMonkey.include_once ::ActiveRecord::ConnectionAdapters::AbstractAdapter::SchemaCreation, SchemaPlusForeignKeys::ActiveRecord::ConnectionAdapters::AbstractAdapter::VisitTableDefinition
+  def self.insert(dbm: nil)
+    SchemaMonkey.insert_module ::ActiveRecord::ConnectionAdapters::AbstractAdapter::SchemaCreation, SchemaPlusForeignKeys::ActiveRecord::ConnectionAdapters::AbstractAdapter::VisitTableDefinition
   end
 
 end
