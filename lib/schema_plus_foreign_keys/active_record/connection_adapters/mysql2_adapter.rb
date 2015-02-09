@@ -8,7 +8,7 @@ module SchemaPlusForeignKeys
         #:enddoc:
 
         def self.prepended(base)
-          ::ActiveRecord::ConnectionAdapters::AbstractMysqlAdapter::SchemaCreation.send(:include, SchemaPlusForeignKeys::ActiveRecord::ConnectionAdapters::AbstractAdapter::VisitTableDefinition)
+          ::ActiveRecord::ConnectionAdapters::AbstractMysqlAdapter::SchemaCreation.send(:include, SchemaPlusForeignKeys::Mixins::VisitTableDefinition)
         end
 
         def remove_column(table_name, column_name, type=nil, options={})
