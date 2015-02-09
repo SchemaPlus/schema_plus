@@ -7,10 +7,6 @@ module SchemaPlusForeignKeys
 
         #:enddoc:
 
-        def self.prepended(base)
-          ::ActiveRecord::ConnectionAdapters::AbstractMysqlAdapter::SchemaCreation.send(:include, SchemaPlusForeignKeys::Mixins::VisitTableDefinition)
-        end
-
         def remove_column(table_name, column_name, type=nil, options={})
           foreign_keys(table_name).select { |foreign_key| Array.wrap(foreign_key.column).include?(column_name.to_s) }.each do |foreign_key|
             remove_foreign_key(table_name, name: foreign_key.name)

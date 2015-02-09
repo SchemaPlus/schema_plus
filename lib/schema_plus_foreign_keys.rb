@@ -11,7 +11,7 @@ require 'schema_plus_foreign_keys/active_record/migration/command_recorder'
 require 'schema_plus_foreign_keys/middleware/dumper'
 require 'schema_plus_foreign_keys/middleware/migration'
 require 'schema_plus_foreign_keys/middleware/model'
-require 'schema_plus_foreign_keys/mixins/visit_table_definition'
+require 'schema_plus_foreign_keys/middleware/sql'
 
 module SchemaPlusForeignKeys
   module ActiveRecord
@@ -85,10 +85,6 @@ module SchemaPlusForeignKeys
   #
   def self.setup # :yields: config
     yield config
-  end
-
-  def self.insert(dbm: nil)
-    SchemaMonkey.insert_module ::ActiveRecord::ConnectionAdapters::AbstractAdapter::SchemaCreation, SchemaPlusForeignKeys::Mixins::VisitTableDefinition
   end
 
 end

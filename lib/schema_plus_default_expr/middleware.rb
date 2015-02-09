@@ -1,8 +1,8 @@
 module SchemaPlusDefaultExpr
   module Middleware
 
-    module Migration
-      module ColumnOptionsSql
+    module Sql
+      module ColumnOptions
 
         # Add options for default expressions
         def before(env)
