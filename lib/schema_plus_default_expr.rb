@@ -1,6 +1,7 @@
 require 'schema_monkey'
 
 require_relative 'schema_plus_default_expr/middleware'
+require_relative 'schema_plus_default_expr/active_record/connection_adapters/column'
 
 module SchemaPlusDefaultExpr
   module ActiveRecord
