@@ -1,10 +1,6 @@
 module SchemaPlusForeignKeys
   module ActiveRecord
-    module Schema #:nodoc: all
-      def self.prepended(base)
-        base.singleton_class.prepend ClassMethods
-      end
-
+    module Schema
       module ClassMethods
 
         def define(*args)
