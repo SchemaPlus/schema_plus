@@ -15,3 +15,5 @@ module SchemaPlusDbDefault
   end
   DB_DEFAULT = DbDefault.instance
 end
+
+::ActiveRecord.const_set(:DB_DEFAULT, DB_DEFAULT)
