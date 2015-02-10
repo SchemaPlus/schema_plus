@@ -24,7 +24,7 @@ module SchemaPlusViews
       end
     end
 
-    module Query
+    module Schema
       module Tables
 
         module Mysql

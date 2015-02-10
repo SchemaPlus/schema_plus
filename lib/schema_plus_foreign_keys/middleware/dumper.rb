@@ -34,7 +34,7 @@ module SchemaPlusForeignKeys
 
         # Ignore the foreign key dumps at the end of the schema; we'll put them in/near their tables
         def after(env)
-          env.dump.foreign_keys = []
+          env.dump.final.reject!(&it =~/foreign_key/)
         end
 
         private

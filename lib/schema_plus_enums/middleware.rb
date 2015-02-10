@@ -2,7 +2,7 @@ module SchemaPlusEnums
   module Middleware
 
     module Dumper
-      module Extensions
+      module Initial
 
         module Postgresql
 
@@ -12,7 +12,7 @@ module SchemaPlusEnums
               params << values.map(&:inspect).join(', ')
               params << ":schema => #{schema.inspect}" if schema != 'public'
 
-              env.extensions << "create_enum #{params.join(', ')}"
+              env.initial << "create_enum #{params.join(', ')}"
             end
           end
         end
