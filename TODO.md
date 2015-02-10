@@ -40,10 +40,6 @@
 
 ## schema_dev things:
 
-* boilerplate in README regarding installation
-* initial schema_dev shouldn't include ruby 1.9.3
-* create initial Gemfile.local, move byebug into it
-* use 'gem' instead of 'spec' in gemfile
 * figure out why Gemfile.local is being read twice?
 * don't bother changing ruby if it's the current version anyway.
 * have a .schema_dev file with current settings
