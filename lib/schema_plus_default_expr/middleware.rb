@@ -7,9 +7,8 @@ module SchemaPlusDefaultExpr
         # Add options for default expressions
         def before(env)
           options = env.options
-          return unless env.caller.options_include_default?(options)
 
-          default = options[:default]
+          return unless (default = options[:default])
 
           if default.is_a? Hash and [[:expr], [:value]].include?(default.keys)
             value = default[:value]
