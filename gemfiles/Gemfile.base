@@ -1,8 +1,4 @@
 source 'https://rubygems.org'
 gemspec :path => File.expand_path('..', __FILE__)
 
-platform :ruby do
-    gem "byebug" if RUBY_VERSION > "2"
-end
-
 File.exist?(gemfile_local = File.expand_path('../Gemfile.local', __FILE__)) and eval File.read(gemfile_local), binding, gemfile_local
