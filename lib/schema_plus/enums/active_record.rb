@@ -1,4 +1,4 @@
-module SchemaPlusEnums
+module SchemaPlus::Enums
   module ActiveRecord
     module ConnectionAdapters
       module PostgresqlAdapter

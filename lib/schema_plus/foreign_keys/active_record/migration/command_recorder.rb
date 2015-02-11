@@ -1,4 +1,4 @@
-module SchemaPlusForeignKeys
+module SchemaPlus::ForeignKeys
   module ActiveRecord
     module Migration
       module CommandRecorder

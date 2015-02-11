@@ -1,4 +1,4 @@
-module SchemaPlusDefaultExpr
+module SchemaPlus::DefaultExpr
   module Middleware
 
     module Sql

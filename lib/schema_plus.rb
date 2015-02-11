@@ -14,12 +14,12 @@ require_relative 'schema_plus/version'
 module SchemaPlus
   class DeprecatedConfig
     def foreign_keys
-      SchemaPlusForeignKeys.config
+      SchemaPlus::ForeignKeys.config
     end
   end
 
   def self.setup # :yields: config
-    ActiveSupport::Deprecation.warning "SchemaPlus.setup is deprecated.  Use SchemaPlusForeignKeys.setup instead"
+    ActiveSupport::Deprecation.warning "SchemaPlus.setup is deprecated.  Use SchemaPlus::ForeignKeys.setup instead"
     yield DeprecatedConfig.new
   end
 end

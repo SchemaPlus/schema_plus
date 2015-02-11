@@ -288,8 +288,8 @@ your schema.rb file by hand, and would like to take advantage of auto-creation
 of foreign key constraints, you can re-enable it:
 
     ActiveRecord::Schema.define do
-        SchemaPlusForeignKeys.config.auto_create = true
-        SchemaPlusForeignKeys.config.auto_index = true
+        SchemaPlus::ForeignKeys.config.auto_create = true
+        SchemaPlus::ForeignKeys.config.auto_index = true
 
         create_table ...etc...
     end

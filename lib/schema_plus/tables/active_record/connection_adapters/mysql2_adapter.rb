@@ -1,4 +1,4 @@
-module SchemaPlusTables
+module SchemaPlus::Tables
   module ActiveRecord
     module ConnectionAdapters
       module Mysql2Adapter

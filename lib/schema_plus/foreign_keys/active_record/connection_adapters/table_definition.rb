@@ -1,19 +1,19 @@
-module SchemaPlusForeignKeys::ActiveRecord::ConnectionAdapters
+module SchemaPlus::ForeignKeys::ActiveRecord::ConnectionAdapters
 
   #
-  # SchemaPlusForeignKeys adds several methods to TableDefinition, allowing indexes
+  # SchemaPlus::ForeignKeys adds several methods to TableDefinition, allowing indexes
   # and foreign key constraints to be defined within a
   # <tt>create_table</tt> block of a migration, allowing for better
   # encapsulation and more DRY definitions.
   #
-  # For example, without SchemaPlusForeignKeys you might define a table like this:
+  # For example, without SchemaPlus::ForeignKeys you might define a table like this:
   #
   #    create_table :widgets do |t|
   #       t.string :name
   #    end
   #    add_index :widgets, :name
   #
-  # But with SchemaPlusForeignKeys, the index can be defined within the create_table
+  # But with SchemaPlus::ForeignKeys, the index can be defined within the create_table
   # block, so you don't need to repeat the table name:
   #
   #    create_table :widgets do |t|
@@ -31,7 +31,7 @@ module SchemaPlusForeignKeys::ActiveRecord::ConnectionAdapters
   # For details about the :index option (including unique and multi-column indexes), see the
   # documentation for Migration::ClassMethods#add_column
   #
-  # SchemaPlusForeignKeys also supports creation of foreign key constraints analogously, using Migration::ClassMethods#add_foreign_key or TableDefinition#foreign_key or as part of the column definition, for example:
+  # SchemaPlus::ForeignKeys also supports creation of foreign key constraints analogously, using Migration::ClassMethods#add_foreign_key or TableDefinition#foreign_key or as part of the column definition, for example:
   #
   #    create_table :posts do |t|  # not DRY
   #       t.integer :author_id
@@ -47,13 +47,13 @@ module SchemaPlusForeignKeys::ActiveRecord::ConnectionAdapters
   #       t.integer :author_id, :foreign_key => true
   #    end
   #
-  # <b>NOTE:</b> In the standard configuration, SchemaPlusForeignKeys automatically
+  # <b>NOTE:</b> In the standard configuration, SchemaPlus::ForeignKeys automatically
   # creates foreign key constraints for columns whose names end in
   # <tt>_id</tt>.  So the above examples are redundant, unless automatic
   # creation was disabled at initialization in the global Config.
   #
-  # SchemaPlusForeignKeys likewise by default automatically creates foreign key constraints for
-  # columns defined via <tt>t.references</tt>.   However, SchemaPlusForeignKeys does not create
+  # SchemaPlus::ForeignKeys likewise by default automatically creates foreign key constraints for
+  # columns defined via <tt>t.references</tt>.   However, SchemaPlus::ForeignKeys does not create
   # foreign key constraints if the <tt>:polymorphic</tt> option is true
   #
   # Finally, the configuration for foreign keys can be overriden on a per-table

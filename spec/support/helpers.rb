@@ -1,4 +1,4 @@
-module SchemaPlusHelpers
+module SchemaPlus::Helpers
   extend self
 
   def suppress_messages

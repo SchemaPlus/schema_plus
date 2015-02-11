@@ -1,4 +1,4 @@
-module SchemaPlusColumns
+module SchemaPlus::Columns
   module Middleware
     module Model
 

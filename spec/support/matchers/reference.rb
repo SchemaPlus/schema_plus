@@ -1,4 +1,4 @@
-module SchemaPlusMatchers
+module SchemaPlus::Matchers
 
   class Reference
     def initialize(expected)

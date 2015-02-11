@@ -1,6 +1,6 @@
 require 'active_record/connection_adapters/abstract/schema_definitions'
 
-module SchemaPlusForeignKeys
+module SchemaPlus::ForeignKeys
   module ActiveRecord
     module ConnectionAdapters
       # Instances of this class are returned by the queries ActiveRecord::Base#foreign_keys and ActiveRecord::Base#reverse_foreign_keys (via AbstractAdapter#foreign_keys and AbstractAdapter#reverse_foreign_keys)

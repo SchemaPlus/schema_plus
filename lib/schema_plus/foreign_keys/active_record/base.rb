@@ -1,8 +1,8 @@
-module SchemaPlusForeignKeys
+module SchemaPlus::ForeignKeys
   module ActiveRecord
 
     #
-    # SchemaPlusForeignKeys adds several methods to ActiveRecord::Base
+    # SchemaPlus::ForeignKeys adds several methods to ActiveRecord::Base
     #
     module Base
       module ClassMethods #:nodoc:

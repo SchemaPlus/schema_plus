@@ -1,8 +1,8 @@
-module SchemaPlusForeignKeys
+module SchemaPlus::ForeignKeys
   module ActiveRecord
     module ConnectionAdapters
 
-      # The Postgresql adapter implements the SchemaPlusForeignKeys extensions and
+      # The Postgresql adapter implements the SchemaPlus::ForeignKeys extensions and
       # enhancements
       module PostgresqlAdapter
 

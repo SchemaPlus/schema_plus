@@ -1,9 +1,9 @@
-module SchemaPlusColumns
+module SchemaPlus::Columns
   module ActiveRecord
     module ConnectionAdapters
 
       #
-      # SchemaPlusIndex adds several methods to Column
+      # SchemaPlus::Index adds several methods to Column
       #
       module Column
 

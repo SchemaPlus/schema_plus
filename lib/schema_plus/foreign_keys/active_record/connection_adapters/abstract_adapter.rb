@@ -1,10 +1,10 @@
-module SchemaPlusForeignKeys
+module SchemaPlus::ForeignKeys
   module ActiveRecord
-    # SchemaPlusForeignKeys adds several methods to the connection adapter (as returned by ActiveRecordBase#connection).  See AbstractAdapter for details.
+    # SchemaPlus::ForeignKeys adds several methods to the connection adapter (as returned by ActiveRecordBase#connection).  See AbstractAdapter for details.
     module ConnectionAdapters
 
       #
-      # SchemaPlusForeignKeys adds several methods to
+      # SchemaPlus::ForeignKeys adds several methods to
       # ActiveRecord::ConnectionAdapters::AbstractAdapter.  In most cases
       # you don't call these directly, but rather the methods that define
       # things are called by schema statements, and methods that query
@@ -20,7 +20,7 @@ module SchemaPlusForeignKeys
           drop_table(table, if_exists: true, cascade: true) if options.delete(:force)
 
           super(table, options) do |table_definition|
-            table_definition.schema_plus_config = SchemaPlusForeignKeys.config.merge(config_options)
+            table_definition.schema_plus_config = SchemaPlus::ForeignKeys.config.merge(config_options)
             yield table_definition if block_given?
           end
         end
@@ -126,7 +126,7 @@ module SchemaPlusForeignKeys
           if fk = fks.detect { |fk| fk.match(test_fk) }
             fk.name
           else
-            raise "SchemaPlusForeignKeys: no foreign key constraint found on #{from_table.inspect} matching #{[to_table, options].inspect}" unless options[:if_exists]
+            raise "SchemaPlus::ForeignKeys: no foreign key constraint found on #{from_table.inspect} matching #{[to_table, options].inspect}" unless options[:if_exists]
             nil
           end
         end

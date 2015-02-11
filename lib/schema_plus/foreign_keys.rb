@@ -13,7 +13,7 @@ require_relative 'foreign_keys/middleware/migration'
 require_relative 'foreign_keys/middleware/model'
 require_relative 'foreign_keys/middleware/sql'
 
-module SchemaPlusForeignKeys
+module SchemaPlus::ForeignKeys
   module ActiveRecord
     module ConnectionAdapters
       autoload :Mysql2Adapter, 'schema_plus/foreign_keys/active_record/connection_adapters/mysql2_adapter'
@@ -22,10 +22,10 @@ module SchemaPlusForeignKeys
     end
   end
 
-  # This global configuation options for SchemaPlusForeignKeys.
+  # This global configuation options for SchemaPlus::ForeignKeys.
   # Set them in +config/initializers/schema_plus_foreign_keys.rb+ using:
   #
-  #    SchemaPlusForeignKeys.setup do |config|
+  #    SchemaPlus::ForeignKeys.setup do |config|
   #       ...
   #    end
   #
@@ -75,11 +75,11 @@ module SchemaPlusForeignKeys
   end
 
   # Initialization block is passed a global Config instance that can be
-  # used to configure SchemaPlusForeignKeys behavior.  E.g., if you want to disable
+  # used to configure SchemaPlus::ForeignKeys behavior.  E.g., if you want to disable
   # automation creation of foreign key constraints for columns name *_id,
   # put the following in config/initializers/schema_plus_foreign_keys.rb :
   #
-  #    SchemaPlusForeignKeys.setup do |config|
+  #    SchemaPlus::ForeignKeys.setup do |config|
   #       config.auto_create = false
   #    end
   #
@@ -89,4 +89,4 @@ module SchemaPlusForeignKeys
 
 end
 
-SchemaMonkey.register SchemaPlusForeignKeys
+SchemaMonkey.register SchemaPlus::ForeignKeys

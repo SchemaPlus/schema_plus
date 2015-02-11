@@ -1,4 +1,4 @@
-module SchemaPlusDbDefault
+module SchemaPlus::DbDefault
   module Middleware
 
     module Query

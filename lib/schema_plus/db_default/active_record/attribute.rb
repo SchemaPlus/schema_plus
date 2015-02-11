@@ -1,4 +1,4 @@
-module SchemaPlusDbDefault
+module SchemaPlus::DbDefault
   module ActiveRecord
     module Attribute
 

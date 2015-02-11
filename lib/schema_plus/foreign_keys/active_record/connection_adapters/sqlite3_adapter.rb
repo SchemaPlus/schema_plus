@@ -1,8 +1,8 @@
-module SchemaPlusForeignKeys
+module SchemaPlus::ForeignKeys
   module ActiveRecord
     module ConnectionAdapters
 
-      # SchemaPlusForeignKeys includes an Sqlite3 implementation of the AbstractAdapter
+      # SchemaPlus::ForeignKeys includes an Sqlite3 implementation of the AbstractAdapter
       # extensions.
       module Sqlite3Adapter
 

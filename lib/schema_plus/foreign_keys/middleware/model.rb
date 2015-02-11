@@ -1,4 +1,4 @@
-module SchemaPlusForeignKeys
+module SchemaPlus::ForeignKeys
   module Middleware
 
     module Model

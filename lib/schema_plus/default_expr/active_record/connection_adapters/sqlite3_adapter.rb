@@ -1,4 +1,4 @@
-module SchemaPlusDefaultExpr
+module SchemaPlus::DefaultExpr
   module ActiveRecord
     module ConnectionAdapters
       module Sqlite3Adapter

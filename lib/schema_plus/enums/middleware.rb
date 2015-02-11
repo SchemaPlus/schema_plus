@@ -1,4 +1,4 @@
-module SchemaPlusEnums
+module SchemaPlus::Enums
   module Middleware
 
     module Dumper

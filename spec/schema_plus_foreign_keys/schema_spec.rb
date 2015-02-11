@@ -77,22 +77,22 @@ describe ActiveRecord::Schema do
 
 
   def with_auto_index(value = true)
-    old_value = SchemaPlusForeignKeys.config.auto_index
-    SchemaPlusForeignKeys.config.auto_index = value
+    old_value = SchemaPlus::ForeignKeys.config.auto_index
+    SchemaPlus::ForeignKeys.config.auto_index = value
     begin
       yield
     ensure
-      SchemaPlusForeignKeys.config.auto_index = old_value
+      SchemaPlus::ForeignKeys.config.auto_index = old_value
     end
   end
 
   def with_auto_create(value = true)
-    old_value = SchemaPlusForeignKeys.config.auto_create
-    SchemaPlusForeignKeys.config.auto_create = value
+    old_value = SchemaPlus::ForeignKeys.config.auto_create
+    SchemaPlus::ForeignKeys.config.auto_create = value
     begin
       yield
     ensure
-      SchemaPlusForeignKeys.config.auto_create = old_value
+      SchemaPlus::ForeignKeys.config.auto_create = old_value
     end
   end
 

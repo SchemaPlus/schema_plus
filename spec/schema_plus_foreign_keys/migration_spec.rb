@@ -504,53 +504,53 @@ describe ActiveRecord::Migration do
     end
 
     it "should auto-index if specified in global options" do
-      SchemaPlusForeignKeys.config.auto_index = true
+      SchemaPlus::ForeignKeys.config.auto_index = true
       add_column(:post_id, :integer) do
         expect(@model).to have_index.on(:post_id)
       end
-      SchemaPlusForeignKeys.config.auto_index = false
+      SchemaPlus::ForeignKeys.config.auto_index = false
     end
 
     it "should auto-index foreign keys only" do
-      SchemaPlusForeignKeys.config.auto_index = true
+      SchemaPlus::ForeignKeys.config.auto_index = true
       add_column(:state, :integer) do
         expect(@model).not_to have_index.on(:state)
       end
-      SchemaPlusForeignKeys.config.auto_index = false
+      SchemaPlus::ForeignKeys.config.auto_index = false
     end
 
     # MySQL creates an index on foreign key and we can't override that
     it "should allow to overwrite auto_index options in column definition", :mysql => :skip do
-      SchemaPlusForeignKeys.config.auto_index = true
+      SchemaPlus::ForeignKeys.config.auto_index = true
       add_column(:post_id, :integer, :index => false) do
         expect(@model).not_to have_index.on(:post_id)
       end
-      SchemaPlusForeignKeys.config.auto_index = false
+      SchemaPlus::ForeignKeys.config.auto_index = false
     end
 
     it "should use default on_update action" do
-      SchemaPlusForeignKeys.config.on_update = :cascade
+      SchemaPlus::ForeignKeys.config.on_update = :cascade
       add_column(:post_id, :integer) do
         expect(@model).to reference.on(:post_id).on_update(:cascade)
       end
-      SchemaPlusForeignKeys.config.on_update = nil
+      SchemaPlus::ForeignKeys.config.on_update = nil
     end
 
     it "should use default on_delete action" do
-      SchemaPlusForeignKeys.config.on_delete = :cascade
+      SchemaPlus::ForeignKeys.config.on_delete = :cascade
       add_column(:post_id, :integer) do
         expect(@model).to reference.on(:post_id).on_delete(:cascade)
       end
-      SchemaPlusForeignKeys.config.on_delete = nil
+      SchemaPlus::ForeignKeys.config.on_delete = nil
     end
 
     it "should allow to overwrite default actions" do
-      SchemaPlusForeignKeys.config.on_delete = :cascade
-      SchemaPlusForeignKeys.config.on_update = :restrict
+      SchemaPlus::ForeignKeys.config.on_delete = :cascade
+      SchemaPlus::ForeignKeys.config.on_update = :restrict
       add_column(:post_id, :integer, :foreign_key => { :on_update => :nullify, :on_delete => :nullify}) do
         expect(@model).to reference.on(:post_id).on_delete(:nullify).on_update(:nullify)
       end
-      SchemaPlusForeignKeys.config.on_delete = nil
+      SchemaPlus::ForeignKeys.config.on_delete = nil
     end
 
     protected

@@ -1,7 +1,7 @@
-module SchemaPlusForeignKeys
+module SchemaPlus::ForeignKeys
   module ActiveRecord
     module ConnectionAdapters
-      # SchemaPlusForeignKeys includes a MySQL implementation of the AbstractAdapter
+      # SchemaPlus::ForeignKeys includes a MySQL implementation of the AbstractAdapter
       # extensions.
       module Mysql2Adapter
 

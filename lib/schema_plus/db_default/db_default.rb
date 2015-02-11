@@ -1,6 +1,6 @@
 require 'singleton'
 
-module SchemaPlusDbDefault
+module SchemaPlus::DbDefault
   class DbDefault
     include Singleton
     def to_s
@@ -16,4 +16,4 @@ module SchemaPlusDbDefault
   DB_DEFAULT = DbDefault.instance
 end
 
-::ActiveRecord.const_set :DB_DEFAULT, SchemaPlusDbDefault::DB_DEFAULT
+::ActiveRecord.const_set :DB_DEFAULT, SchemaPlus::DbDefault::DB_DEFAULT

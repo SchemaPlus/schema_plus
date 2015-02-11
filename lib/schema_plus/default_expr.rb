@@ -3,7 +3,7 @@ require 'schema_plus/core'
 require_relative 'default_expr/middleware'
 require_relative 'default_expr/active_record/connection_adapters/column'
 
-module SchemaPlusDefaultExpr
+module SchemaPlus::DefaultExpr
   module ActiveRecord
     module ConnectionAdapters
       #
@@ -30,4 +30,4 @@ module SchemaPlusDefaultExpr
   end
 end
 
-SchemaMonkey.register SchemaPlusDefaultExpr
+SchemaMonkey.register SchemaPlus::DefaultExpr

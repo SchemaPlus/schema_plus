@@ -18,18 +18,18 @@ SchemaDev::Rspec.setup
 Dir[File.dirname(__FILE__) + "/support/**/*.rb"].each {|f| require f}
 
 RSpec.configure do |config|
-  config.include(SchemaPlusMatchers)
-  config.include(SchemaPlusHelpers)
+  config.include(SchemaPlus::Matchers)
+  config.include(SchemaPlus::Helpers)
   config.warnings = true
 end
 
 def with_fk_config(opts, &block)
-  save = Hash[opts.keys.collect{|key| [key, SchemaPlusForeignKeys.config.send(key)]}]
+  save = Hash[opts.keys.collect{|key| [key, SchemaPlus::ForeignKeys.config.send(key)]}]
   begin
-    SchemaPlusForeignKeys.config.update_attributes(opts)
+    SchemaPlus::ForeignKeys.config.update_attributes(opts)
     yield
   ensure
-    SchemaPlusForeignKeys.config.update_attributes(save)
+    SchemaPlus::ForeignKeys.config.update_attributes(save)
   end
 end
 
