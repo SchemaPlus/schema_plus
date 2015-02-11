@@ -1,24 +1,24 @@
-require 'active_record'
+require 'schema_plus/core'
 require 'valuable'
 
-require 'schema_plus_foreign_keys/version'
-require 'schema_plus_foreign_keys/active_record/base'
-require 'schema_plus_foreign_keys/active_record/connection_adapters/abstract_adapter'
-require 'schema_plus_foreign_keys/active_record/connection_adapters/table_definition'
-require 'schema_plus_foreign_keys/active_record/schema'
-require 'schema_plus_foreign_keys/active_record/connection_adapters/foreign_key_definition'
-require 'schema_plus_foreign_keys/active_record/migration/command_recorder'
-require 'schema_plus_foreign_keys/middleware/dumper'
-require 'schema_plus_foreign_keys/middleware/migration'
-require 'schema_plus_foreign_keys/middleware/model'
-require 'schema_plus_foreign_keys/middleware/sql'
+require_relative 'foreign_keys/version'
+require_relative 'foreign_keys/active_record/base'
+require_relative 'foreign_keys/active_record/connection_adapters/abstract_adapter'
+require_relative 'foreign_keys/active_record/connection_adapters/table_definition'
+require_relative 'foreign_keys/active_record/schema'
+require_relative 'foreign_keys/active_record/connection_adapters/foreign_key_definition'
+require_relative 'foreign_keys/active_record/migration/command_recorder'
+require_relative 'foreign_keys/middleware/dumper'
+require_relative 'foreign_keys/middleware/migration'
+require_relative 'foreign_keys/middleware/model'
+require_relative 'foreign_keys/middleware/sql'
 
 module SchemaPlusForeignKeys
   module ActiveRecord
     module ConnectionAdapters
-      autoload :Mysql2Adapter, 'schema_plus_foreign_keys/active_record/connection_adapters/mysql2_adapter'
-      autoload :PostgresqlAdapter, 'schema_plus_foreign_keys/active_record/connection_adapters/postgresql_adapter'
-      autoload :Sqlite3Adapter, 'schema_plus_foreign_keys/active_record/connection_adapters/sqlite3_adapter'
+      autoload :Mysql2Adapter, 'schema_plus/foreign_keys/active_record/connection_adapters/mysql2_adapter'
+      autoload :PostgresqlAdapter, 'schema_plus/foreign_keys/active_record/connection_adapters/postgresql_adapter'
+      autoload :Sqlite3Adapter, 'schema_plus/foreign_keys/active_record/connection_adapters/sqlite3_adapter'
     end
   end
 
@@ -89,4 +89,4 @@ module SchemaPlusForeignKeys
 
 end
 
-SchemaMonkey.register(SchemaPlusForeignKeys)
+SchemaMonkey.register SchemaPlusForeignKeys

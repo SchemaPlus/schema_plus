@@ -1,7 +1,7 @@
-require 'schema_monkey'
+require 'schema_plus/core'
 
-require_relative 'schema_plus_default_expr/middleware'
-require_relative 'schema_plus_default_expr/active_record/connection_adapters/column'
+require_relative 'default_expr/middleware'
+require_relative 'default_expr/active_record/connection_adapters/column'
 
 module SchemaPlusDefaultExpr
   module ActiveRecord
@@ -23,11 +23,11 @@ module SchemaPlusDefaultExpr
       # Currently, the only function to support is :now, which should
       # return a DATETIME object for the current time.
       #
-      autoload :Mysql2Adapter, 'schema_plus_default_expr/active_record/connection_adapters/mysql2_adapter'
-      autoload :PostgresqlAdapter, 'schema_plus_default_expr/active_record/connection_adapters/postgresql_adapter'
-      autoload :Sqlite3Adapter, 'schema_plus_default_expr/active_record/connection_adapters/sqlite3_adapter'
+      autoload :Mysql2Adapter, 'schema_plus/default_expr/active_record/connection_adapters/mysql2_adapter'
+      autoload :PostgresqlAdapter, 'schema_plus/default_expr/active_record/connection_adapters/postgresql_adapter'
+      autoload :Sqlite3Adapter, 'schema_plus/default_expr/active_record/connection_adapters/sqlite3_adapter'
     end
   end
 end
 
-SchemaMonkey.register(SchemaPlusDefaultExpr)
+SchemaMonkey.register SchemaPlusDefaultExpr
