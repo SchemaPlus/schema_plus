@@ -27,6 +27,7 @@ Gem::Specification.new do |gem|
   gem.add_dependency "schema_monkey_rails", "~> 0.1", ">= 0.1.2"
   gem.add_dependency "schema_plus_indexes", "~> 0.1", ">= 0.1.2"
   gem.add_dependency "schema_plus_pg_indexes", "~> 0.1", ">= 0.1.3"
+  gem.add_dependency "schema_plus_views", "~> 0.1"
 
   gem.add_development_dependency "schema_dev", "~> 3.1"
   gem.add_development_dependency "rake"

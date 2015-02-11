@@ -7,7 +7,7 @@ require 'schema_plus_foreign_keys'
 require 'schema_plus_indexes'
 require 'schema_plus_pg_indexes'
 require 'schema_plus_tables'
-require 'schema_plus_views'
+require 'schema_plus/views'
 
 require_relative 'schema_plus/version'
 

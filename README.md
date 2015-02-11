@@ -15,6 +15,7 @@ Starting with version 2.0.0, schema_plus is a wrapper that pulls in a collection
 
 * [schema_plus_indexes](https://github.com/SchemaPlus/schema_plus_indexes) -- Convenience and consistency in defining and manipulating indexes
 * [schema_plus_pg_indexes](https://github.com/SchemaPlus/schema_plus_pg_indexes) -- Support for PostgreSQL index features: `case_insenstive`, `expression` and `operator_class`
+* [schema_plus_views](https://github.com/SchemaPlus/schema_plus_views) -- Support for creating and dropping views in migrations, and querying views
 
 See detailed documentation in each feature gem's README.  You can of course just use whichever of those gems you want individually, rather than this wrapper.
 
@@ -24,9 +25,10 @@ See detailed documentation in each feature gem's README.  You can of course just
 > * schema_plus_db_default -- Supports `update_attributes!(my_attr: ActiveRecord::DB_DEFAULT)` to set a column back to the default in the database schema. 
 > * schema_plus_default_expr -- Supports using SQL expressions for database default values
 > * schema_plus_enums -- Support for enum types
-> * schema_plus_foreign_keys -- Extends support for foreign keys, including automatic creation.
+> * schema_plus_foreign_keys -- Extends support for foreign keys
 > * schema_plus_tables -- Convenience and consistency in defining and manipulating tables
-> * schema_plus_views -- Adds support for creating and manipulating views
+> * schema_auto_foreign_keys -- Automatic foreign key creation
+
 >
 > The documentation for these features is at the end of this README
 >
@@ -198,31 +200,6 @@ For Sqlite3, the `:cascade` option is ignored, but Sqlite3 always drops tables
 with cascade-like behavior.
 
 SchemaPlus likewise extends `create_table ... force: true` to use `:cascade`
-
-### Views
-
-SchemaPlus provides support for creating and dropping views.  In a migration,
-a view can be created using a rails relation or literal sql:
-
-    create_view :posts_commented_by_staff,  Post.joins(comment: user).where(users: {role: 'staff'}).uniq
-    create_view :uncommented_posts,        "SELECT * FROM posts LEFT OUTER JOIN comments ON comments.post_id = posts.id WHERE comments.id IS NULL"
-
-And can be dropped:
-
-    drop_view :posts_commented_by_staff
-    drop_view :uncommented_posts, :if_exists => true
-
-ActiveRecord works with views the same as with ordinary tables.  That is, for
-the above views you can define
-
-    class PostCommentedByStaff < ActiveRecord::Base
-      table_name = "posts_commented_by_staff"
-    end
-
-    class UncommentedPost < ActiveRecord::Base
-    end
-
-Note: In PostgreSQL, all internal views (the ones with `pg_` prefix) will be skipped.
 
 ### Column Defaults: Expressions
 
