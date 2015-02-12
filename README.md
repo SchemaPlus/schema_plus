@@ -9,40 +9,48 @@
 [![Coverage Status](https://img.shields.io/coveralls/SchemaPlus/schema_plus.svg)](https://coveralls.io/r/SchemaPlus/schema_plus)
 [![Dependency Status](https://gemnasium.com/lomba/schema_plus.svg)](https://gemnasium.com/SchemaPlus/schema_plus)
 
-# SchemaPlus 2.x
+# SchemaPlus
 
-Starting with version 2.0.0, schema_plus is a wrapper that pulls in a collection of individual feature gems:
+The SchemaPlus family of gems provide various extensions and enhancements to ActiveRecord.  Listed alphabetically:
 
-* [schema_plus_indexes](https://github.com/SchemaPlus/schema_plus_indexes) -- Convenience and consistency in defining and manipulating indexes
-* [schema_plus_pg_indexes](https://github.com/SchemaPlus/schema_plus_pg_indexes) -- Support for PostgreSQL index features: `case_insenstive`, `expression` and `operator_class`
-* [schema_plus_views](https://github.com/SchemaPlus/schema_plus_views) -- Support for creating and dropping views in migrations, and querying views
+Gem | Description | Included In `schema_plus` gem?
+----| ----------- |:------------------------------:
+[schema_associations](https://github.com/SchemaPlus/schema_associations) | Automatically defines model associations based on foreign key relations |
+<p style="color:grey">schema_auto_foreign_keys</p> | Automatically creates foreign keys on referencing columns | Y
+<p style="color:grey">schema_plus_columns</p> | Column attributes including `column.indexes` and `column.unique?` | Y
+<p style="color:grey">schema_plus_db_default</p> | Use `ActiveRecord::DB_DEFAULT` to set an attribute to the database default | Y
+<p style="color:grey">schema_plus_default_expr</p> | Use SQL expressions for database default values | Y
+<p style="color:grey">schema_plus_enums</p> | Use enum types in migrations | Y
+<p style="color:grey">schema_plus_foreign_keys | Extended support for foreign keys, including creation as column options, `:deferrable`, and SQLite3 support | Y
+[schema_plus_indexes](https://github.com/SchemaPlus/schema_plus_indexes) | Convenience and consistency in using indexes | Y
+[schema_plus_pg_indexes](https://github.com/SchemaPlus/schema_plus_pg_indexes) |PostgreSQL index features: `case_insenstive`, `expression` and `operator_class` | Y
+<p style="color:grey">schema_plus_tables</p> | Convenience and consistency in using tables | Y
+[schema_plus_views](https://github.com/SchemaPlus/schema_plus_views) | Create and drop views in migrations | Y
+[schema_validations](https://github.com/SchemaPlus/schema_validations) | Automatically defines ActiveRecord validations based on database constraints |
 
-See detailed documentation in each feature gem's README.  You can of course just use whichever of those gems you want individually, rather than this wrapper.
+See detailed documentation in each gem's README.  
 
-> **IN PROGRESS:** In the prerelease versions of SchemaPlus 2.0, more feature gems have yet to be cleaned up and stripped out, and their code is still in the body of schema_plus.  Anticipated features gems include:
-> 
-> * schema_plus_columns -- Extra Column features, including `column.indexes` and `column.unique?`
-> * schema_plus_db_default -- Supports `update_attributes!(my_attr: ActiveRecord::DB_DEFAULT)` to set a column back to the default in the database schema. 
-> * schema_plus_default_expr -- Supports using SQL expressions for database default values
-> * schema_plus_enums -- Support for enum types
-> * schema_plus_foreign_keys -- Extends support for foreign keys
-> * schema_plus_tables -- Convenience and consistency in defining and manipulating tables
-> * schema_auto_foreign_keys -- Automatic foreign key creation
-
->
-> The documentation for these features is at the end of this README
->
-> If you'd like to follow or contribute to the discussion of this refactoring, take a look at issue SchemaPlus/schema_plus/197
+*Is there some other capability you wish SchemaPlus had a gem for?*  Open an issue here. Or try implementing it yourself -- creating ActiveRecord extensions is easy and fun using SchemaPlus's tools [schema_monkey](https://github.com/SchemaPlus/schema_monkey) and [schema_plus_core](https://github.com/SchemaPlus/schema_plus_core)!!
 
 
-## Upgrading from SchemaPlus 1.8.x
+## The `schema_plus` gem
 
-SchemaPlus 2.0.x intends to be a completely backwards-compatible drop-in replacement for SchemaPlus 1.8.x, for projects using rails 4.2.
+The `schema_plus` gem is a wrapper that pulls in a common collection of those gems.   But you can feel free to mix and match to get just the gems you want.
+
+Note: Prior to version 2.0, `schema_plus` was a single monolothic gem that implemented in itself all the features that are now included by the wrapper.
+
+
+> **IN PROGRESS:** In the prerelease versions of SchemaPlus 2.0, some features have yet to be migrated out to their own gems, and their code is still in the body of schema_plus.  Those gems are greyed out in the list above.  The documentation for their features is at the end of this README.
+
+
+### Upgrading from `schema_plus` 1.8.x
+
+`schema_plus` 2.0 intends to be a completely backwards-compatible drop-in replacement for SchemaPlus 1.8.x, through restricted to ActiveRecord >= 4.2 and Ruby >= 2.1
 
 If you find any incompatibilities, please report an issue!
 
-### Deprecations
-In cases where rails 4.2 has introduced features previously supported only by SchemaPlus, but using different names, the SchemaPlus 2.0 family of gems now issue deprecation warnings in favor of the rails form.  The complete list of deprecations:
+#### Deprecations
+In cases where ActiveRecord 4.2 has introduced features previously supported only by SchemaPlus, but using different names, the SchemaPlus 2.0 family of gems now issue deprecation warnings in favor of the rails form.  The complete list of deprecations:
 
 * Index definition deprecates these options:
   * `:conditions` => `:where`
@@ -84,6 +92,8 @@ or in a Gemfile
 
     gem "schema_plus"
     
+`schema_plus` includes [schema_monkey_rails](https://github.com/SchemaPlus/schema_monkey_rails) so it will automatically be inserted in Rails apps.  To use with Padrino, see [schema_monkey_padrino](https://github.com/SchemaPlus/schema_monkey_padrino)
+    
 ## History
 
 *   See [CHANGELOG](CHANGELOG.md) for per-version release notes.
@@ -94,17 +104,6 @@ or in a Gemfile
 *   SchemaPlus was created in 2011 by [@mlomnicki](https://github.com/mlomnicki) and [@ronen](https://github.com/ronen)
 
 *   And [lots of contributors](https://github.com/SchemaPlus/schema_plus/graphs/contributors) since then.
-
-## Development & Testing
-
-Are you interested in contributing to schema_plus?  Thanks!
-
-Schema_plus has a full set of rspec tests.  [travis-ci](http://travis-ci.org/SchemaPlus/schema_plus) runs the tests on the full matrix of supported versions of ruby, rails, and db adapters.  But you can also test all or some part of the matrix locally before you push your changes, using
-
-    $ schema_dev rspec
-
-
-For more details, see the [schema_dev](https://github.com/SchemaPlus/schema_dev) README.
 
 ---    
 ---
