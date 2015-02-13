@@ -41,7 +41,7 @@ module SchemaPlus::ForeignKeys
 
         def break_fk_cycles(env) #:nodoc:
           env.dump.strongly_connected_components.select{|component| component.size > 1}.each do |tables|
-            table = tables.sort.first
+            table = tables.sort.last
             backref_fks = @inline_fks[table].select{|fk| tables.include?(fk.to_table)}
             @inline_fks[table] -= backref_fks
             env.dump.dependencies[table] -= backref_fks.collect(&:to_table)
