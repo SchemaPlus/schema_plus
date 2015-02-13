@@ -126,6 +126,101 @@ describe "Schema dump" do
       expect(dump_schema).to match(%r{"commenter_id".*# foreign key references "users"})
       expect(dump_schema).to match(%r{"user_id".*# foreign key references "users"})
     end
+
+    context 'with complicated schemas' do
+      before(:all) do
+
+        SchemaPlus::ForeignKeys.setup do |config|
+          config.auto_create = false
+        end
+        ActiveRecord::Migration.suppress_messages do
+          ActiveRecord::Schema.define do
+            connection.tables.each do |table| drop_table table, :cascade => true end
+
+            create_table :period_types, force: true do |t|
+              t.string  :name
+            end
+
+            create_table :grade_systems, force: true do |t|
+              t.string   :name
+              t.integer  :school_id
+              t.integer  :parent_id
+              t.integer  :profile_id
+            end
+
+            create_table :schools, force: true do |t|
+              t.string   :name
+              t.integer  :default_grade_system_id
+            end
+
+            create_table :academic_years, force: true do |t|
+              t.string  :name
+              t.integer :school_id
+              t.integer :period_type_id
+            end
+
+            create_table :buildings, force: true do |t|
+              t.string   :name
+              t.integer  :school_id
+            end
+
+            create_table :publishing_houses, force: true do |t|
+              t.string   :name
+            end
+
+            create_table :profiles, force: true do |t|
+              t.integer  :school_id
+              t.integer  :publishing_house_id
+              t.integer  :building_id
+            end
+
+            create_table :class_units, force: true do |t|
+              t.string   :name
+              t.integer  :school_id
+              t.integer  :mentor_id
+              t.integer  :building_id
+            end
+          end
+        end
+
+        class ::AcademicYear < ActiveRecord::Base ; end
+        class ::Building < ActiveRecord::Base ; end
+        class ::ClassUnit < ActiveRecord::Base ; end
+        class ::GradeSystem < ActiveRecord::Base ; end
+        class ::Profile < ActiveRecord::Base ; end
+        class ::PublishingHouse < ActiveRecord::Base ; end
+        class ::PeriodType < ActiveRecord::Base ; end
+        class ::School < ActiveRecord::Base ; end
+
+        ActiveRecord::Base.connection.add_foreign_key(School.table_name, GradeSystem.table_name, column: :default_grade_system_id)
+        ActiveRecord::Base.connection.add_foreign_key(GradeSystem.table_name, School.table_name, column: :school_id)
+        ActiveRecord::Base.connection.add_foreign_key(GradeSystem.table_name, GradeSystem.table_name, column: :parent_id)
+        ActiveRecord::Base.connection.add_foreign_key(GradeSystem.table_name, Profile.table_name, column: :profile_id)
+        ActiveRecord::Base.connection.add_foreign_key(Profile.table_name, Building.table_name, column: :building_id)
+        ActiveRecord::Base.connection.add_foreign_key(Profile.table_name, School.table_name, column: :school_id)
+        ActiveRecord::Base.connection.add_foreign_key(ClassUnit.table_name, School.table_name, column: :school_id)
+        ActiveRecord::Base.connection.add_foreign_key(ClassUnit.table_name, Building.table_name, column: :building_id)
+        ActiveRecord::Base.connection.add_foreign_key(ClassUnit.table_name, Profile.table_name, column: :mentor_id)
+        ActiveRecord::Base.connection.add_foreign_key(Building.table_name, School.table_name, column: :school_id)
+        ActiveRecord::Base.connection.add_foreign_key(AcademicYear.table_name, School.table_name, column: :school_id)
+        ActiveRecord::Base.connection.add_foreign_key(AcademicYear.table_name, PeriodType.table_name, column: :period_type_id)
+        ActiveRecord::Base.connection.add_foreign_key(Profile.table_name, PublishingHouse.table_name, column: :publishing_house_id)
+      end
+
+      it "should not raise an error" do
+        expect { dump_schema }.to_not raise_error
+      end
+
+      it "should dump each constraint after both related tables were defined" do
+        expect(dump_schema).to match(%r{create_table "buildings".*add_foreign_key\s+"buildings".*\["school_id"\], "schools", \["id"\]}m)
+        expect(dump_schema).to match(%r{create_table "grade_systems".*add_foreign_key\s+"grade_systems".*\["parent_id"\], "grade_systems", \["id"\]}m)
+        expect(dump_schema).to match(%r{create_table "grade_systems".*add_foreign_key\s+"grade_systems".*\["school_id"\], "schools", \["id"\]}m)
+        expect(dump_schema).to match(%r{create_table "grade_systems".*add_foreign_key\s+"grade_systems".*\["profile_id"\], "profiles", \["id"\]}m)
+        expect(dump_schema).to match(%r{create_table "profiles".*add_foreign_key\s+"grade_systems".*\["profile_id"\], "profiles", \["id"\]}m)
+        expect(dump_schema).to match(%r{create_table "schools".*add_foreign_key\s+"buildings".*\["school_id"\], "schools", \["id"\]}m)
+        expect(dump_schema).to match(%r{create_table "schools".*add_foreign_key\s+"grade_systems".*\["school_id"\], "schools", \["id"\]}m)
+      end
+    end
   end
 
   protected
