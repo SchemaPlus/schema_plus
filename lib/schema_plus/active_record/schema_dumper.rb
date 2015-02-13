@@ -39,7 +39,7 @@ module SchemaPlus
 
       def break_fk_cycles #:nodoc:
         strongly_connected_components.select{|component| component.size > 1}.each do |tables|
-          table = tables.sort.first
+          table = tables.sort.last
           backref_fks = @inline_fks[table].select{|fk| tables.include?(fk.references_table_name)}
           @inline_fks[table] -= backref_fks
           @dump_dependencies[table] -= backref_fks.collect(&:references_table_name)
@@ -149,7 +149,7 @@ module SchemaPlus
           dump << " :name => #{index.name.inspect}"
           dump << ", :unique => true" if index.unique
           dump << ", :kind => \"#{index.kind}\"" unless index.kind.blank?
-          unless index.columns.blank? 
+          unless index.columns.blank?
             dump << ", :case_sensitive => false" unless index.case_sensitive?
             dump << ", :conditions => #{index.conditions.inspect}" unless index.conditions.blank?
             index_lengths = index.lengths.compact if index.lengths.is_a?(Array)
