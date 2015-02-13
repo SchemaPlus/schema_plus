@@ -2,6 +2,13 @@
 
 ## Change Log
 
+## 1.8.7
+
+* Bug fix: Postgres schema dump failed when using case_sensitive => false and operator_class together (#204).  Thanks to [@mikeauclair](https://github.com/mikeauclair)
+
+* Bug fix: With complex cyclic foreign key dependencies, schema dump would issue constraint before table definition (#203).  Thanks to [@konjoot](https://github.com/konjoot)
+
+
 ## 1.8.6
 
 * Bug fix: Don't drop column `array: true` for ActiveRecord 4.2. (#199)
