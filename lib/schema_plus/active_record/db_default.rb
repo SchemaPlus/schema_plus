@@ -2,7 +2,7 @@ require 'singleton'
 
 module SchemaPlus
   module ActiveRecord
-    class DbDefault 
+    class DbDefault
       include Singleton
       def to_s
         'DEFAULT'

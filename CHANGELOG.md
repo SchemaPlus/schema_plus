@@ -119,7 +119,7 @@
 *   Add support for :deferrable => :initially_deferred (thanks to
     [@bhavinkamani](https://github.com/bhavinkamani))
 *   Works with PostGIS (thanks to [@pete](https://github.com/pete))
-*   Bug fix: Circular Reference/Stack Level Too Deep in Column#to_json. 
+*   Bug fix: Circular Reference/Stack Level Too Deep in Column#to_json.
     Thanks to [@robdimarco](https://github.com/robdimarco) for tracking down the problem
 *   Bug fix: More robust handling of foreign keys with schema namespaces
 
@@ -170,7 +170,7 @@
     by [@betelgeuse](https://github.com/betelgeuse)
 *   0.3.4 - Bug fix: regression causing :default => false to be ignored
 *   0.3.3 - Bug fix: properly handle boolean defaults in mysql
-*   0.3.2 - Bug fix: make sure rake db:schema:load initializes schema_plus 
+*   0.3.2 - Bug fix: make sure rake db:schema:load initializes schema_plus
 *   0.3.1 - Bug fix for PostgreSQL schema dump after change_column_default(...
     nil)
 *   0.3.0 - Add :default => expressions (Thanks to Luke Saunders).  support

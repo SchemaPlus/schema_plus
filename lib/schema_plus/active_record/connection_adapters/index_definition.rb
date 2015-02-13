@@ -1,7 +1,7 @@
 module SchemaPlus
   module ActiveRecord
     module ConnectionAdapters
-      # 
+      #
       # SchemaPlus extends the IndexDefinition object to return information
       # about partial indexes and case sensitivity (i.e. Postgresql
       # support).
@@ -9,7 +9,7 @@ module SchemaPlus
         def self.included(base)  #:nodoc:
           base.alias_method_chain :initialize, :schema_plus
         end
-        
+
         attr_accessor :conditions
         attr_reader :expression
         attr_reader :kind

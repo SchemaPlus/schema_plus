@@ -23,7 +23,7 @@ module SchemaPlus
         end
 
         # seems like this is fixing a rails bug:
-        #   change_table foo, :bulk => true { |t| t.references :bar } 
+        #   change_table foo, :bulk => true { |t| t.references :bar }
         # results in an 'unknown method :add_reference_sql' (with mysql2)
         #
         # should track it down separately and submit a patch/fix to rails
@@ -66,7 +66,7 @@ module SchemaPlus
         def add_foreign_key(*args)
           record(:add_foreign_key, args)
         end
-        
+
         def invert_add_foreign_key(args)
           table_name, column_names, references_table_name, references_column_names, options = args
           [:remove_foreign_key, [table_name, column_names, references_table_name, references_column_names, (options||{}).merge(if_exists: true)]]

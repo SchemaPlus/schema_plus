@@ -7,7 +7,7 @@ module SchemaPlus
       module MysqlAdapter
 
         #:enddoc:
-        
+
         def self.included(base)
           base.class_eval do
             alias_method_chain :tables, :schema_plus

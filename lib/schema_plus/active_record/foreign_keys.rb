@@ -9,7 +9,7 @@ module SchemaPlus::ActiveRecord
     # The <tt>:index</tt> option takes a hash of parameters to pass to ActiveRecord::Migration.add_index.  Thus
     #
     #    add_column('books', 'isbn', :string, :index => {:name => "ISBN-index", :unique => true })
-    # 
+    #
     # is equivalent to:
     #
     #    add_column('books', 'isbn', :string)
@@ -19,7 +19,7 @@ module SchemaPlus::ActiveRecord
     # In order to support multi-column indexes, an special parameter <tt>:with</tt> may be specified, which takes another column name or an array of column names to include in the index.  Thus
     #
     #    add_column('contacts', 'phone_number', :string, :index => { :with => [:country_code, :area_code], :unique => true })
-    # 
+    #
     # is equivalent to:
     #
     #    add_column('contacts', 'phone_number', :string)
@@ -111,7 +111,7 @@ module SchemaPlus::ActiveRecord
     #    add_column('widgets', 'color', :integer, :references => 'colors', :index => true)
     #
     # If you want to pass options to the index, you can explcitly pass
-    # index options, such as <tt>:index => :unique</tt>. 
+    # index options, such as <tt>:index => :unique</tt>.
     #
     # If you don't want an index to be created, specify
     # <tt>:index => nil</tt>.

@@ -8,7 +8,7 @@ ActiveRecord::Schema.define do
   create_table :members, :force => true do |t|
     t.string :login
   end
-  
+
   create_table :comments, :force => true do |t|
     t.string :content
     t.integer :user

@@ -234,7 +234,7 @@ describe "Schema dump" do
         expect(dump_posts).to match(to_regexp(%q{t.index ["body"], :name => "index_posts_on_body", :case_sensitive => false, :operator_class => {"body" => "text_pattern_ops"}}))
       end
     end
-    
+
     it "should dump unique: true with expression (Issue #142)" do
       with_index Post, :name => "posts_user_body_index", :unique => true, :expression => "BTRIM(LOWER(body))" do
         expect(dump_posts).to match(%r{#{to_regexp(%q{t.index :name => "posts_user_body_index", :unique => true, :expression => "btrim(lower(body))"})}$})
@@ -469,7 +469,7 @@ describe "Schema dump" do
   end
 
   def determine_foreign_key_name(model, columns, options)
-    name = options[:name] 
+    name = options[:name]
     name ||= model.foreign_keys.detect { |fk| fk.table_name == model.table_name.to_s && fk.column_names == Array(columns).collect(&:to_s) }.name
   end
 

@@ -34,7 +34,7 @@ module SchemaPlus::ActiveRecord::ConnectionAdapters
   # SchemaPlus also supports creation of foreign key constraints analogously, using Migration::ClassMethods#add_foreign_key or TableDefinition#foreign_key or as part of the column definition, for example:
   #
   #    create_table :posts do |t|  # not DRY
-  #       t.integer :author_id    
+  #       t.integer :author_id
   #    end
   #    add_foreign_key :posts, :author_id, :references => :authors
   #
@@ -144,7 +144,7 @@ module SchemaPlus::ActiveRecord::ConnectionAdapters
       sql
     end
 
-    # Define an index for the current 
+    # Define an index for the current
     if ::ActiveRecord::VERSION::MAJOR.to_i < 4
       def index(column_name, options={})
         @indexes << ::ActiveRecord::ConnectionAdapters::IndexDefinition.new(self.name, column_name, options)
