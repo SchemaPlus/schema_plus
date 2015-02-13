@@ -98,8 +98,7 @@ or in a Gemfile
 
 *   See [CHANGELOG](CHANGELOG.md) for per-version release notes.
 
-*   SchemaPlus is derived from several "Red Hill On Rails" plugins originally
-    created by [@harukizaemon](https://github.com/harukizaemon)
+*   SchemaPlus was originally derived from several "Red Hill On Rails" plugins created by [@harukizaemon](https://github.com/harukizaemon)
 
 *   SchemaPlus was created in 2011 by [@mlomnicki](https://github.com/mlomnicki) and [@ronen](https://github.com/ronen)
 
