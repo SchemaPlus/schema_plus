@@ -19,7 +19,7 @@ module SchemaPlus
   end
 
   def self.setup # :yields: config
-    ActiveSupport::Deprecation.warning "SchemaPlus.setup is deprecated.  Use SchemaPlus::ForeignKeys.setup instead"
+    ActiveSupport::Deprecation.warn "SchemaPlus.setup is deprecated.  Use SchemaPlus::ForeignKeys.setup instead"
     yield DeprecatedConfig.new
   end
 end
