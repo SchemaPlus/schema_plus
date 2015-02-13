@@ -17,7 +17,7 @@ Gem | Description | Included In `schema_plus` gem?
 ----| ----------- |:------------------------------:
 [schema_associations](https://github.com/SchemaPlus/schema_associations) | Automatically defines model associations based on foreign key relations |
 <p style="color:grey">schema_auto_foreign_keys</p> | Automatically creates foreign keys on referencing columns | Y
-<p style="color:grey">schema_plus_columns</p> | Column attributes including `column.indexes` and `column.unique?` | Y
+[schema_plus_columns](https://github.com/SchemaPlus/schema_plus_columns) | Column attributes including `column.indexes` and `column.unique?` | Y
 <p style="color:grey">schema_plus_db_default</p> | Use `ActiveRecord::DB_DEFAULT` to set an attribute to the database default | Y
 <p style="color:grey">schema_plus_default_expr</p> | Use SQL expressions for database default values | Y
 <p style="color:grey">schema_plus_enums</p> | Use enum types in migrations | Y
@@ -112,14 +112,6 @@ or in a Gemfile
 
 
 > **NOTE** The documentation in this README is leftover from the 1.x branch; the functionality is the same, but some of the core features of schema_plus (such as foreign keys & inline index definition) are now provided by ActiveRecord 4.2.  schema_plus still provides extra functionality beyond AR 4.2, but the documentation needs to be updated to be clear what's an enhancement of AR 4.2 capabilities rather than completely new features.
-
-### Columns
-
-
-When you query column information using ActiveRecord::Base#columns, SchemaPlus
-analogously provides index information relevant to each column: which indexes
-reference the column, whether the column must be unique, etc.  See doc for
-[SchemaPlus::ActiveRecord::ConnectionAdapters::Column](http://rubydoc.info/gems/schema_plus/SchemaPlus/ActiveRecord/ConnectionAdapters/Column).
 
 ### Foreign Key Constraints
 
