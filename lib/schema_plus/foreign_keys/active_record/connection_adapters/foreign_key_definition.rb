@@ -73,7 +73,7 @@ module SchemaPlus::ForeignKeys
 
         # Dumps a definition of foreign key.
         def to_dump(column: nil, inline: nil)
-          dump = case 
+          dump = case
                  when column then "foreign_key: {references:"
                  when inline then "t.foreign_key"
                  else "add_foreign_key #{from_table.inspect},"

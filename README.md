@@ -28,7 +28,7 @@ Gem | Description | Included In `schema_plus` gem?
 [schema_plus_views](https://github.com/SchemaPlus/schema_plus_views) | Create and drop views in migrations | Y
 [schema_validations](https://github.com/SchemaPlus/schema_validations) | Automatically defines ActiveRecord validations based on database constraints |
 
-See detailed documentation in each gem's README.  
+See detailed documentation in each gem's README.
 
 *Is there some other capability you wish SchemaPlus had a gem for?*  Open an issue here. Or try implementing it yourself -- creating ActiveRecord extensions is easy and fun using SchemaPlus's tools [schema_monkey](https://github.com/SchemaPlus/schema_monkey) and [schema_plus_core](https://github.com/SchemaPlus/schema_plus_core)!!
 
@@ -62,13 +62,13 @@ In cases where ActiveRecord 4.2 has introduced features previously supported onl
 * `add_foreign_key` and `remove_foreign_key` deprecate the method signature:
   * `(from_table, columns, to_table, primary_keys, options)` => `(from_table, to_table, options)`
 
-* `ForeignKeyDefinition` deprecates accessors: 
+* `ForeignKeyDefinition` deprecates accessors:
   * `#table_name` in favor of `#from_table`
   * `#column_names` in favor of `Array.wrap(#column)`
   * `#references_column_names` in favor of `#primary_key`
   * `#references_table_name in favor of `#to_table`
 
-* `IndexDefinition` deprecates accessors: 
+* `IndexDefinition` deprecates accessors:
   * `#conditions` in favor of `#where`
   * `#kind` in favor of `#using.to_s`
 
@@ -91,9 +91,9 @@ Install from http://rubygems.org via
 or in a Gemfile
 
     gem "schema_plus"
-    
+
 `schema_plus` includes [schema_monkey_rails](https://github.com/SchemaPlus/schema_monkey_rails) so it will automatically be inserted in Rails apps.  To use with Padrino, see [schema_monkey_padrino](https://github.com/SchemaPlus/schema_monkey_padrino)
-    
+
 ## History
 
 *   See [CHANGELOG](CHANGELOG.md) for per-version release notes.
@@ -105,12 +105,12 @@ or in a Gemfile
 
 *   And [lots of contributors](https://github.com/SchemaPlus/schema_plus/graphs/contributors) since then.
 
----    
+---
 ---
 
 # Prerelease:  Documentation of features still be moved into separate feature gems
 
-    
+
 > **NOTE** The documentation in this README is leftover from the 1.x branch; the functionality is the same, but some of the core features of schema_plus (such as foreign keys & inline index definition) are now provided by ActiveRecord 4.2.  schema_plus still provides extra functionality beyond AR 4.2, but the documentation needs to be updated to be clear what's an enhancement of AR 4.2 capabilities rather than completely new features.
 
 ### Columns

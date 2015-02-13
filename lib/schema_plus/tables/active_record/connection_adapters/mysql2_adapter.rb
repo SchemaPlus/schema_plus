@@ -2,7 +2,7 @@ module SchemaPlus::Tables
   module ActiveRecord
     module ConnectionAdapters
       module Mysql2Adapter
-        
+
         # implement cascade by removing foreign keys
         def drop_table(name, options={})
           if options[:cascade]

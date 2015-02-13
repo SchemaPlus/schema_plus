@@ -2,7 +2,7 @@ module SchemaPlus::Tables
   module ActiveRecord
     module ConnectionAdapters
       module AbstractAdapter
-        
+
         # Extends rails' drop_table to include these options:
         #   :cascade
         #   :if_exists
