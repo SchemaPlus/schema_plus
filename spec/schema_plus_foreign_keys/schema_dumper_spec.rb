@@ -113,18 +113,18 @@ describe "Schema dump" do
       expect { dump_schema }.to_not raise_error
     end
 
-    it "should dump constraints after the tables they reference" do
-      expect(dump_schema).to match(%r{create_table "comments"(.|\n)*first_comment_id.*foreign_key.*comments})
-      expect(dump_schema).to match(%r{create_table "posts"(.|\n)*first_post_id.*foreign_key.*posts})
-      expect(dump_schema).to match(%r{create_table "posts"(.|\n)*add_foreign_key.*posts.*post_id})
-      expect(dump_schema).to match(%r{create_table "users"(.|\n)*add_foreign_key.*users.*commenter_id})
-      expect(dump_schema).to match(%r{create_table "users"(.|\n)*foreign_key.*users.*user_id})
+    ["comments", "posts", "users"].each do |table|
+      it "should dump constraints for table #{table.inspect} after the table definition" do
+        dump = dump_schema.gsub(/#[^\n*]/m, '')
+        expect(dump =~ %r{create_table "#{table}"}).to be < (dump =~ %r{foreign_key.*"#{table}"})
+      end
     end
 
-    it "should dump comments for delayed constraint definitions" do
-      expect(dump_schema).to match(%r{"post_id".*# foreign key references "posts"})
-      expect(dump_schema).to match(%r{"commenter_id".*# foreign key references "users"})
-      expect(dump_schema).to match(%r{"user_id".*# foreign key references "users"})
+    ["comments", "posts"].each do |table|
+      qtable = table.inspect
+      it "should dump comments for delayed constraint definition referencing table #{qtable}" do
+        expect(dump_schema).to match(%r{# foreign key references #{qtable}.*create_table #{qtable}.*add_foreign_key \S+, #{qtable}}m)
+      end
     end
 
     context 'with complicated schemas' do
