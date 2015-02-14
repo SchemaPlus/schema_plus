@@ -11,6 +11,7 @@ require_relative 'foreign_keys/active_record/migration/command_recorder'
 require_relative 'foreign_keys/middleware/dumper'
 require_relative 'foreign_keys/middleware/migration'
 require_relative 'foreign_keys/middleware/model'
+require_relative 'foreign_keys/middleware/mysql'
 require_relative 'foreign_keys/middleware/sql'
 
 module SchemaPlus::ForeignKeys

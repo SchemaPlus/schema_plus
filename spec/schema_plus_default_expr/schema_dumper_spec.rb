@@ -9,7 +9,7 @@ describe "Schema dump" do
     end
     ActiveRecord::Migration.suppress_messages do
       ActiveRecord::Schema.define do
-        connection.tables.each do |table| drop_table table, :cascade => true end
+        connection.tables.each do |table| drop_table table, force: :cascade end
 
         create_table :posts, :force => true do |t|
           t.text :body

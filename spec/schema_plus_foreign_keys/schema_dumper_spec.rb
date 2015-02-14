@@ -9,7 +9,7 @@ describe "Schema dump" do
     end
     ActiveRecord::Migration.suppress_messages do
       ActiveRecord::Schema.define do
-        connection.tables.each do |table| drop_table table, :cascade => true end
+        connection.tables.each do |table| drop_table table, force: :cascade end
 
         create_table :users, :force => true do |t|
           t.string :login
@@ -135,7 +135,7 @@ describe "Schema dump" do
         end
         ActiveRecord::Migration.suppress_messages do
           ActiveRecord::Schema.define do
-            connection.tables.each do |table| drop_table table, :cascade => true end
+            connection.tables.each do |table| drop_table table, force: :cascade end
 
             create_table :grade_systems, force: true do |t|
               t.string   :name

@@ -17,7 +17,7 @@ module SchemaPlus::ForeignKeys
           config_options = options.delete(:foreign_keys) || {}
 
           # override rails' :force to cascade
-          drop_table(table, if_exists: true, cascade: true) if options.delete(:force)
+          # drop_table(table, if_exists: true, force: true) if options.delete(:force)
 
           super(table, options) do |table_definition|
             table_definition.schema_plus_config = SchemaPlus::ForeignKeys.config.merge(config_options)

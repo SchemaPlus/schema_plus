@@ -46,7 +46,7 @@ describe SchemaPlus::DbDefault do
 
   def create_table(model, columns_with_options)
     migration.suppress_messages do
-      migration.create_table model.table_name, :force => true do |t|
+      migration.create_table model.table_name, :force => :cascade do |t|
         columns_with_options.each_pair do |column, options|
           t.send :string, column, options
         end
