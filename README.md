@@ -24,7 +24,7 @@ Gem | Description | Included In `schema_plus` gem?
 <p style="color:grey">schema_plus_foreign_keys | Extended support for foreign keys, including creation as column options, `:deferrable`, and SQLite3 support | Y
 [schema_plus_indexes](https://github.com/SchemaPlus/schema_plus_indexes) | Convenience and consistency in using indexes | Y
 [schema_plus_pg_indexes](https://github.com/SchemaPlus/schema_plus_pg_indexes) |PostgreSQL index features: `case_insenstive`, `expression` and `operator_class` | Y
-<p style="color:grey">schema_plus_tables</p> | Convenience and consistency in using tables | Y
+[schema_plus_tables](https://github.com/SchemaPlus/schema_plus_views) | Convenience and consistency in using tables | Y
 [schema_plus_views](https://github.com/SchemaPlus/schema_plus_views) | Create and drop views in migrations | Y
 [schema_validations](https://github.com/SchemaPlus/schema_validations) | Automatically defines ActiveRecord validations based on database constraints |
 
@@ -55,6 +55,9 @@ In cases where ActiveRecord 4.2 has introduced features previously supported onl
 * Index definition deprecates these options:
   * `:conditions` => `:where`
   * `:kind` => `:using`
+
+* `drop_table` deprecates this option:
+  * `cascade: true` => `force: :cascade`
 
 * Foreign key definitions deprecate options to `:on_update` and `:on_delete`:
   * `:set_null` => `:nullify`
@@ -176,20 +179,7 @@ has some information that may be of assistance in resolving these issues.
 
 ### Tables
 
-SchemaPlus extends rails' `drop_table` method to accept these options:
-
-    drop_table :table_name                    # same as rails
-    drop_table :table_name, if_exists: true   # no error if table doesn't exist
-    drop_table :table_name, cascade: true     # delete dependencies
-
-The `:cascade` option is particularly useful given foreign key constraints.
-For Postgresql it is implemented using `DROP TABLE...CASCADE` which deletes
-all dependencies.  For MySQL, SchemaPlus implements the `:cascade` option to
-delete foreign key references, but does not delete any other dependencies.
-For Sqlite3, the `:cascade` option is ignored, but Sqlite3 always drops tables
-with cascade-like behavior.
-
-SchemaPlus likewise extends `create_table ... force: true` to use `:cascade`
+SchemaPlus extends `create_table ... force: true` to use `:cascade`
 
 ### Column Defaults: Expressions
 
