@@ -12,19 +12,6 @@ module SchemaPlus::ForeignKeys
       #
       module AbstractAdapter
 
-        def create_table(table, options = {})
-          options = options.dup
-          config_options = options.delete(:foreign_keys) || {}
-
-          # override rails' :force to cascade
-          # drop_table(table, if_exists: true, force: true) if options.delete(:force)
-
-          super(table, options) do |table_definition|
-            table_definition.schema_plus_config = SchemaPlus::ForeignKeys.config.merge(config_options)
-            yield table_definition if block_given?
-          end
-        end
-
         # Define a foreign key constraint.  Valid options are :on_update,
         # :on_delete, and :deferrable, with values as described at
         # ConnectionAdapters::ForeignKeyDefinition

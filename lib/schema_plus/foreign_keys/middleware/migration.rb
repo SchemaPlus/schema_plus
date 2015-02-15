@@ -2,6 +2,19 @@ module SchemaPlus::ForeignKeys
   module Middleware
     module Migration
 
+      module CreateTable
+        def around(env)
+          if (original_block = env.block)
+            config_options = env.options.delete(:foreign_keys) || {}
+            env.block = -> (table_definition) {
+              table_definition.schema_plus_config = SchemaPlus::ForeignKeys.config.merge(config_options)
+              original_block.call table_definition
+            }
+          end
+          yield env
+        end
+      end
+
       module Column
 
         #
