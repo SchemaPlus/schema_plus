@@ -1,14 +1,13 @@
 module SchemaPlus::ForeignKeys
-  module ActiveRecord
+  module Middleware
     module Schema
-      module ClassMethods
-
-        def define(*args)
+      module Define
+        def around(env)
           fk_override = { :auto_create => false, :auto_index => false }
           save = Hash[fk_override.keys.collect{|key| [key, SchemaPlus::ForeignKeys.config.send(key)]}]
           begin
             SchemaPlus::ForeignKeys.config.update_attributes(fk_override)
-            super
+            yield env
           ensure
             SchemaPlus::ForeignKeys.config.update_attributes(save)
           end
