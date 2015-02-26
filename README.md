@@ -95,8 +95,6 @@ or in a Gemfile
 
     gem "schema_plus"
 
-`schema_plus` includes [schema_monkey_rails](https://github.com/SchemaPlus/schema_monkey_rails) so it will automatically be inserted in Rails apps.  To use with Padrino, see [schema_monkey_padrino](https://github.com/SchemaPlus/schema_monkey_padrino)
-
 ## History
 
 *   See [CHANGELOG](CHANGELOG.md) for per-version release notes.

@@ -1,4 +1,3 @@
-require 'schema_monkey_rails'
 require 'schema_plus/columns'
 require 'schema_plus/db_default'
 require 'schema_plus/default_expr'

@@ -24,7 +24,7 @@ Gem::Specification.new do |gem|
   gem.add_dependency "activerecord", "~> 4.2"
   gem.add_dependency "valuable"
   gem.add_dependency "schema_plus_core", "~> 0.2"
-  gem.add_dependency "schema_monkey_rails", "~> 0.1", ">= 0.1.2"
+  gem.add_dependency "schema_monkey", "~> 2.1.0"
   gem.add_dependency "schema_plus_columns", "~> 0.1"
   gem.add_dependency "schema_plus_indexes", "~> 0.1", ">= 0.1.3"
   gem.add_dependency "schema_plus_pg_indexes", "~> 0.1", ">= 0.1.3"
