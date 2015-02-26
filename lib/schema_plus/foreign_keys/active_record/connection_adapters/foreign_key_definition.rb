@@ -18,22 +18,22 @@ module SchemaPlus::ForeignKeys
       module ForeignKeyDefinition
 
         def column_names
-          ActiveSupport::Deprecation.warn "ForeignKeyDefinition#column_names is depcreated, use Array.wrap(column)"
+          ActiveSupport::Deprecation.warn "ForeignKeyDefinition#column_names is deprecated, use Array.wrap(column)"
           Array.wrap(column)
         end
 
         def references_column_names
-          ActiveSupport::Deprecation.warn "ForeignKeyDefinition#references_column_names is depcreated, use Array.wrap(primary_key)"
+          ActiveSupport::Deprecation.warn "ForeignKeyDefinition#references_column_names is deprecated, use Array.wrap(primary_key)"
           Array.wrap(primary_key)
         end
 
         def references_table_name
-          ActiveSupport::Deprecation.warn "ForeignKeyDefinition#references_table_name is depcreated, use #to_table"
+          ActiveSupport::Deprecation.warn "ForeignKeyDefinition#references_table_name is deprecated, use #to_table"
           to_table
         end
 
         def table_name
-          ActiveSupport::Deprecation.warn "ForeignKeyDefinition#table_name is depcreated, use #from_table"
+          ActiveSupport::Deprecation.warn "ForeignKeyDefinition#table_name is deprecated, use #from_table"
           from_table
         end
 
