@@ -24,7 +24,7 @@ Gem | Description | Included In `schema_plus` gem?
 <p style="color:grey">schema_plus_foreign_keys | Extended support for foreign keys, including creation as column options, `:deferrable`, and SQLite3 support | Y
 [schema_plus_indexes](https://github.com/SchemaPlus/schema_plus_indexes) | Convenience and consistency in using indexes | Y
 [schema_plus_pg_indexes](https://github.com/SchemaPlus/schema_plus_pg_indexes) |PostgreSQL index features: `case_insenstive`, `expression` and `operator_class` | Y
-[schema_plus_tables](https://github.com/SchemaPlus/schema_plus_views) | Convenience and consistency in using tables | Y
+[schema_plus_tables](https://github.com/SchemaPlus/schema_plus_tables) | Convenience and consistency in using tables | Y
 [schema_plus_views](https://github.com/SchemaPlus/schema_plus_views) | Create and drop views in migrations | Y
 [schema_validations](https://github.com/SchemaPlus/schema_validations) | Automatically defines ActiveRecord validations based on database constraints |
 
