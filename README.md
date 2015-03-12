@@ -20,7 +20,7 @@ Gem | Description | Included In `schema_plus` gem?
 [schema_plus_columns](https://github.com/SchemaPlus/schema_plus_columns) | Column attributes including `column.indexes` and `column.unique?` | Y
 <p style="color:grey">schema_plus_db_default</p> | Use `ActiveRecord::DB_DEFAULT` to set an attribute to the database default | Y
 <p style="color:grey">schema_plus_default_expr</p> | Use SQL expressions for database default values | Y
-<p style="color:grey">schema_plus_enums</p> | Use enum types in migrations | Y
+[schema_plus_enums](https://github.com/SchemaPlus/schema_plus_enums) | Define enum types in migrations | Y
 <p style="color:grey">schema_plus_foreign_keys | Extended support for foreign keys, including creation as column options, `:deferrable`, and SQLite3 support | Y
 [schema_plus_indexes](https://github.com/SchemaPlus/schema_plus_indexes) | Convenience and consistency in using indexes | Y
 [schema_plus_pg_indexes](https://github.com/SchemaPlus/schema_plus_pg_indexes) |PostgreSQL index features: `case_insenstive`, `expression` and `operator_class` | Y
