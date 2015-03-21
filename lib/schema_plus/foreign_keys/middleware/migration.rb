@@ -64,7 +64,10 @@ module SchemaPlus::ForeignKeys
           # usurp index creation from AR.  That's necessary to make
           # auto_index work properly
           index = options.delete(:index) unless is_polymorphic
-          options[:foreign_key] = false if is_reference
+          if is_reference
+            options[:foreign_key] = false
+            options[:_is_reference] = true
+          end
 
           yield env
 
@@ -145,7 +148,9 @@ module SchemaPlus::ForeignKeys
           return :none if options[:foreign_key] == false
 
           args = options[:foreign_key]
-          args ||= {} if config.auto_create? and column_name =~ /_id$/
+          auto = config.auto_create?
+          auto = false if options[:_is_reference] and env.type != :reference # this is a nested call to column() from with reference(); suppress auto-fk
+          args ||= {} if auto and column_name =~ /_id$/
 
           return nil if args.nil?
 
