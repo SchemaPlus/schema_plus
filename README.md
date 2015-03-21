@@ -1,6 +1,6 @@
 
 > ## This is the README for SchemaPlus 2.0.0 (prelease)
-> which is under development in the master branch, and which supports Rails >= 4.2.  For info about the stable 1.x releases which support Rails 3.1, 4.0, 4.1, and 4.2, see the [schema_plus 1.x](https://github.com/SchemaPlus/schema_plus/tree/1.x) branch
+> which is under development in the master branch, and which supports Rails >= 4.2.  For info about the stable 1.x releases which support Rails 3.1, 4.0, 4.1, and 4.2.0, see the [schema_plus 1.x](https://github.com/SchemaPlus/schema_plus/tree/1.x) branch
 
 ---
 
