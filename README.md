@@ -1,5 +1,5 @@
 > ## This is the README for schema_plus 1.8.x
-> which supports Rails 3.2, 4.0, 4.1, and 4.2.  Ongoing development towards schema_plus 2.0 takes place in the [master branch](https://github.com/SchemaPlus/schema_plus/tree/master), supporting only Rails >= 4.2
+> which supports Rails 3.2, 4.0, 4.1, and 4.2.0.  Ongoing development towards schema_plus 2.0 takes place in the [master branch](https://github.com/SchemaPlus/schema_plus/tree/master), supporting only Rails >= 4.2
 
 ---
 
@@ -24,7 +24,7 @@ For added rails DRYness see also the gems
 
 SchemaPlus supports all combinations of:
 
-*   Rails/ActiveRecord 3.2, 4.0, 4.1, and 4.2
+*   Rails/ActiveRecord 3.2, 4.0, 4.1, and 4.2.0
 *   PostgreSQL, MySQL (using mysql2 gem; mysql gem only supported with Rails
     3.2), or SQLite3 (using sqlite3 >= 3.7.7 for foreign key support, >= 3.8 for partial indexes)
 *   MRI Ruby >= 1.9.3
