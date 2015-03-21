@@ -32,7 +32,7 @@ Gem::Specification.new do |gem|
   gem.add_dependency "schema_plus_tables", "~> 0.1"
   gem.add_dependency "schema_plus_views", "~> 0.1"
 
-  gem.add_development_dependency "schema_dev", "~> 3.1"
+  gem.add_development_dependency "schema_dev", "~> 3.4"
   gem.add_development_dependency "rake"
   gem.add_development_dependency "rspec", "~> 3.0"
   gem.add_development_dependency "rdoc"
