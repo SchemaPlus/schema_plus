@@ -43,7 +43,6 @@ module SchemaPlus::ForeignKeys
         def initialize(from_table, to_table, options={})
           [:on_update, :on_delete].each do |key|
             if options[key] == :set_null
-              require 'byebug' ; byebug
               ActiveSupport::Deprecation.warn ":set_null value for #{key} is deprecated.  use :nullify instead"
               options[key] = :nullify
             end
