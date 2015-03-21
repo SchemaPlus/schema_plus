@@ -59,5 +59,5 @@ def remove_all_models
     end
   end
 
-SimpleCov.command_name "[ruby #{RUBY_VERSION} - ActiveRecord #{::ActiveRecord::VERSION::STRING} - #{ActiveRecord::Base.connection.adapter_name}]"
+SimpleCov.command_name "[ruby#{RUBY_VERSION}-activerecord#{::ActiveRecord::VERSION::STRING}-#{ActiveRecord::Base.connection.adapter_name}]"
 
