@@ -18,7 +18,7 @@ Gem | Description | Included In `schema_plus` gem?
 [schema_associations](https://github.com/SchemaPlus/schema_associations) | Automatically defines model associations based on foreign key relations |
 <p style="color:grey">schema_auto_foreign_keys</p> | Automatically creates foreign keys on referencing columns | Y
 [schema_plus_columns](https://github.com/SchemaPlus/schema_plus_columns) | Column attributes including `column.indexes` and `column.unique?` | Y
-<p style="color:grey">schema_plus_db_default</p> | Use `ActiveRecord::DB_DEFAULT` to set an attribute to the database default | Y
+[schema_plus_db_default](https://github.com/SchemaPlus/schema_plus_db_default) | Use `ActiveRecord::DB_DEFAULT` to set an attribute to the database default | Y
 <p style="color:grey">schema_plus_default_expr</p> | Use SQL expressions for database default values | Y
 [schema_plus_enums](https://github.com/SchemaPlus/schema_plus_enums) | Define enum types in migrations | Y
 <p style="color:grey">schema_plus_foreign_keys | Extended support for foreign keys, including creation as column options, `:deferrable`, and SQLite3 support | Y
@@ -208,25 +208,7 @@ If you are using Postgresql with a `json` column, the default value may be an un
 
 	t.json :fields, default: { field1: 'a', field2: 'b' }
 	t.json :fields, default: { value: { field1: 'a', field2: 'b' } }
-	
 
-### Column Defaults: Using
-
-SchemaPlus introduces a constant `ActiveRecord::DB_DEFAULT` that you can use
-to explicitly instruct the database to use the column default value (or
-expression).  For example:
-
-    Post.create(category: ActiveRecord::DB_DEFAULT)
-    post.update_attributes(category: ActiveRecord::DB_DEFAULT)
-
-(Without `ActiveRecord::DB_DEFAULT`, you can update a value to `NULL` but not
-to its default value.)
-
-Note that after updating, you would need to reload a record to replace
-`ActiveRecord::DB_DEFAULT` with the value assigned by the database.
-
-Note also that Sqlite3 does not support `ActiveRecord::DB_DEFAULT`; attempting
-to use it will raise `ActiveRecord::StatementInvalid`
 
 ### Schema Dump and Load (schema.rb)
 
