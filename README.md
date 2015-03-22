@@ -1,17 +1,11 @@
 
-> ## This is the README for SchemaPlus 2.0.0 (prelease)
-> which is under development in the master branch, and which supports Rails >= 4.2.  For info about the stable 1.x releases which support Rails 3.1, 4.0, 4.1, and 4.2.0, see the [schema_plus 1.x](https://github.com/SchemaPlus/schema_plus/tree/1.x) branch
 
----
 
-[![Gem Version](https://badge.fury.io/rb/schema_plus.svg)](http://badge.fury.io/rb/schema_plus)
-[![Build Status](https://secure.travis-ci.org/SchemaPlus/schema_plus.svg)](http://travis-ci.org/SchemaPlus/schema_plus)
-[![Coverage Status](https://img.shields.io/coveralls/SchemaPlus/schema_plus.svg)](https://coveralls.io/r/SchemaPlus/schema_plus)
-[![Dependency Status](https://gemnasium.com/lomba/schema_plus.svg)](https://gemnasium.com/SchemaPlus/schema_plus)
+# SchemaPlus family
 
-# SchemaPlus
+The SchemaPlus family of gems provide various extensions and enhancements to ActiveRecord.  
 
-The SchemaPlus family of gems provide various extensions and enhancements to ActiveRecord.  Listed alphabetically:
+Listed alphabetically:
 
 Gem | Description | Included In `schema_plus` gem?
 ----| ----------- |:------------------------------:
@@ -32,10 +26,22 @@ See detailed documentation in each gem's README.
 
 *Is there some other capability you wish SchemaPlus had a gem for?*  Open an issue here. Or try implementing it yourself -- creating ActiveRecord extensions is easy and fun using SchemaPlus's tools [schema_monkey](https://github.com/SchemaPlus/schema_monkey) and [schema_plus_core](https://github.com/SchemaPlus/schema_plus_core)!!
 
+---
+# The `schema_plus` gem
 
-## The `schema_plus` gem
+[![Gem Version](https://badge.fury.io/rb/schema_plus.svg)](http://badge.fury.io/rb/schema_plus)
+[![Build Status](https://secure.travis-ci.org/SchemaPlus/schema_plus.svg)](http://travis-ci.org/SchemaPlus/schema_plus)
+[![Coverage Status](https://img.shields.io/coveralls/SchemaPlus/schema_plus.svg)](https://coveralls.io/r/SchemaPlus/schema_plus)
+[![Dependency Status](https://gemnasium.com/lomba/schema_plus.svg)](https://gemnasium.com/SchemaPlus/schema_plus)
 
-The `schema_plus` gem is a wrapper that pulls in a common collection of those gems.   But you can feel free to mix and match to get just the gems you want.
+
+> ## This is the README for schema_plus 2.0.0 (prelease)
+> which is under development in the master branch, and which supports Rails >= 4.2.  For info about the stable 1.x releases which support Rails 3.1, 4.0, 4.1, and 4.2.0, see the [schema_plus 1.x](https://github.com/SchemaPlus/schema_plus/tree/1.x) branch
+
+---
+
+
+The `schema_plus` gem is a wrapper that pulls in a common collection of gems from the SchemaPlus family.   But you can feel free to mix and match to get just the gems you want.
 
 Note: Prior to version 2.0, `schema_plus` was a single monolothic gem that implemented in itself all the features that are now included by the wrapper.
 
@@ -112,7 +118,7 @@ or in a Gemfile
 # Prerelease:  Documentation of features still be moved into separate feature gems
 
 
-> **NOTE** The documentation in this README is leftover from the 1.x branch; the functionality is the same, but some of the core features of schema_plus (such as foreign keys & inline index definition) are now provided by ActiveRecord 4.2.  schema_plus still provides extra functionality beyond AR 4.2, but the documentation needs to be updated to be clear what's an enhancement of AR 4.2 capabilities rather than completely new features.
+> **NOTE** The documentation in this README is leftover from the 1.x branch; the functionality is the same, but some of the core features of schema_plus (such as foreign keys) are now provided by ActiveRecord 4.2.  schema_plus still provides extra functionality beyond AR 4.2, but the documentation needs to be updated to be clear what's an enhancement of AR 4.2 capabilities rather than completely new features.
 
 ### Foreign Key Constraints
 
