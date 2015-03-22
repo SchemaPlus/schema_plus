@@ -16,7 +16,7 @@ module SchemaPlus::DbDefault
                 if val.equal? ::ActiveRecord::DB_DEFAULT
                   env.sql = env.sql.sub(/\$#{i+1}/, 'DEFAULT')
                 else
-                  env.sql = env.sql.sub(/\$#{i+1}/, "$#{j+1}") if i != j
+                  env.sql = env.sql.sub(/\$#{i+1}\b/, "$#{j+1}") if i != j
                   j += 1
                 end
               end
