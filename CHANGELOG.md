@@ -2,6 +2,10 @@
 
 ## Change Log
 
+## 1.8.8
+
+* Bug fix: Postgres index creation was ignoring option `algorithm: :concurrently` (#209)
+
 ## 1.8.7
 
 * Bug fix: Postgres schema dump failed when using case_sensitive => false and operator_class together (#204).  Thanks to [@mikeauclair](https://github.com/mikeauclair)
