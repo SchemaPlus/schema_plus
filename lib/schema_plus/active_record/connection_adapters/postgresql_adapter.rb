@@ -102,8 +102,9 @@ module SchemaPlus
             raise ArgumentError, "Index name not given. Pass :name option" unless options[:name]
           end
 
-          index_type = options[:unique] ? "UNIQUE" : ""
+          index_type = options[:unique] ? "UNIQUE" : nil
           index_name = options[:name] || index_name(table_name, column_names)
+          concurrently = options[:algorithm] == :concurrently
           conditions = options[:conditions]
           kind       = options[:kind]
           operator_classes = options[:operator_class]
@@ -111,14 +112,22 @@ module SchemaPlus
             operator_classes = Hash[column_names.map {|name| [name, operator_classes]}]
           end
 
+          sql = []
+          sql << 'CREATE'
+          sql << index_type
+          sql << 'INDEX'
+          sql << 'CONCURRENTLY' if concurrently
+          sql << quote_column_name(index_name)
+          sql << 'ON'
+          sql << quote_table_name(table_name)
+
           if expression = options[:expression] then
             raise ArgumentError, "Cannot specify :case_sensitive => false with an expression.  Use LOWER(column_name)" if options[:case_sensitive] == false
             # Wrap expression in parentheses if necessary
             expression = "(#{expression})" if expression !~ /(using|with|tablespace|where)/i
             expression = "USING #{kind} #{expression}" if kind
             expression = "#{expression} WHERE #{conditions}" if conditions
-
-            sql = "CREATE #{index_type} INDEX #{quote_column_name(index_name)} ON #{quote_table_name(table_name)} #{expression}"
+            sql << expression
           else
             option_strings = Hash[column_names.map {|name| [name, '']}]
             (operator_classes||{}).each do |column, opclass|
@@ -138,10 +147,10 @@ module SchemaPlus
             expression = "(#{quoted_column_names.join(', ')})"
             expression = "USING #{kind} #{expression}" if kind
 
-            sql = "CREATE #{index_type} INDEX #{quote_column_name(index_name)} ON #{quote_table_name(table_name)} #{expression}"
-            sql += " WHERE (#{ ::ActiveRecord::Base.send(:sanitize_sql, conditions, quote_table_name(table_name)) })" if conditions
+            sql << expression
+            sql << "WHERE (#{ ::ActiveRecord::Base.send(:sanitize_sql, conditions, quote_table_name(table_name)) })" if conditions
           end
-          execute sql
+          execute sql.compact.join(' ')
         rescue => e
           SchemaStatements.add_index_exception_handler(self, table_name, column_names, options, e)
         end

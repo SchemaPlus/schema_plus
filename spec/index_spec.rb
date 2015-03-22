@@ -61,6 +61,18 @@ describe "index" do
       expect(index_for([:login, :deleted_at]).orders).to eq({"login" => :desc, "deleted_at" => :asc})
     end
 
+    it "should respect algorithm", :sqlite3 => :skip do
+      algorithm, algorithm_sql = connection.index_algorithms.to_a.last
+      original_execute = connection.method(:execute)
+      index_sql = ""
+      allow(connection).to receive(:execute) { |sql|
+        index_sql = sql if sql =~ /CREATE\s+INDEX/
+        original_execute.call(sql)
+      }
+      add_index(:users, :login, :algorithm => algorithm)
+      expect(index_sql).to include algorithm_sql
+    end if ActiveRecord::VERSION::MAJOR > 3
+
     context "for duplicate index" do
       it "should not complain if the index is the same" do
         add_index(:users, :login)
