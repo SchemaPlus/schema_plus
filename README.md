@@ -13,7 +13,7 @@ Gem | Description | Included In `schema_plus` gem?
 <p style="color:grey">schema_auto_foreign_keys</p> | Automatically creates foreign keys on referencing columns | Y
 [schema_plus_columns](https://github.com/SchemaPlus/schema_plus_columns) | Column attributes including `column.indexes` and `column.unique?` | Y
 [schema_plus_db_default](https://github.com/SchemaPlus/schema_plus_db_default) | Use `ActiveRecord::DB_DEFAULT` to set an attribute to the database default | Y
-<p style="color:grey">schema_plus_default_expr</p> | Use SQL expressions for database default values | Y
+[schema_plus_default_expr](https://github.com/SchemaPlus/schema_plus_default_expr)  | Use SQL expressions for database default values | Y
 [schema_plus_enums](https://github.com/SchemaPlus/schema_plus_enums) | Define enum types in migrations | Y
 <p style="color:grey">schema_plus_foreign_keys | Extended support for foreign keys, including creation as column options, `:deferrable`, and SQLite3 support | Y
 [schema_plus_indexes](https://github.com/SchemaPlus/schema_plus_indexes) | Convenience and consistency in using indexes | Y
@@ -185,36 +185,6 @@ has some information that may be of assistance in resolving these issues.
 ### Tables
 
 SchemaPlus extends `create_table ... force: true` to use `:cascade`
-
-### Column Defaults: Expressions
-
-SchemaPlus allows defaults to be set using expressions or constant values:
-
-    t.datetime :seen_at, default: { expr: 'NOW()' }
-    t.datetime :seen_at, default: { value: "2011-12-11 00:00:00" }
-
-Note that in MySQL only the TIMESTAMP column data type accepts SQL column
-defaults and Rails uses DATETIME, so expressions can't be used with MySQL.
-
-The standard syntax will still work as usual:
-
-    t.datetime :seen_at, default: "2011-12-11 00:00:00"
-
-Also, as a convenience
-
-    t.datetime :seen_at, default: :now
-
-resolves to:
-
-    NOW()                 # PostgreSQL
-    (DATETIME('now'))     # SQLite3
-    invalid               # MySQL
-
-If you are using Postgresql with a `json` column, the default value may be an unadorned hash.  A hash having just one key `:expr` or `:value` will be taken as schema_plus syntax; i.e, these two are equivalent:
-
-	t.json :fields, default: { field1: 'a', field2: 'b' }
-	t.json :fields, default: { value: { field1: 'a', field2: 'b' } }
-
 
 ### Schema Dump and Load (schema.rb)
 
