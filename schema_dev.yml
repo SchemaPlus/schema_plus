@@ -34,3 +34,6 @@ exclude:
   -
     ruby: jruby
     db: sqlite3
+  -
+    ruby: jruby
+    db: postgresql
