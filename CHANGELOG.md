@@ -2,6 +2,10 @@
 
 ## Change Log
 
+## 1.8.9
+
+* Bug fix: Disable auto_create when sqlite3 implicitly copies a table (#213)
+
 ## 1.8.8
 
 * Bug fix: Postgres index creation was ignoring option `algorithm: :concurrently` (#209)
