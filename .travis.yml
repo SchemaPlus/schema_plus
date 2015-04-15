@@ -31,6 +31,9 @@ script: bundle exec rake travis
 matrix:
   exclude:
   - rvm: jruby
+    gemfile: gemfiles/rails-3.2/Gemfile.postgresql
+    env: POSTGRESQL_DB_USER=postgres MYSQL_DB_USER=travis
+  - rvm: jruby
     gemfile: gemfiles/rails-3.2/Gemfile.sqlite3
     env: POSTGRESQL_DB_USER=postgres MYSQL_DB_USER=travis
   - rvm: jruby
