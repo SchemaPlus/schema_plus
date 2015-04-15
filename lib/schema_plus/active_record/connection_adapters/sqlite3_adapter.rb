@@ -31,6 +31,7 @@ module SchemaPlus
             alias_method_chain :indexes, :schema_plus
             alias_method_chain :rename_table, :schema_plus
             alias_method_chain :tables, :schema_plus
+            alias_method_chain :copy_table, :schema_plus
           end
 
           if ::ActiveRecord::VERSION::MAJOR.to_i < 4
@@ -70,6 +71,17 @@ module SchemaPlus
             end
           end
           indexes
+        end
+
+        def copy_table_with_schema_plus(*args, &block)
+          fk_override = { :auto_create => false, :auto_index => false }
+          save = Hash[fk_override.keys.collect{|key| [key, SchemaPlus.config.foreign_keys.send(key)]}]
+          begin
+            SchemaPlus.config.foreign_keys.update_attributes(fk_override)
+            copy_table_without_schema_plus(*args, &block)
+          ensure
+            SchemaPlus.config.foreign_keys.update_attributes(save)
+          end
         end
 
         def rename_table_with_schema_plus(oldname, newname) #:nodoc:
