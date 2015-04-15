@@ -567,78 +567,96 @@ describe ActiveRecord::Migration do
   end
 
 
-  context "when column is changed", :sqlite3 => :skip do
+  context "when column is changed" do
 
     before(:each) do
       @model = Comment
     end
 
-    it "should create foreign key" do
-      change_column :user, :string, :foreign_key => { :references => [:users, :login] }
-      expect(@model).to reference(:users, :login).on(:user)
-    end
+    context "with foreign keys", :sqlite3 => :skip do
 
-    context "and initially references to users table" do
+      it "should create foreign key" do
+        change_column :user, :string, :foreign_key => { :references => [:users, :login] }
+        expect(@model).to reference(:users, :login).on(:user)
+      end
 
-      before(:each) do
-        recreate_table @model do |t|
-          t.integer :user_id
+      context "and initially references to users table" do
+
+        before(:each) do
+          recreate_table @model do |t|
+            t.integer :user_id
+          end
         end
-      end
 
-      it "should have foreign key" do
-        expect(@model).to reference(:users)
-      end
+        it "should have foreign key" do
+          expect(@model).to reference(:users)
+        end
 
-      it "should drop foreign key if it is no longer valid" do
-        change_column :user_id, :integer, :foreign_key => { :references => :members }
-        expect(@model).not_to reference(:users)
-      end
+        it "should drop foreign key if it is no longer valid" do
+          change_column :user_id, :integer, :foreign_key => { :references => :members }
+          expect(@model).not_to reference(:users)
+        end
 
-      it "should drop foreign key if requested to do so" do
-        change_column :user_id, :integer, :foreign_key => { :references => nil }
-        expect(@model).not_to reference(:users)
-      end
+        it "should drop foreign key if requested to do so" do
+          change_column :user_id, :integer, :foreign_key => { :references => nil }
+          expect(@model).not_to reference(:users)
+        end
 
-      it "should remove auto-created index if foreign key is removed" do
-        expect(@model).to have_index.on(:user_id)  # sanity check that index was auto-created
-        change_column :user_id, :integer, :foreign_key => { :references => nil }
-        expect(@model).not_to have_index.on(:user_id)
-      end
+        it "should remove auto-created index if foreign key is removed" do
+          expect(@model).to have_index.on(:user_id)  # sanity check that index was auto-created
+          change_column :user_id, :integer, :foreign_key => { :references => nil }
+          expect(@model).not_to have_index.on(:user_id)
+        end
 
-      it "should reference pointed table afterwards if new one is created" do
-        change_column :user_id, :integer, :foreign_key => { :references => :members }
-        expect(@model).to reference(:members)
-      end
+        it "should reference pointed table afterwards if new one is created" do
+          change_column :user_id, :integer, :foreign_key => { :references => :members }
+          expect(@model).to reference(:members)
+        end
 
-      it "should maintain foreign key if it's unaffected by change" do
-        change_column :user_id, :integer, :default => 0
-        expect(@model).to reference(:users)
-      end
-
-      it "should maintain foreign key if it's unaffected by change, even if auto_index is off" do
-        with_fk_config(:auto_create => false) do
+        it "should maintain foreign key if it's unaffected by change" do
           change_column :user_id, :integer, :default => 0
           expect(@model).to reference(:users)
         end
+
+        it "should maintain foreign key if it's unaffected by change, even if auto_index is off" do
+          with_fk_config(:auto_create => false) do
+            change_column :user_id, :integer, :default => 0
+            expect(@model).to reference(:users)
+          end
+        end
+
       end
 
-    end
+      context "if column defined without foreign key but with index" do
+        before(:each) do
+          recreate_table @model do |t|
+            t.integer :user_id, :foreign_key => false, :index => true
+          end
+        end
 
-    context "if column defined without foreign key but with index" do
-      before(:each) do
-        recreate_table @model do |t|
-          t.integer :user_id, :foreign_key => false, :index => true
+        it "should create the index" do
+          expect(@model).to have_index.on(:user_id)
+        end
+
+        it "adding foreign key should not fail due to attempt to auto-create existing index" do
+          expect { change_column :user_id, :integer, :foreign_key => true }.to_not raise_error
         end
       end
+    end
 
-      it "should create the index" do
-        expect(@model).to have_index.on(:user_id)
+    context "without foreign keys" do
+
+      it "doesn't auto-add foreign keys" do
+        recreate_table @model do |t|
+          t.integer :user_id, :foreign_key => false
+          t.string :other_column
+        end
+        with_fk_auto_create do
+          change_column :other_column, :text
+        end
+        expect(@model).to_not reference(:users)
       end
 
-      it "adding foreign key should not fail due to attempt to auto-create existing index" do
-        expect { change_column :user_id, :integer, :foreign_key => true }.to_not raise_error
-      end
     end
 
     protected
