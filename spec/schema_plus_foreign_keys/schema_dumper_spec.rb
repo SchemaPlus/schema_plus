@@ -14,7 +14,7 @@ describe "Schema dump" do
         create_table :users, :force => true do |t|
           t.string :login
           t.datetime :deleted_at
-          t.integer :first_post_id
+          t.integer :first_post_id, index: { unique: true }
         end
 
         create_table :posts, :force => true do |t|
@@ -58,6 +58,13 @@ describe "Schema dump" do
       expect(dump_posts).to match(/user_id.*foreign_key.*users.*name: "yippee"/)
     end
   end
+
+  it "should respect foreign key's primary key" do
+    with_foreign_key Post, :user_id, :users, :first_post_id do
+      expect(dump_posts).to match(%r{t.integer\s+"user_id".*foreign_key.*primary_key: "first_post_id"})
+    end
+  end
+
 
   it "should include foreign_key exactly once" do
     with_foreign_key Post, :user_id, :users, :id, :name => "yippee" do
@@ -212,7 +219,7 @@ describe "Schema dump" do
           t.column column.name, column.type
         end
         columnsets.each do |columns, referenced_table_name, referenced_columns, options|
-          t.foreign_key columns, referenced_table_name, (options||{}).merge(column: referenced_columns)
+          t.foreign_key columns, referenced_table_name, (options||{}).merge(primary_key: referenced_columns)
         end
       end
     end
