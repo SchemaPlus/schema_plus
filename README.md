@@ -35,13 +35,15 @@ See detailed documentation in each gem's README.
 [![Dependency Status](https://gemnasium.com/lomba/schema_plus.svg)](https://gemnasium.com/SchemaPlus/schema_plus)
 
 
-> ## This is the README for schema_plus 2.0.0 (prelease)
-> which is under development in the master branch, and which supports Rails >= 4.2.  For info about the stable 1.x releases which support Rails 3.1, 4.0, 4.1, and 4.2.0, see the [schema_plus 1.x](https://github.com/SchemaPlus/schema_plus/tree/1.x) branch
+> ## This is the README for schema_plus 2.0.0.pre13
+> which supports Rails >= 4.2.0.  This prerelease is completely usable. It's still officially a prerelease rather than formal release because some features have yet to be migrated into their own gems.
+>  
+> For info about the 1.x releases which support Rails 3.1, 4.0, 4.1, and 4.2.0, see the [schema_plus 1.x](https://github.com/SchemaPlus/schema_plus/tree/1.x) branch
 
 ---
 
 
-The `schema_plus` gem is a wrapper that pulls in a common collection of gems from the SchemaPlus family.   But you can feel free to mix and match to get just the gems you want.
+The `schema_plus` gem is a wrapper that pulls in a common collection of gems from the SchemaPlus family.   But you can feel free to ignore this gem and mix and match to get just the gems you want.
 
 Note: Prior to version 2.0, `schema_plus` was a single monolothic gem that implemented in itself all the features that are now included by the wrapper.
 
