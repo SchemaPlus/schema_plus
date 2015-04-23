@@ -35,7 +35,7 @@ See detailed documentation in each gem's README.
 [![Dependency Status](https://gemnasium.com/lomba/schema_plus.svg)](https://gemnasium.com/SchemaPlus/schema_plus)
 
 
-> ## This is the README for schema_plus 2.0.0.pre13
+> ## This is the README for schema_plus 2.0.0.pre14
 > which supports Rails >= 4.2.0.  This prerelease is completely usable. It's still officially a prerelease rather than formal release because some features have yet to be migrated into their own gems.
 >  
 > For info about the 1.x releases which support Rails 3.1, 4.0, 4.1, and 4.2.0, see the [schema_plus 1.x](https://github.com/SchemaPlus/schema_plus/tree/1.x) branch
