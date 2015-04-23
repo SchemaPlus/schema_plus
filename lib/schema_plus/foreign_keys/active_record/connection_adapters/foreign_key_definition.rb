@@ -82,7 +82,7 @@ module SchemaPlus::ForeignKeys
           val_or_array = -> val { val.is_a?(Array) ? "[#{val.map(&:inspect).join(', ')}]" : val.inspect }
 
           dump << ", column: #{val_or_array.call self.column}" unless column
-          dump << ", primary_key: #{val_or_array.call self.column}" if custom_primary_key?
+          dump << ", primary_key: #{val_or_array.call self.primary_key}" if custom_primary_key?
           dump << ", name: #{name.inspect}" if name
           dump << ", on_update: #{on_update.inspect}" if on_update
           dump << ", on_delete: #{on_delete.inspect}" if on_delete
