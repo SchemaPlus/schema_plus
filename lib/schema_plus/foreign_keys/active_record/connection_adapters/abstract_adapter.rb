@@ -33,6 +33,7 @@ module SchemaPlus::ForeignKeys
 
           options = options.dup
           options[:column] ||= foreign_key_column_for(to_table)
+          options[:name]   ||= ForeignKeyDefinition.default_name(from_table, options[:column])
 
           foreign_key_sql = add_foreign_key_sql(from_table, to_table, options)
           execute "ALTER TABLE #{quote_table_name(from_table)} #{foreign_key_sql}"

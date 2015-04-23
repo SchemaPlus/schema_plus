@@ -553,6 +553,12 @@ describe ActiveRecord::Migration do
       SchemaPlus::ForeignKeys.config.on_delete = nil
     end
 
+    it "should create foreign key with default name" do
+      add_column(:post_id, :integer) do
+        expect(@model).to reference(:posts, :id).with_name("fk_#{@model.table_name}_post_id")
+      end
+    end
+
     protected
     def add_column(column_name, *args)
       table = @model.table_name
