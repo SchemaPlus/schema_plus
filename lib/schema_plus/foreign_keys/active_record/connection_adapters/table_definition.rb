@@ -67,9 +67,19 @@ module SchemaPlus::ForeignKeys::ActiveRecord::ConnectionAdapters
 
     attr_accessor :schema_plus_config #:nodoc:
 
-    def foreign_keys
-      @foreign_keys ||= []
-    end if ActiveRecord.version == Gem::Version.new("4.2.0")
+    if ActiveRecord.version == Gem::Version.new("4.2.0")
+      def foreign_keys
+        @foreign_keys ||= []
+      end
+
+      def foreign_keys_for_table(*)
+        foreign_keys
+      end
+    else
+      def foreign_keys_for_table(table)
+        foreign_keys[table] ||= []
+      end
+    end
 
     def foreign_key(*args) # (column_names, to_table, primary_key=nil, options=nil)
       options = args.extract_options!
@@ -90,10 +100,7 @@ module SchemaPlus::ForeignKeys::ActiveRecord::ConnectionAdapters
       options.merge!(:column => column_names)
       options.reverse_merge!(:name => ForeignKeyDefinition.default_name(self.name, column_names))
       fk = ::ActiveRecord::ConnectionAdapters::ForeignKeyDefinition.new(self.name, AbstractAdapter.proper_table_name(to_table), options)
-      case ::ActiveRecord.version
-      when Gem::Version.new("4.2.0") then foreign_keys << fk
-      else foreign_keys[fk.to_table] = fk
-      end
+      foreign_keys_for_table(fk.to_table) << fk
       self
     end
 
