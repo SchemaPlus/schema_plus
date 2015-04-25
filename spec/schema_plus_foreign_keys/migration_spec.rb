@@ -102,6 +102,7 @@ describe ActiveRecord::Migration do
 
     it "should allow multiple foreign keys to be made" do
       recreate_table(@model) do |t|
+        t.integer :user_id, :references => :users
         t.integer :updater_id, :references => :users
       end
       expect(@model).to reference(:users, :id).on(:user_id)
