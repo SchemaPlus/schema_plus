@@ -100,6 +100,13 @@ describe ActiveRecord::Migration do
       expect(@model).to reference(:users, :id).with_name("wugga")
     end
 
+    it "should allow multiple foreign keys to be made" do
+      recreate_table(@model) do |t|
+        t.integer :updater_id, :references => :users
+      end
+      expect(@model).to reference(:users, :id).on(:updater_id)
+    end
+
     it "should suppress foreign key" do
       recreate_table(@model) do |t|
         t.integer :member_id, :foreign_key => false
