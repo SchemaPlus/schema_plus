@@ -3,6 +3,14 @@ require 'schema_plus/foreign_keys'
 require_relative 'auto_foreign_keys/middleware/migration'
 require_relative 'auto_foreign_keys/middleware/schema'
 
+module SchemaAutoForeignKeys
+  module ActiveRecord
+    module ConnectionAdapters
+      autoload :Sqlite3Adapter, 'schema_plus/auto_foreign_keys/active_record/connection_adapters/sqlite3_adapter'
+    end
+  end
+end
+
 class SchemaPlus::ForeignKeys::Config
     ##
     # :attr_accessor: auto_create

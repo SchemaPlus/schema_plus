@@ -18,17 +18,6 @@ module SchemaPlus::ForeignKeys
           rename_foreign_keys(oldname, newname)
         end
 
-        def copy_table(*args, &block)
-          fk_override = { :auto_create => false, :auto_index => false }
-          save = Hash[fk_override.keys.collect{|key| [key, SchemaPlus::ForeignKeys.config.send(key)]}]
-          begin
-            SchemaPlus::ForeignKeys.config.update_attributes(fk_override)
-            super
-          ensure
-            SchemaPlus::ForeignKeys.config.update_attributes(save)
-          end
-        end
-
         def add_foreign_key(table_name, to_table, options = {})
           raise NotImplementedError, "Sqlite3 does not support altering a table to add foreign key constraints (table #{table_name.inspect} to #{to_table.inspect})"
         end
