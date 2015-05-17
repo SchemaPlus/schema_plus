@@ -716,7 +716,7 @@ describe ActiveRecord::Migration do
   end
 
 
-  context "when table is renamed" do
+  context "when table is renamed", :sqlite3 => :skip do
 
     before(:each) do
       @model = Comment
@@ -734,7 +734,7 @@ describe ActiveRecord::Migration do
       expect(index.name).to match(/^fk__newname_/)
     end
 
-    it "should rename foreign key constraints", :sqlite3 => :skip do
+    it "should rename foreign key constraints" do
       expect(ActiveRecord::Base.connection.foreign_keys(:newname).first.name).to match(/newname/)
     end
 
