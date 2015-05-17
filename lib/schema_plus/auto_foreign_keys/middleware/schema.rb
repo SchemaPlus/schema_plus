@@ -1,4 +1,4 @@
-module SchemaPlus::ForeignKeys
+module SchemaAutoForeignKeys
   module Middleware
     module Schema
       module Define
