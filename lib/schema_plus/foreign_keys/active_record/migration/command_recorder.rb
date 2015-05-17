@@ -3,7 +3,7 @@ module SchemaPlus::ForeignKeys
     module Migration
       module CommandRecorder
 
-        attr_accessor :schema_plus_config #:nodoc:
+        attr_accessor :schema_plus_foreign_keys_config #:nodoc:
 
         # seems like this is fixing a rails bug:
         #   change_table foo, :bulk => true { |t| t.references :bar }

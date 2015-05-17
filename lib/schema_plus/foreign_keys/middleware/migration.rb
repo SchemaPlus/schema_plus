@@ -7,7 +7,7 @@ module SchemaPlus::ForeignKeys
           if (original_block = env.block)
             config_options = env.options.delete(:foreign_keys) || {}
             env.block = -> (table_definition) {
-              table_definition.schema_plus_config = SchemaPlus::ForeignKeys.config.merge(config_options)
+              table_definition.schema_plus_foreign_keys_config = SchemaPlus::ForeignKeys.config.merge(config_options)
               original_block.call table_definition
             }
           end
@@ -89,7 +89,7 @@ module SchemaPlus::ForeignKeys
             commands_length = env.caller.commands.length
           end
 
-          config = (env.caller.try(:schema_plus_config) || SchemaPlus::ForeignKeys.config)
+          config = (env.caller.try(:schema_plus_foreign_keys_config) || SchemaPlus::ForeignKeys.config)
           fk_opts = get_fk_opts(env, config)
 
           # remove existing fk and auto-generated index in case of change of fk on existing column

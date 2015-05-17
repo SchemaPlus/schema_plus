@@ -5,7 +5,7 @@ module SchemaAutoForeignKeys
       module Column
 
         def before(env)
-          config = (env.caller.try(:schema_plus_config) || SchemaPlus::ForeignKeys.config)
+          config = (env.caller.try(:schema_plus_foreign_keys_config) || SchemaPlus::ForeignKeys.config)
           set_foreign_key(env) if auto_fk?(env, config)
           set_auto_index(env) if auto_index?(env, config)
         end
