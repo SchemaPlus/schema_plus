@@ -29,6 +29,7 @@ Gem::Specification.new do |gem|
   gem.add_dependency "schema_plus_enums", "~> 0.1"
   gem.add_dependency "schema_plus_db_default", "~> 0.1"
   gem.add_dependency "schema_plus_default_expr", "~> 0.1"
+  gem.add_dependency "schema_plus_foreign_keys", "~> 0.1"
   gem.add_dependency "schema_plus_indexes", "~> 0.1", ">= 0.1.3"
   gem.add_dependency "schema_plus_pg_indexes", "~> 0.1", ">= 0.1.3"
   gem.add_dependency "schema_plus_tables", "~> 0.1"
