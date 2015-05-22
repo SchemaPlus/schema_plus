@@ -3,24 +3,33 @@
 
 # SchemaPlus family
 
-The SchemaPlus family of gems provide various extensions and enhancements to ActiveRecord.  
+The SchemaPlus family of gems provide various extensions and enhancements to ActiveRecord >= 4.2.  There are two varieties:
 
-Listed alphabetically:
+* **Gems that provide new default automatic behavior**
 
-Gem | Description | Included In `schema_plus` gem?
-----| ----------- |:------------------------------:
-[schema_associations](https://github.com/SchemaPlus/schema_associations) | Automatically defines model associations based on foreign key relations |
-<p style="color:grey">schema_auto_foreign_keys</p> | Automatically creates foreign keys on referencing columns | Y
-[schema_plus_columns](https://github.com/SchemaPlus/schema_plus_columns) | Column attributes including `column.indexes` and `column.unique?` | Y
-[schema_plus_db_default](https://github.com/SchemaPlus/schema_plus_db_default) | Use `ActiveRecord::DB_DEFAULT` to set an attribute to the database default | Y
-[schema_plus_default_expr](https://github.com/SchemaPlus/schema_plus_default_expr)  | Use SQL expressions for database default values | Y
-[schema_plus_enums](https://github.com/SchemaPlus/schema_plus_enums) | Define enum types in migrations | Y
-[schema_plus_foreign_keys](https://github.com/SchemaPlus/schema_plus_foreign_keys) | Extended support for foreign keys, including creation as column options, `:deferrable`, and SQLite3 support | Y
-[schema_plus_indexes](https://github.com/SchemaPlus/schema_plus_indexes) | Convenience and consistency in using indexes | Y
-[schema_plus_pg_indexes](https://github.com/SchemaPlus/schema_plus_pg_indexes) |PostgreSQL index features: `case_insenstive`, `expression` and `operator_class` | Y
-[schema_plus_tables](https://github.com/SchemaPlus/schema_plus_tables) | Convenience and consistency in using tables | Y
-[schema_plus_views](https://github.com/SchemaPlus/schema_plus_views) | Create and drop views in migrations | Y
-[schema_validations](https://github.com/SchemaPlus/schema_validations) | Automatically defines ActiveRecord validations based on database constraints |
+    These gems run with the spirit of DRY and convention over configuration -- and automatically take care of things for you.  Just include any of these gems and they'll get to work.
+
+    Gem | Description 
+    ----| ----------- 
+    [schema_associations](https://github.com/SchemaPlus/schema_associations) | DRY up your models!  Why manually define associations (and their inverses) in the models, when you've already defined those relations in the database?
+    [schema_auto_foreign_keys](https://github.com/SchemaPlus/schema_auto_foreign_keys) | DRY up your migrations!  It goes without saying that a foreign key relationship should have a foreign key constraint -- it should also go without typing.
+    [schema_validations](https://github.com/SchemaPlus/schema_validations) | DRY up your validations!  The database has constraints in it, your models should automatically validate based on those constraints.
+
+* **Gems that extend ActiveRecord's feature set**
+
+    These gems provide new features and capabilities to ActiveRecord that you may wish to take advantage of.  None of these have default automagic; once you include the gem the new features are available, but you need to invoke them to use them.
+
+    Gem | Description 
+    ----| ----------- 
+    [schema_plus_columns](https://github.com/SchemaPlus/schema_plus_columns) | Column attributes including `column.indexes` and `column.unique?`
+    [schema_plus_db_default](https://github.com/SchemaPlus/schema_plus_db_default) | Use `ActiveRecord::DB_DEFAULT` to set an attribute to the database default
+    [schema_plus_default_expr](https://github.com/SchemaPlus/schema_plus_default_expr)  | Use SQL expressions for database default values
+    [schema_plus_enums](https://github.com/SchemaPlus/schema_plus_enums) | Define enum types in migrations
+    [schema_plus_foreign_keys](https://github.com/SchemaPlus/schema_plus_foreign_keys) | Extended support for foreign keys, including creation as column options, `:deferrable`, and SQLite3 support
+    [schema_plus_indexes](https://github.com/SchemaPlus/schema_plus_indexes) | Convenience and consistency in using indexes
+    [schema_plus_pg_indexes](https://github.com/SchemaPlus/schema_plus_pg_indexes) |PostgreSQL index features: `case_insenstive`, `expression` and `operator_class`
+    [schema_plus_tables](https://github.com/SchemaPlus/schema_plus_tables) | Convenience and consistency in using tables
+    [schema_plus_views](https://github.com/SchemaPlus/schema_plus_views) | Create and drop views in migrations
 
 See detailed documentation in each gem's README.
 
@@ -34,21 +43,22 @@ See detailed documentation in each gem's README.
 [![Coverage Status](https://img.shields.io/coveralls/SchemaPlus/schema_plus.svg)](https://coveralls.io/r/SchemaPlus/schema_plus)
 [![Dependency Status](https://gemnasium.com/lomba/schema_plus.svg)](https://gemnasium.com/SchemaPlus/schema_plus)
 
+The `schema_plus` gem (v2.0) is a wrapper that pulls in a collection of gems from the SchemaPlus family.  For the most part we recommend skipping this gem and directly including the specific feature gems you're interested in using.
 
-> ## This is the README for schema_plus 2.0.0.pre16
-> which supports Rails >= 4.2.0.  This prerelease is completely usable. It's still officially a prerelease rather than formal release because some features have yet to be migrated into their own gems.
->  
-> For info about the 1.x releases which support Rails 3.1, 4.0, 4.1, and 4.2.0, see the [schema_plus 1.x](https://github.com/SchemaPlus/schema_plus/tree/1.x) branch
+This wrapper is mostly provided for easy upgrade for those who were using schema_plus v1.8, which was a single monolothic gem.  This wrapper pulls in the gems that provide the same set of features and automatic behavior as the previous version:
 
----
+* [schema_auto_foreign_keys](https://github.com/SchemaPlus/schema_auto_foreign_keys) 
+* [schema_plus_columns](https://github.com/SchemaPlus/schema_plus_columns)     
+* [schema_plus_db_default](https://github.com/SchemaPlus/schema_plus_db_default)
+* [schema_plus_default_expr](https://github.com/SchemaPlus/schema_plus_default_expr)
+* [schema_plus_enums](https://github.com/SchemaPlus/schema_plus_enums) 
+* [schema_plus_foreign_keys](https://github.com/SchemaPlus/schema_plus_foreign_keys)
+* [schema_plus_indexes](https://github.com/SchemaPlus/schema_plus_indexes)
+* [schema_plus_pg_indexes](https://github.com/SchemaPlus/schema_plus_pg_indexes)
+* [schema_plus_tables](https://github.com/SchemaPlus/schema_plus_tables)
+* [schema_plus_views](https://github.com/SchemaPlus/schema_plus_views)
 
-
-The `schema_plus` gem is a wrapper that pulls in a common collection of gems from the SchemaPlus family.   But you can feel free to ignore this gem and mix and match to get just the gems you want.
-
-Note: Prior to version 2.0, `schema_plus` was a single monolothic gem that implemented in itself all the features that are now included by the wrapper.
-
-
-> **IN PROGRESS:** In the prerelease versions of SchemaPlus 2.0, some features have yet to be migrated out to their own gems, and their code is still in the body of schema_plus.  Those gems are greyed out in the list above.  The documentation for their features is at the end of this README.
+Note that the earlier version (1.x) supports earlier versions of ActiveRecord: 3.1, 4.0, 4.1, and 4.2.0.  For more info about that version, see the [schema_plus 1.x](https://github.com/SchemaPlus/schema_plus/tree/1.x) branch README.
 
 
 ### Upgrading from `schema_plus` 1.8.x
@@ -114,31 +124,4 @@ or in a Gemfile
 
 *   And [lots of contributors](https://github.com/SchemaPlus/schema_plus/graphs/contributors) since then.
 
----
----
-
-# Prerelease:  Documentation of features still be moved into separate feature gems
-
-
-### Auto Foreign Key Constraints
-
-SchemaPlus adds support for the common convention that you name a column
-with suffix `_id` to indicate that it's a foreign key, SchemaPlus
-automatically defines the appropriate constraint.
-
-SchemaPlus also creates foreign key constraints for rails' `t.references` or
-`t.belongs_to`, which take the singular of the referenced table name and
-implicitly create the column suffixed with `_id`.
-
-You can explicitly specify whether or not to generate a foreign key
-constraint, and specify or override automatic options, using the
-`:foreign_key` keyword
-
-Here are some examples:
-
-    t.integer :author_id                              # automatically references table 'authors', key id
-    t.integer :parent_id                              # special name parent_id automatically references its own table (for tree nodes)
-    t.integer :author_id, foreign_key: true           # same as default automatic behavior
-    t.integer :author,    foreign_key: true           # non-conventional column name needs to force creation, table name is assumed to be 'authors'
-    t.integer :author_id, foreign_key: false          # don't create a constraint
-
+*   In 2015, the monolithic schema_plus gem was split into the SchemaPlus family of specific feature gems.
