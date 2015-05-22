@@ -10,8 +10,8 @@ Gem::Specification.new do |gem|
   gem.authors     = ["Ronen Barzel", "Michal Lomnicki"]
   gem.email       = ["ronen@barzel.org", "michal.lomnicki@gmail.com"]
   gem.homepage    = "https://github.com/SchemaPlus/schema_plus"
-  gem.summary     = "Enhances ActiveRecord schema mechanism, including more DRY index creation and support for foreign key constraints and views."
-  gem.description = "SchemaPlus is an ActiveRecord extension that provides enhanced capabilities for schema definition and querying, including: enhanced and more DRY index capabilities, support and automation for foreign key constraints, and support for views."
+  gem.summary     = "Wrapper that pulls in many gems from the SchemaPlus family of ActiveRecord extensions"
+  gem.description = "SchemaPlus is a gem that simply pulls in a collection of other gems from the SchemaPlus family of ActiveRecord extensions"
   gem.license = 'MIT'
 
   gem.rubyforge_project = "schema_plus"
@@ -22,7 +22,7 @@ Gem::Specification.new do |gem|
   gem.require_paths = ["lib"]
 
   gem.add_dependency "activerecord", "~> 4.2"
-  gem.add_dependency "valuable"
+  gem.add_dependency "schema_auto_foreign_keys", "~> 0.1"
   gem.add_dependency "schema_plus_core", "~> 0.4"
   gem.add_dependency "schema_monkey", "~> 2.1"
   gem.add_dependency "schema_plus_columns", "~> 0.1"
