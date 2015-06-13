@@ -27,7 +27,7 @@ The SchemaPlus family of gems provide various extensions and enhancements to Act
     [schema_plus_enums](https://github.com/SchemaPlus/schema_plus_enums) | Define enum types in migrations
     [schema_plus_foreign_keys](https://github.com/SchemaPlus/schema_plus_foreign_keys) | Extended support for foreign keys, including creation as column options, `:deferrable`, and SQLite3 support
     [schema_plus_indexes](https://github.com/SchemaPlus/schema_plus_indexes) | Convenience and consistency in using indexes
-    [schema_plus_pg_indexes](https://github.com/SchemaPlus/schema_plus_pg_indexes) |PostgreSQL index features: `case_insenstive`, `expression` and `operator_class`
+    [schema_plus_pg_indexes](https://github.com/SchemaPlus/schema_plus_pg_indexes) |PostgreSQL index features: `case_insensitive`, `expression` and `operator_class`
     [schema_plus_tables](https://github.com/SchemaPlus/schema_plus_tables) | Convenience and consistency in using tables
     [schema_plus_views](https://github.com/SchemaPlus/schema_plus_views) | Create and drop views in migrations
 
