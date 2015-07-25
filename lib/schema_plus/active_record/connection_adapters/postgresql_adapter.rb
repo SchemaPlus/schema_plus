@@ -65,6 +65,17 @@ module SchemaPlus
       # The Postgresql adapter implements the SchemaPlus extensions and
       # enhancements
       module PostgresqlAdapter
+        def self.arjdbc_patch_version_greater_12?
+          defined?(ArJdbc::VERSION) && ArJdbc::VERSION.match(/1.3.(\d*)/)[1].to_i > 12
+        end
+        private_class_method :arjdbc_patch_version_greater_12?
+
+        if arjdbc_patch_version_greater_12?
+          module ::ActiveRecord::ConnectionAdapters
+            remove_const(:PostgreSQLColumn) if const_defined?(:PostgreSQLColumn)
+            class PostgreSQLColumn < JdbcColumn; end
+          end
+        end
 
         def self.included(base) #:nodoc:
           base.class_eval do
@@ -75,6 +86,7 @@ module SchemaPlus
             alias_method_chain :exec_cache, :schema_plus unless defined?(JRUBY_VERSION)
           end
           ::ActiveRecord::ConnectionAdapters::PostgreSQLColumn.send(:include, PostgreSQLColumn) unless ::ActiveRecord::ConnectionAdapters::PostgreSQLColumn.include?(PostgreSQLColumn)
+          ::ActiveRecord::ConnectionAdapters::PostgreSQLColumn.send(:include, ::ArJdbc::PostgreSQL::Column) if arjdbc_patch_version_greater_12?
         end
 
         # SchemaPlus provides the following extra options for PostgreSQL
