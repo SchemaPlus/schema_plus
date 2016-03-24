@@ -23,7 +23,7 @@ Gem::Specification.new do |gem|
 
   gem.add_dependency "activerecord", "~> 4.2"
   gem.add_dependency "schema_auto_foreign_keys", "~> 0.1"
-  gem.add_dependency "schema_plus_core", "~> 0.4"
+  gem.add_dependency "schema_plus_core", "~> 1.0"
   gem.add_dependency "schema_monkey", "~> 2.1"
   gem.add_dependency "schema_plus_columns", "~> 0.1"
   gem.add_dependency "schema_plus_enums", "~> 0.1"
@@ -35,7 +35,7 @@ Gem::Specification.new do |gem|
   gem.add_dependency "schema_plus_tables", "~> 0.1"
   gem.add_dependency "schema_plus_views", "~> 0.1"
 
-  gem.add_development_dependency "schema_dev", "~> 3.4"
+  gem.add_development_dependency "schema_dev", "~> 3.6"
   gem.add_development_dependency "rake"
   gem.add_development_dependency "rspec", "~> 3.0"
   gem.add_development_dependency "rdoc"
