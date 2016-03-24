@@ -2,6 +2,15 @@
 
 ## Change Log
 
+## 2.0.1
+
+* Upgrade schema_dev_core dependency to 1.0
+
+## 2.0.0
+
+* Break up monolothic gem into a family of individual gems.  This gem is
+  now just a wrapper.
+
 ## 1.8.1
 
 * Bug fix for AR 4.2, spurious add_foreign_key statements at the top of schema dump.  Thanks to [@tovodeverett](https://github.com/tovodeverett) for doing better testing than me!
