@@ -1,5 +1,6 @@
+# Notice (2022-05-13)
 
-
+This wrapper gem is no longer being updated. Please use the individual gems for the functionality you need.
 
 # SchemaPlus family
 
